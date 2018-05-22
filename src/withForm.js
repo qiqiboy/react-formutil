@@ -4,7 +4,7 @@ import * as utils from './utils';
 
 function withForm(Form) {
     return class extends Component {
-        static displayName = 'WithForm.' + Form.name;
+        static displayName = 'React.formutil.withForm.' + Form.name;
 
         static childContextTypes = {
             $$register: PropTypes.func,
@@ -95,7 +95,7 @@ function withForm(Form) {
             const $dirty = $stateTree.some(({ $state }) => $state.$dirty);
             const $touched = $stateTree.some(({ $state }) => $state.$touched);
 
-            const easyform = {
+            const $formutil = {
                 $state: $stateTree.reduce(
                     ($formState, { path, $state }) => utils.parsePath($formState, path, $state),
                     {}
@@ -146,7 +146,7 @@ function withForm(Form) {
                 $untouched: !$touched
             };
 
-            return <Form {...this.props} easyform={easyform} />;
+            return <Form {...this.props} $formutil={$formutil} />;
         }
     };
 }

@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 
 class Field extends Component {
@@ -58,7 +58,7 @@ class Field extends Component {
 
         if ($validators) {
             const $error = Object.keys($validators).reduce(($error, key) => {
-                if ($validators[key]($value, this.props[key])) {
+                if (!(key in this.props) || $validators[key]($value, this.props[key])) {
                     delete $error[key];
                 } else {
                     $error[key] = true;
@@ -115,12 +115,6 @@ class Field extends Component {
 
     render() {
         const { children } = this.props;
-
-        if (typeof children !== 'function') {
-            console.warn('The children of Field must be a function!');
-            return null;
-        }
-
         const childProps = {
             ...this.$state,
 
@@ -131,7 +125,12 @@ class Field extends Component {
             $setState: this.$setState
         };
 
-        return children(childProps);
+        if (typeof children === 'function') {
+            return children(childProps);
+        }
+
+        const child = Children.only(children);
+        return cloneElement(child, childProps);
     }
 }
 

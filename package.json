@@ -1,0 +1,33 @@
+{
+  "name": "react-formutil",
+  "version": "0.0.1",
+  "description": "a controlled React component for make it easy to create the form.",
+  "main": "lib/index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "BABEL_ENV=production ./node_modules/.bin/babel src --out-dir lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qiqiboy/react-formutil.git"
+  },
+  "keywords": ["react", "react-components", "react-form"],
+  "author": "qiqiboy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qiqiboy/react-formutil/issues"
+  },
+  "babel": {
+    "presets": ["react-app"],
+    "plugins": ["transform-decorators-legacy"]
+  },
+  "homepage": "https://github.com/qiqiboy/react-formutil#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react-app": "^3.1.1"
+  }
+}

@@ -128,7 +128,7 @@ class Field extends Component {
                         );
                     }
 
-                    this.$setValidity(key, !!promise);
+                    this.$setValidity(key, promise);
 
                     return promises;
                 }, []);
@@ -171,12 +171,14 @@ class Field extends Component {
         });
 
     $setValidity = (key, valid) => {
-        const $error = this.$state.$error;
+        const { $error } = this.$state;
+
         if (valid === true) {
             delete $error[key];
         } else {
             $error[key] = valid;
         }
+
         const $valid = Object.keys($error).length === 0;
 
         return this.$setState({

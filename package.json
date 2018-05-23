@@ -1,7 +1,7 @@
 {
   "name": "react-formutil",
-  "version": "0.0.2",
-  "description": "a controlled React component for make it easy to create the form.",
+  "version": "0.0.3",
+  "description": "a controlled React component to make it easy for create the form.",
   "main": "lib/index.js",
   "directories": {
     "doc": "docs"
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/qiqiboy/react-formutil.git"
   },
-  "keywords": ["react", "react-components", "react-form"],
+  "keywords": ["react", "react-components", "react-form", "react-formutil"],
   "author": "qiqiboy",
   "license": "ISC",
   "bugs": {

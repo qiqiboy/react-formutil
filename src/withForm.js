@@ -61,7 +61,7 @@ function withForm(Form) {
                 this.$$updateFieldState(name, $newState);
             } else {
                 Object.keys(name).forEach(key => {
-                    this.$$updateFieldState(name, name[key]);
+                    this.$$updateFieldState(key, name[key]);
                 });
             }
 

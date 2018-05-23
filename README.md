@@ -18,73 +18,7 @@ yarn add react-formutil
 
 先看一个简单的示例：
 
-```javascript
-import React from 'react';
-import { Field, withForm } from 'react-formutil';
-
-class MyForm extends React.Component {
-    onSubmit = () => {
-        const { $params } = this.props.$formutil;
-        // $params = { username, password }
-
-        // 拿到了表单参数，可以继续使用该参数进行数据提交操作
-    };
-
-    render() {
-        return (
-            <form className="my-form" onSubmit={this.onSubmit}>
-                {/* Field是一个组件，它接受一个子组件，并将表单状态渲染到该组件上。
-                    并且很重要的是，子组件必须是一个受控组件，即表单控件的值应该总是由Field传递下来的状态渲染(props.$value)。
-                    同时，需要绑定表单项变动时同步更新状态(props.onChange)。
-                    需要特别注意的是，这里的 onChange 参数并不是event对象，而是新值
-                  */}
-                <Field name="username">
-                    {props => (
-                        <div className="form-group">
-                            <label>姓名</label>
-                            <input
-                                type="text"
-                                onChange={ev => props.onChange(ev.target.value.trim())}
-                                value={props.$value}
-                            />
-                        </div>
-                    )}
-                </Field>
-                <Field name="password">
-                    {props => (
-                        <div className="form-group">
-                            <label>密码</label>
-                            <input
-                                type="password"
-                                onChange={ev => props.onChange(ev.target.value.trim())}
-                                value={props.$value}
-                            />
-                        </div>
-                    )}
-                </Field>
-                <Field name="password" defaultValue={true}>
-                    {props => (
-                        <div className="form-group">
-                            <input
-                                type="checkbox"
-                                onChange={ev => props.onChange(ev.target.$checked)}
-                                checked={props.$value}
-                            />
-                            <label htmlFor="autologin">自动登录</label>
-                        </div>
-                    )}
-                </Field>
-
-                <button type="submit">登录</button>
-            </form>
-        );
-    }
-}
-
-//withForm是个高阶组件，这里我们需要通过它包装下我们的MyForm组件
-//然后就可以访问react-formutil提供的表单状态
-export default withForm(MyForm);
-```
+[react-formutil Demo](http://github.boy.im/react-formutil/demo/)
 
 上面的示例简单展示了 react-formutil 的基本用法。当然这只是很简单的示例，更复杂的状态渲染，例如$dirty、表单验证等后面会具体讲到。这里想简单说下 react-formutil 的设计思路：
 
@@ -130,41 +64,35 @@ defaultValue 可以是任意类型值。
 
 #### props.$validators
 
-该属性可以设置表单控件的校验方式，它是 key: value 的对象形式，key 为校验类型标识，value 为校验函数，该函数返回值为 true、false、promise 对象。如果返回 promise 对象，则表示该校验为异步校验。
+该属性可以设置表单控件的校验方式，它是 key: value 的对象形式，key 为校验类型标识，value 为校验函数。仅当校验函数返回 true 时，表示该项校验通过，否则其他值将会被当作错误信息保存到状态中。
+
+仅仅设置了`$validators`，并不会触发校验，还需要设置匹配`$validators`中每一项的属性标识符，该属性的值会作为第二个参数传递给校验函数。
 
 ```javascript
-const errorMsg = {
-    required: '必填',
-    maxLength: '最长5个字符',
-    disabledChar: '禁止输入9这个字符'
-};
-
-// ...
-
 <Field
     required
     maxLength="5"
-    disableChar="9"
+    disableChar="z"
     $validators={{
-        required: value => !!value,
-        maxLength: (value, len) => value.length <= parseInt(len),
-        disableChar: (value, char) => value.indexOf(char) === -1
+        required: value => !!value || '该项必填',
+        maxLength: (value, len) => value.length <= parseInt(len) || '最少长度：' + len,
+        disableChar: (value, char) => value.indexOf(char) === -1 || '禁止输入字符：' + char
     }}>
     {props => (
         <div className="form-group">
             <label>密码</label>
             <input type="number" onChange={ev => props.onChange(ev.target.value.trim())} value={props.$value} />
-            {props.$invalid && <div className="error">{errorMsg[object.keys(props.$error)[0]]}</div>}
+            {props.$invalid && <div className="error">{object.values(props.$error)[0]}</div>}
         </div>
     )}
-</Field>;
+</Field>
 ```
 
 在这个例子中，我们通过$validators 设置了 required 、 maxLength 以及 disabledChar 的校验规则。同时通过属性 props 表示了需要校验这三个字段。然后我们可以通过状态判断将错误信息展示出来。
 
 #### Field 的状态对象
 
-```json
+```js
 {
     $value: "", //表单值
     $dirty: false, //是否修改过表单项
@@ -175,7 +103,7 @@ const errorMsg = {
     $invalid: false, //与$valid相反
     $error: {}, //表单校验错误信息
 
-    onChange: value => {}, //更新表单值
+    $render: value => {}, //更新表单值
     $setDirty: $dirty => {}, //设置$dirty
     $setTouched: $touched => {},设置$touched
     $setState: $newState => {} //直接更新状态
@@ -203,8 +131,45 @@ class FieldCustom extends React.Component {
 
 export default withField(FieldCustom);
 ```
-###  withForm
-withForm同样是高阶组件，它可以增强被调用组件，收集子dom树中的Field组件状态，并传递给被调用组件。
 
-可以参考前面的例子。
+### withForm
 
+withForm 同样是高阶组件，它可以增强被调用组件，收集子 dom 树中的 Field 组件状态，并传递给被调用组件。
+
+经过 withForm 增强的组件，会在其 props 中接收到一个`$formutil`对象：
+
+#### $formutil.$state
+
+#### $formutil.$weakState
+
+所有表单项的状态集合。$formutil$state 是以 Field 的 name 值经过路径解析后的对象，$formutil$weakState 是以 Field 的 name 字符串当 key 的对象。
+
+#### $formutil.$params
+
+#### $formutil.$weakParams
+
+所有表单项的 值$value 集合。$formutil$params 是以 Field 的 name 值经过路径解析后的对象，$formutil$weakParams 是以 Field 的 name 字符串当 key 的对象。
+
+#### $formutil.$error
+
+#### $formutil.$weakError
+
+所有表单项的 $error 集合。$formutil$error 是以 Field 的 name 值经过路径解析后的对象，$formutil.$weakError 是以 Field 的 name 字符串当 key 的对象。
+
+#### $formutil.$valid
+
+#### $formutil.$invalid
+
+表单项中所有 Field 的$valid 均为 true 时，$formutil.$valid 为 true, $formutil.$invalid 为 false。表单项中有任意 Field 的$valid 均为 false 时，$formutil.$valid 为 false, $formutil.$invalid 为 True。
+
+#### $formutil.$dirty
+
+#### $formutil.$pristine
+
+表单项中所有 Field 的$dirty 均为 false 时，$formutil.$dirty 为 false, $formutil.$pristine 为 true。表单项中有任意 Field 的$dirty 均为 true 时，$formutil.$dirty 为 true, $formutil.$pristine 为 false。
+
+#### $formutil.$touched
+
+#### $formutil.$untouched
+
+表单项中所有 Field 的$touched 均为 false 时，$formutil.$touched 为 false, $formutil.$untouched 为 true。表单项中有任意 Field 的$touched 均为 true 时，$formutil.$touched 为 true, $formutil.$untouched 为 false。

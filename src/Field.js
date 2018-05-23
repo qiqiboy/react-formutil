@@ -87,10 +87,16 @@ class Field extends Component {
 
         if ($validators) {
             Object.keys($validators).forEach(key => {
-                if (!(key in this.props) || $validators[key]($value, this.props[key])) {
-                    delete $error[key];
+                if (key in this.props) {
+                    const $valid = $validators[key]($value, this.props[key]);
+
+                    if ($valid === true) {
+                        delete $error[key];
+                    } else {
+                        $error[key] = $valid;
+                    }
                 } else {
-                    $error[key] = true;
+                    delete $error[key];
                 }
             });
 
@@ -115,11 +121,11 @@ class Field extends Component {
                 .filter(key => key in this.props)
                 .reduce((promises, key) => {
                     const promise = $asyncValidators[key]($value, this.props[key]);
-                    const setValidity = $valid => reason =>
-                        $value === this.$state.$value && this.$setValidity(key, $valid) && reason;
 
                     if (promise && typeof promise.then === 'function') {
-                        return promises.concat(promise.then(setValidity(true), setValidity(promise)));
+                        return promises.concat(
+                            promise.then(() => this.$setValidity(key, true), reason => this.$setValidity(key, reason))
+                        );
                     }
 
                     this.$setValidity(key, !!promise);
@@ -169,7 +175,7 @@ class Field extends Component {
         if (valid === true) {
             delete $error[key];
         } else {
-            $error[key] = valid || true;
+            $error[key] = valid;
         }
         const $valid = Object.keys($error).length === 0;
 

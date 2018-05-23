@@ -26,12 +26,27 @@ class LoginForm extends Component {
 
     pwdRemeberDays = [['1day', '一天'], ['3day', '三天'], ['1week', '一周'], ['1month', '一月']];
 
+    targets = [
+        {
+            id: 'a',
+            name: '选项一'
+        },
+        {
+            id: 'b',
+            name: '选项二'
+        },
+        {
+            id: 'c',
+            name: '选项三'
+        }
+    ];
+
     render() {
         const { $params } = this.props.$formutil;
 
         return (
             <form className="login-form col-lg-offset-3 col-lg-6" onSubmit={this.submit}>
-                <h4>立即登录</h4>
+                <h4>用户登录</h4>
                 <Field name="username" required $validators={this.$validators}>
                     {props => (
                         <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
@@ -55,7 +70,7 @@ class LoginForm extends Component {
                         </div>
                     )}
                 </Field>
-                <Field name="password" minLength required $validators={this.$validators}>
+                <Field name="password" minLength="5" required $validators={this.$validators}>
                     {props => (
                         <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                             <label className="control-label" htmlFor="exampleInputPassword1">
@@ -69,6 +84,45 @@ class LoginForm extends Component {
                                 value={props.$value}
                                 onChange={ev => props.$render(ev.target.value.trim())}
                             />
+                            {props.$dirty &&
+                                props.$invalid && (
+                                    <span className="help-block">
+                                        {this.validMessage[Object.keys(props.$error)[0]]}
+                                    </span>
+                                )}
+                        </div>
+                    )}
+                </Field>
+                <Field
+                    name="mutiple"
+                    required
+                    $validators={{
+                        required: value => value.length > 0
+                    }}
+                    defaultValue={[this.targets[0].id]}>
+                    {props => (
+                        <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
+                            <label className="control-label" htmlFor="exampleInputPassword1">
+                                多选示例
+                            </label>
+                            <div>
+                                {this.targets.map(item => (
+                                    <label class="checkbox-inline">
+                                        <input
+                                            type="checkbox"
+                                            onChange={ev =>
+                                                props.$render(
+                                                    ev.target.checked
+                                                        ? props.$value.concat(item.id)
+                                                        : props.$value.filter(id => id !== item.id)
+                                                )
+                                            }
+                                            checked={props.$value.includes(item.id)}
+                                        />{' '}
+                                        {item.name}
+                                    </label>
+                                ))}
+                            </div>
                             {props.$dirty &&
                                 props.$invalid && (
                                     <span className="help-block">

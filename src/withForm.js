@@ -4,7 +4,7 @@ import * as utils from './utils';
 
 function withForm(Form) {
     return class extends Component {
-        static displayName = 'WithForm.' + Form.name;
+        static displayName = 'React.formutil.withForm.' + Form.name;
 
         static childContextTypes = {
             $$register: PropTypes.func,
@@ -22,8 +22,18 @@ function withForm(Form) {
             };
         }
 
-        $$register = (name, picker) => {
-            this.$$registers[name] = picker;
+        /**
+         * @desc 注册或者替换(preName)Field
+         */
+        $$register = (name, handler, preName) => {
+            if (preName) {
+                delete this.$$registers[preName];
+            }
+
+            this.$$registers[name] = handler;
+
+            handler.validate();
+
             this.forceUpdate();
         };
 
@@ -34,40 +44,87 @@ function withForm(Form) {
 
         $$onChange = name => this.$setState(name);
 
-        $setState = (name, $newState = {}) => {
-            if (typeof name !== 'string') {
-                console.warn(
-                    `The argument 'name' of $setState need to be a string! You may want to use '$batchState'.`
-                );
-            } else {
-                Object.assign(this.$$registers[name](), $newState);
+        $$updateFieldState(name, $newState) {
+            if (name in this.$$registers) {
+                Object.assign(this.$$registers[name].picker(), $newState);
 
-                this.forceUpdate();
+                if ('$value' in $newState) {
+                    this.$$registers[name].validate();
+                }
+            } else {
+                console.warn(`react-formutil: The Field: '${name}' is not existed!`);
             }
+        }
+
+        $setState = (name, $newState = {}) => {
+            if (typeof name === 'string') {
+                this.$$updateFieldState(name, $newState);
+            } else {
+                Object.keys(name).forEach(key => {
+                    this.$$updateFieldState(name, name[key]);
+                });
+            }
+
+            this.forceUpdate();
         };
 
-        $setValue = (name, $value) =>
-            this.$setState(name, {
-                $value
-            });
+        $setValue = (name, $value) => {
+            if (typeof name === 'string') {
+                this.$$updateFieldState(name, {
+                    $value
+                });
+            } else {
+                Object.keys(name).forEach(key => {
+                    this.$$updateFieldState(key, {
+                        $value: name[key]
+                    });
+                });
+            }
 
-        $setDirty = (name, $dirty) =>
-            this.$setState(name, {
-                $dirty,
-                $pristine: !$dirty
-            });
+            this.forceUpdate();
+        };
 
-        $setTouched = (name, $touched) =>
-            this.$setState(name, {
-                $touched,
-                $untouched: !$touched
-            });
+        $setDirty = (name, $dirty) => {
+            if (typeof name === 'string') {
+                this.$$updateFieldState(name, {
+                    $dirty,
+                    $pristine: !$dirty
+                });
+            } else {
+                Object.keys(name).forEach(key => {
+                    this.$$updateFieldState(key, {
+                        $dirty: name[key],
+                        $pristine: !name[key]
+                    });
+                });
+            }
+
+            this.forceUpdate();
+        };
+
+        $setTouched = (name, $touched) => {
+            if (typeof name === 'string') {
+                this.$$updateFieldState(name, {
+                    $touched,
+                    $untouched: !$touched
+                });
+            } else {
+                Object.keys(name).forEach(key => {
+                    this.$$updateFieldState(key, {
+                        $touched: name[key],
+                        $untouched: !name[key]
+                    });
+                });
+            }
+
+            this.forceUpdate();
+        };
 
         $batchState = ($newState = {}) => {
             if (typeof $newState !== 'object') {
-                console.warn(`$batchState need a Object as the obnly argument!`);
+                console.warn(`$batchState need a Object as the only argument!`);
             } else {
-                Object.keys(this.$$registers).forEach(path => Object.assign(this.$$registers[path](), $newState));
+                Object.keys(this.$$registers).forEach(name => this.$$updateFieldState(name, $newState));
 
                 this.forceUpdate();
             }
@@ -88,14 +145,15 @@ function withForm(Form) {
         render() {
             const $stateTree = Object.keys(this.$$registers).map(path => ({
                 path,
-                $state: this.$$registers[path]()
+                $state: this.$$registers[path].picker()
             }));
 
             const $valid = $stateTree.every(({ $state }) => $state.$valid);
             const $dirty = $stateTree.some(({ $state }) => $state.$dirty);
             const $touched = $stateTree.some(({ $state }) => $state.$touched);
+            const $pending = $stateTree.some(({ $state }) => $state.$pending);
 
-            const easyform = {
+            const $formutil = {
                 $state: $stateTree.reduce(
                     ($formState, { path, $state }) => utils.parsePath($formState, path, $state),
                     {}
@@ -143,10 +201,11 @@ function withForm(Form) {
                 $dirty,
                 $pristine: !$dirty,
                 $touched,
-                $untouched: !$touched
+                $untouched: !$touched,
+                $pending
             };
 
-            return <Form {...this.props} easyform={easyform} />;
+            return <Form {...this.props} $formutil={$formutil} />;
         }
     };
 }

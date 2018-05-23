@@ -1,0 +1,19 @@
+{
+  "libs": [
+    "browser",
+    "jquery",
+    "ecma5",
+    "ecma6",
+    "underscore",
+    "angular"
+  ],
+  "plugins": {
+    "angular": {},
+    "node": {},
+    "es_modules": {},
+    "commonjs": {},
+    "webpack": {
+      "configPath": "./.tern-webpack-config.js"
+    }
+  }
+}

@@ -23,7 +23,17 @@
     "presets": ["react-app"],
     "plugins": ["transform-decorators-legacy"]
   },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
   "homepage": "https://github.com/qiqiboy/react-formutil#readme",
+  "peerDependencies": {
+    "react": ">15.0.0",
+    "react-dom": ">15.0.0",
+    "prop-types": ">15.0.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",

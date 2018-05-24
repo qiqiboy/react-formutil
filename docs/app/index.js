@@ -8,7 +8,7 @@ render(
         <div className="container">
             <h2 className="title">react-formutil </h2>
             <p className="lead">
-                这个例子将展示如何使用bootstep和react-formutil快速制作一个登表单页面。<a
+                这个例子将展示如何使用bootstrap和react-formutil快速制作一个登表单页面。<a
                     className="small"
                     href="#source-code">
                     查看源代码

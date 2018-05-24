@@ -7,21 +7,40 @@ class LoginForm extends Component {
 
         const { $invalid, $batchDirty } = this.props.$formutil;
 
+        //如果表单有错误，我们可以将所有表单项设置为$dirty，以将所有错误显示出来
         if ($invalid) {
+            //通过$batchDirty设置所有表单项
             $batchDirty(true);
         } else {
             alert('表单填写正确，可以登录');
         }
     };
 
+    autoInput = () => {
+        //可以通过$setValue来更改表单的值
+        this.props.$formutil.$setValue({
+            username: 'qiqiboy',
+            password: '123456',confirm_password: '123456',
+            mutiple: [ 'b', 'c' ],
+            autologin: false
+        }, () => {
+            //我们需要更新后重新校验密码字段，因为这两个字段校验一致性是互相依赖的
+            this.props.$formutil.$getField('password').validate();
+            this.props.$formutil.$getField('confirm_password').validate();
+        });
+    }
+
+    //定义校验规则
     $validators = {
         required: value => (value ? true : '该项必填'),
         minLength: (value, len) => value.length >= parseInt(len) || `最少输入字符长度：${len}`,
-        isSame: (value, name) => value === this.props.$formutil.$params[name] || '两次输入不一致'
+        isSame: (value, name) => value === (this.props.$formutil.$params[name] || '') || '两次输入不一致'
     };
 
+    //密码记住时间的配置项
     pwdRemeberDays = [['1day', '一天'], ['3day', '三天'], ['1week', '一周'], ['1month', '一月']];
 
+    //多选项的候选配置
     targets = [
         {
             id: 'a',
@@ -38,6 +57,7 @@ class LoginForm extends Component {
     ];
 
     render() {
+        //可以从$formutil中拿到$params $error $invalid等状态
         const { $params } = this.props.$formutil;
 
         return (
@@ -64,7 +84,12 @@ class LoginForm extends Component {
                             </div>
                         )}
                     </Field>
-                    <Field name="password" minLength="5" required isSame="confirm_password" $validators={this.$validators}>
+                    <Field
+                        name="password"
+                        minLength="5"
+                        required
+                        isSame="confirm_password"
+                        $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                 <label className="control-label" htmlFor="exampleInputPassword1">
@@ -75,7 +100,11 @@ class LoginForm extends Component {
                                     className="form-control"
                                     placeholder="Password"
                                     value={props.$value}
-                                    onChange={ev => props.$render(ev.target.value.trim(), () => this.props.$formutil.$getField('confirm_password').validate())}
+                                    onChange={ev =>
+                                        props.$render(ev.target.value.trim(), () =>
+                                            this.props.$formutil.$getField('confirm_password').validate()
+                                        )
+                                    }
                                 />
                                 {props.$dirty &&
                                     props.$invalid && (
@@ -84,7 +113,12 @@ class LoginForm extends Component {
                             </div>
                         )}
                     </Field>
-                    <Field name="confirm_password" minLength="5" required isSame="password" $validators={this.$validators}>
+                    <Field
+                        name="confirm_password"
+                        minLength="5"
+                        required
+                        isSame="password"
+                        $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                 <label className="control-label" htmlFor="exampleInputPassword1">
@@ -95,7 +129,11 @@ class LoginForm extends Component {
                                     className="form-control"
                                     placeholder="Confirm password"
                                     value={props.$value}
-                                    onChange={ev => props.$render(ev.target.value.trim(), () => this.props.$formutil.$getField('password').validate())}
+                                    onChange={ev =>/* 这里同样，需要更新组件后再次去校验依赖该表单项字段的项目 */
+                                        props.$render(ev.target.value.trim(), () =>
+                                            this.props.$formutil.$getField('password').validate()
+                                        )
+                                    }
                                 />
                                 {props.$dirty &&
                                     props.$invalid && (
@@ -179,6 +217,7 @@ class LoginForm extends Component {
                         </Field>
                     )}
                     <button className="btn btn-block btn-primary">登 录</button>
+                    <button className="btn btn-block btn-danger" type="button" onClick={this.autoInput}>自动填充</button>
                 </div>
 
                 <div className="col-lg-3">

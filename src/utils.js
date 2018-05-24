@@ -49,8 +49,16 @@ export const parsePath = (target, path, value) => {
             }
         });
     } catch (error) {
-        console.warn(`It seems '${path}' is not a legal expression.`);
+        console.warn(`react-formutil: It seems '${path}' is not a legal expression.`);
     }
 
     return target;
 };
+
+export const objectMap = (obj, handler) =>
+    Object.keys(obj).reduce((newObj, key) => {
+        newObj[key] = handler(obj[key], key, obj);
+        return newObj;
+    }, {});
+
+export const objectEach = (obj, handler) => Object.keys(obj).forEach(key => handler(obj[key], key, obj));

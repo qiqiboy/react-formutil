@@ -45,10 +45,24 @@ class Field extends Component {
             ...props.$defaultState
         };
 
+        this.$name = props.name;
+
         if (context.$$register) {
-            context.$$register(props.name, this.handler());
+            context.$$register(
+                props.name,
+                (this.$handler = {
+                    picker: () => this.$state,
+                    validate: () => {
+                        this.$syncValidate();
+                        this.$asyncValidate();
+                    },
+                    merge: $newState => Object.assign(this.$state, $newState)
+                })
+            );
         } else {
-            console.warn(`react-formutil: The Field must be nesting inside the component that enhanced by the withForm(a High Order Component provided by react-formutil). `)
+            console.warn(
+                `react-formutil: The Field must be nesting inside the component that enhanced by the withForm(a High Order Component provided by react-formutil). `
+            );
         }
     }
 
@@ -58,25 +72,10 @@ class Field extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.name !== this.props.name) {
-            this.context.$$register(nextProps.name, this.handler(), this.props.name);
+            this.$name = nextProps.name;
+            this.context.$$register(nextProps.name, this.$handler, this.props.name);
         }
     }
-
-    handler = () => ({
-        picker: () => this.$state,
-        validate: () => {
-            this.$syncValidate();
-            this.$asyncValidate();
-        }
-    });
-
-    $render = value => {
-        this.$setState({
-            $value: value,
-            $dirty: true,
-            $pristine: false
-        });
-    };
 
     $syncValidate = () => {
         const { $validators, $asyncValidators } = this.props;
@@ -108,14 +107,12 @@ class Field extends Component {
 
             const $valid = Object.keys($error).length === 0;
 
-            return Object.assign(this.$state, {
+            return this.$setState({
                 $error,
                 $valid,
                 $invalid: !$valid
             });
         }
-
-        return this.$state;
     };
 
     $asyncValidate = () => {
@@ -147,17 +144,17 @@ class Field extends Component {
         }
     };
 
-    $setState = $newState => {
-        Object.assign(this.$state, $newState);
+    $setState = ($newState, callback) => this.context.$$onChange(this.$name, $newState, callback) && this.$state;
 
-        if ('$value' in $newState) {
-            this.handler().validate();
-        }
-
-        this.context.$$onChange(this.props.name);
-
-        return this.$state;
-    };
+    $render = ($value, callback) =>
+        this.$setState(
+            {
+                $value,
+                $dirty: true,
+                $pristine: false
+            },
+            callback
+        );
 
     $setPending = $pending =>
         this.$setState({
@@ -197,6 +194,7 @@ class Field extends Component {
     render() {
         const { children } = this.props;
         const childProps = {
+            $name: this.$name,
             ...this.$state,
 
             $render: this.$render,

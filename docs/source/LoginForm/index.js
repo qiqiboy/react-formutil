@@ -16,7 +16,8 @@ class LoginForm extends Component {
 
     $validators = {
         required: value => (value ? true : '该项必填'),
-        minLength: (value, len) => value.length >= parseInt(len) || `最少输入字符长度：${len}`
+        minLength: (value, len) => value.length >= parseInt(len) || `最少输入字符长度：${len}`,
+        isSame: (value, name) => value === this.props.$formutil.$params[name] || '两次输入不一致'
     };
 
     pwdRemeberDays = [['1day', '一天'], ['3day', '三天'], ['1week', '一周'], ['1month', '一月']];
@@ -52,7 +53,6 @@ class LoginForm extends Component {
                                 <input
                                     type="text"
                                     className="form-control"
-                                    id="exampleInputEmail1"
                                     placeholder="用户名"
                                     value={props.$value}
                                     onChange={ev => props.$render(ev.target.value.trim())}
@@ -64,7 +64,7 @@ class LoginForm extends Component {
                             </div>
                         )}
                     </Field>
-                    <Field name="password" minLength="5" required $validators={this.$validators}>
+                    <Field name="password" minLength="5" required isSame="confirm_password" $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                 <label className="control-label" htmlFor="exampleInputPassword1">
@@ -73,10 +73,29 @@ class LoginForm extends Component {
                                 <input
                                     type="password"
                                     className="form-control"
-                                    id="exampleInputPassword1"
                                     placeholder="Password"
                                     value={props.$value}
-                                    onChange={ev => props.$render(ev.target.value.trim())}
+                                    onChange={ev => props.$render(ev.target.value.trim(), () => this.props.$formutil.$getField('confirm_password').validate())}
+                                />
+                                {props.$dirty &&
+                                    props.$invalid && (
+                                        <span className="help-block">{Object.values(props.$error)[0]}</span>
+                                    )}
+                            </div>
+                        )}
+                    </Field>
+                    <Field name="confirm_password" minLength="5" required isSame="password" $validators={this.$validators}>
+                        {props => (
+                            <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
+                                <label className="control-label" htmlFor="exampleInputPassword1">
+                                    重复密码
+                                </label>
+                                <input
+                                    type="password"
+                                    className="form-control"
+                                    placeholder="Confirm password"
+                                    value={props.$value}
+                                    onChange={ev => props.$render(ev.target.value.trim(), () => this.props.$formutil.$getField('password').validate())}
                                 />
                                 {props.$dirty &&
                                     props.$invalid && (
@@ -91,7 +110,7 @@ class LoginForm extends Component {
                         $validators={{
                             required: value => value.length > 0 || '请至少选择一项'
                         }}
-                        defaultValue={[this.targets[0].id]}>
+                        $defaultValue={[this.targets[0].id]}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                 <label className="control-label" htmlFor="exampleInputPassword1">
@@ -122,7 +141,7 @@ class LoginForm extends Component {
                             </div>
                         )}
                     </Field>
-                    <Field name="autologin" defaultValue={false}>
+                    <Field name="autologin" $defaultValue={false}>
                         {props => (
                             <div className="checkbox">
                                 <label className="control-label">

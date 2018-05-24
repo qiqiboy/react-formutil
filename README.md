@@ -138,7 +138,7 @@ Field 会维护一个状态树，
 
     $pending: false, //异步校验时该值将为true
 
-    $render: value => {}, //更新表单值
+    $render: (value, callback) => {}, //更新表单值，callback可选，会在组件更新后回调
     $setValue: value => {}, //同$render，只是个别名
     $setDirty: $dirty => {}, //设置$dirty
     $setTouched: $touched => {},设置$touched
@@ -184,14 +184,23 @@ export default withField(FieldCustom);
 
 更多解释参考：
 
-#### $formutil.$setState(name, $newState = {})
+#### $formutil.$getField(name)
+
+获取对 name 对应的表单项的操作引用，可以获取到包含以下方法的对象：
+
+```javascript
+{
+    picker(){}, //返回当前$state
+    validate(){}, //重新校验
+    merge($state){} //合并参数$state
+}
+```
+
+#### $formutil.$setState($stateTree = {})
 
 可以用来更新表单项的状态：
 
 ```javascript
-$formutil.$setState('username', { $dirty: true, $pristine: false });
-
-//也可以批量更改多个表单项
 $formutil.$setState({
     username: { $dirty: true, $pristine: false },
     'list[0].name': {
@@ -201,21 +210,18 @@ $formutil.$setState({
 });
 ```
 
-#### $formutil.$setValue(name, $newValue)
+#### $formutil.$setValue($valueTree = {})
 
 可以用来更新表单项的值：
 
 ```javascript
-$formutil.$setState('username', 'jack');
-
-//也可以批量更改多个表单项的值
 $formutil.$setValue({
     username: 'jack',
     'list[0].id': '123456'
 });
 ```
 
-#### $formutil.$setDirty(name, $dirty = false) / $formutil.$setTouched(name, $touched = false)
+#### $formutil.$setDirty($dirtyTree = {}) / $formutil.$setTouched($touchedTree = {})
 
 可以用来更新表单项的`$dirty`、`$touched`，类似`$setValue`
 

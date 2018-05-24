@@ -39,103 +39,50 @@ function withForm(Form) {
 
         $$unregister = name => {
             delete this.$$registers[name];
+
             this.forceUpdate();
         };
 
-        $$onChange = name => this.$setState(name);
+        $getField = name => this.$$registers[name];
 
-        $$updateFieldState(name, $newState) {
-            if (name in this.$$registers) {
-                Object.assign(this.$$registers[name].picker(), $newState);
+        $$onChange = (name, $state, callback) =>
+            this.$setState(
+                {
+                    [name]: $state
+                },
+                callback
+            );
 
-                if ('$value' in $newState) {
-                    this.$$registers[name].validate();
+        $setState = ($stateTree, callback) => {
+            utils.objectEach($stateTree, ($newState, name) => {
+                if (name in this.$$registers) {
+                    const handler = this.$$registers[name];
+                    handler.merge($newState);
+
+                    if ('$value' in $newState) {
+                        handler.validate();
+                    }
+                } else {
+                    console.warn(`react-formutil: The Field: '${name}' is not existed!`);
                 }
-            } else {
-                console.warn(`react-formutil: The Field: '${name}' is not existed!`);
-            }
-        }
+            });
 
-        $setState = (name, $newState = {}) => {
-            if (typeof name === 'string') {
-                this.$$updateFieldState(name, $newState);
-            } else {
-                Object.keys(name).forEach(key => {
-                    this.$$updateFieldState(key, name[key]);
-                });
-            }
-
-            this.forceUpdate();
+            this.forceUpdate(callback);
         };
 
-        $setValue = (name, $value) => {
-            if (typeof name === 'string') {
-                this.$$updateFieldState(name, {
-                    $value
-                });
-            } else {
-                Object.keys(name).forEach(key => {
-                    this.$$updateFieldState(key, {
-                        $value: name[key]
-                    });
-                });
-            }
+        $setValue = ($valueTree, callback) =>
+            this.$setState(utils.objectMap($valueTree, $value => ({ $value })), callback);
+        $setDirty = $dirtyTree =>
+            this.$setState(utils.objectMap($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
+        $setTouched = $touchedTree =>
+            this.$setState(utils.objectMap($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
 
-            this.forceUpdate();
-        };
-
-        $setDirty = (name, $dirty) => {
-            if (typeof name === 'string') {
-                this.$$updateFieldState(name, {
-                    $dirty,
-                    $pristine: !$dirty
-                });
-            } else {
-                Object.keys(name).forEach(key => {
-                    this.$$updateFieldState(key, {
-                        $dirty: name[key],
-                        $pristine: !name[key]
-                    });
-                });
-            }
-
-            this.forceUpdate();
-        };
-
-        $setTouched = (name, $touched) => {
-            if (typeof name === 'string') {
-                this.$$updateFieldState(name, {
-                    $touched,
-                    $untouched: !$touched
-                });
-            } else {
-                Object.keys(name).forEach(key => {
-                    this.$$updateFieldState(key, {
-                        $touched: name[key],
-                        $untouched: !name[key]
-                    });
-                });
-            }
-
-            this.forceUpdate();
-        };
-
-        $batchState = ($newState = {}) => {
-            if (typeof $newState !== 'object') {
-                console.warn(`$batchState need a Object as the only argument!`);
-            } else {
-                Object.keys(this.$$registers).forEach(name => this.$$updateFieldState(name, $newState));
-
-                this.forceUpdate();
-            }
-        };
-
+        $batchState = ($state = {}) => this.$setState(utils.objectMap(this.$$registers, () => $state));
         $batchDirty = $dirty =>
             this.$batchState({
                 $dirty,
                 $pristine: !$dirty
             });
-
         $batchTouched = $touched =>
             this.$batchState({
                 $touched,
@@ -143,49 +90,52 @@ function withForm(Form) {
             });
 
         render() {
-            const $stateTree = Object.keys(this.$$registers).map(path => ({
+            const $stateArray = Object.keys(this.$$registers).map(path => ({
                 path,
                 $state: this.$$registers[path].picker()
             }));
 
-            const $valid = $stateTree.every(({ $state }) => $state.$valid);
-            const $dirty = $stateTree.some(({ $state }) => $state.$dirty);
-            const $touched = $stateTree.some(({ $state }) => $state.$touched);
-            const $pending = $stateTree.some(({ $state }) => $state.$pending);
+            const $valid = $stateArray.every(({ $state }) => $state.$valid);
+            const $dirty = $stateArray.some(({ $state }) => $state.$dirty);
+            const $touched = $stateArray.some(({ $state }) => $state.$touched);
+            const $pending = $stateArray.some(({ $state }) => $state.$pending);
 
             const $formutil = {
-                $state: $stateTree.reduce(
+                $$registers: this.$$registers,
+                $state: $stateArray.reduce(
                     ($formState, { path, $state }) => utils.parsePath($formState, path, $state),
                     {}
                 ),
-                $params: $stateTree.reduce(
+                $params: $stateArray.reduce(
                     (params, { path, $state }) => utils.parsePath(params, path, $state.$value),
                     {}
                 ),
                 $error: $valid
                     ? null
-                    : $stateTree.reduce(($error, { path, $state }) => {
+                    : $stateArray.reduce(($error, { path, $state }) => {
                           if ($state.$invalid) {
                               return utils.parsePath($error, path, $state.$error);
                           }
                           return $error;
                       }, {}),
-                $weakState: $stateTree.reduce(($formState, { path, $state }) => {
+                $weakState: $stateArray.reduce(($formState, { path, $state }) => {
                     $formState[path] = $state;
                     return $formState;
                 }, {}),
-                $weakParams: $stateTree.reduce((params, { path, $state }) => {
+                $weakParams: $stateArray.reduce((params, { path, $state }) => {
                     params[path] = $state.$value;
                     return params;
                 }, {}),
                 $weakError: $valid
                     ? null
-                    : $stateTree.reduce(($error, { path, $state }) => {
+                    : $stateArray.reduce(($error, { path, $state }) => {
                           if ($state.$invalid) {
                               $error[path] = $state.$error;
                           }
                           return $error;
                       }, {}),
+
+                $getField: this.$getField,
 
                 $setState: this.$setState,
                 $setValue: this.$setValue,

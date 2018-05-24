@@ -16,7 +16,8 @@ class SrouceCode extends Component {
             mode: 'javascript',
             lineNumbers: true,
             theme: 'solarized',
-            value: require('raw-loader!source/LoginForm')
+            value: require('raw-loader!source/LoginForm'),
+            readOnly: true
         });
     }
 

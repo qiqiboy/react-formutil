@@ -19,11 +19,6 @@ class SrouceCode extends Component {
             value: this.props.source,
             readOnly: true
         });
-
-        this.editorNode.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
     }
 
     refCallback = node => {

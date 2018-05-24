@@ -10,7 +10,7 @@ a controlled React component to make it easy for create the form.
 # npm
 npm install react-formutil --save
 
-#yarn
+# yarn
 yarn add react-formutil
 ```
 
@@ -27,13 +27,13 @@ yarn add react-formutil
 *   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并像顶层的 `withForm` 注册自身
 *   `withForm` 高阶组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的原始组件，向其传递了整个表单的状态
 
-`react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `onChange` 用来更新输入值，然后一切就会自动同步、更新。
+`react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
 ### Field
 
 `Field` 是一个标准的 react 组件。它可以理解为表单控件的顶层组件，它可以同步表单控件的状态。每一个表单控件应该总是当作 Field 组件的子组件嵌套。
 
-`Field` 可以接受三个属性当作参数：
+`Field` 可以接收以下几个属性参数：
 
 #### props.name
 
@@ -53,14 +53,25 @@ yarn add react-formutil
 }
 ```
 
-#### props.defaultValue
+#### props.$defaultValue
 
 该属性可以设置表单控件的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
 
-*   `<Field defaultValue="username" />`
-*   `<Field defaultValue={{name: 'dog'}} />`
+*   `<Field $defaultValue="username" />`
+*   `<Field $defaultValue={{name: 'dog'}} />`
 
-`defaultValue` 可以是任意类型值。
+`$defaultValue` 可以是任意类型值。
+
+#### props.$defaultState
+
+该属性可以覆盖表单控件的的默认状态，类型必需是`key: value`简单对象：
+
+```javascript
+<Field $defaultState={{ $value: 'username' }} />
+<Field $defaultValue="username" />
+```
+
+上面两者等效，其实表单控件的值只是状态里的一个字段`$value`
 
 #### props.$validators
 
@@ -76,12 +87,14 @@ yarn add react-formutil
     $validators={{
         required: value => !!value || '该项必填',
         maxLength: (value, len) => value.length <= parseInt(len) || '最少长度：' + len,
-        disableChar: (value, char) => value.indexOf(char) === -1 || '禁止输入字符：' + char
+        disableChar: (value, char) => value.indexOf(char) === -1 || '禁止输入字符：' + char,
+        /* 注意：下面这条规则将不会触发校验，因为我们没有给Field传递 minNumber 属性来表示需要去校验该条规则 */
+        minNumber: (value, limit) => value > parseFloat(limit) || '输入值必需大于：' + limit
     }}>
     {props => (
         <div className="form-group">
             <label>密码</label>
-            <input type="number" onChange={ev => props.onChange(ev.target.value.trim())} value={props.$value} />
+            <input type="number" onChange={ev => props.$render(ev.target.value.trim())} value={props.$value} />
             {props.$invalid && <div className="error">{object.values(props.$error)[0]}</div>}
         </div>
     )}
@@ -90,7 +103,27 @@ yarn add react-formutil
 
 在这个例子中，我们通过$validators 设置了 `required` 、 `maxLength` 以及 `disabledChar` 的校验规则。同时通过属性 `props` 表示了需要校验这三个字段。然后我们可以通过状态判断将错误信息展示出来。
 
+#### props.$asyncValidators
+
+该属性可以设置表单项的异步校验规则，设置方式与`$validators`类似。但是不同的是，异步校验函数需要返回`promise`对象，该`promise`被`resolve`表示校验成功，`reject`表示校验失败，并且`reject`的`reason`会被当作失败原因保存到状态的`$error`对象。
+
+异步校验时，状态里会有`$pending`用来表示正在异步校验。
+
+```javascript
+<Field
+    required
+    isAccountExist
+    $asyncValidators={{
+        isAccountExist: value =>
+            http.post('/api/v1/check_account', { account: value }).catch(error => Promise.reject(error.message))
+    }}>
+    {/* ... */}
+</Field>
+```
+
 #### Field 的状态对象
+
+Field 会维护一个状态树，
 
 ```js
 {
@@ -103,18 +136,22 @@ yarn add react-formutil
     $invalid: false, //与$valid相反
     $error: {}, //表单校验错误信息
 
+    $pending: false, //异步校验时该值将为true
+
     $render: value => {}, //更新表单值
+    $setValue: value => {}, //同$render，只是个别名
     $setDirty: $dirty => {}, //设置$dirty
     $setTouched: $touched => {},设置$touched
-    $setState: $newState => {} //直接更新状态
+    $setState: $newState => {} //直接更新状态，其实上面的几个方法都是基于$setState
     $setValidity: ($key, $valid) => {}
 }
 ```
 
 该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单状态：
-* 用户输入时需要通过调用`$render`来更新新值到状态中
-* 渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
-* 错误信息和校验状态可以通过 `$valid` `$invalid` `$error`来渲染
+
+*   用户输入时需要通过调用`$render`来更新新值到状态中
+*   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
+*   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
 
 ### withField
 
@@ -125,7 +162,7 @@ import React from 'react';
 import { withField } from 'react-formutil';
 
 class FieldCustom extends React.Component {
-    onChange = ev => this.props.onChange(ev.target.value);
+    onChange = ev => this.props.$render(ev.target.value);
 
     render() {
         return <input onChange={this.onChange} value={this.props.$value} />;
@@ -140,11 +177,51 @@ export default withField(FieldCustom);
 `withForm` 同样是高阶组件，它可以增强被调用组件，收集子 dom 树中的 `Field` 组件状态，并传递给被调用组件。
 
 经过 `withForm` 增强的组件，会在其 `props` 中接收到一个`$formutil`对象。例如
-* 你可以通过`$formutil.$params` 拿到整个表单的输入值
-* 你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
-* 你可以通过`$formutil.$error` 来获取表单的错误输入信息
+
+*   你可以通过`$formutil.$params` 拿到整个表单的输入值
+*   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
+*   你可以通过`$formutil.$error` 来获取表单的错误输入信息
 
 更多解释参考：
+
+#### $formutil.$setState(name, $newState = {})
+
+可以用来更新表单项的状态：
+
+```javascript
+$formutil.$setState('username', { $dirty: true, $pristine: false });
+
+//也可以批量更改多个表单项
+$formutil.$setState({
+    username: { $dirty: true, $pristine: false },
+    'list[0].name': {
+        $dirty: true,
+        $pristine: false
+    }
+});
+```
+
+#### $formutil.$setValue(name, $newValue)
+
+可以用来更新表单项的值：
+
+```javascript
+$formutil.$setState('username', 'jack');
+
+//也可以批量更改多个表单项的值
+$formutil.$setValue({
+    username: 'jack',
+    'list[0].id': '123456'
+});
+```
+
+#### $formutil.$setDirty(name, $dirty = false) / $formutil.$setTouched(name, $touched = false)
+
+可以用来更新表单项的`$dirty`、`$touched`，类似`$setValue`
+
+#### $formutil.$batchState($newState = {}) / $formutil.$batchDirty($dirty = false) / $formutil.$batchTouched($touched = false)
+
+批量更改所有表单项的状态
 
 #### $formutil.$state
 

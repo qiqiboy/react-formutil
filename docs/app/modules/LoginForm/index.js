@@ -91,7 +91,7 @@ class LoginForm extends Component {
                         $validators={{
                             required: value => value.length > 0 || '请至少选择一项'
                         }}
-                        defaultValue={[this.targets[0].id]}>
+                        $defaultValue={[this.targets[0].id]}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                 <label className="control-label" htmlFor="exampleInputPassword1">
@@ -122,7 +122,7 @@ class LoginForm extends Component {
                             </div>
                         )}
                     </Field>
-                    <Field name="autologin" defaultValue={false}>
+                    <Field name="autologin" $defaultValue={false}>
                         {props => (
                             <div className="checkbox">
                                 <label className="control-label">

@@ -3,16 +3,18 @@ import PropTypes from 'prop-types';
 
 class Field extends Component {
     static propTypes = {
-        defaultValue: PropTypes.any,
-        defaultState: PropTypes.object,
+        $defaultValue: PropTypes.any,
+        $defaultState: PropTypes.object,
         name: PropTypes.string.isRequired,
+        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element]).isRequired,
 
         $validators: PropTypes.object,
         $asyncValidators: PropTypes.object
     };
 
     static defaultProps = {
-        defaultValue: ''
+        $defaultValue: '',
+        $defaultState: {}
     };
 
     static contextTypes = {
@@ -25,7 +27,7 @@ class Field extends Component {
         super(props, context);
 
         this.$state = {
-            $value: props.defaultValue,
+            $value: props.$defaultValue,
 
             $valid: true,
             $invalid: false,
@@ -40,10 +42,14 @@ class Field extends Component {
 
             $error: {},
 
-            ...props.defaultState
+            ...props.$defaultState
         };
 
-        context.$$register(props.name, this.handler());
+        if (context.$$register) {
+            context.$$register(props.name, this.handler());
+        } else {
+            console.warn(`react-formutil: The Field must be nesting inside the component that enhanced by the withForm(a High Order Component provided by react-formutil). `)
+        }
     }
 
     componentWillUnmount() {
@@ -194,6 +200,7 @@ class Field extends Component {
             ...this.$state,
 
             $render: this.$render,
+            $setValue: this.$render,
             $setTouched: this.$setTouched,
             $setValidity: this.$setValidity,
             $setDirty: this.$setDirty,

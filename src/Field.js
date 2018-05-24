@@ -2,11 +2,13 @@ import { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 
 class Field extends Component {
+    static displayName = 'React.formutil.Field';
+
     static propTypes = {
         $defaultValue: PropTypes.any,
         $defaultState: PropTypes.object,
         name: PropTypes.string.isRequired,
-        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element]).isRequired,
+        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired,
 
         $validators: PropTypes.object,
         $asyncValidators: PropTypes.object
@@ -209,8 +211,7 @@ class Field extends Component {
             return children(childProps);
         }
 
-        const child = Children.only(children);
-        return cloneElement(child, childProps);
+        return Children.map(children, child => cloneElement(child, childProps));
     }
 }
 

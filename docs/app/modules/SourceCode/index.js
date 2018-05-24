@@ -16,8 +16,13 @@ class SrouceCode extends Component {
             mode: 'javascript',
             lineNumbers: true,
             theme: 'solarized',
-            value: require('raw-loader!source/LoginForm'),
+            value: this.props.source,
             readOnly: true
+        });
+
+        this.editorNode.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
         });
     }
 

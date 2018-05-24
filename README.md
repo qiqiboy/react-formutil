@@ -22,12 +22,31 @@ yarn add react-formutil
 
 上面的示例简单展示了 `react-formutil` 的基本用法。当然这只是很简单的示例，更复杂的状态渲染，例如`$dirty`、表单验证等后面会具体讲到。这里想简单说下 `react-formutil` 的设计思路：
 
-`react-formutil` 提供了一个 Field 组件和一个 withForm 的高阶组件。
+`react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有两个高阶组件 `withField` `withForm`：
 
-*   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并像顶层的 `withForm` 注册自身
-*   `withForm` 高阶组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的原始组件，向其传递了整个表单的状态
+*   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身
+*   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态
+*   `withField` 是基于 `Field` 进行了包装，方便某些情况下以高阶组件形式调用
+*   `withForm` 是基于 `Form` 进行了包装，方便某些情况下以高阶组件形式调用
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
+
+> #### 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用
+
+```javascript
+//一个函数式子组件书写示例
+<Form>
+    {$formutil => {
+        return <Field name="username">{props => <input />}</Field>;
+    }}
+</Form>
+
+//当然也可以传递普通组件作为子节点
+//Field组件写在loginForm这个组件中
+<Form>
+    <LoginForm />
+</Form>
+```
 
 ### Field
 
@@ -172,15 +191,27 @@ class FieldCustom extends React.Component {
 export default withField(FieldCustom);
 ```
 
-### withForm
+### Form
 
-`withForm` 同样是高阶组件，它可以增强被调用组件，收集子 dom 树中的 `Field` 组件状态，并传递给被调用组件。
+`Form` 也是一个标准的 react 组件，它类似 Field，同样可以以函数、或者普通组件当作子组件调用。它可以增强子组件，收集子 dom 树中的 `Field` 组件状态，并通过$formutil 传递给被调用组件。
 
-经过 `withForm` 增强的组件，会在其 `props` 中接收到一个`$formutil`对象。例如
+经过 `Form` 增强的组件，会在其 `props` 中接收到一个`$formutil`对象。例如
 
 *   你可以通过`$formutil.$params` 拿到整个表单的输入值
 *   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
 *   你可以通过`$formutil.$error` 来获取表单的错误输入信息
+
+```javascript
+<Form>
+    {$formutil => (
+        /* const { $params, $invalid, $error, ...others } = $formutil; */
+        <div>
+            <Field name="username">{props => <input />}</Field>
+            <Field name="password">{props => <input />}</Field>
+        </div>
+    )}
+</Form>
+```
 
 更多解释参考：
 
@@ -264,3 +295,17 @@ $formutil.$setValue({
 #### $formutil.$untouched
 
 表单项中所有 `Field` 的`$touched` 均为 `false` 时，`$formutil.$touched` 为 `false`, `$formutil.$untouched` 为 `true`。表单项中有任意 `Field` 的`$touched` 均为 `true` 时，`$formutil.$touched` 为 `true`, `$formutil.$untouched` 为 `false`。
+
+### withForm
+
+withForm 是基于 Form 封装的高阶组件：
+
+```javascript
+class LoginForm extends Component {
+    // ...
+}
+
+export default withForm(LoginForm);
+```
+
+### 有任何问题欢迎提 issue 讨论

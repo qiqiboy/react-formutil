@@ -18,17 +18,21 @@ class LoginForm extends Component {
 
     autoInput = () => {
         //可以通过$setValue来更改表单的值
-        this.props.$formutil.$setValue({
-            username: 'qiqiboy',
-            password: '123456',confirm_password: '123456',
-            mutiple: [ 'b', 'c' ],
-            autologin: false
-        }, () => {
-            //我们需要更新后重新校验密码字段，因为这两个字段校验一致性是互相依赖的
-            this.props.$formutil.$getField('password').validate();
-            this.props.$formutil.$getField('confirm_password').validate();
-        });
-    }
+        this.props.$formutil.$setValue(
+            {
+                username: 'qiqiboy',
+                password: '123456',
+                confirm_password: '123456',
+                mutiple: ['b', 'c'],
+                autologin: false
+            },
+            () => {
+                //我们需要更新后重新校验密码字段，因为这两个字段校验一致性是互相依赖的
+                this.props.$formutil.$getField('password').validate();
+                this.props.$formutil.$getField('confirm_password').validate();
+            }
+        );
+    };
 
     //定义校验规则
     $validators = {
@@ -63,7 +67,7 @@ class LoginForm extends Component {
         return (
             <form className="login-form  row" onSubmit={this.submit}>
                 <div className="col-lg-6">
-                    <h4>用户登录</h4>
+                    <h4>用户登录 方式一</h4>
                     <Field name="username" required $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
@@ -129,7 +133,7 @@ class LoginForm extends Component {
                                     className="form-control"
                                     placeholder="Confirm password"
                                     value={props.$value}
-                                    onChange={ev =>/* 这里同样，需要更新组件后再次去校验依赖该表单项字段的项目 */
+                                    onChange={(ev /* 这里同样，需要更新组件后再次去校验依赖该表单项字段的项目 */) =>
                                         props.$render(ev.target.value.trim(), () =>
                                             this.props.$formutil.$getField('password').validate()
                                         )
@@ -217,7 +221,9 @@ class LoginForm extends Component {
                         </Field>
                     )}
                     <button className="btn btn-block btn-primary">登 录</button>
-                    <button className="btn btn-block btn-danger" type="button" onClick={this.autoInput}>自动填充</button>
+                    <button className="btn btn-block btn-danger" type="button" onClick={this.autoInput}>
+                        自动填充
+                    </button>
                 </div>
 
                 <div className="col-lg-3">

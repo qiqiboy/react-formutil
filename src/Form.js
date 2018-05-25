@@ -118,19 +118,19 @@ class Form extends Component {
 
     $setValues = ($valueTree, callback) =>
         this.$setStates(utils.objectMap($valueTree, $value => ({ $value })), callback);
-    $setDirty = $dirtyTree => this.$setStates(utils.objectMap($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
-    $setTouched = $touchedTree =>
+    $setDirts = $dirtyTree => this.$setStates(utils.objectMap($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
+    $setTouches = $touchedTree =>
         this.$setStates(utils.objectMap($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
     $setErrors = $errorTree => this.$setStates(utils.objectMap($errorTree, $error => ({ $error })));
 
-    $batchStates = ($state = {}) => this.$setStates(utils.objectMap(this.$$registers, () => $state));
+    $batchState = ($state = {}) => this.$setStates(utils.objectMap(this.$$registers, () => $state));
     $batchDirty = $dirty =>
-        this.$batchStates({
+        this.$batchState({
             $dirty,
             $pristine: !$dirty
         });
     $batchTouched = $touched =>
-        this.$batchStates({
+        this.$batchState({
             $touched,
             $untouched: !$touched
         });
@@ -149,47 +149,34 @@ class Form extends Component {
         const $formutil = {
             $$registers: this.$$registers,
             $$deepRegisters: this.$$deepRegisters,
-            $states: $stateArray.reduce(
-                ($formState, { path, $state }) => utils.parsePath($formState, path, $state),
-                {}
-            ),
-            $params: $stateArray.reduce((params, { path, $state }) => utils.parsePath(params, path, $state.$value), {
-                ...this.props.$defaultValues
-            }),
-            $errors: $stateArray.reduce(($error, { path, $state }) => {
-                if ($state.$invalid) {
-                    return utils.parsePath($error, path, $state.$error);
+            $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
+            $params: utils.toObject(
+                $stateArray,
+                ($params, { path, $state }) => utils.parsePath($params, path, $state.$value),
+                {
+                    ...this.props.$defaultValues
                 }
-                return $error;
-            }, {}),
-            $dirts: $stateArray.reduce(($dirts, { path, $state }) => utils.parsePath($dirts, path, $state.$dirty), {}),
-            $touches: $stateArray.reduce(
-                ($touches, { path, $state }) => utils.parsePath($touches, path, $state.$touched),
-                {}
+            ),
+            $errors: utils.toObject($stateArray, ($errors, { path, $state }) => {
+                if ($state.$invalid) {
+                    utils.parsePath($errors, path, $state.$error);
+                }
+            }),
+            $dirts: utils.toObject($stateArray, ($dirts, { path, $state }) =>
+                utils.parsePath($dirts, path, $state.$dirty)
+            ),
+            $touches: utils.toObject($stateArray, ($touches, { path, $state }) =>
+                utils.parsePath($touches, path, $state.$touched)
             ),
 
-            $weakStates: $stateArray.reduce(($formState, { path, $state }) => {
-                $formState[path] = $state;
-                return $formState;
-            }, {}),
-            $weakParams: $stateArray.reduce((params, { path, $state }) => {
-                params[path] = $state.$value;
-                return params;
-            }, {}),
-            $weakErrors: $stateArray.reduce(($error, { path, $state }) => {
-                if ($state.$invalid) {
-                    $error[path] = $state.$error;
-                }
-                return $error;
-            }, {}),
-            $weakDirts: $stateArray.reduce(($dirts, { path, $state }) => {
-                $dirts[path] = $state.$dirty;
-                return $dirts;
-            }, {}),
-            $weakTouches: $stateArray.reduce(($touches, { path, $state }) => {
-                $touches[path] = $state.$touched;
-                return $touches;
-            }, {}),
+            $weakStates: utils.toObject($stateArray, ($states, { path, $state }) => ($states[path] = $state)),
+            $weakParams: utils.toObject($stateArray, ($params, { path, $state }) => ($params[path] = $state.$value)),
+            $weakErrors: utils.toObject($stateArray, ($errors, { path, $state }) => ($errors[path] = $state.$error)),
+            $weakDirts: utils.toObject($stateArray, ($dirts, { path, $state }) => ($dirts[path] = $state.$dirty)),
+            $weakTouches: utils.toObject(
+                $stateArray,
+                ($touches, { path, $state }) => ($touches[path] = $state.$touched)
+            ),
 
             $render: this.$render,
 
@@ -198,10 +185,10 @@ class Form extends Component {
             $setStates: this.$setStates,
             $setValues: this.$setValues,
             $setErrors: this.$setErrors,
-            $setTouched: this.$setTouched,
-            $setDirty: this.$setDirty,
+            $setTouches: this.$setTouches,
+            $setDirts: this.$setDirts,
 
-            $batchStates: this.$batchStates,
+            $batchState: this.$batchState,
             $batchTouched: this.$batchTouched,
             $batchDirty: this.$batchDirty,
 

@@ -217,12 +217,14 @@ export default withField(FieldCustom, {
 *   input[type=radio]
 *   select
 *   textarea
+*   group.radio
+*   group.checkbox
 
 事实上，支持任何的 input 元素。它接收以下属性参数：
 
 #### type
 
-除了`select` `checkbox` `radio` `textarea` 四种，其他都是渲染默认的 input，type 会原封不动传给 input。
+除了`select` `checkbox` `radio` `textarea` `group.checkbox` `group.radio`，其他都是渲染默认的 input，type 会原封不动传给 input。
 
 当 `type="select"` 时，还需要设置 option 子节点：
 
@@ -230,6 +232,22 @@ export default withField(FieldCustom, {
 <EasyField name="age" type="select">
     <option value="20">20</option>
     <option value="30">30</option>
+</EasyField>
+```
+
+当 `type="group.checkbox"` `type="group.radio"` 等以 `group.`开头的类型时，需要设置 child 渲染方式，类似 Field 组件调用，建议使用函数式 child。EasyField 会传递包含 Field 属性的 props 给 child 组件(注意，这里的 Field 是指渲染出表单控件的 Field 组件对象，与前面的 Field 完全不同，只是刚好同名)，然后你可以自由定义控件的渲染方式：
+
+在 EasyField 的 child 回调渲染中，必须传递 $value 给 Field：
+
+```javascript
+<EasyField type="group.checkbox" name="targets" required validMessage={{ required: '请至少选择一项' }}>
+    {({ Field }) =>
+        this.targets.map(item => (
+            <label key={item.id} className="checkbox-inline">
+                <Field $value={item.id} className="checkbox" /> {item.name}
+            </label>
+        ))
+    }
 </EasyField>
 ```
 
@@ -339,6 +357,18 @@ const {
 } = $formutil.$getField('list[0].name'); //name支持表达式字符串
 ```
 
+#### $formutil.$validate(name)
+
+立即校验对应 name 的表单项
+
+#### $formutil.$validates();
+
+重新校验所有的表单项
+
+### $formutil.$render(callback)
+
+强制重新渲染表单组件，可以通过该方法的回调，在当前的渲染完成后回调
+
 #### $formutil.$setStates($stateTree = { name: $state })
 
 可以用来更新表单项的状态：
@@ -385,7 +415,7 @@ $formutil.$setErros({
 $formutil.$reset();
 ```
 
-#### $formutil.$setDirty($dirtyTree = { name: $dirty }) / $formutil.$setTouched($touchedTree = { name: $touched })
+#### $formutil.$setDirts($dirtyTree = { name: $dirty }) / $formutil.$setTouches($touchedTree = { name: $touched })
 
 可以用来更新表单项的`$dirty`、`$touched`，类似`$setValues`
 

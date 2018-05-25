@@ -75,3 +75,10 @@ export const objectMap = (obj, handler) =>
     }, {});
 
 export const objectEach = (obj, handler) => Object.keys(obj).forEach(key => handler(obj[key], key, obj));
+
+export const toObject = (arr, handler, obj = {}) =>
+    arr.reduce((...args) => {
+        handler(...args);
+
+        return args[0];
+    }, obj);

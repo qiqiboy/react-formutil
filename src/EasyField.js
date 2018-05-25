@@ -37,7 +37,7 @@ class EasyField extends Component {
             $validators,
             $asyncValidators,
             validMessage,
-            type,
+            type: typeStr,
             checked,
             unchecked,
             onChange,
@@ -46,6 +46,7 @@ class EasyField extends Component {
         } = this.props;
 
         const defaultErrMsg = 'Error';
+        const [type, groupType] = typeStr.split('.');
 
         const fieldProps = {
             name,
@@ -98,6 +99,13 @@ class EasyField extends Component {
                 Element = type;
                 break;
 
+            case 'group':
+                Element = 'div';
+                if (groupType === 'checkbox' && !('$defaultValue' in fieldProps)) {
+                    fieldProps.$defaultValue = [];
+                }
+                break;
+
             default:
                 Element = 'input';
                 break;
@@ -106,6 +114,44 @@ class EasyField extends Component {
         return (
             <Field {...fieldProps}>
                 {props => {
+                    if (type === 'group') {
+                        const { children, restProps } = otherProps;
+
+                        const childProps = {
+                            Field: ({ $value, ...others }) => {
+                                const elemProps =
+                                    groupType === 'radio'
+                                        ? {
+                                              checked: props.$value === $value,
+                                              onChange: ev => props.$render($value)
+                                          }
+                                        : {
+                                              checked: props.$value.indexOf($value) > -1,
+                                              onChange: ev =>
+                                                  props.$render(
+                                                      ev.target.checked
+                                                          ? props.$value.concat($value)
+                                                          : props.$value.filter(value => value !== $value)
+                                                  )
+                                          };
+
+                                return <input {...others} type={groupType} name={name} {...elemProps} />;
+                            }
+                        };
+
+                        childProps.Field.propTypes = {
+                            $value: PropTypes.any.isRequired
+                        };
+
+                        return (
+                            <Element {...restProps}>
+                                {typeof children === 'function'
+                                    ? children(childProps)
+                                    : React.Children.map(children, child => React.cloneElement(child, childProps))}
+                            </Element>
+                        );
+                    }
+
                     const elemProps =
                         type === 'radio' || type === 'checkbox'
                             ? {

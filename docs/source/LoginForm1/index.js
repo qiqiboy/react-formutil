@@ -265,6 +265,29 @@ class LoginForm extends Component {
                             )}
                     </div>
                     <div className="form-group">
+                        <label>多选</label>
+                        <EasyField
+                            type="group.checkbox"
+                            name="EasyField.checkbox_group"
+                            required
+                            validMessage={{ required: '请至少选择一项' }}>
+                            {({ Field }) =>
+                                this.targets.map(item => (
+                                    <label key={item.id} className="checkbox-inline">
+                                        <Field $value={item.id} /> {item.name}
+                                    </label>
+                                ))
+                            }
+                        </EasyField>
+                        {$errors.EasyField &&
+                            $errors.EasyField.checkbox_group &&
+                            $dirts.EasyField.checkbox_group && (
+                                <span className="help-block bg-danger">
+                                    {Object.values($errors.EasyField.checkbox_group)[0]}
+                                </span>
+                            )}
+                    </div>
+                    <div className="form-group">
                         <EasyField
                             type="radio"
                             name="EasyField.radio"
@@ -279,6 +302,32 @@ class LoginForm extends Component {
                             $dirts.EasyField.radio && (
                                 <span className="help-block bg-danger">
                                     {Object.values($errors.EasyField.radio)[0]}
+                                </span>
+                            )}
+                    </div>
+                    <div className="form-group">
+                        <label>单选</label>
+                        <EasyField
+                            type="group.radio"
+                            name="EasyField.radio_group"
+                            defaultValue={this.targets[1].id}
+                            required
+                            validMessage={{ required: '请选择一项' }}>
+                            {({ Field }) =>
+                                this.targets.map(item => (
+                                    <div className="radio" key={item.id}>
+                                        <label key={item.id}>
+                                            <Field $value={item.id} /> {item.name}
+                                        </label>
+                                    </div>
+                                ))
+                            }
+                        </EasyField>
+                        {$errors.EasyField &&
+                            $errors.EasyField.radio_group &&
+                            $dirts.EasyField.radio_group && (
+                                <span className="help-block bg-danger">
+                                    {Object.values($errors.EasyField.radio_group)[0]}
                                 </span>
                             )}
                     </div>

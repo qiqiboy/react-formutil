@@ -118,21 +118,40 @@ class EasyField extends Component {
                         const { children, restProps } = otherProps;
 
                         const childProps = {
-                            Field: ({ $value, ...others }) => {
+                            Field: ({ $value, onChange, ...others }) => {
                                 const elemProps =
                                     groupType === 'radio'
                                         ? {
                                               checked: props.$value === $value,
-                                              onChange: ev => props.$render($value)
+                                              onChange: ev => {
+                                                  props.$render($value);
+
+                                                  if (props.$untouched) {
+                                                      props.$setTouched(true);
+                                                  }
+
+                                                  if (onChange) {
+                                                      onChange(ev);
+                                                  }
+                                              }
                                           }
                                         : {
                                               checked: props.$value.indexOf($value) > -1,
-                                              onChange: ev =>
+                                              onChange: ev => {
                                                   props.$render(
                                                       ev.target.checked
                                                           ? props.$value.concat($value)
                                                           : props.$value.filter(value => value !== $value)
-                                                  )
+                                                  );
+
+                                                  if (props.$untouched) {
+                                                      props.$setTouched(true);
+                                                  }
+
+                                                  if (onChange) {
+                                                      onChange(ev);
+                                                  }
+                                              }
                                           };
 
                                 return <input {...others} type={groupType} name={name} {...elemProps} />;

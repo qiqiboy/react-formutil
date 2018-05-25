@@ -148,16 +148,22 @@ class Form extends Component {
                 ($formState, { path, $state }) => utils.parsePath($formState, path, $state),
                 {}
             ),
-            $params: $stateArray.reduce((params, { path, $state }) => utils.parsePath(params, path, $state.$value), this.props.$defaultValues || {}),
-            $error: $valid
-                ? null
-                : $stateArray.reduce(($error, { path, $state }) => {
-                      if ($state.$invalid) {
-                          return utils.parsePath($error, path, $state.$error);
-                      }
-                      return $error;
-                  }, {}),
-            $weakState: $stateArray.reduce(($formState, { path, $state }) => {
+            $params: $stateArray.reduce((params, { path, $state }) => utils.parsePath(params, path, $state.$value), {
+                ...this.props.$defaultValues
+            }),
+            $errors: $stateArray.reduce(($error, { path, $state }) => {
+                if ($state.$invalid) {
+                    return utils.parsePath($error, path, $state.$error);
+                }
+                return $error;
+            }, {}),
+            $dirts: $stateArray.reduce(($dirts, { path, $state }) => utils.parsePath($dirts, path, $state.$dirty), {}),
+            $touches: $stateArray.reduce(
+                ($touches, { path, $state }) => utils.parsePath($touches, path, $state.$touched),
+                {}
+            ),
+
+            $weakStates: $stateArray.reduce(($formState, { path, $state }) => {
                 $formState[path] = $state;
                 return $formState;
             }, {}),
@@ -165,14 +171,20 @@ class Form extends Component {
                 params[path] = $state.$value;
                 return params;
             }, {}),
-            $weakError: $valid
-                ? null
-                : $stateArray.reduce(($error, { path, $state }) => {
-                      if ($state.$invalid) {
-                          $error[path] = $state.$error;
-                      }
-                      return $error;
-                  }, {}),
+            $weakErrors: $stateArray.reduce(($error, { path, $state }) => {
+                if ($state.$invalid) {
+                    $error[path] = $state.$error;
+                }
+                return $error;
+            }, {}),
+            $weakDirts: $stateArray.reduce(($dirts, { path, $state }) => {
+                $dirts[path] = $state.$dirty;
+                return $dirts;
+            }, {}),
+            $weakTouches: $stateArray.reduce(($touches, { path, $state }) => {
+                $touches[path] = $state.$touched;
+                return $touches;
+            }, {}),
 
             $getField: this.$getField,
 

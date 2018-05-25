@@ -31,10 +31,11 @@ yarn add react-formutil
 
 `react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有两个高阶组件 `withField` `withForm`：
 
-*   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身
-*   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态
-*   `withField` 是基于 `Field` 进行了包装，方便某些情况下以高阶组件形式调用
-*   `withForm` 是基于 `Form` 进行了包装，方便某些情况下以高阶组件形式调用
+*   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
+*   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态。Form 可以理解为整个表单页面的 Provider。
+*   `withField` 是基于 `Field` 包装成高阶组件，方便某些情况下以高阶组件形式调用
+*   `withForm` 是基于 `Form` 包装成高阶组件，方便某些情况下以高阶组件形式调用
+*   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
@@ -202,6 +203,94 @@ export default withField(FieldCustom, {
 });
 ```
 
+### EasyField
+
+`EasyField` 是使用 Field 对浏览器原生常见表单空间进行的组件封装，方便直接调用。它只会生成默认的表单控件，没有其他额外的 dom 元素，支持的类型如下：
+
+*   input[type=text]
+*   input[type=number]
+*   input[type=search]
+*   input[type=password]
+*   input[type=checkbox]
+*   input[type=radio]
+*   select
+*   textarea
+
+事实上，支持任何的 input 元素。它接收以下属性参数：
+
+#### type
+
+除了`select` `checkbox` `radio` `textarea` 四种，其他都是渲染默认的 input，type 会原封不动传给 input。
+
+当 `type="select"` 时，还需要设置 option 子节点：
+
+```javascript
+<EasyField name="age" type="select">
+    <option value="20">20</option>
+    <option value="30">30</option>
+</EasyField>
+```
+
+#### name
+
+同`Field`的`name`
+
+#### $defaultValue
+
+同`Field`的`$defaultValue`
+
+#### $validators
+
+同`Field`的`$validators`。EasyFiled 内置了以下集中校验支持：
+
+*   required
+*   maxLength
+*   minLength
+*   max
+*   min
+*   pattern
+
+内置的校验规则无需再次声明，除非规则不符合预期，需要替换，则可以通过`$validators` 传递同名校验方法即可替换默认的。另外，内置的校验规则，如果校验不通过，会尝试去 `validMessage` 匹配错误信息。
+
+```javascript
+<EasyField name="useraname" required maxLength="10" minLength="3" max="100" min="10" pattern={/^\d+^/} />
+```
+
+#### $asyncValidators
+
+同`Field`的`$asyncValidators`
+
+#### defaultValue
+
+注意，这个是省略前面的`$`符号。如果与`$defaultValue`同时存在，则会被后者覆盖。
+
+#### validMessage
+
+可以通过该属性，设置内置的校验方法的错误信息展示：
+
+```javascript
+<EasyField
+    name="useraname"
+    required
+    maxLength="10"
+    validMessage={{
+        required: '必需填写',
+        maxLength: '最多输入十个字符'
+    }}
+/>
+```
+
+#### checked / unchecked
+
+如果是 checkbox 或 radio，则可以设置该属性，表示选中/未选中所代表的值。默认为 true 和 false。
+
+```javascript
+//这里可以设置选中、未选中用yes和no表示
+<label>
+    <EasyField type="checkbox" name="remember" checked="yes" unchecked="no" /> 是否同意用户协议
+</label>
+```
+
 ### Form
 
 `Form` 也是一个标准的 react 组件，它类似 Field，同样可以以函数、或者普通组件当作子组件调用。它可以增强子组件，收集子 dom 树中的 `Field` 组件状态，并通过$formutil 传递给被调用组件。
@@ -210,7 +299,7 @@ export default withField(FieldCustom, {
 
 *   你可以通过`$formutil.$params` 拿到整个表单的输入值
 *   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
-*   你可以通过`$formutil.$error` 来获取表单的错误输入信息
+*   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
 
 `Form` 可以接收两个可选属性参数：
 
@@ -223,7 +312,7 @@ export default withField(FieldCustom, {
         username: 'qiqiboy'
     }}>
     {$formutil => (
-        /* const { $params, $invalid, $error, ...others } = $formutil; */
+        /* const { $params, $invalid, $errors, ...others } = $formutil; */
         <div>
             <Field name="username">{props => <input />}</Field>
             <Field name="password">{props => <input />}</Field>
@@ -314,11 +403,23 @@ $formutil.$reset();
 
 所有表单项的 值`$value` 集合。`$formutil.$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakParams` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $formutil.$error
+#### $formutil.$errors
 
-#### $formutil.$weakError
+#### $formutil.$weakErrors
 
-所有表单项的 `$error` 集合。`$formutil.$error` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakError` 是以 `Field` 的 `name` 字符串当 key 的对象。
+所有表单项的 `$error` 集合。`$formutil.$errors` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakErrors` 是以 `Field` 的 `name` 字符串当 key 的对象。
+
+#### $formutil.$dirts
+
+#### $formutil.$weakDirts
+
+所有表单项的 `$dirty` 集合。`$formutil.$dirts` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakDirts` 是以 `Field` 的 `name` 字符串当 key 的对象。
+
+#### $formutil.$touches
+
+#### $formutil.$weakTouches
+
+所有表单项的 `$touched` 集合。`$formutil.$touches` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakTouches` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
 #### $formutil.$valid
 

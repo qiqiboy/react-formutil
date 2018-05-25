@@ -9,13 +9,11 @@ function withForm(WrappedComponent, config = {}) {
             const { $defaultValues, $defaultStates, ...others } = this.props;
             const formProps = {};
 
-            if ($defaultStates) {
-                formProps.$defaultStates = $defaultStates;
-            }
-
-            if ($defaultValues) {
-                formProps.$defaultValues = $defaultValues;
-            }
+            [$defaultStates, $defaultValues].forEach($prop => {
+                if ($prop in this.props) {
+                    formProps[$prop] = $prop;
+                }
+            });
 
             return (
                 <Form {...config} {...formProps}>

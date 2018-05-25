@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withForm, Field } from 'app/../../src';
+import { withForm, Field, EasyField } from 'app/../../src';
 
 class LoginForm extends Component {
     submit = ev => {
@@ -64,7 +64,7 @@ class LoginForm extends Component {
 
     render() {
         //可以从$formutil中拿到$params $error $invalid等状态
-        const { $params } = this.props.$formutil;
+        const { $params, $errors, $dirts } = this.props.$formutil;
 
         return (
             <form className="login-form row" onSubmit={this.submit}>
@@ -221,6 +221,106 @@ class LoginForm extends Component {
                     <button className="btn btn-block btn-warning" type="button" onClick={this.resetForm}>
                         重置
                     </button>
+                    <hr />
+                    <h4>使用EasyField组件</h4>
+                    <p>
+                        这里是使用 EasyField 组件的演示，相比默认的 Field
+                        ，它对常用的浏览器表单控件进行了封装，方便直接调用。<br />你可以查看下方的源代码来了解其使用。
+                    </p>
+                    <div className="form-group">
+                        <EasyField
+                            name="EasyField.number"
+                            type="number"
+                            className="form-control"
+                            placeholder="数字"
+                            validMessage={{ required: '必需填写', max: '最大输入10' }}
+                            required
+                            max="10"
+                        />
+                        {$errors.EasyField &&
+                            $errors.EasyField.number &&
+                            $dirts.EasyField.number && (
+                                <span className="help-block bg-danger">
+                                    {Object.values($errors.EasyField.number)[0]}
+                                </span>
+                            )}
+                    </div>
+                    <div className="form-group">
+                        <EasyField
+                            type="checkbox"
+                            name="EasyField.checkbox"
+                            checked="1"
+                            required
+                            unchecked="2"
+                            defaultValue="2"
+                            validMessage={{ required: '请勾选该项' }}
+                        />{' '}
+                        checkbox
+                        {$errors.EasyField &&
+                            $errors.EasyField.checkbox &&
+                            $dirts.EasyField.checkbox && (
+                                <span className="help-block bg-danger">
+                                    {Object.values($errors.EasyField.checkbox)[0]}
+                                </span>
+                            )}
+                    </div>
+                    <div className="form-group">
+                        <EasyField
+                            type="radio"
+                            name="EasyField.radio"
+                            defaultValue={false}
+                            required
+                            checked="yes"
+                            validMessage={{ required: '请选中该项' }}
+                        />{' '}
+                        radio
+                        {$errors.EasyField &&
+                            $errors.EasyField.radio &&
+                            $dirts.EasyField.radio && (
+                                <span className="help-block bg-danger">
+                                    {Object.values($errors.EasyField.radio)[0]}
+                                </span>
+                            )}
+                    </div>
+                    <div className="form-group">
+                        <EasyField
+                            type="textarea"
+                            name="EasyField.textarea"
+                            className="form-control"
+                            defaultValue=""
+                            minLength="10"
+                            required
+                            validMessage={{ required: '必需填写', minLength: '至少输入十个字符' }}
+                            placeholder="至少输入十个字"
+                        />
+                        {$errors.EasyField &&
+                            $errors.EasyField.textarea &&
+                            $dirts.EasyField.textarea && (
+                                <span className="help-block bg-danger">
+                                    {Object.values($errors.EasyField.textarea)[0]}
+                                </span>
+                            )}
+                    </div>
+                    <div className="form-group">
+                        <EasyField
+                            type="select"
+                            name="EasyField.select"
+                            className="form-control"
+                            required
+                            validMessage={{ required: '请选择' }}
+                            defaultValue="b">
+                            <option value="">select</option>
+                            <option value="a">a</option>
+                            <option value="b">b</option>
+                        </EasyField>
+                        {$errors.EasyField &&
+                            $errors.EasyField.select &&
+                            $dirts.EasyField.select && (
+                                <span className="help-block  bg-danger">
+                                    {Object.values($errors.EasyField.select)[0]}
+                                </span>
+                            )}
+                    </div>
                 </div>
 
                 <div className="col-lg-3">

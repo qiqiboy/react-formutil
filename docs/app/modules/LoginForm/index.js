@@ -69,7 +69,16 @@ class LoginForm extends Component {
         return (
             <form className="login-form row" onSubmit={this.submit}>
                 <div className="col-lg-6">
-                    <h4>用户登录</h4>
+                    <h4>
+                        用户登录{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L73-L216"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
+                    </h4>
                     <Field name="username" required $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
@@ -255,7 +264,14 @@ class LoginForm extends Component {
                             defaultValue="2"
                             validMessage={{ required: '请勾选该项' }}
                         />{' '}
-                        checkbox
+                        checkbox{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L248-L266"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         {$errors.EasyField &&
                             $errors.EasyField.checkbox &&
                             $dirts.EasyField.checkbox && (
@@ -265,7 +281,14 @@ class LoginForm extends Component {
                             )}
                     </div>
                     <div className="form-group">
-                        <label>多选</label>
+                        <label>多选</label>{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L267-L289"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         <EasyField
                             type="group.checkbox"
                             name="EasyField.checkbox_group"
@@ -296,7 +319,14 @@ class LoginForm extends Component {
                             checked="yes"
                             validMessage={{ required: '请选中该项' }}
                         />{' '}
-                        radio
+                        radio{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L290-L307"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         {$errors.EasyField &&
                             $errors.EasyField.radio &&
                             $dirts.EasyField.radio && (
@@ -306,7 +336,14 @@ class LoginForm extends Component {
                             )}
                     </div>
                     <div className="form-group">
-                        <label>单选</label>
+                        <label>单选</label>{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L308-L333"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         <EasyField
                             type="group.radio"
                             name="EasyField.radio_group"

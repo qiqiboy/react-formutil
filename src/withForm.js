@@ -6,12 +6,13 @@ function withForm(WrappedComponent, config = {}) {
         static displayName = 'React.formutil.withForm.' + WrappedComponent.name;
 
         render() {
-            const { $defaultValues, $defaultStates, ...others } = this.props;
+            const { ...others } = this.props;
             const formProps = {};
 
-            [$defaultStates, $defaultValues].forEach($prop => {
-                if ($prop in this.props) {
-                    formProps[$prop] = $prop;
+            ['$defaultStates', '$defaultValues'].forEach($prop => {
+                if ($prop in others) {
+                    formProps[$prop] = others[$prop];
+                    delete others[$prop];
                 }
             });
 

@@ -6,25 +6,21 @@ function withField(WrappedComponent, config = {}) {
         static displayName = 'React.formutil.withField.' + WrappedComponent.name;
 
         render() {
-            const { $validators, $asyncValidators, $defaultValue, $defaultState, name, ...otherProps } = this.props;
-            const fieldProps = { name };
+            const { $validators, $asyncValidators, ...others } = this.props;
+            const fieldProps = {};
 
-            Object.keys({ ...$validators, ...$asyncValidators }).forEach(prop => {
-                if (prop in otherProps) {
-                    fieldProps[prop] = otherProps[prop];
-                    delete otherProps[prop];
-                }
-            });
-
-            [$validators, $asyncValidators, $defaultValue, $defaultState].forEach($prop => {
-                if ($prop in this.props) {
-                    fieldProps[$prop] = $prop;
-                }
-            });
+            Object.keys({ ...$validators, ...$asyncValidators })
+                .concat('$validators', '$asyncValidators', '$defaultValue', '$defaultState', 'name')
+                .forEach(prop => {
+                    if (prop in others) {
+                        fieldProps[prop] = others[prop];
+                        delete others[prop];
+                    }
+                });
 
             return (
                 <Field {...config} {...fieldProps}>
-                    {props => <WrappedComponent {...otherProps} {...props} />}
+                    {props => <WrappedComponent {...others} {...props} />}
                 </Field>
             );
         }

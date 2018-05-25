@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "react-formutil-demo",
   "author": "qiqiboy",
   "version": "1.0.0",
   "private": true,
@@ -20,9 +20,6 @@
   "babel": {
     "presets": [
       "react-app"
-    ],
-    "plugins": [
-      "react-hot-loader/babel"
     ]
   },
   "eslintConfig": {

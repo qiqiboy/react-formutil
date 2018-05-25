@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a controlled React component to make it easy for create the form.",
   "main": "lib/index.js",
   "directories": {

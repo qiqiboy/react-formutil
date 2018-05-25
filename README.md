@@ -1,5 +1,7 @@
 # react-formutil
 
+[![npm](https://img.shields.io/npm/v/react-formutil.svg?style=flat)](https://npm.im/react-formutil)
+
 a controlled React component to make it easy for create the form.
 
 `react-formutil` 定义了一种表单状态的收集、分发、同步模型。基于此，你可以很方便的使用 `react-formutil` 来创建、管理你的页面表单。

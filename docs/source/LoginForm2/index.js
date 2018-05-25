@@ -23,7 +23,10 @@ class LoginForm extends Component {
 
     render() {
         return (
-            <Form>
+            <Form
+                $defaultValues={{
+                    extra_param: 'test'
+                }}>
                 {$formutil => {
                     //可以从$formutil中拿到$params $error $invalid等状态
                     const { $params } = $formutil;

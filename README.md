@@ -267,7 +267,7 @@ $formutil.$setStates({
 可以用来更新表单项的值：
 
 ```javascript
-$formutil.$setValue({
+$formutil.$setValues({
     username: 'jack',
     'list[0].id': '123456'
 });
@@ -296,7 +296,7 @@ $formutil.$reset();
 
 #### $formutil.$setDirty($dirtyTree = { name: $dirty }) / $formutil.$setTouched($touchedTree = { name: $touched })
 
-可以用来更新表单项的`$dirty`、`$touched`，类似`$setValue`
+可以用来更新表单项的`$dirty`、`$touched`，类似`$setValues`
 
 #### $formutil.$batchState($newState = {}) / $formutil.$batchDirty($dirty = false) / $formutil.$batchTouched($touched = false)
 

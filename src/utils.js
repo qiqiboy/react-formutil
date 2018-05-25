@@ -51,7 +51,7 @@ export const parsePath = (...args) => {
                 case '[':
                     const nextVarWord = executeNextword();
                     scope = isUndefined(scope[word])
-                        ? (scope[word] = typeof nextVarWord === 'number' ? [] : {})
+                        ? (scope[word] = typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {})
                         : scope[word];
                     break;
 

@@ -44,7 +44,7 @@ class Form extends Component {
 
         handler.validate();
 
-        this.forceUpdate();
+        this.$render();
 
         this.creatDeepRigesters();
     };
@@ -52,7 +52,7 @@ class Form extends Component {
     $$unregister = name => {
         delete this.$$registers[name];
 
-        this.forceUpdate();
+        this.$render();
 
         this.creatDeepRigesters();
     };
@@ -73,7 +73,7 @@ class Form extends Component {
             callback
         );
 
-    $setStates = ($stateTree, callback) => {
+    $setStates = ($stateTree = {}, callback) => {
         utils.objectEach($stateTree, ($newState, name) => {
             const handler = this.$getField(name);
             if (handler) {
@@ -101,8 +101,13 @@ class Form extends Component {
             }
         });
 
-        this.forceUpdate(callback);
+        this.$render(callback);
     };
+
+    $render = callback => this.forceUpdate(callback);
+
+    $validates = () => utils.objectEach(this.$$registers, handler => handler.validate());
+    $validate = name => this.$getField(name).validate();
 
     $reset = ($stateTree = {}) =>
         this.$setStates(
@@ -186,6 +191,8 @@ class Form extends Component {
                 return $touches;
             }, {}),
 
+            $render: this.$render,
+
             $getField: this.$getField,
 
             $setStates: this.$setStates,
@@ -199,6 +206,8 @@ class Form extends Component {
             $batchDirty: this.$batchDirty,
 
             $reset: this.$reset,
+            $validates: this.$validates,
+            $validate: this.$validate,
 
             $valid,
             $invalid: !$valid,

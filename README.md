@@ -4,6 +4,13 @@ a controlled React component to make it easy for create the form.
 
 `react-formutil` 定义了一种表单状态的收集、分发、同步模型。基于此，你可以很方便的使用 `react-formutil` 来创建、管理你的页面表单。
 
+> #### react-formutil 的优势
+>
+> 1.  对 dom 结构没有要求，没有侵入型
+> 2.  使用受控表单组件思路，可以对表单项精确控制
+> 3.  灵活的表单项状态定义，支持扩展
+> 4.  调用方式灵活，提供了高阶组件式、子组件（普通组件、函数）等，可以根据不同场景自由选择
+
 ## 安装 Installation
 
 ```bash
@@ -164,7 +171,7 @@ Field 会维护一个状态树，
     $setDirty: $dirty => {}, //设置$dirty
     $setTouched: $touched => {},设置$touched
     $setState: $newState => {} //直接更新状态，其实上面的几个方法都是基于$setState
-    $setValidity: ($key, $valid) => {}
+    $setValidity: ($key, $valid) => {} //设置校验， $valid为true代表校验通过，其它值表示校验失败，并当作错误原因
 }
 ```
 
@@ -176,7 +183,7 @@ Field 会维护一个状态树，
 
 ### withField
 
-`withField` 是一个高阶组件，与 `Field` 的区别是调用方式的不同。一般情况下建议通过 `Field` 组件去构造表单。如果你需要自定义一个复杂的表单项控件，则可以使用该高阶组件：
+`withField` 是一个高阶组件，与 `Field` 的区别是调用方式的不同。withField 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Field 组件。一般情况下建议通过 `Field` 组件去构造表单。如果你需要自定义一个复杂的表单项控件，则可以使用该高阶组件：
 
 ```javascript
 import React from 'react';
@@ -190,7 +197,9 @@ class FieldCustom extends React.Component {
     }
 }
 
-export default withField(FieldCustom);
+export default withField(FieldCustom, {
+    $defaultValue: '' //该项将传递给Field组件
+});
 ```
 
 ### Form
@@ -203,8 +212,16 @@ export default withField(FieldCustom);
 *   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
 *   你可以通过`$formutil.$error` 来获取表单的错误输入信息
 
+`Form` 可以接收两个可选属性参数：
+
+*   `$defaultValues` 可以通过这里批量设置表单的默认值，格式为 `{ name: value }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
+*   `$defaultStates` 可以通过这里批量设置表单的默认状态，格式为 `{ name: $state }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
+
 ```javascript
-<Form>
+<Form
+    $defaultValues={{
+        username: 'qiqiboy'
+    }}>
     {$formutil => (
         /* const { $params, $invalid, $error, ...others } = $formutil; */
         <div>
@@ -222,19 +239,21 @@ export default withField(FieldCustom);
 获取对 name 对应的表单项的操作引用，可以获取到包含以下方法的对象：
 
 ```javascript
-{
+const {
     picker(){}, //返回当前$state
     validate(){}, //重新校验
-    merge($state){} //合并参数$state
-}
+    merge($state){}, //合并参数$state
+    reset($state){}, //重置表单项状态
+    getComponent(){} //获取Field组件的引用
+} = $formutil.$getField('list[0].name'); //name支持表达式字符串
 ```
 
-#### $formutil.$setState($stateTree = {})
+#### $formutil.$setStates($stateTree = { name: $state })
 
 可以用来更新表单项的状态：
 
 ```javascript
-$formutil.$setState({
+$formutil.$setStates({
     username: { $dirty: true, $pristine: false },
     'list[0].name': {
         $dirty: true,
@@ -243,7 +262,7 @@ $formutil.$setState({
 });
 ```
 
-#### $formutil.$setValue($valueTree = {})
+#### $formutil.$setValues($valueTree = { name: $value })
 
 可以用来更新表单项的值：
 
@@ -254,7 +273,28 @@ $formutil.$setValue({
 });
 ```
 
-#### $formutil.$setDirty($dirtyTree = {}) / $formutil.$setTouched($touchedTree = {})
+#### $formutil.$setErros($errorTree = { name: $error })
+
+可以用来设置表单的校验结果：
+
+```javascript
+$formutil.$setErros({
+    username: {
+        required: '必填'
+    },
+    'list[0].id': {} //代表校验通过
+});
+```
+
+#### $formutil.$reset($stateTree = { name: $state })
+
+可以用来重置表单，会讲表单重置为初始状态（不会改变组件设置的默认状态和默认值）。如过传递了$stateTree，则会重置为合并了$stateTree 后的状态
+
+```javascript
+$formutil.$reset();
+```
+
+#### $formutil.$setDirty($dirtyTree = { name: $dirty }) / $formutil.$setTouched($touchedTree = { name: $touched })
 
 可以用来更新表单项的`$dirty`、`$touched`，类似`$setValue`
 
@@ -262,9 +302,9 @@ $formutil.$setValue({
 
 批量更改所有表单项的状态
 
-#### $formutil.$state
+#### $formutil.$states
 
-#### $formutil.$weakState
+#### $formutil.$weakStates
 
 所有表单项的状态集合。`$formutl.$state` 是以 `Field`i 的 name 值经过路径解析后的对象，`$formutil.$weakState` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
@@ -300,14 +340,36 @@ $formutil.$setValue({
 
 ### withForm
 
-withForm 是基于 Form 封装的高阶组件：
+withForm 是基于 Form 封装的高阶组件，withForm 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Form 组件。
 
 ```javascript
 class LoginForm extends Component {
     // ...
 }
 
-export default withForm(LoginForm);
+export default withForm(LoginForm, {
+    $defaultValues: {} //该项将传递给Form组件
+});
 ```
 
 ### 有任何问题欢迎提 issue 讨论
+
+一些常见问题解答：
+
+##### 如何获取对 Field 生成的节点的引用？
+
+可以通过 `$getField` 获取到一组 `handler` 方法，其中有 `getComponent` 方法，可以获取到组件对象，然后再通过 `react-dom` 提供的 `findDOMNode` 来获取到对应的实际 dom 元素节点
+
+```javascript
+import { findDOMNode } from 'react-dom';
+
+<Form>
+    {$formutil => {
+        function getNode(name) {
+            return findDOMNode($formutil.$getField(name).getComponent());
+        }
+
+        return <Field name="username">{/*...*/}</Field>;
+    }}
+</Form>;
+```

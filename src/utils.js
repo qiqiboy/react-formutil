@@ -9,12 +9,25 @@ function isUndefined(arg) {
  *
  * @param {Object} target 要赋值的对象
  * @param {String} path 赋值路径，eg：list[0].title
- * @param {Any} value 要赋过去的值
+ * @param {Any} [value] 要赋过去的值，如过不传，则返回解析路径后的值
  *
  * 使用示例：parsePath({}, 'list[0].authors[1].name', 'Lucy');
  */
 /* eslint-disable */
-export const parsePath = (target, path, value) => {
+export const parsePath = (...args) => {
+    const [target, path, value] = args;
+
+    if (args.length < 3) {
+        const execute = new Function(
+            'obj',
+            `try {
+                return obj.${path}
+            } catch(error) {}`
+        );
+
+        return execute(target);
+    }
+
     const pathSymbols = path.match(PATH_REGEXP) || [];
     const pathWords = path.split(PATH_REGEXP).filter(item => item !== '');
     let scope = target;

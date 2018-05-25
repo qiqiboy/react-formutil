@@ -6,22 +6,29 @@ class Form extends Component {
     static displayName = 'React.formutil.Form';
 
     static propTypes = {
-        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired
-    }
+        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired,
+        $defaultValues: PropTypes.object,
+        $defaultStates: PropTypes.object
+    };
 
     static childContextTypes = {
         $$register: PropTypes.func,
         $$unregister: PropTypes.func,
-        $$onChange: PropTypes.func
+        $$onChange: PropTypes.func,
+        $$defaultValues: PropTypes.object,
+        $$defaultStates: PropTypes.object
     };
 
     $$registers = {};
+    $$deepRegisters = {};
 
     getChildContext() {
         return {
             $$register: this.$$register,
             $$unregister: this.$$unregister,
-            $$onChange: this.$$onChange
+            $$onChange: this.$$onChange,
+            $$defaultValues: this.props.$defaultValues || {},
+            $$defaultStates: this.props.$defaultStates || {}
         };
     }
 
@@ -38,28 +45,52 @@ class Form extends Component {
         handler.validate();
 
         this.forceUpdate();
+
+        this.creatDeepRigesters();
     };
 
     $$unregister = name => {
         delete this.$$registers[name];
 
         this.forceUpdate();
+
+        this.creatDeepRigesters();
     };
 
-    $getField = name => this.$$registers[name];
+    creatDeepRigesters = () => {
+        this.$$deepRegisters = {};
+
+        utils.objectEach(this.$$registers, (handler, name) => utils.parsePath(this.$$deepRegisters, name, handler));
+    };
+
+    $getField = name => this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
 
     $$onChange = (name, $state, callback) =>
-        this.$setState(
+        this.$setStates(
             {
                 [name]: $state
             },
             callback
         );
 
-    $setState = ($stateTree, callback) => {
+    $setStates = ($stateTree, callback) => {
         utils.objectEach($stateTree, ($newState, name) => {
-            if (name in this.$$registers) {
-                const handler = this.$$registers[name];
+            const handler = this.$getField(name);
+            if (handler) {
+                if ('$error' in $newState) {
+                    if (!$newState.$error) {
+                        $newState.$error = {};
+                    }
+
+                    const $valid = Object.keys($newState.$error).length === 0;
+
+                    $newState = {
+                        $valid,
+                        $invalid: !$valid,
+                        ...$newState
+                    };
+                }
+
                 handler.merge($newState);
 
                 if ('$value' in $newState) {
@@ -73,19 +104,28 @@ class Form extends Component {
         this.forceUpdate(callback);
     };
 
-    $setValue = ($valueTree, callback) => this.$setState(utils.objectMap($valueTree, $value => ({ $value })), callback);
-    $setDirty = $dirtyTree => this.$setState(utils.objectMap($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
-    $setTouched = $touchedTree =>
-        this.$setState(utils.objectMap($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
+    $reset = ($stateTree = {}) =>
+        this.$setStates(
+            utils.objectMap(this.$$registers, (handler, name) =>
+                handler.reset($stateTree[name] || utils.parsePath($stateTree, name))
+            )
+        );
 
-    $batchState = ($state = {}) => this.$setState(utils.objectMap(this.$$registers, () => $state));
+    $setValues = ($valueTree, callback) =>
+        this.$setStates(utils.objectMap($valueTree, $value => ({ $value })), callback);
+    $setDirty = $dirtyTree => this.$setStates(utils.objectMap($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
+    $setTouched = $touchedTree =>
+        this.$setStates(utils.objectMap($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
+    $setErrors = $errorTree => this.$setStates(utils.objectMap($errorTree, $error => ({ $error })));
+
+    $batchStates = ($state = {}) => this.$setStates(utils.objectMap(this.$$registers, () => $state));
     $batchDirty = $dirty =>
-        this.$batchState({
+        this.$batchStates({
             $dirty,
             $pristine: !$dirty
         });
     $batchTouched = $touched =>
-        this.$batchState({
+        this.$batchStates({
             $touched,
             $untouched: !$touched
         });
@@ -103,8 +143,12 @@ class Form extends Component {
 
         const $formutil = {
             $$registers: this.$$registers,
-            $state: $stateArray.reduce(($formState, { path, $state }) => utils.parsePath($formState, path, $state), {}),
-            $params: $stateArray.reduce((params, { path, $state }) => utils.parsePath(params, path, $state.$value), {}),
+            $$deepRegisters: this.$$deepRegisters,
+            $states: $stateArray.reduce(
+                ($formState, { path, $state }) => utils.parsePath($formState, path, $state),
+                {}
+            ),
+            $params: $stateArray.reduce((params, { path, $state }) => utils.parsePath(params, path, $state.$value), this.props.$defaultValues || {}),
             $error: $valid
                 ? null
                 : $stateArray.reduce(($error, { path, $state }) => {
@@ -132,14 +176,17 @@ class Form extends Component {
 
             $getField: this.$getField,
 
-            $setState: this.$setState,
-            $setValue: this.$setValue,
+            $setStates: this.$setStates,
+            $setValues: this.$setValues,
+            $setErrors: this.$setErrors,
             $setTouched: this.$setTouched,
             $setDirty: this.$setDirty,
 
-            $batchState: this.$batchState,
+            $batchStates: this.$batchStates,
             $batchTouched: this.$batchTouched,
             $batchDirty: this.$batchDirty,
+
+            $reset: this.$reset,
 
             $valid,
             $invalid: !$valid,

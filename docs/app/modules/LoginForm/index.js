@@ -17,8 +17,8 @@ class LoginForm extends Component {
     };
 
     autoInput = () => {
-        //可以通过$setValue来更改表单的值
-        this.props.$formutil.$setValue(
+        //可以通过$setValues来更改表单的值
+        this.props.$formutil.$setValues(
             {
                 username: 'qiqiboy',
                 password: '123456',
@@ -33,6 +33,8 @@ class LoginForm extends Component {
             }
         );
     };
+
+    resetForm = () => this.props.$formutil.$reset();
 
     //定义校验规则
     $validators = {
@@ -65,15 +67,13 @@ class LoginForm extends Component {
         const { $params } = this.props.$formutil;
 
         return (
-            <form className="login-form  row" onSubmit={this.submit}>
+            <form className="login-form row" onSubmit={this.submit}>
                 <div className="col-lg-6">
                     <h4>用户登录</h4>
                     <Field name="username" required $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
-                                <label className="control-label" htmlFor="exampleInputEmail1">
-                                    用户名
-                                </label>
+                                <label className="control-label">用户名</label>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -96,9 +96,7 @@ class LoginForm extends Component {
                         $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
-                                <label className="control-label" htmlFor="exampleInputPassword1">
-                                    密码
-                                </label>
+                                <label className="control-label">密码</label>
                                 <input
                                     type="password"
                                     className="form-control"
@@ -125,9 +123,7 @@ class LoginForm extends Component {
                         $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
-                                <label className="control-label" htmlFor="exampleInputPassword1">
-                                    重复密码
-                                </label>
+                                <label className="control-label">重复密码</label>
                                 <input
                                     type="password"
                                     className="form-control"
@@ -155,9 +151,7 @@ class LoginForm extends Component {
                         $defaultValue={[this.targets[0].id]}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
-                                <label className="control-label" htmlFor="exampleInputPassword1">
-                                    多选示例
-                                </label>
+                                <label className="control-label">多选示例</label>
                                 <div>
                                     {this.targets.map(item => (
                                         <label className="checkbox-inline" key={item.id}>
@@ -221,8 +215,11 @@ class LoginForm extends Component {
                         </Field>
                     )}
                     <button className="btn btn-block btn-primary">登 录</button>
-                    <button className="btn btn-block btn-danger" type="button" onClick={this.autoInput}>
+                    <button className="btn btn-block btn-success" type="button" onClick={this.autoInput}>
                         自动填充
+                    </button>
+                    <button className="btn btn-block btn-warning" type="button" onClick={this.resetForm}>
+                        重置
                     </button>
                 </div>
 
@@ -240,4 +237,9 @@ class LoginForm extends Component {
     }
 }
 
-export default withForm(LoginForm);
+//可以通过高阶组件直接设置表单默认值
+export default withForm(LoginForm, {
+    $defaultValues: {
+        extra_param: 'test'
+    }
+});

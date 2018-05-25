@@ -1,5 +1,6 @@
 import { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
+import * as utils from './utils';
 
 class Field extends Component {
     static displayName = 'React.formutil.Field';
@@ -15,20 +16,22 @@ class Field extends Component {
     };
 
     static defaultProps = {
-        $defaultValue: '',
-        $defaultState: {}
+        $defaultValue: ''
     };
 
     static contextTypes = {
         $$register: PropTypes.func,
         $$unregister: PropTypes.func,
-        $$onChange: PropTypes.func
+        $$onChange: PropTypes.func,
+        $$defaultValues: PropTypes.object,
+        $$defaultStates: PropTypes.object
     };
 
     constructor(props, context) {
         super(props, context);
 
-        this.$state = {
+        this.$name = props.name;
+        this.$baseState = {
             $value: props.$defaultValue,
 
             $valid: true,
@@ -47,20 +50,36 @@ class Field extends Component {
             ...props.$defaultState
         };
 
-        this.$name = props.name;
-
         if (context.$$register) {
-            context.$$register(
-                props.name,
-                (this.$handler = {
-                    picker: () => this.$state,
-                    validate: () => {
-                        this.$syncValidate();
-                        this.$asyncValidate();
-                    },
-                    merge: $newState => Object.assign(this.$state, $newState)
-                })
-            );
+            const $initialValue =
+                this.$name in context.$$defaultValues
+                    ? context.$$defaultValues[this.$name]
+                    : utils.parsePath(context.$$defaultValues, this.$name);
+            const $initialState =
+                context.$$defaultStates[this.$name] || utils.parsePath(context.$$defaultStates, this.$name);
+
+            if (typeof $initialValue !== 'undefined') {
+                this.$baseState.$value = $initialValue;
+            }
+
+            if ($initialState) {
+                Object.assign(this.$baseState, $initialState);
+            }
+
+            this.$handler = {
+                picker: () => this.$state,
+                validate: () => {
+                    this.$syncValidate();
+                    this.$asyncValidate();
+                },
+                merge: $newState => Object.assign(this.$state, $newState),
+                reset: $state => (this.$state = { ...this.$baseState, ...$state }),
+                getComponent: () => this
+            };
+
+            this.$handler.reset();
+
+            context.$$register(props.name, this.$handler);
         } else {
             console.warn(
                 `react-formutil: The Field must be nesting inside the component that enhanced by the withForm(a High Order Component provided by react-formutil). `
@@ -107,12 +126,8 @@ class Field extends Component {
                 }
             });
 
-            const $valid = Object.keys($error).length === 0;
-
             return this.$setState({
-                $error,
-                $valid,
-                $invalid: !$valid
+                $error
             });
         }
     };
@@ -184,12 +199,8 @@ class Field extends Component {
             $error[key] = valid;
         }
 
-        const $valid = Object.keys($error).length === 0;
-
         return this.$setState({
-            $error,
-            $valid,
-            $invalid: !$valid
+            $error
         });
     };
 

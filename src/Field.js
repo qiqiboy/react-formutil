@@ -144,7 +144,10 @@ class Field extends Component {
 
                     if (promise && typeof promise.then === 'function') {
                         return promises.concat(
-                            promise.then(() => this.$setValidity(key, true), reason => this.$setValidity(key, reason))
+                            promise.then(
+                                () => this.$setValidity(key, true),
+                                reason => this.$setValidity(key, reason === true ? false : reason)
+                            )
                         );
                     }
 

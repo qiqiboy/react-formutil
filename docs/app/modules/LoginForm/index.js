@@ -73,7 +73,7 @@ class LoginForm extends Component {
                         用户登录{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L73-L216"
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L82-L225"
                                 target="_blank">
                                 source on github
                             </a>
@@ -267,7 +267,7 @@ class LoginForm extends Component {
                         checkbox{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L248-L266"
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L257-L282"
                                 target="_blank">
                                 source on github
                             </a>
@@ -284,7 +284,7 @@ class LoginForm extends Component {
                         <label>多选</label>{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L267-L289"
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L283-L312"
                                 target="_blank">
                                 source on github
                             </a>
@@ -322,7 +322,7 @@ class LoginForm extends Component {
                         radio{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L290-L307"
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L313-L337"
                                 target="_blank">
                                 source on github
                             </a>
@@ -339,7 +339,7 @@ class LoginForm extends Component {
                         <label>单选</label>{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L308-L333"
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L338-L370"
                                 target="_blank">
                                 source on github
                             </a>

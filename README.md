@@ -13,6 +13,51 @@ Happy to build the forms in React ^\_^
 > 3.  灵活的表单项状态定义，支持扩展
 > 4.  调用方式灵活，提供了高阶组件式、子组件（普通组件、函数）等，可以根据不同场景自由选择
 
+* [安装 Installation](#---installation)
+  * [使用 Usage](#---usage)
+    + [Field](#field)
+      - [name](#name)
+      - [$defaultValue](#-defaultvalue)
+      - [$defaultState](#-defaultstate)
+      - [$validators](#-validators)
+      - [$asyncValidators](#-asyncvalidators)
+      - [$state of Field](#-state-of-field)
+    + [withField](#withfield)
+    + [EasyField](#easyfield)
+      - [type](#type)
+      - [name](#name-1)
+      - [$defaultValue](#-defaultvalue-1)
+      - [$validators](#-validators-1)
+      - [$asyncValidators](#-asyncvalidators-1)
+      - [defaultValue](#defaultvalue)
+      - [validMessage](#validmessage)
+      - [checked / unchecked](#checked---unchecked)
+    + [Form](#form)
+      - [$getField(name)](#-getfield-name-)
+      - [$validate(name)](#-validate-name-)
+      - [$validates();](#-validates---)
+      - [$render(callback)](#-render-callback-)
+      - [$setStates($stateTree = { name: $state })](#-setstates--statetree-----name---state---)
+      - [$setValues($valueTree = { name: $value })](#-setvalues--valuetree-----name---value---)
+      - [$setErros($errorTree = { name: $error })](#-seterros--errortree-----name---error---)
+      - [$reset($stateTree = { name: $state })](#-reset--statetree-----name---state---)
+      - [$setDirts($dirtyTree = { name: $dirty }) / $setTouches($touchedTree = { name: $touched })](#-setdirts--dirtytree-----name---dirty-------settouches--touchedtree-----name---touched---)
+      - [$batchState($newState = {}) / $batchDirty($dirty = false) / $batchTouched($touched = false)](#-batchstate--newstate----------batchdirty--dirty---false-----batchtouched--touched---false-)
+      - [$states / $weakStates](#-states----weakstates)
+      - [$params / $weakParams](#-params----weakparams)
+      - [$errors / $weakErrors](#-errors----weakerrors)
+      - [$dirts / $weakDirts](#-dirts----weakdirts)
+      - [$touches / $weakTouches](#-touches----weaktouches)
+      - [$valid / $invalid](#-valid----invalid)
+      - [$dirty / $pristine](#-dirty----pristine)
+      - [$touched / $untouched](#-touched----untouched)
+    + [withForm](#withform)
+    + [FAQ & 常见问题解答](#faq---------)
+        * [Field 与 EasyField 有什么区别](#field---easyfield------)
+        * [checkbox 多选或 radio 单选组怎么实现](#checkbox-----radio--------)
+        * [使用 Field 实现一个上传图片的表单控件](#---field--------------)
+        * [如何获取对 Field 生成的节点的引用？](#------field----------)
+
 ## 安装 Installation
 
 ```bash
@@ -41,7 +86,7 @@ yarn add react-formutil
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
-> #### 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用
+> 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用
 
 ```javascript
 //一个函数式子组件书写示例
@@ -66,7 +111,7 @@ yarn add react-formutil
 
 `Field` 可以接收以下几个属性参数：
 
-#### props.name
+#### name
 
 该项必填，`name` 可以是一个简单的字符串，也可以是一个字符串表达式（该表达式执行没有 `scope`, 所以表达式中不能存在变量）
 
@@ -84,7 +129,7 @@ yarn add react-formutil
 }
 ```
 
-#### props.$defaultValue
+#### $defaultValue
 
 该属性可以设置表单控件的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
 
@@ -93,7 +138,7 @@ yarn add react-formutil
 
 `$defaultValue` 可以是任意类型值。
 
-#### props.$defaultState
+#### $defaultState
 
 该属性可以覆盖表单控件的的默认状态，类型必需是`key: value`简单对象：
 
@@ -104,7 +149,7 @@ yarn add react-formutil
 
 上面两者等效，其实表单控件的值只是状态里的一个字段`$value`
 
-#### props.$validators
+#### $validators
 
 该属性可以设置表单控件的校验方式，它是 `key: value` 的对象形式，key 为校验类型标识，value 为校验函数。仅当校验函数返回 true 时，表示该项校验通过，否则其他值将会被当作错误信息保存到状态中。
 
@@ -134,7 +179,7 @@ yarn add react-formutil
 
 在这个例子中，我们通过$validators 设置了 `required` 、 `maxLength` 以及 `disabledChar` 的校验规则。同时通过属性 `props` 表示了需要校验这三个字段。然后我们可以通过状态判断将错误信息展示出来。
 
-#### props.$asyncValidators
+#### $asyncValidators
 
 该属性可以设置表单项的异步校验规则，设置方式与`$validators`类似。但是不同的是，异步校验函数需要返回`promise`对象，该`promise`被`resolve`表示校验成功，`reject`表示校验失败，并且`reject`的`reason`会被当作失败原因保存到状态的`$error`对象。
 
@@ -152,7 +197,7 @@ yarn add react-formutil
 </Field>
 ```
 
-#### Field 的状态对象
+#### $state of Field
 
 Field 会维护一个状态树，
 
@@ -343,7 +388,7 @@ export default withField(FieldCustom, {
 
 更多解释参考：
 
-#### $formutil.$getField(name)
+#### $getField(name)
 
 获取对 name 对应的表单项的操作引用，可以获取到包含以下方法的对象：
 
@@ -357,19 +402,19 @@ const {
 } = $formutil.$getField('list[0].name'); //name支持表达式字符串
 ```
 
-#### $formutil.$validate(name)
+#### $validate(name)
 
 立即校验对应 name 的表单项
 
-#### $formutil.$validates();
+#### $validates();
 
 重新校验所有的表单项
 
-### $formutil.$render(callback)
+#### $render(callback)
 
 强制重新渲染表单组件，可以通过该方法的回调，在当前的渲染完成后回调
 
-#### $formutil.$setStates($stateTree = { name: $state })
+#### $setStates($stateTree = { name: $state })
 
 可以用来更新表单项的状态：
 
@@ -383,7 +428,7 @@ $formutil.$setStates({
 });
 ```
 
-#### $formutil.$setValues($valueTree = { name: $value })
+#### $setValues($valueTree = { name: $value })
 
 可以用来更新表单项的值：
 
@@ -394,7 +439,7 @@ $formutil.$setValues({
 });
 ```
 
-#### $formutil.$setErros($errorTree = { name: $error })
+#### $setErros($errorTree = { name: $error })
 
 可以用来设置表单的校验结果：
 
@@ -407,7 +452,7 @@ $formutil.$setErros({
 });
 ```
 
-#### $formutil.$reset($stateTree = { name: $state })
+#### $reset($stateTree = { name: $state })
 
 可以用来重置表单，会讲表单重置为初始状态（不会改变组件设置的默认状态和默认值）。如过传递了$stateTree，则会重置为合并了$stateTree 后的状态
 
@@ -415,59 +460,43 @@ $formutil.$setErros({
 $formutil.$reset();
 ```
 
-#### $formutil.$setDirts($dirtyTree = { name: $dirty }) / $formutil.$setTouches($touchedTree = { name: $touched })
+#### $setDirts($dirtyTree = { name: $dirty }) / $setTouches($touchedTree = { name: $touched })
 
 可以用来更新表单项的`$dirty`、`$touched`，类似`$setValues`
 
-#### $formutil.$batchState($newState = {}) / $formutil.$batchDirty($dirty = false) / $formutil.$batchTouched($touched = false)
+#### $batchState($newState = {}) / $batchDirty($dirty = false) / $batchTouched($touched = false)
 
 批量更改所有表单项的状态
 
-#### $formutil.$states
-
-#### $formutil.$weakStates
+#### $states / $weakStates
 
 所有表单项的状态集合。`$formutl.$state` 是以 `Field`i 的 name 值经过路径解析后的对象，`$formutil.$weakState` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $formutil.$params
-
-#### $formutil.$weakParams
+#### $params / $weakParams
 
 所有表单项的 值`$value` 集合。`$formutil.$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakParams` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $formutil.$errors
-
-#### $formutil.$weakErrors
+#### $errors / $weakErrors
 
 所有表单项的 `$error` 集合。`$formutil.$errors` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakErrors` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $formutil.$dirts
-
-#### $formutil.$weakDirts
+#### $dirts / $weakDirts
 
 所有表单项的 `$dirty` 集合。`$formutil.$dirts` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakDirts` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $formutil.$touches
-
-#### $formutil.$weakTouches
+#### $touches / $weakTouches
 
 所有表单项的 `$touched` 集合。`$formutil.$touches` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakTouches` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $formutil.$valid
-
-#### $formutil.$invalid
+#### $valid / $invalid
 
 表单项中所有 `Field` 的`$valid` 均为 `true` 时，`$formutil.$valid` 为 `true`, `$formutil.$invalid` 为 false。表单项中有任意 `Field` 的`$valid` 均为 `false` 时，`$formutil.$valid` 为 `false`, `$formutil.$invalid` 为 `True`。
 
-#### $formutil.$dirty
-
-#### $formutil.$pristine
+#### $dirty / $pristine
 
 表单项中所有 `Field` 的`$dirty` 均为 `false` 时，`$formutil.$dirty` 为 `false`, `$formutil.$pristine` 为 true。表单项中有任意 `Field` 的`$dirty` 均为 `true` 时，`$formutil.$dirty` 为 `true`, `$formutil.$pristine` 为 `false`。
 
-#### $formutil.$touched
-
-#### $formutil.$untouched
+#### $touched / $untouched
 
 表单项中所有 `Field` 的`$touched` 均为 `false` 时，`$formutil.$touched` 为 `false`, `$formutil.$untouched` 为 `true`。表单项中有任意 `Field` 的`$touched` 均为 `true` 时，`$formutil.$touched` 为 `true`, `$formutil.$untouched` 为 `false`。
 
@@ -485,9 +514,101 @@ export default withForm(LoginForm, {
 });
 ```
 
-### 有任何问题欢迎提 issue 讨论
+### FAQ & 常见问题解答
 
-一些常见问题解答：
+##### Field 与 EasyField 有什么区别
+
+Field 是抽象的底层，它仅提供了同步、渲染表单控件的接口，但是要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作。
+
+EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。
+
+##### checkbox 多选或 radio 单选组怎么实现
+
+可以直接 Field 实现，也可以使用 EasyField 实现（demo 都中有示例）：
+
+```javascript
+const hobbiesItems = [
+    {
+        id: 'music',
+        name: '音乐'
+    },
+    {
+        id: 'movie',
+        name: '电影'
+    },
+    {
+        id: 'ps4',
+        name: 'ps4'
+    }
+];
+
+<EasyField name="hobbies" type="group.checkbox">
+    {props => (
+        <div>
+            {hobbies.map(item => (
+                <label className="checkbox-inline" key={item.id}>
+                    {/* props.Field是每个候选项对应的input[checkbox]，必须渲染出来，并传递 $value */}
+                    <props.Field $value={item.id} />
+                    {item.name}
+                </label>
+            ))}
+        </div>
+    )}
+</EasyField>;
+```
+
+##### 使用 Field 实现一个上传图片的表单控件
+
+假如我们需要在表单中插入一个按钮，用户需要点击按钮上传图片后，将图片地址同步到表单中
+
+```javascript
+import React from 'react';
+import { Field } from 'react-formutil';
+import uploadFile from './uplaodFile'; //上传文件的方法
+
+//定义我们自己的表单控件组件
+export default function FieldFile(props) {
+    return (
+        <Field {...props}>
+            {$props => {
+                const selectFile = function() {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.onchange = function() {
+                        /* get file &upload */
+                        const files = fileInput.files;
+                        uploadFile(files).then(
+                            fileUrl => {
+                                //将文件地址更新到Field的状态中
+                                $props.$render(fileUrl);
+                            },
+                            error => {
+                                alert('upload fail');
+                            }
+                        );
+                    };
+
+                    fileInput.click();
+                };
+
+                return (
+                    <div className="upload-image">
+                        {$props.$value && <img src={$props.$value} className="preview" />}
+                        <button onClick={selectFile}>{$props.$value ? '更改图片' : '上传图片'}</button>
+                    </div>
+                );
+            }}
+        </Field>
+    );
+}
+
+/* ---------------------- 使用 -------------------- */
+
+<div className="form-group">
+    <label>点击上传头像</label>
+    <FieldFile name="avatar" />
+</div>;
+```
 
 ##### 如何获取对 Field 生成的节点的引用？
 

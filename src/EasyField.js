@@ -118,6 +118,7 @@ class EasyField extends Component {
                         const { children, restProps } = otherProps;
 
                         const childProps = {
+                            ...props,
                             Field: ({ $value, onChange, ...others }) => {
                                 const elemProps =
                                     groupType === 'radio'
@@ -154,7 +155,7 @@ class EasyField extends Component {
                                               }
                                           };
 
-                                return <input {...others} type={groupType} name={name} {...elemProps} />;
+                                return <input {...others} {...elemProps} type={groupType} name={name} />;
                             }
                         };
 

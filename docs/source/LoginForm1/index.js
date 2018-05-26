@@ -69,7 +69,16 @@ class LoginForm extends Component {
         return (
             <form className="login-form row" onSubmit={this.submit}>
                 <div className="col-lg-6">
-                    <h4>用户登录</h4>
+                    <h4>
+                        用户登录{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L82-L225"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
+                    </h4>
                     <Field name="username" required $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
@@ -255,7 +264,14 @@ class LoginForm extends Component {
                             defaultValue="2"
                             validMessage={{ required: '请勾选该项' }}
                         />{' '}
-                        checkbox
+                        checkbox{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L257-L282"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         {$errors.EasyField &&
                             $errors.EasyField.checkbox &&
                             $dirts.EasyField.checkbox && (
@@ -265,7 +281,14 @@ class LoginForm extends Component {
                             )}
                     </div>
                     <div className="form-group">
-                        <label>多选</label>
+                        <label>多选</label>{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L283-L312"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         <EasyField
                             type="group.checkbox"
                             name="EasyField.checkbox_group"
@@ -296,7 +319,14 @@ class LoginForm extends Component {
                             checked="yes"
                             validMessage={{ required: '请选中该项' }}
                         />{' '}
-                        radio
+                        radio{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L313-L337"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         {$errors.EasyField &&
                             $errors.EasyField.radio &&
                             $dirts.EasyField.radio && (
@@ -306,7 +336,14 @@ class LoginForm extends Component {
                             )}
                     </div>
                     <div className="form-group">
-                        <label>单选</label>
+                        <label>单选</label>{' '}
+                        <small>
+                            <a
+                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L338-L370"
+                                target="_blank">
+                                source on github
+                            </a>
+                        </small>
                         <EasyField
                             type="group.radio"
                             name="EasyField.radio_group"

@@ -59,6 +59,7 @@ Happy to build the forms in React ^\_^
     *   [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
     *   [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
     *   [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
+    *   [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
 
 ## 安装 Installation
 
@@ -650,4 +651,110 @@ import { findDOMNode } from 'react-dom';
         return <Field name="username">{/*...*/}</Field>;
     }}
 </Form>;
+```
+
+#### 对于有大量表单项的长页面有没有优化办法
+
+对于一个具有很多表单项、导致页面很大的表单，如果全部在一个组件里维护，会比较痛苦。幸运的事，使用 react-formutl 你可以很方便将大表单拆分成多个模块，既能减小大组件带来的维护难题，还能复用表单模块。
+
+比如同时要收集用户的个人信息和工作信息，我们可以将其拆分为三个模块：
+
+*   `Userinfo.js` 用户基本信心的字段
+*   `Workinfo.js` 用户工作信息的字段
+*   `Submit.js` 提交区域（因为只有在 Form 组件下级才能拿到$formutil 信息）
+
+注： Submit.js 和 Workinfo.js 合并到一起也是可以的。
+
+```javascript
+// Userinfo.js
+import React from 'react';
+import { EasyField } from 'react-formutil';
+
+export default function Userinfo({ $formutil }) {
+    //可以从props中获取$formutil
+    return (
+        <div className="userinfo-form">
+            <h3>基本信息</h3>
+            <EasyField name="name" placeholder="姓名" />
+            <EasyField name="age" placeholder="年龄" />
+            <EasyField name="sex" placeholder="性别" />
+            <EasyField name="phone" placeholder="手机" />
+        </div>
+    );
+}
+```
+
+```javascript
+// Workinfo.js
+import React from 'react';
+import { EasyField } from 'react-formutil';
+
+export default function Workinfo({ $formutil }) {
+    //可以从props中获取$formutil
+    return (
+        <div className="workinfo-form">
+            <h3>工作信息</h3>
+            <EasyField name="name" placeholder="姓名" />
+            <EasyField name="age" placeholder="年龄" />
+            <EasyField name="sex" placeholder="性别" />
+            <EasyField name="phone" placeholder="手机" />
+        </div>
+    );
+}
+```
+
+```javascript
+//Submit.js
+export default function Submit({ $formutil }) {
+    //可以从props中获取$formutil
+
+    const postData = () => {
+        const { $params, $invalid, $erros } = $formutil;
+        // ... 更多处理
+    };
+
+    return (
+        <div className="submit-area">
+            <button disabled={$formutil.$invlid} onClick={postData}>
+                提交
+            </button>
+        </div>
+    );
+}
+```
+
+```javascript
+// EditInfoPage.js
+import React from 'react';
+import Userinfo from './Userinfo';
+import Workinfo from './Workinfo';
+import Submit from './Submit';
+import { Form } from 'react-formutl';
+
+export default function EditInfoPage() {
+    //可以直接将拆分的模块以子组件放置在<Form />组件下（直接子组件，不可嵌套其它组件，否则可以使用下方的写法）
+    return (
+        <div className="editinfo-page">
+            <Form>
+                <Userinfo />
+                <Workinfo />
+                <Submit />
+            </Form>
+        </div>
+    );
+
+    /* 与下方写法等效 */
+
+    return (
+        <Form>
+            {({ $formutil }) => (
+                <div className="editinfo-page">
+                    <Userinfo $formutil={$formutil} />
+                    <Workinfo $formutil={$formutil} />
+                    <Submit $formutil={$formutil} />
+                </div>
+            )}
+        </Form>
+    );
+}
 ```

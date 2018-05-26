@@ -13,50 +13,52 @@ Happy to build the forms in React ^\_^
 > 3.  灵活的表单项状态定义，支持扩展
 > 4.  调用方式灵活，提供了高阶组件式、子组件（普通组件、函数）等，可以根据不同场景自由选择
 
-* [安装 Installation](#---installation)
-  * [使用 Usage](#---usage)
-    + [Field](#field)
-      - [name](#name)
-      - [$defaultValue](#-defaultvalue)
-      - [$defaultState](#-defaultstate)
-      - [$validators](#-validators)
-      - [$asyncValidators](#-asyncvalidators)
-      - [$state of Field](#-state-of-field)
-    + [withField](#withfield)
-    + [EasyField](#easyfield)
-      - [type](#type)
-      - [name](#name-1)
-      - [$defaultValue](#-defaultvalue-1)
-      - [$validators](#-validators-1)
-      - [$asyncValidators](#-asyncvalidators-1)
-      - [defaultValue](#defaultvalue)
-      - [validMessage](#validmessage)
-      - [checked / unchecked](#checked---unchecked)
-    + [Form](#form)
-      - [$getField(name)](#-getfield-name-)
-      - [$validate(name)](#-validate-name-)
-      - [$validates();](#-validates---)
-      - [$render(callback)](#-render-callback-)
-      - [$setStates($stateTree = { name: $state })](#-setstates--statetree-----name---state---)
-      - [$setValues($valueTree = { name: $value })](#-setvalues--valuetree-----name---value---)
-      - [$setErros($errorTree = { name: $error })](#-seterros--errortree-----name---error---)
-      - [$reset($stateTree = { name: $state })](#-reset--statetree-----name---state---)
-      - [$setDirts($dirtyTree = { name: $dirty }) / $setTouches($touchedTree = { name: $touched })](#-setdirts--dirtytree-----name---dirty-------settouches--touchedtree-----name---touched---)
-      - [$batchState($newState = {}) / $batchDirty($dirty = false) / $batchTouched($touched = false)](#-batchstate--newstate----------batchdirty--dirty---false-----batchtouched--touched---false-)
-      - [$states / $weakStates](#-states----weakstates)
-      - [$params / $weakParams](#-params----weakparams)
-      - [$errors / $weakErrors](#-errors----weakerrors)
-      - [$dirts / $weakDirts](#-dirts----weakdirts)
-      - [$touches / $weakTouches](#-touches----weaktouches)
-      - [$valid / $invalid](#-valid----invalid)
-      - [$dirty / $pristine](#-dirty----pristine)
-      - [$touched / $untouched](#-touched----untouched)
-    + [withForm](#withform)
-    + [FAQ & 常见问题解答](#faq---------)
-        * [Field 与 EasyField 有什么区别](#field---easyfield------)
-        * [checkbox 多选或 radio 单选组怎么实现](#checkbox-----radio--------)
-        * [使用 Field 实现一个上传图片的表单控件](#---field--------------)
-        * [如何获取对 Field 生成的节点的引用？](#------field----------)
+*   [安装 Installation](#---installation)
+*   [使用 Usage](#---usage)
+    *   [Field](#field)
+        *   [name](#name)
+        *   [$defaultValue](#-defaultvalue)
+        *   [$defaultState](#-defaultstate)
+        *   [$validators](#-validators)
+        *   [$asyncValidators](#-asyncvalidators)
+        *   [$state of Field](#-state-of-field)
+    *   [withField](#withfield)
+    *   [EasyField](#easyfield)
+        *   [type](#type)
+        *   [name](#name-1)
+        *   [$defaultValue](#-defaultvalue-1)
+        *   [$validators](#-validators-1)
+        *   [$asyncValidators](#-asyncvalidators-1)
+        *   [defaultValue](#defaultvalue)
+        *   [validMessage](#validmessage)
+        *   [checked / unchecked](#checked---unchecked)
+    *   [Form](#form)
+        *   [$defaultValues](#-defaultvalues)
+        *   [$defaultStates](#-defaultstates)
+        *   [$getField(name)](#-getfield-name-)
+        *   [$validate(name)](#-validate-name-)
+        *   [$validates();](#-validates---)
+        *   [$render(callback)](#-render-callback-)
+        *   [$setStates($stateTree = { name: $state })](#-setstates--statetree-----name---state---)
+        *   [$setValues($valueTree = { name: $value })](#-setvalues--valuetree-----name---value---)
+        *   [$setErros($errorTree = { name: $error })](#-seterros--errortree-----name---error---)
+        *   [$reset($stateTree = { name: $state })](#-reset--statetree-----name---state---)
+        *   [$setDirts($dirtyTree = { name: $dirty }) / $setTouches($touchedTree = { name: $touched })](#-setdirts--dirtytree-----name---dirty-------settouches--touchedtree-----name---touched---)
+        *   [$batchState($newState = {}) / $batchDirty($dirty = false) / $batchTouched($touched = false)](#-batchstate--newstate----------batchdirty--dirty---false-----batchtouched--touched---false-)
+        *   [$states / $weakStates](#-states----weakstates)
+        *   [$params / $weakParams](#-params----weakparams)
+        *   [$errors / $weakErrors](#-errors----weakerrors)
+        *   [$dirts / $weakDirts](#-dirts----weakdirts)
+        *   [$touches / $weakTouches](#-touches----weaktouches)
+        *   [$valid / $invalid](#-valid----invalid)
+        *   [$dirty / $pristine](#-dirty----pristine)
+        *   [$touched / $untouched](#-touched----untouched)
+    *   [withForm](#withform)
+*   [FAQ & 常见问题解答](#faq---------)
+    *   [Field 与 EasyField 有什么区别](#field---easyfield------)
+    *   [checkbox 多选或 radio 单选组怎么实现](#checkbox-----radio--------)
+    *   [使用 Field 实现一个上传图片的表单控件](#---field--------------)
+    *   [如何获取对 Field 生成的节点的引用？](#------field----------)
 
 ## 安装 Installation
 
@@ -368,13 +370,35 @@ export default withField(FieldCustom, {
 
 `Form` 可以接收两个可选属性参数：
 
-*   `$defaultValues` 可以通过这里批量设置表单的默认值，格式为 `{ name: value }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
-*   `$defaultStates` 可以通过这里批量设置表单的默认状态，格式为 `{ name: $state }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
+#### $defaultValues
+
+`$defaultValues` 可以通过这里批量设置表单的默认值，格式为 `{ name: value }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
 
 ```javascript
 <Form
     $defaultValues={{
         username: 'qiqiboy'
+    }}>
+    {$formutil => (
+        /* const { $params, $invalid, $errors, ...others } = $formutil; */
+        <div>
+            <Field name="username">{props => <input />}</Field>
+            <Field name="password">{props => <input />}</Field>
+        </div>
+    )}
+</Form>
+```
+
+#### $defaultStates
+
+`$defaultStates` 可以通过这里批量设置表单的默认状态，格式为 `{ name: $state }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
+
+```javascript
+<Form
+    $defaultStates={{
+        username: {
+            $dirty: true
+        }
     }}>
     {$formutil => (
         /* const { $params, $invalid, $errors, ...others } = $formutil; */
@@ -514,15 +538,15 @@ export default withForm(LoginForm, {
 });
 ```
 
-### FAQ & 常见问题解答
+## FAQ & 常见问题解答
 
-##### Field 与 EasyField 有什么区别
+#### Field 与 EasyField 有什么区别
 
 Field 是抽象的底层，它仅提供了同步、渲染表单控件的接口，但是要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作。
 
 EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。
 
-##### checkbox 多选或 radio 单选组怎么实现
+#### checkbox 多选或 radio 单选组怎么实现
 
 可以直接 Field 实现，也可以使用 EasyField 实现（demo 都中有示例）：
 
@@ -557,7 +581,7 @@ const hobbiesItems = [
 </EasyField>;
 ```
 
-##### 使用 Field 实现一个上传图片的表单控件
+#### 使用 Field 实现一个上传图片的表单控件
 
 假如我们需要在表单中插入一个按钮，用户需要点击按钮上传图片后，将图片地址同步到表单中
 
@@ -610,7 +634,7 @@ export default function FieldFile(props) {
 </div>;
 ```
 
-##### 如何获取对 Field 生成的节点的引用？
+#### 如何获取对 Field 生成的节点的引用？
 
 可以通过 `$getField` 获取到一组 `handler` 方法，其中有 `getComponent` 方法，可以获取到组件对象，然后再通过 `react-dom` 提供的 `findDOMNode` 来获取到对应的实际 dom 元素节点
 

@@ -8,10 +8,13 @@ Happy to build the forms in React ^\_^
 
 > #### react-formutil 的优势
 >
-> 1.  对 dom 结构没有要求，没有侵入型
-> 2.  使用受控表单组件思路，可以对表单项精确控制
-> 3.  灵活的表单项状态定义，支持扩展
-> 4.  调用方式灵活，提供了高阶组件式、子组件（普通组件、函数）等，可以根据不同场景自由选择
+> 1.  一切都是状态，$value、$diry/$pristine、$touched/$untouched、$valid/$invalid、$error 等都是状态
+>
+> *   非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构
+> *   采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
+> *   支持高阶组件和函数式子组件（function as child）式调用，更灵活
+> *   具备灵活的表单校验方式，支持同步和异步校验
+> *   规范的 jsx 语法调用，更符合 react 使用规范
 
 *   [安装 Installation](#安装-installation)
 *   [使用 Usage](#使用-usage)

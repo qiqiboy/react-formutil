@@ -190,7 +190,7 @@ class Field extends Component {
             $pristine: !$dirty
         });
 
-    $setValidity = (key, valid) => {
+    $setValidity = (key, valid = false) => {
         const { $error } = this.$state;
 
         if (valid === true) {

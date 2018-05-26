@@ -9,7 +9,7 @@ function withField(WrappedComponent, config = {}) {
             const { $validators, $asyncValidators, ...others } = this.props;
             const fieldProps = {};
 
-            Object.keys({ ...$validators, ...$asyncValidators })
+            Object.keys({ ...$validators, ...$asyncValidators, ...config.$validators, ...config.$asyncValidators })
                 .concat('$validators', '$asyncValidators', '$defaultValue', '$defaultState', 'name')
                 .forEach(prop => {
                     if (prop in others) {

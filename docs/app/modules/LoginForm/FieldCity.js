@@ -128,8 +128,19 @@ class FieldCity extends Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (
+            nextProps.$value !== this.props.$value &&
+            nextProps.$value &&
+            (!this.props.$value || nextProps.$value.province !== this.props.$value.province)
+        ) {
+            this.getCityData(nextProps.$value.province);
+        }
+    }
+
     render() {
         const { provinceData, cityData, loading } = this.state;
+        const { province = '', city = '' } = this.props.$value || this.props.$formutil.$params;
 
         return (
             <div className="row">
@@ -138,7 +149,7 @@ class FieldCity extends Component {
                         {props => (
                             <select
                                 className="form-control"
-                                value={props.$value}
+                                value={province}
                                 onChange={ev => props.$render(ev.target.value, this.onProvinceChange)}>
                                 <option value="">{loading ? 'loading' : '选择省份'}</option>
                                 {provinceData &&
@@ -156,7 +167,7 @@ class FieldCity extends Component {
                         {props => (
                             <select
                                 className="form-control"
-                                value={props.$value}
+                                value={city}
                                 onChange={ev => props.$render(ev.target.value, this.onCityChange)}>
                                 <option value="">{loading ? 'loading' : '选择城市'}</option>
                                 {cityData &&

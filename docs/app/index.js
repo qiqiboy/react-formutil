@@ -20,7 +20,7 @@ render(
                     </small>
                 </h2>
                 <p className="lead">
-                    这个例子将展示如何使用bootstrap和react-formutil快速制作一个登表单页面。
+                    这个例子将展示如何使用bootstrap和react-formutil快速制作一个登表单页面。示例包含了普通的文本输入、下拉框、双密码输入框（一致校验）、多项选择、多级联动等常见表单形式。
                     <a
                         className="small"
                         href=""

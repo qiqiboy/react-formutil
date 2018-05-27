@@ -696,10 +696,9 @@ export default function Workinfo({ $formutil }) {
     return (
         <div className="workinfo-form">
             <h3>工作信息</h3>
-            <EasyField name="name" placeholder="姓名" />
-            <EasyField name="age" placeholder="年龄" />
-            <EasyField name="sex" placeholder="性别" />
-            <EasyField name="phone" placeholder="手机" />
+            <EasyField name="company" placeholder="公司名称" />
+            <EasyField name="job" placeholder="行业" />
+            <EasyField name="work_address" placeholder="公司地址" />
         </div>
     );
 }

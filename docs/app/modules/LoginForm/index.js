@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import { withForm, Field, EasyField } from 'app/../../src';
+import FieldCity from './FieldCity';
 
 class LoginForm extends Component {
     submit = ev => {
         ev.preventDefault();
 
-        const { $invalid, $batchDirty } = this.props.$formutil;
+        const { $invalid, $batchDirty, $weakErrors } = this.props.$formutil;
 
         //如果表单有错误，我们可以将所有表单项设置为$dirty，以将所有错误显示出来
         if ($invalid) {
             //通过$batchDirty设置所有表单项
             $batchDirty(true);
+
+            alert('共有 ' + Object.keys($weakErrors).length + ' 错误需要处理');
         } else {
             alert('表单填写正确，可以登录');
         }
@@ -68,7 +71,7 @@ class LoginForm extends Component {
 
         return (
             <form className="login-form row" onSubmit={this.submit}>
-                <div className="col-lg-6">
+                <div className="col-md-6">
                     <h4>
                         用户登录{' '}
                         <small>
@@ -407,14 +410,42 @@ class LoginForm extends Component {
                                 </span>
                             )}
                     </div>
+
+                    <div className="form-group">
+                        <label className="control-label">
+                            工作城市（多级联动）{' '}
+                            <small>
+                                <a
+                                    href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/FieldCity.js#L49-L179"
+                                    target="_blank">
+                                    source on github
+                                </a>
+                            </small>
+                        </label>
+                        <FieldCity
+                            name="address"
+                            required
+                            $validators={{
+                                required: value => !!value || '请填写地址'
+                            }}
+                            $defaultValue={{
+                                province: 'guangdong',
+                                city: 'shenzhen'
+                            }}
+                        />
+                        {$errors.address &&
+                            $dirts.address && (
+                                <span className="help-block bg-danger">{Object.values($errors.address)[0]}</span>
+                            )}
+                    </div>
                 </div>
 
-                <div className="col-lg-3">
+                <div className="col-md-3">
                     <h4>表单项值</h4>
                     <pre>{JSON.stringify(this.props.$formutil.$params, '\n', 2)}</pre>
                 </div>
 
-                <div className="col-lg-3">
+                <div className="col-md-3">
                     <h4>表单所有状态</h4>
                     <pre>{JSON.stringify(this.props.$formutil, '\n', 2)}</pre>
                 </div>

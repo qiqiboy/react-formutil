@@ -171,7 +171,11 @@ class Form extends Component {
 
             $weakStates: utils.toObject($stateArray, ($states, { path, $state }) => ($states[path] = $state)),
             $weakParams: utils.toObject($stateArray, ($params, { path, $state }) => ($params[path] = $state.$value)),
-            $weakErrors: utils.toObject($stateArray, ($errors, { path, $state }) => ($errors[path] = $state.$error)),
+            $weakErrors: utils.toObject($stateArray, ($errors, { path, $state }) => {
+                if ($state.$invalid) {
+                    $errors[path] = $state.$error;
+                }
+            }),
             $weakDirts: utils.toObject($stateArray, ($dirts, { path, $state }) => ($dirts[path] = $state.$dirty)),
             $weakTouches: utils.toObject(
                 $stateArray,

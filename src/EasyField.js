@@ -49,28 +49,43 @@ class EasyField extends Component {
         const [type, groupType] = typeStr.split('.');
 
         const fieldProps = {
-            name,
+            name, $defaultState,
             $validators: {
-                required: $value =>
+                required: ($value, check) =>
+                    check === false ||
                     (type === 'checkbox' || type === 'radio' ? $value === checked : !!($value + '')) ||
                     validMessage.required ||
                     `${defaultErrMsg}: required`,
                 maxLength: ($value, len) =>
+                    len === false ||
                     !$value ||
                     $value.length <= len * 1 ||
                     validMessage.maxLength ||
                     `${defaultErrMsg}: maxLength: ${len}`,
                 minLength: ($value, len) =>
+                    len === false ||
                     !$value ||
                     $value.length >= len * 1 ||
                     validMessage.minLength ||
                     `${defaultErrMsg}: minLength: ${len}`,
                 max: ($value, limit) =>
-                    !$value || $value * 1 <= limit || validMessage.max || `${defaultErrMsg}: max: ${limit}`,
+                    limit === false ||
+                    !$value ||
+                    $value * 1 <= limit ||
+                    validMessage.max ||
+                    `${defaultErrMsg}: max: ${limit}`,
                 min: ($value, limit) =>
-                    !$value || $value * 1 >= limit || validMessage.min || `${defaultErrMsg}: min: ${limit}`,
+                    limit === false ||
+                    !$value ||
+                    $value * 1 >= limit ||
+                    validMessage.min ||
+                    `${defaultErrMsg}: min: ${limit}`,
                 pattern: ($value, regexp) =>
-                    !$value || regexp.test($value) || validMessage.pattern || `${defaultErrMsg}: pattern: ${regexp}`,
+                    regexp === false ||
+                    !$value ||
+                    regexp.test($value) ||
+                    validMessage.pattern ||
+                    `${defaultErrMsg}: pattern: ${regexp}`,
                 ...$validators
             },
             $asyncValidators

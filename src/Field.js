@@ -68,10 +68,7 @@ class Field extends Component {
 
             this.$handler = {
                 picker: () => this.$state,
-                validate: () => {
-                    this.$syncValidate();
-                    this.$asyncValidate();
-                },
+                validate: this.$validate,
                 merge: $newState => Object.assign(this.$state, $newState),
                 reset: $state => (this.$state = { ...this.$baseState, ...$state }),
                 getComponent: () => this
@@ -193,6 +190,11 @@ class Field extends Component {
             $pristine: !$dirty
         });
 
+    $setError = $error =>
+        this.$setState({
+            $error
+        });
+
     $setValidity = (key, valid = false) => {
         const { $error } = this.$state;
 
@@ -207,6 +209,11 @@ class Field extends Component {
         });
     };
 
+    $validate = () => {
+        this.$syncValidate();
+        this.$asyncValidate();
+    };
+
     render() {
         const { children } = this.props;
         const childProps = {
@@ -215,10 +222,12 @@ class Field extends Component {
 
             $render: this.$render,
             $setValue: this.$render,
+            $setState: this.$setState,
             $setTouched: this.$setTouched,
             $setValidity: this.$setValidity,
             $setDirty: this.$setDirty,
-            $setState: this.$setState
+            $validate: this.$validate,
+            $setError: this.$setError,
         };
 
         if (typeof children === 'function') {

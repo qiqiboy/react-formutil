@@ -225,7 +225,8 @@ Field 会维护一个状态树，
     $setTouched: $touched => {},设置$touched
     $setState: $newState => {} //直接更新状态，其实上面的几个方法都是基于$setState
     $setValidity: ($key, $valid) => {} //设置校验， $valid为true代表校验通过，其它值表示校验失败，并当作错误原因
-}
+    $setError: ($error) => {} //直接设置错误状态
+    $validate: () => {} //触发再次校验
 ```
 
 该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单状态：
@@ -313,12 +314,12 @@ export default withField(FieldCustom, {
 
 同`Field`的`$validators`。EasyFiled 内置了以下集中校验支持：
 
-*   required
-*   maxLength
-*   minLength
-*   max
-*   min
-*   pattern
+*   `required` 必填，如果是 group.checkbox，则必需至少选中一项
+*   `maxLength` 。最大输入长度，支持group.checkbox。有效输入时才会校验
+*   `minLength` 最小输入长度，支持group.checkbox。有效输入时才会校验
+*   `max` 最大输入数值，仅支持Number比较。有效输入时才会校验
+*   `min` 最小输入数值，仅支持Number比较。有效输入时才会校验
+*   `pattern` 正则匹配。有效输入时才会校验
 
 内置的校验规则无需再次声明，除非规则不符合预期，需要替换，则可以通过`$validators` 传递同名校验方法即可替换默认的。另外，内置的校验规则，如果校验不通过，会尝试去 `validMessage` 匹配错误信息。
 

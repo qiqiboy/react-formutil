@@ -9,10 +9,10 @@ function withForm(WrappedComponent, config = {}) {
             const { ...others } = this.props;
             const formProps = {};
 
-            ['$defaultStates', '$defaultValues'].forEach($prop => {
-                if ($prop in others) {
-                    formProps[$prop] = others[$prop];
-                    delete others[$prop];
+            ['$defaultStates', '$defaultValues'].forEach(prop => {
+                if (prop in others) {
+                    formProps[prop] = { ...config[prop], ...others[prop] };
+                    delete others[prop];
                 }
             });
 

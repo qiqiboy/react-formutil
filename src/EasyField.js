@@ -13,9 +13,6 @@ class EasyField extends Component {
     static propTypes = {
         type: PropTypes.string.isRequired,
         defaultValue: PropTypes.any,
-        name: PropTypes.string,
-        $validators: PropTypes.object,
-        $asyncValidators: PropTypes.object,
         checked: PropTypes.any,
         unchecked: PropTypes.any,
         validMessage: PropTypes.object
@@ -49,7 +46,8 @@ class EasyField extends Component {
         const [type, groupType] = typeStr.split('.');
 
         const fieldProps = {
-            name, $defaultState,
+            name,
+            $defaultState,
             $validators: {
                 required: ($value, check) =>
                     check === false ||

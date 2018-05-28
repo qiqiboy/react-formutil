@@ -40,21 +40,23 @@ class Form extends Component {
             delete this.$$registers[preName];
         }
 
-        this.$$registers[name] = handler;
+        if (name) {
+            this.$$registers[name] = handler;
 
-        handler.validate();
-
-        this.$render();
+            handler.$validate();
+        }
 
         this.creatDeepRigesters();
+        this.$render();
     };
 
     $$unregister = name => {
-        delete this.$$registers[name];
+        if (name) {
+            delete this.$$registers[name];
 
-        this.$render();
-
-        this.creatDeepRigesters();
+            this.creatDeepRigesters();
+            this.$render();
+        }
     };
 
     creatDeepRigesters = () => {
@@ -77,25 +79,7 @@ class Form extends Component {
         utils.objectEach($stateTree, ($newState, name) => {
             const handler = this.$getField(name);
             if (handler) {
-                if ('$error' in $newState) {
-                    if (!$newState.$error) {
-                        $newState.$error = {};
-                    }
-
-                    const $valid = Object.keys($newState.$error).length === 0;
-
-                    $newState = {
-                        $valid,
-                        $invalid: !$valid,
-                        ...$newState
-                    };
-                }
-
-                handler.merge($newState);
-
-                if ('$value' in $newState) {
-                    handler.validate();
-                }
+                handler.$$merge($newState);
             } else {
                 console.warn(`react-formutil: The Field: '${name}' is not existed!`);
             }
@@ -106,13 +90,13 @@ class Form extends Component {
 
     $render = callback => this.forceUpdate(callback);
 
-    $validates = () => utils.objectEach(this.$$registers, handler => handler.validate());
-    $validate = name => this.$getField(name).validate();
+    $validates = () => utils.objectEach(this.$$registers, handler => handler.$validate());
+    $validate = name => this.$getField(name).$validate();
 
     $reset = ($stateTree = {}) =>
         this.$setStates(
             utils.objectMap(this.$$registers, (handler, name) =>
-                handler.reset($stateTree[name] || utils.parsePath($stateTree, name))
+                handler.$$reset($stateTree[name] || utils.parsePath($stateTree, name))
             )
         );
 
@@ -138,7 +122,7 @@ class Form extends Component {
     render() {
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
-            $state: this.$$registers[path].picker()
+            $state: this.$$registers[path].$picker()
         }));
 
         const $valid = $stateArray.every(({ $state }) => $state.$valid);

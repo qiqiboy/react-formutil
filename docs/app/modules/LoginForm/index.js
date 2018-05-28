@@ -31,8 +31,8 @@ class LoginForm extends Component {
             },
             () => {
                 //我们需要更新后重新校验密码字段，因为这两个字段校验一致性是互相依赖的
-                this.props.$formutil.$getField('password').validate();
-                this.props.$formutil.$getField('confirm_password').validate();
+                this.props.$formutil.$validate('password');
+                this.props.$formutil.$validate('confirm_password');
             }
         );
     };
@@ -93,6 +93,9 @@ class LoginForm extends Component {
                                     value={props.$value}
                                     onChange={ev => props.$render(ev.target.value.trim())}
                                 />
+                                <button type="button" onClick={ev => props.$reset()}>
+                                    reset
+                                </button>
                                 {props.$dirty &&
                                     props.$invalid && (
                                         <span className="help-block">{Object.values(props.$error)[0]}</span>
@@ -116,7 +119,7 @@ class LoginForm extends Component {
                                     value={props.$value}
                                     onChange={ev =>
                                         props.$render(ev.target.value.trim(), () =>
-                                            this.props.$formutil.$getField('confirm_password').validate()
+                                            this.props.$formutil.$validate('confirm_password')
                                         )
                                     }
                                 />
@@ -143,7 +146,7 @@ class LoginForm extends Component {
                                     value={props.$value}
                                     onChange={(ev /* 这里同样，需要更新组件后再次去校验依赖该表单项字段的项目 */) =>
                                         props.$render(ev.target.value.trim(), () =>
-                                            this.props.$formutil.$getField('password').validate()
+                                            this.props.$formutil.$validate('password')
                                         )
                                     }
                                 />

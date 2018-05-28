@@ -204,7 +204,7 @@ yarn add react-formutil
 
 #### $state of Field
 
-Field 会维护一个状态树，
+Field 会维护一个状态树，以及一些方法
 
 ```js
 {
@@ -218,6 +218,11 @@ Field 会维护一个状态树，
     $error: {}, //表单校验错误信息
 
     $pending: false, //异步校验时该值将为true
+
+    $pickr: () => $state, //返回当前状态树
+    $merge: ($newState) => $state, //合并$newState到当前状态树（该操作不会触发组件重新渲染）
+    $reset: ($newState) => $state, //重置为初始状态, $newState存在的话，会做一个合并
+    $getComponent: (name) => FieldComponent, //返回Field组件实例
 
     $render: (value, callback) => {}, //更新表单值，callback可选，会在组件更新后回调
     $setValue: value => {}, //同$render，只是个别名
@@ -315,10 +320,10 @@ export default withField(FieldCustom, {
 同`Field`的`$validators`。EasyFiled 内置了以下集中校验支持：
 
 *   `required` 必填，如果是 group.checkbox，则必需至少选中一项
-*   `maxLength` 。最大输入长度，支持group.checkbox。有效输入时才会校验
-*   `minLength` 最小输入长度，支持group.checkbox。有效输入时才会校验
-*   `max` 最大输入数值，仅支持Number比较。有效输入时才会校验
-*   `min` 最小输入数值，仅支持Number比较。有效输入时才会校验
+*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验
+*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验
+*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验
+*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验
 *   `pattern` 正则匹配。有效输入时才会校验
 
 内置的校验规则无需再次声明，除非规则不符合预期，需要替换，则可以通过`$validators` 传递同名校验方法即可替换默认的。另外，内置的校验规则，如果校验不通过，会尝试去 `validMessage` 匹配错误信息。
@@ -422,11 +427,14 @@ export default withField(FieldCustom, {
 
 ```javascript
 const {
-    picker(){}, //返回当前$state
-    validate(){}, //重新校验
-    merge($state){}, //合并参数$state
-    reset($state){}, //重置表单项状态
-    getComponent(){} //获取Field组件的引用
+    $picker(){}, //返回当前$state
+    $validate(){}, //重新校验
+    $merge($state){}, //合并参数$state
+    $reset($state){}, //重置表单项状态
+    $getComponent(){}, //获取Field组件的引用
+    $setState,
+    $setValue,
+    $setDirty,$setTouched,$setValidity,$setError
 } = $formutil.$getField('list[0].name'); //name支持表达式字符串
 ```
 

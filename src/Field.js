@@ -8,7 +8,7 @@ class Field extends Component {
     static propTypes = {
         $defaultValue: PropTypes.any,
         $defaultState: PropTypes.object,
-        name: PropTypes.string.isRequired,
+        name: PropTypes.string,
         children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired,
 
         $validators: PropTypes.object,
@@ -30,7 +30,6 @@ class Field extends Component {
     constructor(props, context) {
         super(props, context);
 
-        this.$name = props.name;
         this.$baseState = {
             $value: props.$defaultValue,
 
@@ -50,7 +49,9 @@ class Field extends Component {
             ...props.$defaultState
         };
 
-        if (context.$$register) {
+        this.$name = props.name;
+
+        if (this.$name) {
             const $initialValue =
                 this.$name in context.$$defaultValues
                     ? context.$$defaultValues[this.$name]
@@ -65,33 +66,50 @@ class Field extends Component {
             if ($initialState) {
                 Object.assign(this.$baseState, $initialState);
             }
+        }
 
-            this.$handler = {
-                picker: () => this.$state,
-                validate: this.$validate,
-                merge: $newState => Object.assign(this.$state, $newState),
-                reset: $state => (this.$state = { ...this.$baseState, ...$state }),
-                getComponent: () => this
+        this.$handler = {
+            $name: this.$name,
+            $picker: () => this.$state,
+            $getComponent: () => this,
+            $$merge: this.$$merge,
+            $$reset: $newState => (this.$state = { ...this.$baseState, ...$newState }),
+
+            $reset: $newState => this.$setState(this.$handler.$$reset($newState)),
+            $render: this.$render,
+            $setValue: this.$render,
+            $setState: this.$setState,
+            $setTouched: this.$setTouched,
+            $setValidity: this.$setValidity,
+            $setDirty: this.$setDirty,
+            $validate: this.$validate,
+            $setError: this.$setError
+        };
+
+        // deprecated methods warning
+        ['getComponent', 'validate'].forEach(key => {
+            this.$handler[key] = (...args) => {
+                console.warn(`react-formuitl: '${key}' has been deprecated, please use '$${key}' instead of it.`);
+                return this.$handler['$' + key](...args);
             };
+        });
 
-            this.$handler.reset();
+        this.$handler.$$reset();
 
-            context.$$register(props.name, this.$handler);
-        } else {
-            console.warn(
-                `react-formutil: The Field must be nesting inside the component that enhanced by the withForm(a High Order Component provided by react-formutil). `
-            );
+        if (context.$$register) {
+            context.$$register(this.$name, this.$handler);
         }
     }
 
     componentWillUnmount() {
-        this.context.$$unregister(this.props.name);
+        if (this.context.$$unregister) {
+            this.context.$$unregister(this.$name);
+        }
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.name !== this.props.name) {
-            this.$name = nextProps.name;
-            this.context.$$register(nextProps.name, this.$handler, this.props.name);
+        if (this.context.$$register && nextProps.name !== this.props.name) {
+            this.context.$$register((this.$name = nextProps.name), this.$handler, this.props.name);
         }
     }
 
@@ -161,7 +179,40 @@ class Field extends Component {
         }
     };
 
-    $setState = ($newState, callback) => this.context.$$onChange(this.$name, $newState, callback) && this.$state;
+    $$merge = $newState => {
+        if ('$error' in $newState) {
+            if (!$newState.$error) {
+                $newState.$error = {};
+            }
+
+            const $valid = Object.keys($newState.$error).length === 0;
+
+            $newState = {
+                $valid,
+                $invalid: !$valid,
+                ...$newState
+            };
+        }
+
+        Object.assign(this.$state, $newState);
+
+        if ('$value' in $newState) {
+            this.$validate();
+        }
+
+        return this.$state;
+    };
+
+    $setState = ($newState, callback) => {
+        if (this.$name) {
+            this.context.$$onChange(this.$name, $newState, callback);
+        } else {
+            this.$$merge($newState);
+            this.forceUpdate(callback);
+        }
+
+        return this.$state;
+    };
 
     $render = ($value, callback) =>
         this.$setState(
@@ -204,9 +255,7 @@ class Field extends Component {
             $error[key] = valid;
         }
 
-        return this.$setState({
-            $error
-        });
+        return this.$setError($error);
     };
 
     $validate = () => {
@@ -217,18 +266,11 @@ class Field extends Component {
     render() {
         const { children } = this.props;
         const childProps = {
-            $name: this.$name,
             ...this.$state,
-
-            $render: this.$render,
-            $setValue: this.$render,
-            $setState: this.$setState,
-            $setTouched: this.$setTouched,
-            $setValidity: this.$setValidity,
-            $setDirty: this.$setDirty,
-            $validate: this.$validate,
-            $setError: this.$setError,
+            ...this.$handler
         };
+
+        delete childProps.$$reset;
 
         if (typeof children === 'function') {
             return children(childProps);

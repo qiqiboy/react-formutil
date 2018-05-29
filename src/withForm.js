@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Form from './Form';
 
 function withForm(WrappedComponent, config = {}) {
-    return class extends Component {
+    return class FormEnhanced extends Component {
         static displayName = 'React.formutil.withForm.' + WrappedComponent.name;
 
         render() {

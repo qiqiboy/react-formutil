@@ -29,7 +29,7 @@ function withField(WrappedComponent, config = {}) {
                 });
 
             return (
-                <Field {...others} {...fieldProps}>
+                <Field {...config} {...fieldProps}>
                     {props => <WrappedComponent {...others} {...props} />}
                 </Field>
             );

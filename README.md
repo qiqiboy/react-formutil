@@ -512,7 +512,6 @@ export default withField(FieldCustom, {
 const {
     $picker(){}, //返回当前$state
     $validate(){}, //重新校验
-    $merge($state){}, //合并参数$state
     $reset($state){}, //重置表单项状态
     $getComponent(){}, //获取Field组件的引用
     $setState,

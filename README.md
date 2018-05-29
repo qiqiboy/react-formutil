@@ -15,53 +15,69 @@ Happy to build the forms in React ^\_^
 > 5.  具备灵活的表单校验方式，支持同步和异步校验
 > 6.  规范的 jsx 语法调用，更符合 react 使用规范
 
-*   [安装 Installation](#安装-installation)
-*   [使用 Usage](#使用-usage)
-    *   [Field](#field)
-        *   [name](#name)
-        *   [$defaultValue](#defaultvalue)
-        *   [$defaultState](#defaultstate)
-        *   [$validators](#validators)
-        *   [$asyncValidators](#asyncvalidators)
-        *   [$state of Field](#state-of-field)
-    *   [withField](#withfield)
-    *   [EasyField](#easyfield)
-        *   [type](#type)
-        *   [name](#name-1)
-        *   [$defaultValue](#defaultvalue-1)
-        *   [$validators](#validators-1)
-        *   [$asyncValidators](#asyncvalidators-1)
-        *   [defaultValue](#defaultvalue-2)
-        *   [validMessage](#validmessage)
-        *   [checked/unchecked](#checked--unchecked)
-    *   [Form](#form)
-        *   [$defaultValues](#defaultvalues)
-        *   [$defaultStates](#defaultstates)
-        *   [$getField](#getfieldname)
-        *   [$validate](#validatename)
-        *   [$validates](#validates)
-        *   [$render](#rendercallback)
-        *   [$setStates](#setstatesstatetree---name-state-)
-        *   [$setValues](#setvaluesvaluetree---name-value-)
-        *   [$setErros](#resetstatetree---name-state-)
-        *   [$reset](#-reset--statetree-----name---state---)
-        *   [$setDirts | $setTouches](#setdirtsdirtytree---name-dirty---settouchestouchedtree---name-touched-)
-        *   [$batchState | $batchDirty | $batchTouched](#batchstatenewstate----batchdirtydirty--false--batchtouchedtouched--false)
-        *   [$states | $weakStates](#-states----weakstates)
-        *   [$params | $weakParams](#-params----weakparams)
-        *   [$errors | $weakErrors](#-errors----weakerrors)
-        *   [$dirts | $weakDirts](#-dirts----weakdirts)
-        *   [$touches | $weakTouches](#-touches----weaktouches)
-        *   [$valid | $invalid](#-valid----invalid)
-        *   [$dirty | $pristine](#-dirty----pristine)
-        *   [$touched | $untouched](#-touched----untouched)
-    *   [withForm](#withform)
-*   [FAQ & 常见问题解答](#faq--常见问题解答)
-    *   [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
-    *   [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
-    *   [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
-    *   [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
-    *   [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
+
+<!-- vim-markdown-toc GFM -->
+
+* [安装 Installation](#安装-installation)
+* [使用 Usage](#使用-usage)
+    - [Field](#field)
+        + [name](#name)
+        + [$defaultValue](#defaultvalue)
+        + [$defaultState](#defaultstate)
+        + [$validators](#validators)
+        + [$asyncValidators](#asyncvalidators)
+        + [$state](#state)
+        + [$value](#value)
+        + [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $pending](#dirty--pristine--touched--untouched--invalid--valid--pending)
+        + [$error](#error)
+        + [$picker()](#picker)
+        + [$reset()](#reset)
+        + [$getComponent()](#getcomponent)
+        + [$setState($newState)](#setstatenewstate)
+        + [$render() | $setValue()](#render--setvalue)
+        + [$setDirty($dirty) | $setTouched($touched) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setvalidityerrkey-result)
+        + [$setError($error)](#seterrorerror)
+        + [$validate()](#validate)
+    - [withField](#withfield)
+    - [EasyField](#easyfield)
+        + [type](#type)
+        + [name](#name-1)
+        + [$defaultValue](#defaultvalue-1)
+        + [$validators](#validators-1)
+        + [$asyncValidators](#asyncvalidators-1)
+        + [defaultValue](#defaultvalue-2)
+        + [validMessage](#validmessage)
+        + [checked / unchecked](#checked--unchecked)
+    - [Form](#form)
+        + [$defaultValues](#defaultvalues)
+        + [$defaultStates](#defaultstates)
+        + [$getField(name)](#getfieldname)
+        + [$validate(name)](#validatename)
+        + [$validates();](#validates)
+        + [$render(callback)](#rendercallback)
+        + [$setStates($stateTree)](#setstatesstatetree)
+        + [$setValues($valueTree)](#setvaluesvaluetree)
+        + [$setErros($errorTree)](#seterroserrortree)
+        + [$reset($stateTree)](#resetstatetree)
+        + [$setDirts($dirtyTree) | $setTouches($touchedTree)](#setdirtsdirtytree--settouchestouchedtree)
+        + [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched)
+        + [$states | $weakStates](#states--weakstates)
+        + [$params | $weakParams](#params--weakparams)
+        + [$errors | $weakErrors](#errors--weakerrors)
+        + [$dirts | $weakDirts](#dirts--weakdirts)
+        + [$touches | $weakTouches](#touches--weaktouches)
+        + [$valid | $invalid](#valid--invalid)
+        + [$dirty | $pristine](#dirty--pristine)
+        + [$touched | $untouched](#touched--untouched)
+    - [withForm](#withform)
+* [FAQ & 常见问题解答](#faq--常见问题解答)
+    + [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
+    + [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
+    + [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
+    + [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
+    + [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
+
+<!-- vim-markdown-toc -->
 
 ## 安装 Installation
 
@@ -202,9 +218,9 @@ yarn add react-formutil
 </Field>
 ```
 
-#### $state of Field
+#### $state
 
-Field 会维护一个状态树，以及一些方法
+Field 会维护一个状态树，以及一些方法，并且会将状态和方法合并一起通过参数或者组件传递给 Field 的子组件：
 
 ```js
 {
@@ -216,11 +232,11 @@ Field 会维护一个状态树，以及一些方法
     $valid: true, //表单项校验结果是否通过
     $invalid: false, //与$valid相反
     $error: {}, //表单校验错误信息
-
     $pending: false, //异步校验时该值将为true
 
+    /*** 上面是状态，下面是可用方法 ***/
+
     $pickr: () => $state, //返回当前状态树
-    $merge: ($newState) => $state, //合并$newState到当前状态树（该操作不会触发组件重新渲染）
     $reset: ($newState) => $state, //重置为初始状态, $newState存在的话，会做一个合并
     $getComponent: (name) => FieldComponent, //返回Field组件实例
 
@@ -239,6 +255,73 @@ Field 会维护一个状态树，以及一些方法
 *   用户输入时需要通过调用`$render`来更新新值到状态中
 *   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
 *   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
+
+更多解释
+
+#### $value
+
+Field 的值实际是保存在状态里的该字段中，
+
+#### $dirty | $pristine | $touched | $untouched | $invalid | $valid | $pending
+
+Field 的一组状态
+
+#### $error
+
+Field 的错误信息
+
+#### $picker()
+
+返回 Field 的纯粹状态（不包含任何下方的方法）
+
+#### $reset()
+
+重制当前 Field 为初始状态
+
+#### $getComponent()
+
+获取 Field 的实例对象（虚拟 dom）
+
+#### $setState($newState)
+
+```javascript
+$setState({
+    $dirty: true,
+    $value: '124'
+});
+```
+
+设置新的$state，$newState 会与当前$state 合并
+
+#### $render() | $setValue()
+
+设置渲染 Field 的值（保存到$value 中）
+
+#### $setDirty($dirty) | $setTouched($touched) | $setValidity(errKey, result)
+
+```javascript
+$setDirty(true);
+$setTouched(true);
+$setValidity('required', '必需填写'); //第二个参数不为true，则表示校验失败，并当作错误描述
+$setValidity('required', true); //表示校验通过
+```
+
+设置$dirty $touched $error 等状态
+
+#### $setError($error)
+
+替换$error
+
+```javascript
+$setError({
+    required: '必需填写',
+    maxLength: '不能超过10个字符'
+});
+```
+
+#### $validate()
+
+重新校验当前 Field
 
 ### withField
 
@@ -450,7 +533,7 @@ const {
 
 强制重新渲染表单组件，可以通过该方法的回调，在当前的渲染完成后回调
 
-#### $setStates($stateTree = { name: $state })
+#### $setStates($stateTree)
 
 可以用来更新表单项的状态：
 
@@ -464,7 +547,7 @@ $formutil.$setStates({
 });
 ```
 
-#### $setValues($valueTree = { name: $value })
+#### $setValues($valueTree)
 
 可以用来更新表单项的值：
 
@@ -475,7 +558,7 @@ $formutil.$setValues({
 });
 ```
 
-#### $setErros($errorTree = { name: $error })
+#### $setErros($errorTree)
 
 可以用来设置表单的校验结果：
 
@@ -488,7 +571,7 @@ $formutil.$setErros({
 });
 ```
 
-#### $reset($stateTree = { name: $state })
+#### $reset($stateTree)
 
 可以用来重置表单，会讲表单重置为初始状态（不会改变组件设置的默认状态和默认值）。如过传递了$stateTree，则会重置为合并了$stateTree 后的状态
 
@@ -496,43 +579,43 @@ $formutil.$setErros({
 $formutil.$reset();
 ```
 
-#### $setDirts($dirtyTree = { name: $dirty }) / $setTouches($touchedTree = { name: $touched })
+#### $setDirts($dirtyTree) | $setTouches($touchedTree)
 
 可以用来更新表单项的`$dirty`、`$touched`，类似`$setValues`
 
-#### $batchState($newState = {}) / $batchDirty($dirty = false) / $batchTouched($touched = false)
+#### $batchState($newState) | $batchDirty($dirty) | $batchTouched($touched)
 
 批量更改所有表单项的状态
 
-#### $states / $weakStates
+#### $states | $weakStates
 
 所有表单项的状态集合。`$formutl.$state` 是以 `Field`i 的 name 值经过路径解析后的对象，`$formutil.$weakState` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $params / $weakParams
+#### $params | $weakParams
 
 所有表单项的 值`$value` 集合。`$formutil.$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakParams` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $errors / $weakErrors
+#### $errors | $weakErrors
 
 所有表单项的 `$error` 集合。`$formutil.$errors` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakErrors` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $dirts / $weakDirts
+#### $dirts | $weakDirts
 
 所有表单项的 `$dirty` 集合。`$formutil.$dirts` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakDirts` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $touches / $weakTouches
+#### $touches | $weakTouches
 
 所有表单项的 `$touched` 集合。`$formutil.$touches` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakTouches` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $valid / $invalid
+#### $valid | $invalid
 
 表单项中所有 `Field` 的`$valid` 均为 `true` 时，`$formutil.$valid` 为 `true`, `$formutil.$invalid` 为 false。表单项中有任意 `Field` 的`$valid` 均为 `false` 时，`$formutil.$valid` 为 `false`, `$formutil.$invalid` 为 `True`。
 
-#### $dirty / $pristine
+#### $dirty | $pristine
 
 表单项中所有 `Field` 的`$dirty` 均为 `false` 时，`$formutil.$dirty` 为 `false`, `$formutil.$pristine` 为 true。表单项中有任意 `Field` 的`$dirty` 均为 `true` 时，`$formutil.$dirty` 为 `true`, `$formutil.$pristine` 为 `false`。
 
-#### $touched / $untouched
+#### $touched | $untouched
 
 表单项中所有 `Field` 的`$touched` 均为 `false` 时，`$formutil.$touched` 为 `false`, `$formutil.$untouched` 为 `true`。表单项中有任意 `Field` 的`$touched` 均为 `true` 时，`$formutil.$touched` 为 `true`, `$formutil.$untouched` 为 `false`。
 

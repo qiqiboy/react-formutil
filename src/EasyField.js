@@ -185,26 +185,34 @@ class EasyField extends Component {
                         );
                     }
 
-                    const elemProps =
-                        type === 'radio' || type === 'checkbox'
-                            ? {
-                                  checked: props.$value === checked,
-                                  onChange: ev => {
-                                      props.$render(ev.target.checked ? checked : unchecked);
-                                      if (onChange) {
-                                          onChange(ev);
-                                      }
-                                  }
-                              }
-                            : {
-                                  value: props.$value,
-                                  onChange: ev => {
-                                      props.$render(ev.target.value.trim());
-                                      if (onChange) {
-                                          onChange(ev);
-                                      }
-                                  }
-                              };
+                    let elemProps;
+
+                    switch (type) {
+                        case 'checkbox':
+                        case 'radio':
+                            elemProps = {
+                                checked: props.$value === checked,
+                                onChange: ev => {
+                                    props.$render(ev.target.checked ? checked : unchecked);
+                                    if (onChange) {
+                                        onChange(ev);
+                                    }
+                                }
+                            };
+                            break;
+
+                        default:
+                            elemProps = {
+                                value: props.$value,
+                                onChange: ev => {
+                                    props.$render(ev.target.value.trim());
+                                    if (onChange) {
+                                        onChange(ev);
+                                    }
+                                }
+                            };
+                            break;
+                    }
 
                     return (
                         <Element

@@ -113,6 +113,11 @@ class Field extends Component {
         }
     }
 
+    $validate = () => {
+        this.$syncValidate();
+        this.$asyncValidate();
+    };
+
     $syncValidate = () => {
         const { $validators, $asyncValidators } = this.props;
         const { $value, $error } = this.$state;
@@ -258,19 +263,12 @@ class Field extends Component {
         return this.$setError($error);
     };
 
-    $validate = () => {
-        this.$syncValidate();
-        this.$asyncValidate();
-    };
-
     render() {
         const { children } = this.props;
         const childProps = {
             ...this.$state,
             ...this.$handler
         };
-
-        delete childProps.$$reset;
 
         if (typeof children === 'function') {
             return children(childProps);

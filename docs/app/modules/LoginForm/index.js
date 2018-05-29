@@ -93,9 +93,6 @@ class LoginForm extends Component {
                                     value={props.$value}
                                     onChange={ev => props.$render(ev.target.value.trim())}
                                 />
-                                <button type="button" onClick={ev => props.$reset()}>
-                                    reset
-                                </button>
                                 {props.$dirty &&
                                     props.$invalid && (
                                         <span className="help-block">{Object.values(props.$error)[0]}</span>

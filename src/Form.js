@@ -46,8 +46,10 @@ class Form extends Component {
             handler.$validate();
         }
 
-        this.creatDeepRigesters();
-        this.$render();
+        if (name || preName) {
+            this.creatDeepRigesters();
+            this.$render();
+        }
     };
 
     $$unregister = name => {

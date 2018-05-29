@@ -243,7 +243,7 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
     $render: (value, callback) => {}, //更新表单值，callback可选，会在组件更新后回调
     $setValue: value => {}, //同$render，只是个别名
     $setDirty: $dirty => {}, //设置$dirty
-    $setTouched: $touched => {},设置$touched
+    $setTouched: $touched => {}, //设置$touched
     $setState: $newState => {} //直接更新状态，其实上面的几个方法都是基于$setState
     $setValidity: ($key, $valid) => {} //设置校验， $valid为true代表校验通过，其它值表示校验失败，并当作错误原因
     $setError: ($error) => {} //直接设置错误状态
@@ -636,7 +636,7 @@ export default withForm(LoginForm, {
 
 #### Field 与 EasyField 有什么区别
 
-Field 是抽象的底层，它仅提供了同步、渲染表单控件的接口，但是要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作。
+Field 是抽象的底层，它本身不会渲染任何dom结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作。
 
 EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。
 
@@ -730,7 +730,7 @@ export default function FieldFile(props) {
 
 #### 如何获取对 Field 生成的节点的引用？
 
-可以通过 `$getField` 获取到一组 `handler` 方法，其中有 `getComponent` 方法，可以获取到组件对象，然后再通过 `react-dom` 提供的 `findDOMNode` 来获取到对应的实际 dom 元素节点
+可以通过 `$getField` 获取到一组 `handler` 方法，其中有 `$getComponent` 方法，可以获取到组件对象，然后再通过 `react-dom` 提供的 `findDOMNode` 来获取到对应的实际 dom 元素节点
 
 ```javascript
 import { findDOMNode } from 'react-dom';
@@ -738,7 +738,7 @@ import { findDOMNode } from 'react-dom';
 <Form>
     {$formutil => {
         function getNode(name) {
-            return findDOMNode($formutil.$getField(name).getComponent());
+            return findDOMNode($formutil.$getField(name).$getComponent());
         }
 
         return <Field name="username">{/*...*/}</Field>;

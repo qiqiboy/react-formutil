@@ -6,7 +6,7 @@ function connect(WrappedComponent) {
         static displayName = 'React.formutil.connect.' + WrappedComponent.name;
 
         static contextTypes = {
-            $$formutil: PropTypes.object
+            $formutil: PropTypes.object
         };
 
         render() {

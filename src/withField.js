@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Field from './Field';
 
 function withField(WrappedComponent, config = {}) {
-    return class extends Component {
+    return class FieldEnhanced extends Component {
         static displayName = 'React.formutil.withField.' + WrappedComponent.name;
 
         render() {

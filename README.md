@@ -11,71 +11,70 @@ Happy to build the forms in React ^\_^
 > 1.  一切都是状态，$value、$diry/$pristine、$touched/$untouched、$valid/$invalid、$error 等都是状态
 > 2.  非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构
 > 3.  采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
-> 4.  支持高阶组件和函数式子组件（function as child）式调用，更灵活
+> 4.  支持高阶组件和函数式子组件（[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)）式调用，更灵活
 > 5.  具备灵活的表单校验方式，支持同步和异步校验
-> 6.  规范的 jsx 语法调用，更符合 react 使用规范
-
+> 6.  规范的 jsx 语法调用，更符合 react 理念
 
 <!-- vim-markdown-toc GFM -->
 
-* [安装 Installation](#安装-installation)
-* [使用 Usage](#使用-usage)
-    - [Field](#field)
-        + [name](#name)
-        + [$defaultValue](#defaultvalue)
-        + [$defaultState](#defaultstate)
-        + [$validators](#validators)
-        + [$asyncValidators](#asyncvalidators)
-        + [$state](#state)
-        + [$value](#value)
-        + [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $pending](#dirty--pristine--touched--untouched--invalid--valid--pending)
-        + [$error](#error)
-        + [$picker()](#picker)
-        + [$reset()](#reset)
-        + [$getComponent()](#getcomponent)
-        + [$setState($newState)](#setstatenewstate)
-        + [$render() | $setValue()](#render--setvalue)
-        + [$setDirty($dirty) | $setTouched($touched) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setvalidityerrkey-result)
-        + [$setError($error)](#seterrorerror)
-        + [$validate()](#validate)
-    - [withField](#withfield)
-    - [EasyField](#easyfield)
-        + [type](#type)
-        + [name](#name-1)
-        + [$defaultValue](#defaultvalue-1)
-        + [$validators](#validators-1)
-        + [$asyncValidators](#asyncvalidators-1)
-        + [defaultValue](#defaultvalue-2)
-        + [validMessage](#validmessage)
-        + [checked / unchecked](#checked--unchecked)
-    - [Form](#form)
-        + [$defaultValues](#defaultvalues)
-        + [$defaultStates](#defaultstates)
-        + [$getField(name)](#getfieldname)
-        + [$validate(name)](#validatename)
-        + [$validates();](#validates)
-        + [$render(callback)](#rendercallback)
-        + [$setStates($stateTree)](#setstatesstatetree)
-        + [$setValues($valueTree)](#setvaluesvaluetree)
-        + [$setErros($errorTree)](#seterroserrortree)
-        + [$reset($stateTree)](#resetstatetree)
-        + [$setDirts($dirtyTree) | $setTouches($touchedTree)](#setdirtsdirtytree--settouchestouchedtree)
-        + [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched)
-        + [$states | $weakStates](#states--weakstates)
-        + [$params | $weakParams](#params--weakparams)
-        + [$errors | $weakErrors](#errors--weakerrors)
-        + [$dirts | $weakDirts](#dirts--weakdirts)
-        + [$touches | $weakTouches](#touches--weaktouches)
-        + [$valid | $invalid](#valid--invalid)
-        + [$dirty | $pristine](#dirty--pristine)
-        + [$touched | $untouched](#touched--untouched)
-    - [withForm](#withform)
-* [FAQ & 常见问题解答](#faq--常见问题解答)
-    + [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
-    + [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
-    + [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
-    + [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
-    + [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
+*   [安装 Installation](#安装-installation)
+*   [使用 Usage](#使用-usage)
+    *   [Field](#field)
+        *   [name](#name)
+        *   [$defaultValue](#defaultvalue)
+        *   [$defaultState](#defaultstate)
+        *   [$validators](#validators)
+        *   [$asyncValidators](#asyncvalidators)
+        *   [$state](#state)
+        *   [$value](#value)
+        *   [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $pending](#dirty--pristine--touched--untouched--invalid--valid--pending)
+        *   [$error](#error)
+        *   [$picker()](#picker)
+        *   [$reset()](#reset)
+        *   [$getComponent()](#getcomponent)
+        *   [$setState($newState)](#setstatenewstate)
+        *   [$render() | $setValue()](#render--setvalue)
+        *   [$setDirty($dirty) | $setTouched($touched) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setvalidityerrkey-result)
+        *   [$setError($error)](#seterrorerror)
+        *   [$validate()](#validate)
+    *   [withField](#withfield)
+    *   [EasyField](#easyfield)
+        *   [type](#type)
+        *   [name](#name-1)
+        *   [$defaultValue](#defaultvalue-1)
+        *   [$validators](#validators-1)
+        *   [$asyncValidators](#asyncvalidators-1)
+        *   [defaultValue](#defaultvalue-2)
+        *   [validMessage](#validmessage)
+        *   [checked / unchecked](#checked--unchecked)
+    *   [Form](#form)
+        *   [$defaultValues](#defaultvalues)
+        *   [$defaultStates](#defaultstates)
+        *   [$getField(name)](#getfieldname)
+        *   [$validate(name)](#validatename)
+        *   [$validates();](#validates)
+        *   [$render(callback)](#rendercallback)
+        *   [$setStates($stateTree)](#setstatesstatetree)
+        *   [$setValues($valueTree)](#setvaluesvaluetree)
+        *   [$setErros($errorTree)](#seterroserrortree)
+        *   [$reset($stateTree)](#resetstatetree)
+        *   [$setDirts($dirtyTree) | $setTouches($touchedTree)](#setdirtsdirtytree--settouchestouchedtree)
+        *   [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched)
+        *   [$states | $weakStates](#states--weakstates)
+        *   [$params | $weakParams](#params--weakparams)
+        *   [$errors | $weakErrors](#errors--weakerrors)
+        *   [$dirts | $weakDirts](#dirts--weakdirts)
+        *   [$touches | $weakTouches](#touches--weaktouches)
+        *   [$valid | $invalid](#valid--invalid)
+        *   [$dirty | $pristine](#dirty--pristine)
+        *   [$touched | $untouched](#touched--untouched)
+    *   [withForm](#withform)
+*   [FAQ & 常见问题解答](#faq--常见问题解答)
+    *   [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
+    *   [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
+    *   [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
+    *   [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
+    *   [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
 
 <!-- vim-markdown-toc -->
 
@@ -97,17 +96,18 @@ yarn add react-formutil
 
 上面的示例简单展示了 `react-formutil` 的基本用法。当然这只是很简单的示例，更复杂的状态渲染，例如`$dirty`、表单验证等后面会具体讲到。这里想简单说下 `react-formutil` 的设计思路：
 
-`react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有两个高阶组件 `withField` `withForm`：
+`react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有几个基于此的高阶组件：
 
 *   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
 *   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态。Form 可以理解为整个表单页面的 Provider。
 *   `withField` 是基于 `Field` 包装成高阶组件，方便某些情况下以高阶组件形式调用
 *   `withForm` 是基于 `Form` 包装成高阶组件，方便某些情况下以高阶组件形式调用
 *   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
+*   `connect` 是个高阶组件，用来给被包装的组件传递`$formutil` 对象，以供调用，返回的新组件必须位于某个 Form 组件的孙子辈才可以拿到`$formutil`
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
-> 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用
+> 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用: [function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)
 
 ```javascript
 //一个函数式子组件书写示例
@@ -322,6 +322,10 @@ $setError({
 #### $validate()
 
 重新校验当前 Field
+
+#### $$formutil
+
+当前 Field 所属的 Form 的$formutil 对象包含了整个表单的状态以及一些操作方法，具体可以参考下方Form说明
 
 ### withField
 
@@ -632,6 +636,38 @@ export default withForm(LoginForm, {
 });
 ```
 
+### connect
+
+connect 是一个高阶组件，它可以增强当前组件，并获取其最近的父辈级中的 Form 组件的 $formutil 对象，并以 props 传递给当前组件。
+
+在大表单拆分多个小组件的时候很有用，不用将$formutil 再传来传去：
+
+```javascript
+import { connect } from 'react-formutil';
+class Submit extends Component {
+    submit = () => {
+        //通过connect可以拿到 $formutil
+        const { $formutil } = this.props;
+        // ...
+    };
+
+    render() {
+        return <button onClick={this.submit} />;
+    }
+}
+
+export default connect(Submit);
+```
+
+```javascript
+<Form>
+    <div className="">
+        <EasyField name="username" />
+        <Submit />
+    </div>
+</Form>
+```
+
 ## FAQ & 常见问题解答
 
 #### Field 与 EasyField 有什么区别
@@ -846,6 +882,32 @@ export default function EditInfoPage() {
                     <Submit $formutil={$formutil} />
                 </div>
             )}
+        </Form>
+    );
+
+    /* 也可以使用 connect 高阶组件包装分拆的组件，然后就不必显式的传 $formutil */
+    /**
+     *  import { connect }  from 'react-formutil'
+     *  class Submit extends Component {
+     *      submit = () => {
+     *          //通过connect可以拿到 $formutil
+     *          const { $formutil } = this.props;
+     *          // ...
+     *      };
+     *
+     *      render() {
+     *          return <button onClick={this.submit} />;
+     *      }
+     *  }
+     *  export default connect(Submit);
+     */
+    return (
+        <Form>
+            <div className="editinfo-page">
+                <Userinfo />
+                <Workinfo />
+                <Submit />
+            </div>
         </Form>
     );
 }

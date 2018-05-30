@@ -24,7 +24,8 @@ class Field extends Component {
         $$unregister: PropTypes.func,
         $$onChange: PropTypes.func,
         $$defaultValues: PropTypes.object,
-        $$defaultStates: PropTypes.object
+        $$defaultStates: PropTypes.object,
+        $formutil: PropTypes.object
     };
 
     constructor(props, context) {
@@ -267,7 +268,8 @@ class Field extends Component {
         const { children } = this.props;
         const childProps = {
             ...this.$state,
-            ...this.$handler
+            ...this.$handler,
+            $$formutil: this.context.$formutil
         };
 
         if (typeof children === 'function') {

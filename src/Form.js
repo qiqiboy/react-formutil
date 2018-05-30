@@ -16,7 +16,8 @@ class Form extends Component {
         $$unregister: PropTypes.func,
         $$onChange: PropTypes.func,
         $$defaultValues: PropTypes.object,
-        $$defaultStates: PropTypes.object
+        $$defaultStates: PropTypes.object,
+        $formutil: PropTypes.object
     };
 
     $$registers = {};
@@ -28,7 +29,8 @@ class Form extends Component {
             $$unregister: this.$$unregister,
             $$onChange: this.$$onChange,
             $$defaultValues: this.props.$defaultValues || {},
-            $$defaultStates: this.props.$defaultStates || {}
+            $$defaultStates: this.props.$defaultStates || {},
+            $formutil: this.$formutil
         };
     }
 
@@ -132,7 +134,7 @@ class Form extends Component {
         const $touched = $stateArray.some(({ $state }) => $state.$touched);
         const $pending = $stateArray.some(({ $state }) => $state.$pending);
 
-        const $formutil = {
+        const $formutil = (this.$formutil = {
             $$registers: this.$$registers,
             $$deepRegisters: this.$$deepRegisters,
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
@@ -193,7 +195,7 @@ class Form extends Component {
             $touched,
             $untouched: !$touched,
             $pending
-        };
+        });
 
         const { children } = this.props;
 

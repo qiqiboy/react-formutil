@@ -37,6 +37,7 @@ Happy to build the forms in React ^\_^
         *   [$setDirty($dirty) | $setTouched($touched) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setvalidityerrkey-result)
         *   [$setError($error)](#seterrorerror)
         *   [$validate()](#validate)
+        *   [$$formutil](#formutil)
     *   [withField](#withfield)
     *   [EasyField](#easyfield)
         *   [type](#type)
@@ -69,12 +70,8 @@ Happy to build the forms in React ^\_^
         *   [$dirty | $pristine](#dirty--pristine)
         *   [$touched | $untouched](#touched--untouched)
     *   [withForm](#withform)
-*   [FAQ & 常见问题解答](#faq--常见问题解答)
-    *   [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
-    *   [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
-    *   [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
-    *   [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
-    *   [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
+    *   [connect](#connect)
+*   [FAQ & 常见问题解答](#faq--常见问题解答) + [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别) + [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现) + [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件) + [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用) + [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
 
 <!-- vim-markdown-toc -->
 
@@ -100,8 +97,8 @@ yarn add react-formutil
 
 *   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
 *   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态。Form 可以理解为整个表单页面的 Provider。
-*   `withField` 是基于 `Field` 包装成高阶组件，方便某些情况下以高阶组件形式调用
-*   `withForm` 是基于 `Form` 包装成高阶组件，方便某些情况下以高阶组件形式调用
+*   `withField` 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
+*   `withForm` 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
 *   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
 *   `connect` 是个高阶组件，用来给被包装的组件传递`$formutil` 对象，以供调用，返回的新组件必须位于某个 Form 组件的孙子辈才可以拿到`$formutil`
 
@@ -325,7 +322,15 @@ $setError({
 
 #### $$formutil
 
-当前 Field 所属的 Form 的$formutil 对象包含了整个表单的状态以及一些操作方法，具体可以参考下方Form说明
+当前 Field 所属的 Form 的$formutil 对象包含了整个表单的状态以及一些操作方法，具体可以参考下方 Form 说明。
+
+> 特别注意，这里`$$formutil`是双$符号打头
+
+```javascript
+<Field name="username">
+{ props => <input onChange={ev => props.$render(ev.target.value)} onFocus={ev => props.$$formutil.$validates()} />
+</Field>
+```
 
 ### withField
 
@@ -672,7 +677,7 @@ export default connect(Submit);
 
 #### Field 与 EasyField 有什么区别
 
-Field 是抽象的底层，它本身不会渲染任何dom结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作。
+Field 是抽象的底层，它本身不会渲染任何 dom 结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作。
 
 EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。
 

@@ -31,8 +31,8 @@ class LoginForm extends Component {
             },
             () => {
                 //我们需要更新后重新校验密码字段，因为这两个字段校验一致性是互相依赖的
-                this.props.$formutil.$getField('password').validate();
-                this.props.$formutil.$getField('confirm_password').validate();
+                this.props.$formutil.$validate('password');
+                this.props.$formutil.$validate('confirm_password');
             }
         );
     };
@@ -43,7 +43,11 @@ class LoginForm extends Component {
     $validators = {
         required: value => (value ? true : '该项必填'),
         minLength: (value, len) => value.length >= parseInt(len) || `最少输入字符长度：${len}`,
-        isSame: (value, name) => value === (this.props.$formutil.$params[name] || '') || '两次输入不一致'
+        isSame: (value, name) =>
+            !value ||
+            !this.props.$formutil.$params[name] ||
+            value === this.props.$formutil.$params[name] ||
+            '两次输入不一致'
     };
 
     //密码记住时间的配置项
@@ -76,7 +80,7 @@ class LoginForm extends Component {
                         用户登录{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L82-L225"
+                                href="https://github.com/qiqiboy/react-formutil/blob/9fb79e6202972b4bd2737ae0c823dfdd9db0b596/docs/app/modules/LoginForm/index.js#L89-L232"
                                 target="_blank">
                                 source on github
                             </a>
@@ -116,7 +120,7 @@ class LoginForm extends Component {
                                     value={props.$value}
                                     onChange={ev =>
                                         props.$render(ev.target.value.trim(), () =>
-                                            this.props.$formutil.$getField('confirm_password').validate()
+                                            props.$$formutil.$validate('confirm_password')
                                         )
                                     }
                                 />
@@ -143,7 +147,7 @@ class LoginForm extends Component {
                                     value={props.$value}
                                     onChange={(ev /* 这里同样，需要更新组件后再次去校验依赖该表单项字段的项目 */) =>
                                         props.$render(ev.target.value.trim(), () =>
-                                            this.props.$formutil.$getField('password').validate()
+                                            props.$$formutil.$validate('password')
                                         )
                                     }
                                 />
@@ -270,7 +274,7 @@ class LoginForm extends Component {
                         checkbox{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L257-L282"
+                                href="https://github.com/qiqiboy/react-formutil/blob/9fb79e6202972b4bd2737ae0c823dfdd9db0b596/docs/app/modules/LoginForm/index.js#L264-L289"
                                 target="_blank">
                                 source on github
                             </a>
@@ -287,7 +291,7 @@ class LoginForm extends Component {
                         <label>多选</label>{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L283-L312"
+                                href="https://github.com/qiqiboy/react-formutil/blob/9fb79e6202972b4bd2737ae0c823dfdd9db0b596/docs/app/modules/LoginForm/index.js#L290-L319"
                                 target="_blank">
                                 source on github
                             </a>
@@ -325,7 +329,7 @@ class LoginForm extends Component {
                         radio{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L313-L337"
+                                href="https://github.com/qiqiboy/react-formutil/blob/9fb79e6202972b4bd2737ae0c823dfdd9db0b596/docs/app/modules/LoginForm/index.js#L320-L344"
                                 target="_blank">
                                 source on github
                             </a>
@@ -342,7 +346,7 @@ class LoginForm extends Component {
                         <label>单选</label>{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/c6bbfb5768a52b0ee0d3306507d526126c40fa4f/docs/app/modules/LoginForm/index.js#L338-L370"
+                                href="https://github.com/qiqiboy/react-formutil/blob/9fb79e6202972b4bd2737ae0c823dfdd9db0b596/docs/app/modules/LoginForm/index.js#L345-L377"
                                 target="_blank">
                                 source on github
                             </a>
@@ -416,7 +420,7 @@ class LoginForm extends Component {
                             工作城市（多级联动）{' '}
                             <small>
                                 <a
-                                    href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/FieldCity.js#L49-L183"
+                                    href="https://github.com/qiqiboy/react-formutil/blob/9fb79e6202972b4bd2737ae0c823dfdd9db0b596/docs/app/modules/LoginForm/FieldCity.js#L49-L190"
                                     target="_blank">
                                     source on github
                                 </a>

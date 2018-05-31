@@ -43,6 +43,8 @@ class Field extends Component {
             $touched: false,
             $untouched: true,
 
+            $focused: false,
+
             $pending: false,
 
             $error: {},
@@ -81,10 +83,11 @@ class Field extends Component {
             $setValue: this.$render,
             $setState: this.$setState,
             $setTouched: this.$setTouched,
-            $setValidity: this.$setValidity,
             $setDirty: this.$setDirty,
-            $validate: this.$validate,
-            $setError: this.$setError
+            $setFocused: this.$setFocused,
+            $setValidity: this.$setValidity,
+            $setError: this.$setError,
+            $validate: this.$validate
         };
 
         // deprecated methods warning
@@ -245,6 +248,11 @@ class Field extends Component {
         this.$setState({
             $dirty,
             $pristine: !$dirty
+        });
+
+    $setFocused = $focused =>
+        this.$setState({
+            $focused
         });
 
     $setError = $error =>

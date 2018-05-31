@@ -17,61 +17,68 @@ Happy to build the forms in React ^\_^
 
 <!-- vim-markdown-toc GFM -->
 
-*   [安装 Installation](#安装-installation)
-*   [使用 Usage](#使用-usage)
-    *   [Field](#field)
-        *   [name](#name)
-        *   [$defaultValue](#defaultvalue)
-        *   [$defaultState](#defaultstate)
-        *   [$validators](#validators)
-        *   [$asyncValidators](#asyncvalidators)
-        *   [$state](#state)
-        *   [$value](#value)
-        *   [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $pending](#dirty--pristine--touched--untouched--invalid--valid--pending)
-        *   [$error](#error)
-        *   [$picker()](#picker)
-        *   [$reset()](#reset)
-        *   [$getComponent()](#getcomponent)
-        *   [$setState($newState)](#setstatenewstate)
-        *   [$render() | $setValue()](#render--setvalue)
-        *   [$setDirty($dirty) | $setTouched($touched) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setvalidityerrkey-result)
-        *   [$setError($error)](#seterrorerror)
-        *   [$validate()](#validate)
-        *   [$$formutil](#formutil)
-    *   [withField](#withfield)
-    *   [EasyField](#easyfield)
-        *   [type](#type)
-        *   [name](#name-1)
-        *   [$defaultValue](#defaultvalue-1)
-        *   [$validators](#validators-1)
-        *   [$asyncValidators](#asyncvalidators-1)
-        *   [defaultValue](#defaultvalue-2)
-        *   [validMessage](#validmessage)
-        *   [checked / unchecked](#checked--unchecked)
-    *   [Form](#form)
-        *   [$defaultValues](#defaultvalues)
-        *   [$defaultStates](#defaultstates)
-        *   [$getField(name)](#getfieldname)
-        *   [$validate(name)](#validatename)
-        *   [$validates();](#validates)
-        *   [$render(callback)](#rendercallback)
-        *   [$setStates($stateTree)](#setstatesstatetree)
-        *   [$setValues($valueTree)](#setvaluesvaluetree)
-        *   [$setErros($errorTree)](#seterroserrortree)
-        *   [$reset($stateTree)](#resetstatetree)
-        *   [$setDirts($dirtyTree) | $setTouches($touchedTree)](#setdirtsdirtytree--settouchestouchedtree)
-        *   [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched)
-        *   [$states | $weakStates](#states--weakstates)
-        *   [$params | $weakParams](#params--weakparams)
-        *   [$errors | $weakErrors](#errors--weakerrors)
-        *   [$dirts | $weakDirts](#dirts--weakdirts)
-        *   [$touches | $weakTouches](#touches--weaktouches)
-        *   [$valid | $invalid](#valid--invalid)
-        *   [$dirty | $pristine](#dirty--pristine)
-        *   [$touched | $untouched](#touched--untouched)
-    *   [withForm](#withform)
-    *   [connect](#connect)
-*   [FAQ & 常见问题解答](#faq--常见问题解答) + [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别) + [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现) + [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件) + [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用) + [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
+* [安装 Installation](#安装-installation)
+* [使用 Usage](#使用-usage)
+    - [Field](#field)
+        + [name](#name)
+        + [$defaultValue](#defaultvalue)
+        + [$defaultState](#defaultstate)
+        + [$validators](#validators)
+        + [$asyncValidators](#asyncvalidators)
+        + [$state](#state)
+        + [$value](#value)
+        + [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
+        + [$error](#error)
+        + [$picker()](#picker)
+        + [$reset()](#reset)
+        + [$getComponent()](#getcomponent)
+        + [$setState($newState)](#setstatenewstate)
+        + [$render() | $setValue()](#render--setvalue)
+        + [$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
+        + [$setError($error)](#seterrorerror)
+        + [$validate()](#validate)
+        + [$$formutil](#formutil)
+    - [withField](#withfield)
+    - [EasyField](#easyfield)
+        + [type](#type)
+        + [name](#name-1)
+        + [$defaultValue](#defaultvalue-1)
+        + [$validators](#validators-1)
+        + [$asyncValidators](#asyncvalidators-1)
+        + [defaultValue](#defaultvalue-2)
+        + [validMessage](#validmessage)
+        + [checked / unchecked](#checked--unchecked)
+    - [Form](#form)
+        + [$defaultValues](#defaultvalues)
+        + [$defaultStates](#defaultstates)
+        + [$getField(name)](#getfieldname)
+        + [$validate(name)](#validatename)
+        + [$validates();](#validates)
+        + [$render(callback)](#rendercallback)
+        + [$setStates($stateTree)](#setstatesstatetree)
+        + [$setValues($valueTree)](#setvaluesvaluetree)
+        + [$setErros($errorTree)](#seterroserrortree)
+        + [$reset($stateTree)](#resetstatetree)
+        + [$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
+        + [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
+        + [$states | $weakStates](#states--weakstates)
+        + [$params | $weakParams](#params--weakparams)
+        + [$errors | $weakErrors](#errors--weakerrors)
+        + [$dirts | $weakDirts](#dirts--weakdirts)
+        + [$touches | $weakTouches](#touches--weaktouches)
+        + [$focuses | $weakFocuses](#focuses--weakfocuses)
+        + [$valid | $invalid](#valid--invalid)
+        + [$dirty | $pristine](#dirty--pristine)
+        + [$touched | $untouched](#touched--untouched)
+        + [$focused](#focused)
+    - [withForm](#withform)
+    - [connect](#connect)
+* [FAQ & 常见问题解答](#faq--常见问题解答)
+    - [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
+    - [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
+    - [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
+    - [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
+    - [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
 
 <!-- vim-markdown-toc -->
 
@@ -226,6 +233,7 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
     $pristine: true, //与$dirty相反
     $touched: false, //是否接触过表单
     $untouched: true, //与$touched相反
+    $focused: false, //是否聚焦到当前输入
     $valid: true, //表单项校验结果是否通过
     $invalid: false, //与$valid相反
     $error: {}, //表单校验错误信息
@@ -239,8 +247,9 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
 
     $render: (value, callback) => {}, //更新表单值，callback可选，会在组件更新后回调
     $setValue: value => {}, //同$render，只是个别名
-    $setDirty: $dirty => {}, //设置$dirty
-    $setTouched: $touched => {}, //设置$touched
+    $setDirty: $dirty => {}, //设置$dirty装态
+    $setTouched: $touched => {}, //设置$touched装态
+    $setFocused: $focused => {}, //设置$focused装态
     $setState: $newState => {} //直接更新状态，其实上面的几个方法都是基于$setState
     $setValidity: ($key, $valid) => {} //设置校验， $valid为true代表校验通过，其它值表示校验失败，并当作错误原因
     $setError: ($error) => {} //直接设置错误状态
@@ -253,15 +262,38 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
 *   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
 *   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
 
+> **需要强调的是，Field 默认不同步`$tocuhed`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
+> 如果你需要其它状态，需要自己去绑定相关事件来更新状态：
+
+```javascript
+<Field name="username">
+    {props => (
+        <input
+            onChange={ev => props.$render(ev.target.value)}
+            onFocus={ev => props.$setFocused(true)}
+            onBlur={ev => props.$setTouched(true) && props.$setFocused(false)}
+        />
+    )}
+</Field>
+```
+
 更多解释
 
 #### $value
 
 Field 的值实际是保存在状态里的该字段中，
 
-#### $dirty | $pristine | $touched | $untouched | $invalid | $valid | $pending
+#### $dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending
 
-Field 的一组状态
+Field 的一组状态：
+* $dirty 控件被修改过
+* $pristine 控件没有被修改过，与$dirty互斥
+* $touched 控件失去过焦点
+* $untouched 控件没有失去过焦点
+* $focused 焦点是否当前控件
+* $pending 是否正在进行异步检查
+* $valid 表单所有控件均校验通过
+* $invalid 表单中有至少一个控件校验不通过
 
 #### $error
 
@@ -294,11 +326,12 @@ $setState({
 
 设置渲染 Field 的值（保存到$value 中）
 
-#### $setDirty($dirty) | $setTouched($touched) | $setValidity(errKey, result)
+#### $setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)
 
 ```javascript
 $setDirty(true);
 $setTouched(true);
+$setFocused(true);
 $setValidity('required', '必需填写'); //第二个参数不为true，则表示校验失败，并当作错误描述
 $setValidity('required', true); //表示校验通过
 ```
@@ -368,7 +401,9 @@ export default withField(FieldCustom, {
 *   group.radio
 *   group.checkbox
 
-事实上，支持任何的 input 元素。它接收以下属性参数：
+事实上，支持任何的 input 元素。并且 EasyField 除了会绑定 onChange 事件来同步输入值，也会绑定 onFocus、onBlur 事件来主动同步`$touched` `$untouched` `$focused`状态。所以无需额外的工作，你就可以方便的使用这些状态来优化你的表单显示。
+
+它接收以下属性参数：
 
 #### type
 
@@ -587,13 +622,34 @@ $formutil.$setErros({
 $formutil.$reset();
 ```
 
-#### $setDirts($dirtyTree) | $setTouches($touchedTree)
+#### $setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)
 
-可以用来更新表单项的`$dirty`、`$touched`，类似`$setValues`
+可以用来更新表单控件的`$dirty`、`$touched`、`$focused`状态，类似`$setValues`
 
-#### $batchState($newState) | $batchDirty($dirty) | $batchTouched($touched)
+```javascript
+$formutil.$setDirts({
+    username: true,
+    'list[0].id': false
+});
+
+$formutil.$setFocuses({
+    username: true,
+    'list[0].id': false
+});
+```
+
+#### $batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)
 
 批量更改所有表单项的状态
+
+```javascript
+$formutil.$batchState({
+    $dirty: true,
+    $pristine: false
+});
+$formutil.$batchDirty(true); //同上效果
+$formutil.$batchTouched(true);
+```
 
 #### $states | $weakStates
 
@@ -603,9 +659,54 @@ $formutil.$reset();
 
 所有表单项的 值`$value` 集合。`$formutil.$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakParams` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
+```javascript
+$params = {
+    username: 'qiqiboy',
+    list: [{ name: 'apple' }, { name: 'banana' }]
+};
+
+$weakParams = {
+    username: 'qiqiboy',
+    'list[0].name': 'apple',
+    'list[1].name': 'banana'
+};
+```
+
 #### $errors | $weakErrors
 
 所有表单项的 `$error` 集合。`$formutil.$errors` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakErrors` 是以 `Field` 的 `name` 字符串当 key 的对象。
+
+```javascript
+$errors = {
+    username: {
+        required: '必填'
+    },
+    list: [
+        {
+            name: {
+                required: '必填'
+            }
+        },
+        {
+            name: {
+                required: '必填'
+            }
+        }
+    ]
+};
+
+$weakErrors = {
+    username: {
+        required: '必填'
+    },
+    'list[0].name': {
+        required: '必填'
+    },
+    'list[1].name': {
+        required: '必填'
+    }
+};
+```
 
 #### $dirts | $weakDirts
 
@@ -615,17 +716,25 @@ $formutil.$reset();
 
 所有表单项的 `$touched` 集合。`$formutil.$touches` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakTouches` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
+#### $focuses | $weakFocuses
+
+所有表单项的 `$focused` 集合。`$formutil.$focuses` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakFocuses` 是以 `Field` 的 `name` 字符串当 key 的对象。
+
 #### $valid | $invalid
 
-表单项中所有 `Field` 的`$valid` 均为 `true` 时，`$formutil.$valid` 为 `true`, `$formutil.$invalid` 为 false。表单项中有任意 `Field` 的`$valid` 均为 `false` 时，`$formutil.$valid` 为 `false`, `$formutil.$invalid` 为 `True`。
+表单项中所有 `Field` 的`$valid` 均为 `true` 时，`$formutil.$valid` 为 `true`, `$formutil.$invalid` 为 false。表单项中有任意 `Field` 的`$valid` 为 `false` 时，`$formutil.$valid` 为 `false`, `$formutil.$invalid` 为 `True`。
 
 #### $dirty | $pristine
 
-表单项中所有 `Field` 的`$dirty` 均为 `false` 时，`$formutil.$dirty` 为 `false`, `$formutil.$pristine` 为 true。表单项中有任意 `Field` 的`$dirty` 均为 `true` 时，`$formutil.$dirty` 为 `true`, `$formutil.$pristine` 为 `false`。
+表单项中所有 `Field` 的`$dirty` 均为 `false` 时，`$formutil.$dirty` 为 `false`, `$formutil.$pristine` 为 true。表单项中有任意 `Field` 的`$dirty` 为 `true` 时，`$formutil.$dirty` 为 `true`, `$formutil.$pristine` 为 `false`。
 
 #### $touched | $untouched
 
-表单项中所有 `Field` 的`$touched` 均为 `false` 时，`$formutil.$touched` 为 `false`, `$formutil.$untouched` 为 `true`。表单项中有任意 `Field` 的`$touched` 均为 `true` 时，`$formutil.$touched` 为 `true`, `$formutil.$untouched` 为 `false`。
+表单项中所有 `Field` 的`$touched` 均为 `false` 时，`$formutil.$touched` 为 `false`, `$formutil.$untouched` 为 `true`。表单项中有任意 `Field` 的`$touched` 为 `true` 时，`$formutil.$touched` 为 `true`, `$formutil.$untouched` 为 `false`。
+
+#### $focused
+
+表单项中所有 `Field` 的`$focused` 均为 `false` 时，`$formutil.$focused` 为 `false`。表单项中有任意 `Field` 的`$focused` 为 `true` 时，`$formutil.$focused` 为 `true`。
 
 ### withForm
 
@@ -675,13 +784,13 @@ export default connect(Submit);
 
 ## FAQ & 常见问题解答
 
-#### Field 与 EasyField 有什么区别
+### Field 与 EasyField 有什么区别
 
-Field 是抽象的底层，它本身不会渲染任何 dom 结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作。
+Field 是抽象的底层，它本身不会渲染任何 dom 结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作（例如不会主动同步$touched $focused 状态）
 
-EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。
+EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。EasyField 会自动绑定 change、focus、blur 事件，并主动同步` $touched``$untouched``$focused `状态
 
-#### checkbox 多选或 radio 单选组怎么实现
+### checkbox 多选或 radio 单选组怎么实现
 
 可以直接 Field 实现，也可以使用 EasyField 实现（demo 都中有示例）：
 
@@ -716,7 +825,7 @@ const hobbiesItems = [
 </EasyField>;
 ```
 
-#### 使用 Field 实现一个上传图片的表单控件
+### 使用 Field 实现一个上传图片的表单控件
 
 假如我们需要在表单中插入一个按钮，用户需要点击按钮上传图片后，将图片地址同步到表单中
 
@@ -769,7 +878,7 @@ export default function FieldFile(props) {
 </div>;
 ```
 
-#### 如何获取对 Field 生成的节点的引用？
+### 如何获取对 Field 生成的节点的引用？
 
 可以通过 `$getField` 获取到一组 `handler` 方法，其中有 `$getComponent` 方法，可以获取到组件对象，然后再通过 `react-dom` 提供的 `findDOMNode` 来获取到对应的实际 dom 元素节点
 
@@ -787,7 +896,7 @@ import { findDOMNode } from 'react-dom';
 </Form>;
 ```
 
-#### 对于有大量表单项的长页面有没有优化办法
+### 对于有大量表单项的长页面有没有优化办法
 
 对于一个具有很多表单项、导致页面很大的表单，如果全部在一个组件里维护，会比较痛苦。幸运的事，使用 react-formutl 你可以很方便将大表单拆分成多个模块，既能减小大组件带来的维护难题，还能复用表单模块。
 

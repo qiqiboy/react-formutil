@@ -106,6 +106,8 @@ class Form extends Component {
 
     $setValues = ($valueTree, callback) =>
         this.$setStates(utils.objectMap($valueTree, $value => ({ $value })), callback);
+    $setFocuses = ($focusedTree, callback) =>
+        this.$setStates(utils.objectMap($focusedTree, $focused => ({ $focused })), callback);
     $setDirts = $dirtyTree => this.$setStates(utils.objectMap($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
     $setTouches = $touchedTree =>
         this.$setStates(utils.objectMap($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
@@ -122,6 +124,10 @@ class Form extends Component {
             $touched,
             $untouched: !$touched
         });
+    $batchFocused = $focused =>
+        this.$batchState({
+            $focused
+        });
 
     render() {
         const $stateArray = Object.keys(this.$$registers).map(path => ({
@@ -129,9 +135,10 @@ class Form extends Component {
             $state: this.$$registers[path].$picker()
         }));
 
-        const $valid = $stateArray.every(({ $state }) => $state.$valid);
+        const $invalid = $stateArray.some(({ $state }) => $state.$invalid);
         const $dirty = $stateArray.some(({ $state }) => $state.$dirty);
         const $touched = $stateArray.some(({ $state }) => $state.$touched);
+        const $focused = $stateArray.some(({ $state }) => $state.$focused);
         const $pending = $stateArray.some(({ $state }) => $state.$pending);
 
         const $formutil = (this.$formutil = {
@@ -156,6 +163,9 @@ class Form extends Component {
             $touches: utils.toObject($stateArray, ($touches, { path, $state }) =>
                 utils.parsePath($touches, path, $state.$touched)
             ),
+            $focuses: utils.toObject($stateArray, ($focuses, { path, $state }) =>
+                utils.parsePath($focuses, path, $state.$focused)
+            ),
 
             $weakStates: utils.toObject($stateArray, ($states, { path, $state }) => ($states[path] = $state)),
             $weakParams: utils.toObject($stateArray, ($params, { path, $state }) => ($params[path] = $state.$value)),
@@ -169,6 +179,10 @@ class Form extends Component {
                 $stateArray,
                 ($touches, { path, $state }) => ($touches[path] = $state.$touched)
             ),
+            $weakFocuses: utils.toObject(
+                $stateArray,
+                ($focuses, { path, $state }) => ($focuses[path] = $state.$focused)
+            ),
 
             $render: this.$render,
 
@@ -179,21 +193,24 @@ class Form extends Component {
             $setErrors: this.$setErrors,
             $setTouches: this.$setTouches,
             $setDirts: this.$setDirts,
+            $setFocuses: this.$setFocuses,
 
             $batchState: this.$batchState,
             $batchTouched: this.$batchTouched,
             $batchDirty: this.$batchDirty,
+            $batchFocused: this.$batchFocused,
 
             $reset: this.$reset,
             $validates: this.$validates,
             $validate: this.$validate,
 
-            $valid,
-            $invalid: !$valid,
+            $valid: !$invalid,
+            $invalid,
             $dirty,
             $pristine: !$dirty,
             $touched,
             $untouched: !$touched,
+            $focused,
             $pending
         });
 

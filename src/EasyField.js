@@ -18,12 +18,22 @@ class EasyField extends Component {
         validMessage: PropTypes.object
     };
 
+    static childContextTypes = {
+        $getFieldProps: PropTypes.func
+    };
+
     static defaultProps = {
         type: 'text',
         checked: true,
         unchecked: false,
         validMessage: {}
     };
+
+    getChildContext() {
+        return {
+            $getFieldProps: () => this.$fieldProps
+        };
+    }
 
     render() {
         const {
@@ -38,6 +48,7 @@ class EasyField extends Component {
             checked,
             unchecked,
             onChange,
+            onFocus,
             onBlur,
             ...otherProps
         } = this.props;
@@ -128,48 +139,20 @@ class EasyField extends Component {
             <Field {...fieldProps}>
                 {props => {
                     if (type === 'group') {
+                        this.$fieldProps = {
+                            $fieldutil: props,
+                            $onFieldChange: onChange,
+                            $onFieldFocus: onFocus,
+                            $onFieldBlur: onBlur,
+                            $groupType: groupType,
+                            $FieldName: name
+                        };
+
                         const { children, restProps } = otherProps;
 
                         const childProps = {
                             ...props,
-                            Field: ({ $value, onChange, ...others }) => {
-                                const elemProps =
-                                    groupType === 'radio'
-                                        ? {
-                                              checked: props.$value === $value,
-                                              onChange: ev => {
-                                                  props.$render($value);
-
-                                                  if (props.$untouched) {
-                                                      props.$setTouched(true);
-                                                  }
-
-                                                  if (onChange) {
-                                                      onChange(ev);
-                                                  }
-                                              }
-                                          }
-                                        : {
-                                              checked: props.$value.indexOf($value) > -1,
-                                              onChange: ev => {
-                                                  props.$render(
-                                                      ev.target.checked
-                                                          ? props.$value.concat($value)
-                                                          : props.$value.filter(value => value !== $value)
-                                                  );
-
-                                                  if (props.$untouched) {
-                                                      props.$setTouched(true);
-                                                  }
-
-                                                  if (onChange) {
-                                                      onChange(ev);
-                                                  }
-                                              }
-                                          };
-
-                                return <input {...others} {...elemProps} type={groupType} name={name} />;
-                            }
+                            Field: EasyFieldGroupItem
                         };
 
                         childProps.Field.propTypes = {
@@ -194,9 +177,7 @@ class EasyField extends Component {
                                 checked: props.$value === checked,
                                 onChange: ev => {
                                     props.$render(ev.target.checked ? checked : unchecked);
-                                    if (onChange) {
-                                        onChange(ev);
-                                    }
+                                    onChange && onChange(ev);
                                 }
                             };
                             break;
@@ -206,9 +187,7 @@ class EasyField extends Component {
                                 value: props.$value,
                                 onChange: ev => {
                                     props.$render(ev.target.value.trim());
-                                    if (onChange) {
-                                        onChange(ev);
-                                    }
+                                    onChange && onChange(ev);
                                 }
                             };
                             break;
@@ -220,11 +199,19 @@ class EasyField extends Component {
                             type={type}
                             name={name}
                             {...elemProps}
+                            onFocus={ev => {
+                                props.$setFocused(true);
+
+                                onFocus && onFocus(ev);
+                            }}
                             onBlur={ev => {
-                                props.$setTouched(true);
-                                if (onBlur) {
-                                    onBlur(ev);
+                                if (props.$untouched) {
+                                    props.$setTouched(true);
                                 }
+
+                                props.$setFocused(false);
+
+                                onBlur && onBlur(ev);
                             }}
                         />
                     );
@@ -234,4 +221,77 @@ class EasyField extends Component {
     }
 }
 
+class EasyFieldGroupItem extends Component {
+    static displayName = 'react.formutil.EasyField.GroupItem';
+
+    static propTypes = {
+        $value: PropTypes.any.isRequired
+    };
+
+    static contextTypes = {
+        $getFieldProps: PropTypes.func
+    };
+
+    render() {
+        const { $value, onChange, onFocus, onBlur, ...others } = this.props;
+        const {
+            $fieldutil,
+            $onFieldChange,
+            $onFieldFocus,
+            $onFieldBlur,
+            $FieldName,
+            $groupType
+        } = this.context.$getFieldProps();
+
+        const elemProps =
+            $groupType === 'radio'
+                ? {
+                      checked: $fieldutil.$value === $value,
+                      onChange: ev => {
+                          $fieldutil.$render($value);
+
+                          onChange && onChange(ev);
+                          $onFieldChange && $onFieldChange(ev);
+                      }
+                  }
+                : {
+                      checked: $fieldutil.$value.indexOf($value) > -1,
+                      onChange: ev => {
+                          $fieldutil.$render(
+                              ev.target.checked
+                                  ? $fieldutil.$value.concat($value)
+                                  : $fieldutil.$value.filter(value => value !== $value)
+                          );
+
+                          onChange && onChange(ev);
+                          $onFieldChange && $onFieldChange(ev);
+                      }
+                  };
+
+        return (
+            <input
+                {...others}
+                {...elemProps}
+                type={$groupType}
+                name={$FieldName}
+                onFocus={ev => {
+                    $fieldutil.$setFocused(true);
+
+                    onFocus && onFocus(ev);
+                    $onFieldFocus && $onFieldFocus(ev);
+                }}
+                onBlur={ev => {
+                    if ($fieldutil.$untouched) {
+                        $fieldutil.$setTouched(true);
+                    }
+
+                    $fieldutil.$setFocused(false);
+
+                    onBlur && onBlur(ev);
+                    $onFieldBlur && $onFieldBlur(ev);
+                }}
+            />
+        );
+    }
+}
 export default EasyField;

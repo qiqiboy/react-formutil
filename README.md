@@ -17,68 +17,68 @@ Happy to build the forms in React ^\_^
 
 <!-- vim-markdown-toc GFM -->
 
-* [安装 Installation](#安装-installation)
-* [使用 Usage](#使用-usage)
-    - [Field](#field)
-        + [name](#name)
-        + [$defaultValue](#defaultvalue)
-        + [$defaultState](#defaultstate)
-        + [$validators](#validators)
-        + [$asyncValidators](#asyncvalidators)
-        + [$state](#state)
-        + [$value](#value)
-        + [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
-        + [$error](#error)
-        + [$picker()](#picker)
-        + [$reset()](#reset)
-        + [$getComponent()](#getcomponent)
-        + [$setState($newState)](#setstatenewstate)
-        + [$render() | $setValue()](#render--setvalue)
-        + [$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
-        + [$setError($error)](#seterrorerror)
-        + [$validate()](#validate)
-        + [$$formutil](#formutil)
-    - [withField](#withfield)
-    - [EasyField](#easyfield)
-        + [type](#type)
-        + [name](#name-1)
-        + [$defaultValue](#defaultvalue-1)
-        + [$validators](#validators-1)
-        + [$asyncValidators](#asyncvalidators-1)
-        + [defaultValue](#defaultvalue-2)
-        + [validMessage](#validmessage)
-        + [checked / unchecked](#checked--unchecked)
-    - [Form](#form)
-        + [$defaultValues](#defaultvalues)
-        + [$defaultStates](#defaultstates)
-        + [$getField(name)](#getfieldname)
-        + [$validate(name)](#validatename)
-        + [$validates();](#validates)
-        + [$render(callback)](#rendercallback)
-        + [$setStates($stateTree)](#setstatesstatetree)
-        + [$setValues($valueTree)](#setvaluesvaluetree)
-        + [$setErros($errorTree)](#seterroserrortree)
-        + [$reset($stateTree)](#resetstatetree)
-        + [$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
-        + [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
-        + [$states | $weakStates](#states--weakstates)
-        + [$params | $weakParams](#params--weakparams)
-        + [$errors | $weakErrors](#errors--weakerrors)
-        + [$dirts | $weakDirts](#dirts--weakdirts)
-        + [$touches | $weakTouches](#touches--weaktouches)
-        + [$focuses | $weakFocuses](#focuses--weakfocuses)
-        + [$valid | $invalid](#valid--invalid)
-        + [$dirty | $pristine](#dirty--pristine)
-        + [$touched | $untouched](#touched--untouched)
-        + [$focused](#focused)
-    - [withForm](#withform)
-    - [connect](#connect)
-* [FAQ & 常见问题解答](#faq--常见问题解答)
-    - [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
-    - [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
-    - [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
-    - [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
-    - [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
+*   [安装 Installation](#安装-installation)
+*   [使用 Usage](#使用-usage)
+    *   [Field](#field)
+        *   [name](#name)
+        *   [$defaultValue](#defaultvalue)
+        *   [$defaultState](#defaultstate)
+        *   [$validators](#validators)
+        *   [$asyncValidators](#asyncvalidators)
+        *   [$state](#state)
+        *   [$value](#value)
+        *   [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
+        *   [$error](#error)
+        *   [$picker()](#picker)
+        *   [$reset()](#reset)
+        *   [$getComponent()](#getcomponent)
+        *   [$setState($newState)](#setstatenewstate)
+        *   [$render() | $setValue()](#render--setvalue)
+        *   [$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
+        *   [$setError($error)](#seterrorerror)
+        *   [$validate()](#validate)
+        *   [$$formutil](#formutil)
+    *   [withField](#withfield)
+    *   [EasyField](#easyfield)
+        *   [type](#type)
+        *   [name](#name-1)
+        *   [$defaultValue](#defaultvalue-1)
+        *   [$validators](#validators-1)
+        *   [$asyncValidators](#asyncvalidators-1)
+        *   [defaultValue](#defaultvalue-2)
+        *   [validMessage](#validmessage)
+        *   [checked / unchecked](#checked--unchecked)
+    *   [Form](#form)
+        *   [$defaultValues](#defaultvalues)
+        *   [$defaultStates](#defaultstates)
+        *   [$getField(name)](#getfieldname)
+        *   [$validate(name)](#validatename)
+        *   [$validates();](#validates)
+        *   [$render(callback)](#rendercallback)
+        *   [$setStates($stateTree)](#setstatesstatetree)
+        *   [$setValues($valueTree)](#setvaluesvaluetree)
+        *   [$setErros($errorTree)](#seterroserrortree)
+        *   [$reset($stateTree)](#resetstatetree)
+        *   [$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
+        *   [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
+        *   [$states | $weakStates](#states--weakstates)
+        *   [$params | $weakParams](#params--weakparams)
+        *   [$errors | $weakErrors](#errors--weakerrors)
+        *   [$dirts | $weakDirts](#dirts--weakdirts)
+        *   [$touches | $weakTouches](#touches--weaktouches)
+        *   [$focuses | $weakFocuses](#focuses--weakfocuses)
+        *   [$valid | $invalid](#valid--invalid)
+        *   [$dirty | $pristine](#dirty--pristine)
+        *   [$touched | $untouched](#touched--untouched)
+        *   [$focused](#focused)
+    *   [withForm](#withform)
+    *   [connect](#connect)
+*   [FAQ & 常见问题解答](#faq--常见问题解答)
+    *   [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
+    *   [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
+    *   [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
+    *   [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
+    *   [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
 
 <!-- vim-markdown-toc -->
 
@@ -262,7 +262,7 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
 *   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
 *   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
 
-> **需要强调的是，Field 默认不同步`$tocuhed`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
+> **需要强调的是，Field 默认不同步`$touched`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
 > 如果你需要其它状态，需要自己去绑定相关事件来更新状态：
 
 ```javascript
@@ -286,14 +286,15 @@ Field 的值实际是保存在状态里的该字段中，
 #### $dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending
 
 Field 的一组状态：
-* $dirty 控件被修改过
-* $pristine 控件没有被修改过，与$dirty互斥
-* $touched 控件失去过焦点
-* $untouched 控件没有失去过焦点
-* $focused 焦点是否当前控件
-* $pending 是否正在进行异步检查
-* $valid 表单所有控件均校验通过
-* $invalid 表单中有至少一个控件校验不通过
+
+*   $dirty 控件被修改过
+*   $pristine 控件没有被修改过，与$dirty 互斥
+*   $touched 控件失去过焦点
+*   $untouched 控件没有失去过焦点
+*   $focused 焦点是否在当前控件
+*   $pending 是否正在进行异步检查
+*   $valid 表单所有控件均校验通过
+*   $invalid 表单中有至少一个控件校验不通过
 
 #### $error
 
@@ -788,7 +789,7 @@ export default connect(Submit);
 
 Field 是抽象的底层，它本身不会渲染任何 dom 结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作（例如不会主动同步$touched $focused 状态）
 
-EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。EasyField 会自动绑定 change、focus、blur 事件，并主动同步` $touched``$untouched``$focused `状态
+EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。EasyField 会自动绑定 change、focus、blur 事件，并主动同步`$touched` `$untouched` `$focused`状态
 
 ### checkbox 多选或 radio 单选组怎么实现
 

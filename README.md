@@ -57,7 +57,7 @@ Happy to build the forms in React ^\_^
         *   [$render(callback)](#rendercallback)
         *   [$setStates($stateTree)](#setstatesstatetree)
         *   [$setValues($valueTree)](#setvaluesvaluetree)
-        *   [$setErros($errorTree)](#seterroserrortree)
+        *   [$setErrors($errorTree)](#seterroserrortree)
         *   [$reset($stateTree)](#resetstatetree)
         *   [$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
         *   [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
@@ -602,12 +602,12 @@ $formutil.$setValues({
 });
 ```
 
-#### $setErros($errorTree)
+#### $setErrors($errorTree)
 
 可以用来设置表单的校验结果：
 
 ```javascript
-$formutil.$setErros({
+$formutil.$setErrors({
     username: {
         required: '必填'
     },

@@ -155,10 +155,6 @@ class EasyField extends Component {
                             Field: EasyFieldGroupItem
                         };
 
-                        childProps.Field.propTypes = {
-                            $value: PropTypes.any.isRequired
-                        };
-
                         return (
                             <Element {...restProps}>
                                 {typeof children === 'function'
@@ -254,19 +250,29 @@ class EasyFieldGroupItem extends Component {
                           $onFieldChange && $onFieldChange(ev);
                       }
                   }
-                : {
-                      checked: $fieldutil.$value.indexOf($value) > -1,
-                      onChange: ev => {
-                          $fieldutil.$render(
-                              ev.target.checked
-                                  ? $fieldutil.$value.concat($value)
-                                  : $fieldutil.$value.filter(value => value !== $value)
-                          );
+                : $groupType === 'checkbox'
+                    ? {
+                          checked: $fieldutil.$value.indexOf($value) > -1,
+                          onChange: ev => {
+                              $fieldutil.$render(
+                                  ev.target.checked
+                                      ? $fieldutil.$value.concat($value)
+                                      : $fieldutil.$value.filter(value => value !== $value)
+                              );
 
-                          onChange && onChange(ev);
-                          $onFieldChange && $onFieldChange(ev);
+                              onChange && onChange(ev);
+                              $onFieldChange && $onFieldChange(ev);
+                          }
                       }
-                  };
+                    : {
+                          value: $fieldutil.$value,
+                          onChange: ev => {
+                              $fieldutil.$render(ev.target.value);
+
+                              onChange && onChange(ev);
+                              $onFieldChange && $onFieldChange(ev);
+                          }
+                      };
 
         return (
             <input

@@ -297,7 +297,7 @@ class LoginForm extends Component {
                             </a>
                         </small>
                         <EasyField
-                            type="group.checkbox"
+                            type="group.checkbo1x"
                             name="EasyField.checkbox_group"
                             required
                             validMessage={{ required: '请至少选择一项' }}>

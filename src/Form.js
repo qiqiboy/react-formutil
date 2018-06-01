@@ -124,17 +124,17 @@ class Form extends Component {
             }
         });
 
-        if (Object.keys($newValues).length) {
-            const { $onFormChange } = this.props;
-
-            callbackQueue.push({
-                callback: $onFormChange,
-                args: [$newValues, $preValues]
-            });
-        }
-
         this.$render(() => {
             callback && callback();
+
+            if (Object.keys($newValues).length) {
+                const { $onFormChange } = this.props;
+
+                callbackQueue.push({
+                    callback: $onFormChange,
+                    args: [this.$formutil, $newValues, $preValues]
+                });
+            }
 
             callbackQueue.forEach(item => {
                 typeof item.callback === 'function' && item.callback(...item.args);
@@ -156,7 +156,8 @@ class Form extends Component {
 
     $setValues = ($valueTree, callback) =>
         this.$setStates(this.fetchTreeFromRegisters($valueTree, $value => ({ $value })), callback);
-    $setFocuses = $focusedTree => this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })));
+    $setFocuses = $focusedTree =>
+        this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })));
     $setDirts = $dirtyTree =>
         this.$setStates(this.fetchTreeFromRegisters($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
     $setTouches = $touchedTree =>

@@ -571,7 +571,7 @@ export default withField(FieldCustom, {
 
 #### $onFormChange
 
-该属性可传入一个函数，当表单的值有变动时，会触发该回调，所有本次变动的控件的值将会已对象集合的形式传递参数：
+该属性可传入一个函数，当表单的值有变动时，会触发该回调，新的$formutil 对象和本次变动的新旧值的集合会依次以参数形式传递：
 
 > 注意：
 >
@@ -579,12 +579,27 @@ export default withField(FieldCustom, {
 > 2.  请避免在该回调里不加条件的一直去变更表单项的值，否则可能陷入死循环（因为表单值变更即会导致该回调重新触发）。
 
 ```javascript
-//回调函数的参数为新值集合于前一个状态下的旧值集合
-<Form $onFormChange={(newValues, preValues) => console.log(newValues)}>//...</Form>;
+<Form $onFormChange={($formutil, newValues, preValues) => console.log($formutil, newValues, preValues)}>//...</Form>;
 
-//当表单值右边更是，将会打印
+//当表单值有变更时，将会打印:
+//$formutil
 {
-    username: 'changed-value';
+    $params: {},
+    $states: {},
+    $invalid: false,
+    $valid: true,
+    //...
+    $setStates: () => {},
+    $getField: () => {},
+    //...
+}
+//newValues
+{
+    username: 'new value';
+}
+//preValues
+{
+    username: 'pre value';
 }
 ```
 

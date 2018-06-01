@@ -27,9 +27,9 @@ class LoginForm extends Component {
             confirm_password: '123456',
             mutiple: ['b', 'c'],
             autologin: false,
-            'EasyField.checkbox': '1',
+            'EasyField.checkbox': '1', //可以是表达式字符串
             EasyField: {
-                number: 5,
+                number: 5, //也支持深层对象结构
                 select: 'a'
             }
         });

@@ -98,7 +98,9 @@ yarn add react-formutil
 
 先看一个简单的示例：
 
-[react-formutil Demo](http://github.boy.im/react-formutil/demo/)
+[Demo on codeSandbox.io](https://codesandbox.io/s/pm9ll05p8m)
+
+如果上方地址无法访问或者较慢，也可以查看：[Demo on github pages](http://github.boy.im/react-formutil/demo/)
 
 上面的示例简单展示了 `react-formutil` 的基本用法。当然这只是很简单的示例，更复杂的状态渲染，例如`$dirty`、表单验证等后面会具体讲到。这里想简单说下 `react-formutil` 的设计思路：
 
@@ -233,7 +235,7 @@ yarn add react-formutil
 > 1.  该回调并不会在调用 `$render` `$setValues` 等更新表单值的方法后立即触发，它会随着最新的一次 react 渲染执行。也正因为此，所以才能拿到变更后的表单的值和状态。
 > 2.  仅当当前 `Field` 的值（状态里的`$value`）有变动时才会触发，其他状态例如`$diry` `$touched` 等变化不会触发。
 > 3.  如果需要访问 DOM Event，请使用 `onChange` 即可。
-> 4.  不要在该回调里再次修改当前 Field 的值，否则会陷入死循环（修改该Field的其它状态或者修改其它 Field 的值是安全的）。
+> 4.  不要在该回调里再次修改当前 Field 的值，否则会陷入死循环（修改该 Field 的其它状态或者修改其它 Field 的值是安全的）。
 
 ```javascript
 //在B的值变更并且渲染完毕后，主动再次要求A组件进行一次校验
@@ -624,9 +626,18 @@ const {
 $formutil.$setStates({
     username: { $dirty: true, $pristine: false },
     'list[0].name': {
+        //也可以像下方一样传入结构化对象
         $dirty: true,
         $pristine: false
-    }
+    },
+    list: [
+        {
+            name: {
+                $dirty: true,
+                $pristine: false
+            }
+        }
+    ]
 });
 ```
 
@@ -637,7 +648,12 @@ $formutil.$setStates({
 ```javascript
 $formutil.$setValues({
     username: 'jack',
-    'list[0].id': '123456'
+    'list[0].id': '123456', //也可以像下方一样传入结构化对象
+    list: [
+        {
+            id: '123456'
+        }
+    ]
 });
 ```
 

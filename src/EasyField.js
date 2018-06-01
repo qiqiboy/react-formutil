@@ -150,7 +150,7 @@ class EasyField extends Component {
                             $FieldName: name
                         };
 
-                        const { children, restProps } = otherProps;
+                        const { children, ...restProps } = otherProps;
 
                         const childProps = {
                             ...props,

@@ -25,6 +25,7 @@ Happy to build the forms in React ^\_^
         *   [$defaultState](#defaultstate)
         *   [$validators](#validators)
         *   [$asyncValidators](#asyncvalidators)
+        *   [$onFieldChange](#onfieldchange)
         *   [$state](#state)
         *   [$value](#value)
         *   [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
@@ -51,13 +52,14 @@ Happy to build the forms in React ^\_^
     *   [Form](#form)
         *   [$defaultValues](#defaultvalues)
         *   [$defaultStates](#defaultstates)
+        *   [$onFormChange](#onformchange)
         *   [$getField(name)](#getfieldname)
         *   [$validate(name)](#validatename)
         *   [$validates();](#validates)
         *   [$render(callback)](#rendercallback)
         *   [$setStates($stateTree)](#setstatesstatetree)
         *   [$setValues($valueTree)](#setvaluesvaluetree)
-        *   [$setErrors($errorTree)](#seterroserrortree)
+        *   [$setErrors($errorTree)](#seterrorserrortree)
         *   [$reset($stateTree)](#resetstatetree)
         *   [$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
         *   [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
@@ -219,6 +221,17 @@ yarn add react-formutil
             http.post('/api/v1/check_account', { account: value }).catch(error => Promise.reject(error.message))
     }}>
     {/* ... */}
+</Field>
+```
+
+#### $onFieldChange
+
+由于 react 的渲染是异步的，所以如果存在交叉验证，例如 A 控件依赖于 B 控件的值去校验自身，那么这种情况下，B 的值变更并不会导致 A 立即去应用新的值去校验。所以这种情况下，可以通过该属性设置回调，主动去触发校验 A 控件。
+
+```javascript
+//在B的值变更并且渲染完毕后，主动再次要求A组件进行一次校验
+<Field name="B" $onFieldChange={(newValue, preValue) => $formutil.$getField('A').$validate()}>
+    //...
 </Field>
 ```
 
@@ -505,7 +518,7 @@ export default withField(FieldCustom, {
 *   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
 *   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
 
-`Form` 可以接收两个可选属性参数：
+`Form` 可以接收以下可选属性参数：
 
 #### $defaultValues
 
@@ -545,6 +558,20 @@ export default withField(FieldCustom, {
         </div>
     )}
 </Form>
+```
+
+#### $onFormChange
+
+该属性可传入一个函数，当表单的值有变动时，会触发该回调，所有本次变动的控件的值将会已对象集合的形式传递参数：
+
+```javascript
+//回调函数的参数为新值集合于前一个状态下的旧值集合
+<Form $onFormChange={(newValues, preValues) => console.log(newValues)}>//...</Form>;
+
+//当表单值右边更是，将会打印
+{
+    username: 'changed-value';
+}
 ```
 
 更多解释参考：

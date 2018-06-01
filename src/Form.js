@@ -8,7 +8,8 @@ class Form extends Component {
     static propTypes = {
         children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired,
         $defaultValues: PropTypes.object,
-        $defaultStates: PropTypes.object
+        $defaultStates: PropTypes.object,
+        $onFormChange: PropTypes.func
     };
 
     static childContextTypes = {
@@ -69,6 +70,23 @@ class Form extends Component {
         utils.objectEach(this.$$registers, (handler, name) => utils.parsePath(this.$$deepRegisters, name, handler));
     };
 
+    fetchTreeFromRegisters(dataTree, process) {
+        const newTree = {};
+        utils.objectEach(this.$$registers, (handler, name) => {
+            if (name in dataTree) {
+                newTree[name] = process(dataTree[name]);
+            } else {
+                const data = utils.parsePath(dataTree, name);
+
+                if (typeof data !== 'undefined') {
+                    newTree[name] = process(data);
+                }
+            }
+        });
+
+        return newTree;
+    }
+
     $getField = name => this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
 
     $$onChange = (name, $state, callback) =>
@@ -80,16 +98,48 @@ class Form extends Component {
         );
 
     $setStates = ($stateTree = {}, callback) => {
-        utils.objectEach($stateTree, ($newState, name) => {
-            const handler = this.$getField(name);
-            if (handler) {
+        const $newValues = {};
+        const $preValues = {};
+        const callbackQueue = [];
+
+        utils.objectEach(this.$$registers, (handler, name) => {
+            const $newState = $stateTree[name] || utils.parsePath($stateTree, name);
+            if ($newState) {
                 handler.$$merge($newState);
-            } else {
-                console.warn(`react-formutil: The Field: '${name}' is not existed!`);
+
+                if ('$value' in $newState) {
+                    const $newValue = $newState.$value;
+                    const $preValue = this.$formutil.$weakParams[name];
+
+                    if ($newValue !== $preValue) {
+                        utils.parsePath($newValues, name, $newValue);
+                        utils.parsePath($preValues, name, $preValue);
+
+                        callbackQueue.push({
+                            callback: handler.$$getFieldChangeHandler(),
+                            args: [$newValue, $preValue]
+                        });
+                    }
+                }
             }
         });
 
-        this.$render(callback);
+        if (Object.keys($newValues).length) {
+            const { $onFormChange } = this.props;
+
+            callbackQueue.push({
+                callback: $onFormChange,
+                args: [$newValues, $preValues]
+            });
+        }
+
+        this.$render(() => {
+            callback && callback();
+
+            callbackQueue.forEach(item => {
+                typeof item.callback === 'function' && item.callback(...item.args);
+            });
+        });
     };
 
     $render = callback => this.forceUpdate(callback);
@@ -105,13 +155,13 @@ class Form extends Component {
         );
 
     $setValues = ($valueTree, callback) =>
-        this.$setStates(utils.objectMap($valueTree, $value => ({ $value })), callback);
-    $setFocuses = ($focusedTree, callback) =>
-        this.$setStates(utils.objectMap($focusedTree, $focused => ({ $focused })), callback);
-    $setDirts = $dirtyTree => this.$setStates(utils.objectMap($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
+        this.$setStates(this.fetchTreeFromRegisters($valueTree, $value => ({ $value })), callback);
+    $setFocuses = $focusedTree => this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })));
+    $setDirts = $dirtyTree =>
+        this.$setStates(this.fetchTreeFromRegisters($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
     $setTouches = $touchedTree =>
-        this.$setStates(utils.objectMap($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
-    $setErrors = $errorTree => this.$setStates(utils.objectMap($errorTree, $error => ({ $error })));
+        this.$setStates(this.fetchTreeFromRegisters($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
+    $setErrors = $errorTree => this.$setStates(this.fetchTreeFromRegisters($errorTree, $error => ({ $error })));
 
     $batchState = ($state = {}) => this.$setStates(utils.objectMap(this.$$registers, () => $state));
     $batchDirty = $dirty =>

@@ -8,6 +8,7 @@ class Field extends Component {
     static propTypes = {
         $defaultValue: PropTypes.any,
         $defaultState: PropTypes.object,
+        $onFieldChange: PropTypes.func,
         name: PropTypes.string,
         children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired,
 
@@ -72,12 +73,13 @@ class Field extends Component {
         }
 
         this.$handler = {
-            $name: this.$name,
-            $picker: () => this.$state,
-            $getComponent: () => this,
             $$merge: this.$$merge,
+            $$getFieldChangeHandler: () => this.props.$onFieldChange,
             $$reset: $newState => (this.$state = { ...this.$baseState, ...$newState }),
 
+            $name: this.$name,
+            $picker: () => ({ ...this.$state }),
+            $getComponent: () => this,
             $reset: $newState => this.$setState(this.$handler.$$reset($newState)),
             $render: this.$render,
             $setValue: this.$render,
@@ -209,18 +211,32 @@ class Field extends Component {
             this.$validate();
         }
 
-        return this.$state;
+        return this.$handler.$picker();
     };
 
     $setState = ($newState, callback) => {
         if (this.$name) {
             this.context.$$onChange(this.$name, $newState, callback);
         } else {
+            const { $preValue } = this.$state;
             this.$$merge($newState);
-            this.forceUpdate(callback);
+
+            this.forceUpdate(() => {
+                typeof callback === 'function' && callback();
+
+                const { $onFieldChange } = this.props;
+
+                if (
+                    '$value' in $newState &&
+                    typeof $onFieldChange === 'function' &&
+                    $newState.$value !== $preValue
+                ) {
+                    $onFieldChange($newState.$value, $preValue);
+                }
+            });
         }
 
-        return this.$state;
+        return this.$handler.$picker();
     };
 
     $render = ($value, callback) =>

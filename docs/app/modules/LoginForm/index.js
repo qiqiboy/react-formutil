@@ -21,20 +21,18 @@ class LoginForm extends Component {
 
     autoInput = () => {
         //可以通过$setValues来更改表单的值
-        this.props.$formutil.$setValues(
-            {
-                username: 'qiqiboy',
-                password: '123456',
-                confirm_password: '123456',
-                mutiple: ['b', 'c'],
-                autologin: false
-            },
-            () => {
-                //我们需要更新后重新校验密码字段，因为这两个字段校验一致性是互相依赖的
-                this.props.$formutil.$validate('password');
-                this.props.$formutil.$validate('confirm_password');
+        this.props.$formutil.$setValues({
+            username: 'qiqiboy',
+            password: '123456',
+            confirm_password: '123456',
+            mutiple: ['b', 'c'],
+            autologin: false,
+            'EasyField.checkbox': '1',
+            EasyField: {
+                number: 5,
+                select: 'a'
             }
-        );
+        });
     };
 
     resetForm = () => this.props.$formutil.$reset();
@@ -80,7 +78,7 @@ class LoginForm extends Component {
                         用户登录{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L89-L232"
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L94-L237"
                                 target="_blank">
                                 source on github
                             </a>
@@ -109,6 +107,7 @@ class LoginForm extends Component {
                         minLength="5"
                         required
                         isSame="confirm_password"
+                        $onFieldChange={() => this.props.$formutil.$validate('confirm_password')}
                         $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
@@ -118,11 +117,7 @@ class LoginForm extends Component {
                                     className="form-control"
                                     placeholder="Password"
                                     value={props.$value}
-                                    onChange={ev =>
-                                        props.$render(ev.target.value.trim(), () =>
-                                            props.$$formutil.$validate('confirm_password')
-                                        )
-                                    }
+                                    onChange={ev => props.$render(ev.target.value.trim())}
                                 />
                                 {props.$dirty &&
                                     props.$invalid && (
@@ -136,6 +131,7 @@ class LoginForm extends Component {
                         minLength="5"
                         required
                         isSame="password"
+                        $onFieldChange={() => this.props.$formutil.$validate('password')}
                         $validators={this.$validators}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
@@ -146,9 +142,7 @@ class LoginForm extends Component {
                                     placeholder="Confirm password"
                                     value={props.$value}
                                     onChange={(ev /* 这里同样，需要更新组件后再次去校验依赖该表单项字段的项目 */) =>
-                                        props.$render(ev.target.value.trim(), () =>
-                                            props.$$formutil.$validate('password')
-                                        )
+                                        props.$render(ev.target.value.trim())
                                     }
                                 />
                                 {props.$dirty &&
@@ -274,7 +268,7 @@ class LoginForm extends Component {
                         checkbox{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L264-L289"
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L269-L294"
                                 target="_blank">
                                 source on github
                             </a>
@@ -291,13 +285,13 @@ class LoginForm extends Component {
                         <label>多选</label>{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L290-L319"
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L295-L324"
                                 target="_blank">
                                 source on github
                             </a>
                         </small>
                         <EasyField
-                            type="group.checkbo1x"
+                            type="group.checkbox"
                             name="EasyField.checkbox_group"
                             required
                             validMessage={{ required: '请至少选择一项' }}>
@@ -329,7 +323,7 @@ class LoginForm extends Component {
                         radio{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L320-L344"
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L325-L349"
                                 target="_blank">
                                 source on github
                             </a>
@@ -346,7 +340,7 @@ class LoginForm extends Component {
                         <label>单选</label>{' '}
                         <small>
                             <a
-                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L345-L377"
+                                href="https://github.com/qiqiboy/react-formutil/blob/master/docs/app/modules/LoginForm/index.js#L350-L382"
                                 target="_blank">
                                 source on github
                             </a>

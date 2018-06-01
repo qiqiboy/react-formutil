@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Field from './Field';
 
 /**
- * 提供对浏览器原生表单空间的封装
+ * 提供对浏览器原生表单控件的封装
  * 支持以下类型表单元素：
  *  - input[type=xx]
  *  - textarea
@@ -43,6 +43,7 @@ class EasyField extends Component {
             $defaultState,
             $validators,
             $asyncValidators,
+            $onFieldChange,
             validMessage,
             type: typeStr,
             checked,
@@ -58,6 +59,7 @@ class EasyField extends Component {
 
         const fieldProps = {
             name,
+            $onFieldChange,
             $defaultState,
             $validators: {
                 required: ($value, check) =>

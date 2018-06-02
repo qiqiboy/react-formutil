@@ -95,37 +95,27 @@ export const toObject = (arr, handler, obj = {}) =>
         return args[0];
     }, obj);
 
-const DELETE = '__REACT_FORMUTIL_WILL_DELETE__' + Math.random();
+const TODO_DELETE = '__REACT_FORMUTIL_TODO_DELETE__' + +new Date();
 const CLEAR = (obj, pkey, pobj) => {
-    let reClear = false;
     objectEach(obj, (value, key) => {
-        if (value === DELETE) {
+        if (value === TODO_DELETE) {
             if (Array.isArray(obj)) {
                 obj.splice(key, 1);
             } else {
                 delete obj[key];
             }
-
-            if (Object.keys(obj).length === 0 && pobj) {
-                pobj[pkey] = DELETE;
-                reClear = true;
-            }
         } else if (value && typeof value === 'object') {
-            if (CLEAR(value, key, obj)) {
-                reClear = true;
-            }
+            CLEAR(value, key, obj);
         }
     });
 
-    return reClear;
+    if (pobj && Object.keys(obj).length === 0) {
+        pobj[pkey] = TODO_DELETE;
+        CLEAR(pobj);
+    }
 };
 export const objectClear = (obj, name) => {
     if (typeof parsePath(obj, name) !== 'undefined') {
-        parsePath(obj, name, DELETE);
-
-        let ret;
-        do {
-            ret = CLEAR(obj);
-        } while (ret);
+        CLEAR(parsePath(obj, name, TODO_DELETE));
     }
 };

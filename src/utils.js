@@ -16,56 +16,68 @@ function isUndefined(arg) {
 /* eslint-disable */
 export const parsePath = (...args) => {
     const [target, path, value] = args;
-
-    if (args.length < 3) {
-        const execute = new Function(
-            'obj',
-            `try {
-                return obj.${path}
-            } catch(error) {}`
-        );
-
-        return execute(target);
-    }
-
     const pathSymbols = path.match(PATH_REGEXP) || [];
     const pathWords = path.split(PATH_REGEXP).filter(item => item !== '');
     let scope = target;
 
     try {
-        pathWords.forEach((word, index) => {
-            const nextWord = pathWords[index + 1];
-            const symbol = pathSymbols[index];
-            const executeWord = new Function(`return ${word}`);
-            const executeNextword = new Function(`return ${nextWord}`);
+        if (args.length < 3) {
+            for (let index = 0, len = pathWords.length; index < len; index++) {
+                let word = pathWords[index];
+                const symbol = pathSymbols[index];
+                const executeWord = new Function('sub', `return typeof ${word} === 'undefined' ? sub : ${word}`);
 
-            switch (symbol) {
-                case '].':
-                    word = executeWord();
-                case '.':
-                    scope = isUndefined(scope[word]) ? (scope[word] = {}) : scope[word];
+                word = executeWord(word);
+
+                if (index + 1 === len) {
+                    return scope[word];
+                }
+
+                if (isUndefined(scope[word])) {
                     break;
+                }
 
-                case '][':
-                    word = executeWord();
-                case '[':
-                    const nextVarWord = executeNextword();
-                    scope = isUndefined(scope[word])
-                        ? (scope[word] = typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {})
-                        : scope[word];
-                    break;
-
-                case ']':
-                    word = executeWord();
-                default:
-                    scope[word] = value;
+                scope = scope[word];
             }
-        });
+        } else {
+            pathWords.forEach((word, index) => {
+                const nextWord = pathWords[index + 1];
+                const symbol = pathSymbols[index];
+                const executeWord = new Function('sub', `return typeof ${word} === 'undefined' ? sub : ${word}`);
+                const executeNextword = new Function(
+                    'sub',
+                    `return typeof ${nextWord} === 'undefined' ? sub : ${nextWord}`
+                );
+
+                word = executeWord(word);
+
+                switch (symbol) {
+                    case '].':
+                    case '.':
+                        scope = isUndefined(scope[word]) ? (scope[word] = {}) : scope[word];
+                        break;
+
+                    case '][':
+                    case '[':
+                        const nextVarWord = executeNextword(nextWord);
+                        scope = isUndefined(scope[word])
+                            ? (scope[word] = typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {})
+                            : scope[word];
+                        break;
+
+                    case ']':
+                    default:
+                        scope[word] = value;
+                }
+            });
+        }
     } catch (error) {
         console.warn(`react-formutil: It seems '${path}' is not a legal expression.`);
     }
 
-    return target;
+    if (args.length > 2) {
+        return target;
+    }
 };
 
 export const objectMap = (obj, handler) =>

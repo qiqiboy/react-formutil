@@ -56,12 +56,8 @@ class Field extends Component {
         this.$name = props.name;
 
         if (this.$name) {
-            const $initialValue =
-                this.$name in context.$$defaultValues
-                    ? context.$$defaultValues[this.$name]
-                    : utils.parsePath(context.$$defaultValues, this.$name);
-            const $initialState =
-                context.$$defaultStates[this.$name] || utils.parsePath(context.$$defaultStates, this.$name);
+            const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
+            const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
 
             if (typeof $initialValue !== 'undefined') {
                 this.$baseState.$value = $initialValue;
@@ -183,9 +179,8 @@ class Field extends Component {
                 }, []);
 
             if (promises.length) {
-                Promise.all(promises).then(() => this.$setPending(false));
-
                 this.$setPending(true);
+                Promise.all(promises).then(() => this.$setPending(false));
             }
         }
     };
@@ -226,11 +221,7 @@ class Field extends Component {
 
                 const { $onFieldChange } = this.props;
 
-                if (
-                    '$value' in $newState &&
-                    typeof $onFieldChange === 'function' &&
-                    $newState.$value !== $preValue
-                ) {
+                if ('$value' in $newState && typeof $onFieldChange === 'function' && $newState.$value !== $preValue) {
                     $onFieldChange($newState.$value, $preValue);
                 }
             });
@@ -249,34 +240,49 @@ class Field extends Component {
             callback
         );
 
-    $setPending = $pending =>
-        this.$setState({
-            $pending
-        });
+    $setPending = ($pending, callback) =>
+        this.$setState(
+            {
+                $pending
+            },
+            callback
+        );
 
-    $setTouched = $touched =>
-        this.$setState({
-            $touched,
-            $untouched: !$touched
-        });
+    $setTouched = ($touched, callback) =>
+        this.$setState(
+            {
+                $touched,
+                $untouched: !$touched
+            },
+            callback
+        );
 
-    $setDirty = $dirty =>
-        this.$setState({
-            $dirty,
-            $pristine: !$dirty
-        });
+    $setDirty = ($dirty, callback) =>
+        this.$setState(
+            {
+                $dirty,
+                $pristine: !$dirty
+            },
+            callback
+        );
 
-    $setFocused = $focused =>
-        this.$setState({
-            $focused
-        });
+    $setFocused = ($focused, callback) =>
+        this.$setState(
+            {
+                $focused
+            },
+            callback
+        );
 
-    $setError = $error =>
-        this.$setState({
-            $error
-        });
+    $setError = ($error, callback) =>
+        this.$setState(
+            {
+                $error
+            },
+            callback
+        );
 
-    $setValidity = (key, valid = false) => {
+    $setValidity = (key, valid = false, callback) => {
         const { $error } = this.$state;
 
         if (valid === true) {
@@ -285,7 +291,7 @@ class Field extends Component {
             $error[key] = valid;
         }
 
-        return this.$setError($error);
+        return this.$setError($error, callback);
     };
 
     render() {

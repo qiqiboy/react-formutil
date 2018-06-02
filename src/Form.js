@@ -72,15 +72,15 @@ class Form extends Component {
 
     fetchTreeFromRegisters(dataTree, process) {
         const newTree = {};
-        utils.objectEach(this.$$registers, (handler, name) => {
-            if (name in dataTree) {
-                newTree[name] = process(dataTree[name]);
-            } else {
-                const data = utils.parsePath(dataTree, name);
+        const parsedTree = { ...dataTree };
 
-                if (typeof data !== 'undefined') {
-                    newTree[name] = process(data);
-                }
+        utils.objectEach(dataTree, (data, name) => utils.parsePath(parsedTree, name, data));
+
+        utils.objectEach(this.$$registers, (handler, name) => {
+            const data = parsedTree[name] || utils.parsePath(parsedTree, name);
+
+            if (typeof data !== 'undefined') {
+                utils.parsePath(newTree, name, process(data));
             }
         });
 
@@ -97,13 +97,16 @@ class Form extends Component {
             callback
         );
 
-    $setStates = ($stateTree = {}, callback) => {
+    $setStates = ($stateTree, callback) => {
+        const $parsedTree = { ...$stateTree };
         const $newValues = {};
         const $preValues = {};
         const callbackQueue = [];
 
+        utils.objectEach($stateTree || {}, (data, name) => utils.parsePath($parsedTree, name, data));
+
         utils.objectEach(this.$$registers, (handler, name) => {
-            const $newState = $stateTree[name] || utils.parsePath($stateTree, name);
+            const $newState = $parsedTree[name] || utils.parsePath($parsedTree, name);
             if ($newState) {
                 handler.$$merge($newState);
 
@@ -147,38 +150,61 @@ class Form extends Component {
     $validates = () => utils.objectEach(this.$$registers, handler => handler.$validate());
     $validate = name => this.$getField(name).$validate();
 
-    $reset = ($stateTree = {}) =>
-        this.$setStates(
+    $reset = ($stateTree, callback) => {
+        if (typeof $stateTree === 'function') {
+            callback = $stateTree;
+            $stateTree = {};
+        }
+
+        const $parsedTree = { ...$stateTree };
+        utils.objectEach($stateTree || {}, (data, name) => utils.parsePath($parsedTree, name, data));
+
+        return this.$setStates(
             utils.objectMap(this.$$registers, (handler, name) =>
-                handler.$$reset($stateTree[name] || utils.parsePath($stateTree, name))
-            )
+                handler.$$reset($parsedTree[name] || utils.parsePath($parsedTree, name))
+            ),
+            callback
         );
+    };
 
     $setValues = ($valueTree, callback) =>
         this.$setStates(this.fetchTreeFromRegisters($valueTree, $value => ({ $value })), callback);
-    $setFocuses = $focusedTree =>
-        this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })));
-    $setDirts = $dirtyTree =>
-        this.$setStates(this.fetchTreeFromRegisters($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })));
-    $setTouches = $touchedTree =>
-        this.$setStates(this.fetchTreeFromRegisters($touchedTree, $touched => ({ $touched, $untouched: !$touched })));
-    $setErrors = $errorTree => this.$setStates(this.fetchTreeFromRegisters($errorTree, $error => ({ $error })));
+    $setFocuses = ($focusedTree, callback) =>
+        this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })), callback);
+    $setDirts = ($dirtyTree, callback) =>
+        this.$setStates(this.fetchTreeFromRegisters($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })), callback);
+    $setTouches = ($touchedTree, callback) =>
+        this.$setStates(
+            this.fetchTreeFromRegisters($touchedTree, $touched => ({ $touched, $untouched: !$touched })),
+            callback
+        );
+    $setErrors = ($errorTree, callback) =>
+        this.$setStates(this.fetchTreeFromRegisters($errorTree, $error => ({ $error })), callback);
 
-    $batchState = ($state = {}) => this.$setStates(utils.objectMap(this.$$registers, () => $state));
-    $batchDirty = $dirty =>
-        this.$batchState({
-            $dirty,
-            $pristine: !$dirty
-        });
-    $batchTouched = $touched =>
-        this.$batchState({
-            $touched,
-            $untouched: !$touched
-        });
-    $batchFocused = $focused =>
-        this.$batchState({
-            $focused
-        });
+    $batchState = ($state, callback) => this.$setStates(utils.objectMap(this.$$registers, () => $state), callback);
+    $batchDirty = ($dirty, callback) =>
+        this.$batchState(
+            {
+                $dirty,
+                $pristine: !$dirty
+            },
+            callback
+        );
+    $batchTouched = ($touched, callback) =>
+        this.$batchState(
+            {
+                $touched,
+                $untouched: !$touched
+            },
+            callback
+        );
+    $batchFocused = ($focused, callback) =>
+        this.$batchState(
+            {
+                $focused
+            },
+            callback
+        );
 
     render() {
         const $stateArray = Object.keys(this.$$registers).map(path => ({

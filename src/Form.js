@@ -46,31 +46,50 @@ class Form extends Component {
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, preName) => {
-        if (preName && $handler.$$FIELD_UUID === this.$$registers[name].$$FIELD_UUID) {
+        if (preName && $handler.$$FIELD_UUID === this.$getField(preName).$$FIELD_UUID) {
             delete this.$$registers[preName];
             utils.objectClear(this.$$defaultValues, preName);
+
+            utils.parsePath(this.$$registerPreValues, preName, this.$formutil.$weakParams[preName]);
         }
 
         if (name) {
             this.$$registers[name] = $handler;
+
+            utils.parsePath(this.$$registerNewValues, name, $handler.$picker().$value);
 
             $handler.$validate();
         }
 
         if (name || preName) {
             this.creatDeepRigesters();
-            this.$render();
+            this.$render(this.$$registerCallback);
         }
     };
 
     $$unregister = (name, $handler) => {
-        if (name && $handler.$$FIELD_UUID === this.$$registers[name].$$FIELD_UUID) {
+        if (name && $handler.$$FIELD_UUID === this.$getField(name).$$FIELD_UUID) {
             delete this.$$registers[name];
             utils.objectClear(this.$$defaultValues, name);
 
+            utils.parsePath(this.$$registerPreValues, name, this.$formutil.$weakParams[name]);
+
             this.creatDeepRigesters();
-            this.$render();
+            this.$render(this.$$registerCallback);
         }
+    };
+
+    $$registerPreValues = {};
+    $$registerNewValues = {};
+    $$registerCallback = () => {
+        clearTimeout(this.$$registerCallbackTimer);
+        this.$$registerCallbackTimer = setTimeout(() => {
+            if (typeof this.props.$onFormChange === 'function') {
+                this.props.$onFormChange(this.$formutil, this.$$registerNewValues, this.$$registerPreValues);
+                this.$$registerPreValues = {};
+                this.$$registerNewValues = {};
+            }
+        });
     };
 
     creatDeepRigesters = () => {
@@ -108,8 +127,8 @@ class Form extends Component {
 
     $setStates = ($stateTree, callback) => {
         const $parsedTree = { ...$stateTree };
-        const $newValues = {};
-        const $preValues = {};
+        const $newValues = this.$$registerNewValues;
+        const $preValues = this.$$registerPreValues;
         const callbackQueue = [];
 
         utils.objectEach($stateTree || {}, (data, name) => utils.parsePath($parsedTree, name, data));
@@ -140,11 +159,9 @@ class Form extends Component {
             callback && callback();
 
             if (Object.keys($newValues).length) {
-                const { $onFormChange } = this.props;
-
                 callbackQueue.push({
-                    callback: $onFormChange,
-                    args: [this.$formutil, $newValues, $preValues]
+                    callback: this.$$registerCallback,
+                    args: []
                 });
             }
 

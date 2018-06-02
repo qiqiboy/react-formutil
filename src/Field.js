@@ -5,6 +5,8 @@ import * as utils from './utils';
 class Field extends Component {
     static displayName = 'React.formutil.Field';
 
+    static FIELD_UUID = 0;
+
     static propTypes = {
         $defaultValue: PropTypes.any,
         $defaultState: PropTypes.object,
@@ -69,6 +71,7 @@ class Field extends Component {
         }
 
         this.$handler = {
+            $$FIELD_UUID: Field.FIELD_UUID++,
             $$merge: this.$$merge,
             $$getFieldChangeHandler: () => this.props.$onFieldChange,
             $$reset: $newState => (this.$state = { ...this.$baseState, ...$newState }),
@@ -105,7 +108,7 @@ class Field extends Component {
 
     componentWillUnmount() {
         if (this.context.$$unregister) {
-            this.context.$$unregister(this.$name);
+            this.context.$$unregister(this.$name, this.$handler);
         }
     }
 

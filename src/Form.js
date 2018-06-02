@@ -45,16 +45,16 @@ class Form extends Component {
     /**
      * @desc 注册或者替换(preName)Field
      */
-    $$register = (name, handler, preName) => {
-        if (preName) {
+    $$register = (name, $handler, preName) => {
+        if (preName && $handler.$$FIELD_UUID === this.$$registers[name].$$FIELD_UUID) {
             delete this.$$registers[preName];
             utils.objectClear(this.$$defaultValues, preName);
         }
 
         if (name) {
-            this.$$registers[name] = handler;
+            this.$$registers[name] = $handler;
 
-            handler.$validate();
+            $handler.$validate();
         }
 
         if (name || preName) {
@@ -63,8 +63,8 @@ class Form extends Component {
         }
     };
 
-    $$unregister = name => {
-        if (name) {
+    $$unregister = (name, $handler) => {
+        if (name && $handler.$$FIELD_UUID === this.$$registers[name].$$FIELD_UUID) {
             delete this.$$registers[name];
             utils.objectClear(this.$$defaultValues, name);
 

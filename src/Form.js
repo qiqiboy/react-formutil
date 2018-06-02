@@ -21,6 +21,11 @@ class Form extends Component {
         $formutil: PropTypes.object
     };
 
+    static defaultProps = {
+        $defaultValues: {},
+        $defaultStates: {}
+    };
+
     $$registers = {};
     $$deepRegisters = {};
 
@@ -29,11 +34,13 @@ class Form extends Component {
             $$register: this.$$register,
             $$unregister: this.$$unregister,
             $$onChange: this.$$onChange,
-            $$defaultValues: this.props.$defaultValues || {},
-            $$defaultStates: this.props.$defaultStates || {},
+            $$defaultValues: this.props.$defaultValues,
+            $$defaultStates: this.props.$defaultStates,
             $formutil: this.$formutil
         };
     }
+
+    $$defaultValues = JSON.parse(JSON.stringify(this.props.$defaultValues));
 
     /**
      * @desc 注册或者替换(preName)Field
@@ -41,6 +48,7 @@ class Form extends Component {
     $$register = (name, handler, preName) => {
         if (preName) {
             delete this.$$registers[preName];
+            utils.objectClear(this.$$defaultValues, preName);
         }
 
         if (name) {
@@ -58,6 +66,7 @@ class Form extends Component {
     $$unregister = name => {
         if (name) {
             delete this.$$registers[name];
+            utils.objectClear(this.$$defaultValues, name);
 
             this.creatDeepRigesters();
             this.$render();
@@ -226,7 +235,7 @@ class Form extends Component {
                 $stateArray,
                 ($params, { path, $state }) => utils.parsePath($params, path, $state.$value),
                 {
-                    ...this.props.$defaultValues
+                    ...this.$$defaultValues
                 }
             ),
             $errors: utils.toObject($stateArray, ($errors, { path, $state }) => {

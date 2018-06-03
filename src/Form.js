@@ -166,7 +166,6 @@ class Form extends Component {
 
                     if (findItem) {
                         findItem.$newValue = $newValue;
-                        findItem.$preValue = $preValue;
                     } else {
                         this.$$fieldChangedQueue.push({
                             name,

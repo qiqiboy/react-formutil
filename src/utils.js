@@ -1,7 +1,11 @@
 const PATH_REGEXP = /\]\.|\]\[|\.|\[|\]/g;
 
-function isUndefined(arg) {
+export function isUndefined(arg) {
     return typeof arg === 'undefined';
+}
+
+export function isFunction(arg) {
+    return typeof arg === 'function';
 }
 
 /**
@@ -77,6 +81,14 @@ export const parsePath = (...args) => {
 
     if (args.length > 2) {
         return target;
+    }
+};
+
+export const arrayFind = (array, process) => {
+    for (let i = 0, j = array.length; i < j; i++) {
+        if (process(array[i]) === true) {
+            return array[i];
+        }
     }
 };
 

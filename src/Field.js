@@ -61,19 +61,22 @@ class Field extends Component {
             const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
             const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
 
-            if (typeof $initialValue !== 'undefined') {
+            if (!utils.isUndefined($initialValue)) {
                 this.$baseState.$value = $initialValue;
             }
 
             if ($initialState) {
                 Object.assign(this.$baseState, $initialState);
             }
+        } else {
+            this.$preValue = this.$baseState.$value;
         }
 
         this.$handler = {
             $$FIELD_UUID: Field.FIELD_UUID++,
             $$merge: this.$$merge,
-            $$getFieldChangeHandler: () => this.props.$onFieldChange,
+            $$triggerChange: ({ $newValue, $preValue }) =>
+                utils.isFunction(this.props.$onFieldChange) && this.props.$onFieldChange($newValue, $preValue),
             $$reset: $newState => (this.$state = { ...this.$baseState, ...$newState }),
 
             $name: this.$name,
@@ -167,7 +170,7 @@ class Field extends Component {
                 .reduce((promises, key) => {
                     const promise = $asyncValidators[key]($value, this.props[key]);
 
-                    if (promise && typeof promise.then === 'function') {
+                    if (promise && utils.isFunction(promise.then)) {
                         return promises.concat(
                             promise.then(
                                 () => this.$setValidity(key, true),
@@ -216,16 +219,21 @@ class Field extends Component {
         if (this.$name) {
             this.context.$$onChange(this.$name, $newState, callback);
         } else {
-            const { $preValue } = this.$state;
             this.$$merge($newState);
 
             this.forceUpdate(() => {
-                typeof callback === 'function' && callback();
+                utils.isFunction(callback) && callback();
 
                 const { $onFieldChange } = this.props;
 
-                if ('$value' in $newState && typeof $onFieldChange === 'function' && $newState.$value !== $preValue) {
-                    $onFieldChange($newState.$value, $preValue);
+                if (
+                    '$value' in $newState &&
+                    utils.isFunction($onFieldChange) &&
+                    this.$state.$value !== this.$preValue
+                ) {
+                    $onFieldChange(this.$state.$value, this.$preValue);
+
+                    this.$preValue = this.$state.$value;
                 }
             });
         }

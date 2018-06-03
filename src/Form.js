@@ -50,20 +50,26 @@ class Form extends Component {
             delete this.$$registers[preName];
             utils.objectClear(this.$$defaultValues, preName);
 
-            utils.parsePath(this.$$registerPreValues, preName, this.$formutil.$weakParams[preName]);
+            this.$$fieldChangedQueue.push({
+                name: preName,
+                $preValue: this.$formutil.$weakParams[preName]
+            });
         }
 
         if (name) {
             this.$$registers[name] = $handler;
 
-            utils.parsePath(this.$$registerNewValues, name, $handler.$picker().$value);
+            this.$$fieldChangedQueue.push({
+                name,
+                $newValue: $handler.$picker().$value
+            });
 
             $handler.$validate();
         }
 
         if (name || preName) {
             this.creatDeepRigesters();
-            this.$render(this.$$registerCallback);
+            this.$render();
         }
     };
 
@@ -72,24 +78,42 @@ class Form extends Component {
             delete this.$$registers[name];
             utils.objectClear(this.$$defaultValues, name);
 
-            utils.parsePath(this.$$registerPreValues, name, this.$formutil.$weakParams[name]);
+            this.$$fieldChangedQueue.push({
+                name,
+                $preValue: this.$formutil.$weakParams[name]
+            });
 
             this.creatDeepRigesters();
-            this.$render(this.$$registerCallback);
+            this.$render();
         }
     };
 
-    $$registerPreValues = {};
-    $$registerNewValues = {};
-    $$registerCallback = () => {
-        clearTimeout(this.$$registerCallbackTimer);
-        this.$$registerCallbackTimer = setTimeout(() => {
-            if (typeof this.props.$onFormChange === 'function') {
-                this.props.$onFormChange(this.$formutil, this.$$registerNewValues, this.$$registerPreValues);
-                this.$$registerPreValues = {};
-                this.$$registerNewValues = {};
+    $$fieldChangedQueue = [];
+    $$triggerFormChange = () => {
+        const $$fieldChangedQueue = this.$$fieldChangedQueue;
+        if ($$fieldChangedQueue.length) {
+            const $newValues = {};
+            const $preValues = {};
+            let hasFormChanged = false;
+            $$fieldChangedQueue.forEach(item => {
+                if (item.$newValue !== item.$preValue) {
+                    if ('$newValue' in item && '$preValue' in item) {
+                        this.$getField(item.name).$$triggerChange(item);
+                    }
+
+                    '$newValue' in item && utils.parsePath($newValues, item.name, item.$newValue);
+                    '$preValue' in item && utils.parsePath($preValues, item.name, item.$preValue);
+
+                    hasFormChanged = true;
+                }
+            });
+
+            if (hasFormChanged && utils.isFunction(this.props.$onFormChange)) {
+                this.props.$onFormChange(this.$formutil, $newValues, $preValues);
             }
-        });
+
+            $$fieldChangedQueue.length = 0;
+        }
     };
 
     creatDeepRigesters = () => {
@@ -107,7 +131,7 @@ class Form extends Component {
         utils.objectEach(this.$$registers, (handler, name) => {
             const data = parsedTree[name] || utils.parsePath(parsedTree, name);
 
-            if (typeof data !== 'undefined') {
+            if (!utils.isUndefined(data)) {
                 utils.parsePath(newTree, name, process(data));
             }
         });
@@ -127,9 +151,6 @@ class Form extends Component {
 
     $setStates = ($stateTree, callback) => {
         const $parsedTree = { ...$stateTree };
-        const $newValues = this.$$registerNewValues;
-        const $preValues = this.$$registerPreValues;
-        const callbackQueue = [];
 
         utils.objectEach($stateTree || {}, (data, name) => utils.parsePath($parsedTree, name, data));
 
@@ -141,43 +162,37 @@ class Form extends Component {
                 if ('$value' in $newState) {
                     const $newValue = $newState.$value;
                     const $preValue = this.$formutil.$weakParams[name];
+                    const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
 
-                    if ($newValue !== $preValue) {
-                        utils.parsePath($newValues, name, $newValue);
-                        utils.parsePath($preValues, name, $preValue);
-
-                        callbackQueue.push({
-                            callback: handler.$$getFieldChangeHandler(),
-                            args: [$newValue, $preValue]
+                    if (findItem) {
+                        findItem.$newValue = $newValue;
+                        findItem.$preValue = $preValue;
+                    } else {
+                        this.$$fieldChangedQueue.push({
+                            name,
+                            $newValue,
+                            $preValue
                         });
                     }
                 }
             }
         });
 
-        this.$render(() => {
-            callback && callback();
-
-            if (Object.keys($newValues).length) {
-                callbackQueue.push({
-                    callback: this.$$registerCallback,
-                    args: []
-                });
-            }
-
-            callbackQueue.forEach(item => {
-                typeof item.callback === 'function' && item.callback(...item.args);
-            });
-        });
+        this.$render(callback);
     };
 
-    $render = callback => this.forceUpdate(callback);
+    $render = callback =>
+        this.forceUpdate(() => {
+            utils.isFunction(callback) && callback();
+
+            this.$$triggerFormChange();
+        });
 
     $validates = () => utils.objectEach(this.$$registers, handler => handler.$validate());
     $validate = name => this.$getField(name).$validate();
 
     $reset = ($stateTree, callback) => {
-        if (typeof $stateTree === 'function') {
+        if (utils.isFunction($stateTree)) {
             callback = $stateTree;
             $stateTree = {};
         }

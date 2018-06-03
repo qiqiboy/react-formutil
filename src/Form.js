@@ -157,8 +157,6 @@ class Form extends Component {
         utils.objectEach(this.$$registers, (handler, name) => {
             const $newState = $parsedTree[name] || utils.parsePath($parsedTree, name);
             if ($newState) {
-                handler.$$merge($newState);
-
                 if ('$value' in $newState) {
                     const $newValue = $newState.$value;
                     const $preValue = this.$formutil.$weakParams[name];
@@ -174,6 +172,8 @@ class Form extends Component {
                         });
                     }
                 }
+
+                handler.$$merge($newState);
             }
         });
 

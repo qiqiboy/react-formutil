@@ -57,21 +57,6 @@ class Field extends Component {
 
         this.$name = props.name;
 
-        if (this.$name) {
-            const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
-            const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
-
-            if (!utils.isUndefined($initialValue)) {
-                this.$baseState.$value = $initialValue;
-            }
-
-            if ($initialState) {
-                Object.assign(this.$baseState, $initialState);
-            }
-        } else {
-            this.$preValue = this.$baseState.$value;
-        }
-
         this.$handler = {
             $$FIELD_UUID: Field.FIELD_UUID++,
             $$merge: this.$$merge,
@@ -102,10 +87,23 @@ class Field extends Component {
             };
         });
 
-        this.$handler.$$reset();
+        if (this.$name && context.$$register) {
+            const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
+            const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
 
-        if (context.$$register) {
+            if (!utils.isUndefined($initialValue)) {
+                this.$baseState.$value = $initialValue;
+            }
+
+            if ($initialState) {
+                Object.assign(this.$baseState, $initialState);
+            }
+
+            this.$handler.$$reset();
             context.$$register(this.$name, this.$handler);
+        } else {
+            this.$handler.$$reset();
+            this.$preValue = this.$baseState.$value;
         }
     }
 
@@ -116,8 +114,14 @@ class Field extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.context.$$register && nextProps.name !== this.props.name) {
-            this.context.$$register((this.$name = nextProps.name), this.$handler, this.props.name);
+        if (this.context.$$register && nextProps.name !== this.$name) {
+            if (nextProps.name) {
+                this.context.$$register((this.$name = nextProps.name), this.$handler, this.props.name);
+            } else {
+                this.$preValue = this.$state.$value;
+                this.context.$$unregister(this.$name, this.$handler);
+                delete this.$name;
+            }
         }
     }
 
@@ -216,7 +220,7 @@ class Field extends Component {
     };
 
     $setState = ($newState, callback) => {
-        if (this.$name) {
+        if (this.$name && this.context.$$onChange) {
             this.context.$$onChange(this.$name, $newState, callback);
         } else {
             this.$$merge($newState);

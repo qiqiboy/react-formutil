@@ -61,8 +61,9 @@ class Field extends Component {
             $$FIELD_UUID: Field.FIELD_UUID++,
             $$merge: this.$$merge,
             $$triggerChange: ({ $newValue, $preValue }) =>
-                utils.isFunction(this.props.$onFieldChange) && this.props.$onFieldChange($newValue, $preValue),
-            $$reset: $newState => (this.$state = { ...this.$baseState, ...$newState }),
+                utils.isFunction(this.props.$onFieldChange) &&
+                this.props.$onFieldChange($newValue, $preValue, this.context.$formutil),
+            $$reset: $newState => (this.$state = { ...this.$baseState, $error: {}, ...$newState }),
 
             $name: this.$name,
             $picker: () => ({ ...this.$state }),
@@ -82,7 +83,7 @@ class Field extends Component {
         // deprecated methods warning
         ['getComponent', 'validate'].forEach(key => {
             this.$handler[key] = (...args) => {
-                console.warn(`react-formuitl: '${key}' has been deprecated, please use '$${key}' instead of it.`);
+                console.warn(`react-formutil: '${key}' has been deprecated, please use '$${key}' instead.`);
                 return this.$handler['$' + key](...args);
             };
         });
@@ -133,6 +134,7 @@ class Field extends Component {
     $syncValidate = () => {
         const { $validators, $asyncValidators } = this.props;
         const { $value, $error } = this.$state;
+        const { $formutil } = this.context;
 
         //clear async validators result
         if ($asyncValidators) {
@@ -146,7 +148,10 @@ class Field extends Component {
         if ($validators) {
             Object.keys($validators).forEach(key => {
                 if (key in this.props) {
-                    const $valid = $validators[key]($value, this.props[key]);
+                    const $valid = $validators[key]($value, this.props[key], {
+                        ...this.props,
+                        $formutil
+                    });
 
                     if ($valid === true) {
                         delete $error[key];
@@ -167,12 +172,16 @@ class Field extends Component {
     $asyncValidate = () => {
         const $asyncValidators = this.props.$asyncValidators;
         const { $value, $valid } = this.$state;
+        const { $formutil } = this.context;
 
         if ($valid && $asyncValidators) {
             const promises = Object.keys($asyncValidators)
                 .filter(key => key in this.props)
                 .reduce((promises, key) => {
-                    const promise = $asyncValidators[key]($value, this.props[key]);
+                    const promise = $asyncValidators[key]($value, this.props[key], {
+                        ...this.props,
+                        $formutil
+                    });
 
                     if (promise && utils.isFunction(promise.then)) {
                         return promises.concat(

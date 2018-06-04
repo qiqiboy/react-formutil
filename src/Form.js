@@ -68,7 +68,7 @@ class Form extends Component {
         }
 
         if (name || preName) {
-            this.creatDeepRigesters();
+            this.creatDeepRegisters();
             this.$render();
         }
     };
@@ -83,15 +83,17 @@ class Form extends Component {
                 $preValue: this.$formutil.$weakParams[name]
             });
 
-            this.creatDeepRigesters();
+            this.creatDeepRegisters();
             this.$render();
         }
     };
 
     $$fieldChangedQueue = [];
     $$triggerFormChange = () => {
-        const $$fieldChangedQueue = this.$$fieldChangedQueue;
-        if ($$fieldChangedQueue.length) {
+        if (this.$$fieldChangedQueue.length) {
+            const $$fieldChangedQueue = [...this.$$fieldChangedQueue];
+            this.$$fieldChangedQueue.length = 0;
+
             const $newValues = {};
             const $preValues = {};
             let hasFormChanged = false;
@@ -111,12 +113,10 @@ class Form extends Component {
             if (hasFormChanged && utils.isFunction(this.props.$onFormChange)) {
                 this.props.$onFormChange(this.$formutil, $newValues, $preValues);
             }
-
-            $$fieldChangedQueue.length = 0;
         }
     };
 
-    creatDeepRigesters = () => {
+    creatDeepRegisters = () => {
         this.$$deepRegisters = {};
 
         utils.objectEach(this.$$registers, (handler, name) => utils.parsePath(this.$$deepRegisters, name, handler));

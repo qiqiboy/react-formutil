@@ -184,6 +184,12 @@ yarn add react-formutil
 
 仅仅设置了`$validators`，并不会触发校验，还需要设置匹配`$validators`中每一项的属性标识符，该属性的值会作为第二个参数传递给校验函数。
 
+校验被调用，会传入三个值：value、attr、props
+
+*   value 为当前 Field 的值
+*   attr 为校验标识值
+*   props 为当前传给 Field 的所有 props，还包括当前 Field 所属 Fom 的$formutil
+
 ```javascript
 <Field
     required

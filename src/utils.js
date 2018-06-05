@@ -8,6 +8,20 @@ export function isFunction(arg) {
     return typeof arg === 'function';
 }
 
+export function isEmpty(arg) {
+    return typeof arg === 'undefined' || arg === '' || arg === null;
+}
+
+/* eslint-disable */
+const executeWord = function(word) {
+    try {
+        const exec = new Function('origin', `return typeof ${word} === 'undefined' ? origin : ${word}`);
+        return exec(word);
+    } catch (err) {
+        return `${word}`;
+    }
+};
+
 /**
  * @desc 解析表达式中赋值深路径对象
  *
@@ -17,7 +31,6 @@ export function isFunction(arg) {
  *
  * 使用示例：parsePath({}, 'list[0].authors[1].name', 'Lucy');
  */
-/* eslint-disable */
 export const parsePath = (...args) => {
     const [target, path, value] = args;
     const pathSymbols = path.match(PATH_REGEXP) || [];
@@ -29,7 +42,6 @@ export const parsePath = (...args) => {
             for (let index = 0, len = pathWords.length; index < len; index++) {
                 let word = pathWords[index];
                 const symbol = pathSymbols[index];
-                const executeWord = new Function('sub', `return typeof ${word} === 'undefined' ? sub : ${word}`);
 
                 word = executeWord(word);
 
@@ -47,11 +59,6 @@ export const parsePath = (...args) => {
             pathWords.forEach((word, index) => {
                 const nextWord = pathWords[index + 1];
                 const symbol = pathSymbols[index];
-                const executeWord = new Function('sub', `return typeof ${word} === 'undefined' ? sub : ${word}`);
-                const executeNextword = new Function(
-                    'sub',
-                    `return typeof ${nextWord} === 'undefined' ? sub : ${nextWord}`
-                );
 
                 word = executeWord(word);
 
@@ -63,7 +70,7 @@ export const parsePath = (...args) => {
 
                     case '][':
                     case '[':
-                        const nextVarWord = executeNextword(nextWord);
+                        const nextVarWord = executeWord(nextWord);
                         scope = isUndefined(scope[word])
                             ? (scope[word] = typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {})
                             : scope[word];

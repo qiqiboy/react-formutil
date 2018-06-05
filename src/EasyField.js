@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Field from './Field';
+import * as utils from './utils';
 
 /**
  * 提供对浏览器原生表单控件的封装
@@ -69,31 +70,31 @@ class EasyField extends Component {
                     `${defaultErrMsg}: required`,
                 maxLength: ($value, len) =>
                     len === false ||
-                    !$value ||
+                    utils.isEmpty($value) ||
                     $value.length <= len * 1 ||
                     validMessage.maxLength ||
                     `${defaultErrMsg}: maxLength: ${len}`,
                 minLength: ($value, len) =>
                     len === false ||
-                    !$value ||
+                    utils.isEmpty($value) ||
                     $value.length >= len * 1 ||
                     validMessage.minLength ||
                     `${defaultErrMsg}: minLength: ${len}`,
                 max: ($value, limit) =>
                     limit === false ||
-                    !$value ||
+                    utils.isEmpty($value) ||
                     $value * 1 <= limit ||
                     validMessage.max ||
                     `${defaultErrMsg}: max: ${limit}`,
                 min: ($value, limit) =>
                     limit === false ||
-                    !$value ||
+                    utils.isEmpty($value) ||
                     $value * 1 >= limit ||
                     validMessage.min ||
                     `${defaultErrMsg}: min: ${limit}`,
                 pattern: ($value, regexp) =>
                     regexp === false ||
-                    !$value ||
+                    utils.isEmpty($value) ||
                     regexp.test($value) ||
                     validMessage.pattern ||
                     `${defaultErrMsg}: pattern: ${regexp}`,

@@ -11,6 +11,8 @@ import * as utils from './utils';
  *  - select
  */
 class EasyField extends Component {
+    static displayName = 'React.formutil.EasyField';
+
     static propTypes = {
         type: PropTypes.string.isRequired,
         defaultValue: PropTypes.any,

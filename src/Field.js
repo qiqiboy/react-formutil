@@ -63,7 +63,8 @@ class Field extends Component {
             $$triggerChange: ({ $newValue, $preValue }) =>
                 utils.isFunction(this.props.$onFieldChange) &&
                 this.props.$onFieldChange($newValue, $preValue, this.context.$formutil),
-            $$reset: $newState => (this.$state = { ...this.$baseState, $error: {}, ...$newState }),
+            $$reset: $newState =>
+                (this.$state = { ...this.$baseState, $error: { ...this.$baseState.$error }, ...$newState }),
 
             $name: this.$name,
             $picker: () => ({ ...this.$state }),

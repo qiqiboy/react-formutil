@@ -15,10 +15,10 @@ export function isEmpty(arg) {
 /* eslint-disable */
 const executeWord = function(word) {
     try {
-        const exec = new Function('origin', `return typeof ${word} === 'undefined' ? origin : ${word}`);
+        const exec = new Function('origin', `return typeof ${word} === 'number' ? ${word} : origin`);
         return exec(word);
     } catch (err) {
-        return `${word}`;
+        return word;
     }
 };
 

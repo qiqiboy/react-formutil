@@ -3,7 +3,8 @@ import Form from './Form';
 
 function withForm(WrappedComponent, config = {}) {
     return class FormEnhanced extends Component {
-        static displayName = 'React.formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'UnknowComponent');
+        static displayName = 'React.formutil.withForm.' +
+        (WrappedComponent.displayName || WrappedComponent.name || 'UnknowComponent');
 
         render() {
             const { ...others } = this.props;

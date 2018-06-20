@@ -18,7 +18,10 @@ class EasyField extends Component {
         defaultValue: PropTypes.any,
         checked: PropTypes.any,
         unchecked: PropTypes.any,
-        validMessage: PropTypes.object
+        validMessage: PropTypes.object,
+
+        $parser: PropTypes.func,
+        $formatter: PropTypes.func
     };
 
     static childContextTypes = {
@@ -29,7 +32,10 @@ class EasyField extends Component {
         type: 'text',
         checked: true,
         unchecked: false,
-        validMessage: {}
+        validMessage: {},
+
+        $parser: value => value,
+        $formatter: value => value
     };
 
     getChildContext() {
@@ -47,6 +53,8 @@ class EasyField extends Component {
             $validators,
             $asyncValidators,
             $onFieldChange,
+            $parser,
+            $formatter,
             validMessage,
             type: typeStr,
             checked,
@@ -102,13 +110,17 @@ class EasyField extends Component {
                     `${defaultErrMsg}: pattern: ${regexp}`,
                 ...$validators
             },
-            $asyncValidators
+            $asyncValidators,
+            validMessage
         };
 
         Object.keys({ ...fieldProps.$validators, ...$asyncValidators }).forEach(prop => {
             if (prop in otherProps) {
                 fieldProps[prop] = otherProps[prop];
-                delete otherProps[prop];
+
+                if (!utils.isValidProp(prop)) {
+                    delete otherProps[prop];
+                }
             }
         });
 
@@ -149,6 +161,8 @@ class EasyField extends Component {
                             $onFieldChange: onChange,
                             $onFieldFocus: onFocus,
                             $onFieldBlur: onBlur,
+                            $parser,
+                            $formatter,
                             $groupType: groupType,
                             $FieldName: name
                         };
@@ -175,9 +189,9 @@ class EasyField extends Component {
                         case 'checkbox':
                         case 'radio':
                             elemProps = {
-                                checked: props.$value === checked,
+                                checked: $formatter(props.$value) === checked,
                                 onChange: ev => {
-                                    props.$render(ev.target.checked ? checked : unchecked);
+                                    props.$render($parser(ev.target.checked ? checked : unchecked));
                                     onChange && onChange(ev);
                                 }
                             };
@@ -185,9 +199,9 @@ class EasyField extends Component {
 
                         default:
                             elemProps = {
-                                value: props.$value,
+                                value: $formatter(props.$value),
                                 onChange: ev => {
-                                    props.$render(ev.target.value.trim());
+                                    props.$render($parser(ev.target.value.trim()));
                                     onChange && onChange(ev);
                                 }
                             };
@@ -241,15 +255,17 @@ class EasyFieldGroupItem extends Component {
             $onFieldFocus,
             $onFieldBlur,
             $FieldName,
-            $groupType
+            $groupType,
+            $parser,
+            $formatter
         } = this.context.$getFieldProps();
 
         const elemProps =
             $groupType === 'radio'
                 ? {
-                      checked: $fieldutil.$value === $value,
+                      checked: $formatter($fieldutil.$value) === $value,
                       onChange: ev => {
-                          $fieldutil.$render($value);
+                          $fieldutil.$render($parser($value));
 
                           onChange && onChange(ev);
                           $onFieldChange && $onFieldChange(ev);
@@ -257,12 +273,14 @@ class EasyFieldGroupItem extends Component {
                   }
                 : $groupType === 'checkbox'
                     ? {
-                          checked: $fieldutil.$value.indexOf($value) > -1,
+                          checked: $formatter($fieldutil.$value).indexOf($value) > -1,
                           onChange: ev => {
                               $fieldutil.$render(
-                                  ev.target.checked
-                                      ? $fieldutil.$value.concat($value)
-                                      : $fieldutil.$value.filter(value => value !== $value)
+                                  $parser(
+                                      ev.target.checked
+                                          ? $fieldutil.$value.concat($value)
+                                          : $fieldutil.$value.filter(value => value !== $value)
+                                  )
                               );
 
                               onChange && onChange(ev);
@@ -270,9 +288,9 @@ class EasyFieldGroupItem extends Component {
                           }
                       }
                     : {
-                          value: $fieldutil.$value,
+                          value: $formatter($fieldutil.$value),
                           onChange: ev => {
-                              $fieldutil.$render(ev.target.value);
+                              $fieldutil.$render($parser(ev.target.value.trim()));
 
                               onChange && onChange(ev);
                               $onFieldChange && $onFieldChange(ev);

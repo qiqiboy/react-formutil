@@ -492,6 +492,18 @@ export default withField(FieldCustom, {
 
 同`Field`的`$asyncValidators`
 
+#### $parser
+
+在输入值更新到 state 中时会传递给 $parser 处理函数。默认为 `value => value`
+
+#### $formatter
+
+在 state 中的值渲染给表单控件时会传递给 $formatter 处理函数。默认为 `value => value`
+
+```javascript
+<EasyField name="age" $parser={value => Number(value)} $formatter={value => String(value)} />
+```
+
 #### defaultValue
 
 注意，这个是省略前面的`$`符号。如果与`$defaultValue`同时存在，则会被后者覆盖。

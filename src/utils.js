@@ -12,6 +12,11 @@ export function isEmpty(arg) {
     return typeof arg === 'undefined' || arg === '' || arg === null;
 }
 
+const VALID_PROPS = ['minlength', 'maxlength', 'max', 'min', 'required', 'pattern', 'step'];
+export function isValidProp(prop) {
+    return VALID_PROPS.indexOf(prop.toLowerCase()) > -1;
+}
+
 /* eslint-disable */
 const executeWord = function(word) {
     try {

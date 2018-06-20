@@ -3,7 +3,8 @@ import Field from './Field';
 
 function withField(WrappedComponent, config = {}) {
     return class FieldEnhanced extends Component {
-        static displayName = 'React.formutil.withField.' + (WrappedComponent.displayName || WrappedComponent.name || 'UnknowComponent');
+        static displayName = 'React.formutil.withField.' +
+        (WrappedComponent.displayName || WrappedComponent.name || 'UnknowComponent');
 
         render() {
             const { ...others } = this.props;

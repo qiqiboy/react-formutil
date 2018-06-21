@@ -201,7 +201,7 @@ class EasyField extends Component {
                             elemProps = {
                                 value: $formatter(props.$value),
                                 onChange: ev => {
-                                    props.$render($parser(ev.target.value.trim()));
+                                    props.$render($parser(ev.target.value));
                                     onChange && onChange(ev);
                                 }
                             };
@@ -290,7 +290,7 @@ class EasyFieldGroupItem extends Component {
                     : {
                           value: $formatter($fieldutil.$value),
                           onChange: ev => {
-                              $fieldutil.$render($parser(ev.target.value.trim()));
+                              $fieldutil.$render($parser(ev.target.value));
 
                               onChange && onChange(ev);
                               $onFieldChange && $onFieldChange(ev);

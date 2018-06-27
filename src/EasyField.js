@@ -199,10 +199,23 @@ class EasyField extends Component {
 
                         default:
                             elemProps = {
-                                value: $formatter(props.$value),
+                                value: 'compositionValue' in this ? this.compositionValue : $formatter(props.$value),
+                                onCompositionEnd: ev => {
+                                    this.composition = false;
+                                    delete this.compositionValue;
+                                    elemProps.onChange(ev);
+                                },
+                                onCompositionStart: () => (this.composition = true),
                                 onChange: ev => {
-                                    props.$render($parser(ev.target.value));
-                                    onChange && onChange(ev);
+                                    const value = ev.target.value;
+
+                                    if (this.composition) {
+                                        this.compositionValue = value;
+                                        this.forceUpdate();
+                                    } else {
+                                        props.$render($parser(value));
+                                        onChange && onChange(ev);
+                                    }
                                 }
                             };
                             break;

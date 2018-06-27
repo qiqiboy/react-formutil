@@ -432,6 +432,8 @@ export default withField(FieldCustom, {
 
 事实上，支持任何的 input 元素。并且 EasyField 除了会绑定 onChange 事件来同步输入值，也会绑定 onFocus、onBlur 事件来主动同步`$touched` `$untouched` `$focused`状态。所以无需额外的工作，你就可以方便的使用这些状态来优化你的表单显示。
 
+> EasyField也对亚洲语言（中文、韩文、日文）输入法在输入过程中的的字母合成做了处理
+
 它接收以下属性参数：
 
 #### type

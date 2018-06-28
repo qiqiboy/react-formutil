@@ -20,7 +20,10 @@ export function isValidProp(prop) {
 /* eslint-disable */
 const executeWord = function(word) {
     try {
-        const exec = new Function('origin', `return typeof ${word} === 'number' ? ${word} : origin`);
+        const exec = new Function(
+            'origin',
+            `return typeof ${word} !== 'undefined' && !(origin in window ) ? ${word} : origin`
+        );
         return exec(word);
     } catch (err) {
         return word;

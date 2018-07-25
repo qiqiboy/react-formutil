@@ -8,7 +8,7 @@ function withField(WrappedComponent, config = {}) {
 
         render() {
             const { ...others } = this.props;
-            const fieldProps = {};
+            const { ...fieldProps } = this.props;
 
             ['$validators', '$asyncValidators', '$defaultValue', '$defaultState', '$onFieldChange', 'name']
                 .concat(
@@ -21,10 +21,9 @@ function withField(WrappedComponent, config = {}) {
                 )
                 .forEach(prop => {
                     if (prop in others) {
-                        fieldProps[prop] =
-                            prop === '$validators' || prop === '$asyncValidators'
-                                ? { ...config[prop], ...others[prop] }
-                                : others[prop];
+                        if (prop === '$validators' || prop === '$asyncValidators') {
+                            fieldProps[prop] = { ...config[prop], ...others[prop] };
+                        }
                         delete others[prop];
                     }
                 });

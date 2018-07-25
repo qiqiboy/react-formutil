@@ -8,17 +8,19 @@ function withForm(WrappedComponent, config = {}) {
 
         render() {
             const { ...others } = this.props;
-            const formProps = {};
+            const { ...formProps } = this.props;
 
             ['$defaultStates', '$defaultValues', '$onFormChange'].forEach(prop => {
                 if (prop in others) {
-                    formProps[prop] = prop === '$onFormChange' ? others[prop] : { ...config[prop], ...others[prop] };
+                    if (prop !== '$onFormChange') {
+                        formProps[props] = { ...config[prop], ...others[prop] };
+                    }
                     delete others[prop];
                 }
             });
 
             return (
-                <Form {...config} {...formProps}>
+                <Form {...config} {...formProps} nodeProps={others}>
                     {$formutil => <WrappedComponent {...others} $formutil={$formutil} />}
                 </Form>
             );

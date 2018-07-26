@@ -20,7 +20,7 @@ function withForm(WrappedComponent, config = {}) {
             });
 
             return (
-                <Form {...config} {...formProps} nodeProps={others}>
+                <Form {...config} {...formProps}>
                     {$formutil => <WrappedComponent {...others} $formutil={$formutil} />}
                 </Form>
             );

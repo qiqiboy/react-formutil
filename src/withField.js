@@ -21,7 +21,7 @@ function withField(WrappedComponent, config = {}) {
                 )
                 .forEach(prop => {
                     if (prop in others) {
-                        if (prop === '$validators' || prop === '$asyncValidators') {
+                        if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
                             fieldProps[prop] = { ...config[prop], ...others[prop] };
                         }
                         delete others[prop];

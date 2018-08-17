@@ -57,7 +57,7 @@ Happy to build the forms in React ^\_^
         + [$onFormChange](#onformchange)
         + [$getField(name)](#getfieldname)
         + [$validate(name)](#validatename)
-        + [$validates();](#validates)
+        + [$validates()](#validates)
         + [$render(callback)](#rendercallback)
         + [$setStates($stateTree)](#setstatesstatetree)
         + [$setValues($valueTree)](#setvaluesvaluetree)
@@ -648,7 +648,7 @@ const {
 
 立即校验对应 name 的表单项
 
-#### $validates();
+#### $validates()
 
 重新校验所有的表单项
 

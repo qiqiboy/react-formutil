@@ -121,7 +121,8 @@ yarn add react-formutil
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
 > 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用: [function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)
-> 当然，你可以可以通过`render`属性来调用传：[render props](https://reactjs.org/docs/render-props.html)
+>
+> 当然，你也可以通过`render`属性来调用：[render props](https://reactjs.org/docs/render-props.html)
 
 ```javascript
 //一个函数式子组件书写示例

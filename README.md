@@ -119,6 +119,7 @@ yarn add react-formutil
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
 > 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用: [function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)
+> 当然，你可以可以通过`render`属性来调用传：[render props](https://reactjs.org/docs/render-props.html)
 
 ```javascript
 //一个函数式子组件书写示例
@@ -127,6 +128,16 @@ yarn add react-formutil
         return <Field name="username">{props => <input />}</Field>;
     }}
 </Form>
+
+//或者使用children属性
+<Form
+    children={$formutil => <Field name="username" children={props => <input />} />}
+/>
+
+//或者使用render属性
+<Form
+    render={$formutil => <Field name="username" render={props => <input />} />}
+/>
 
 //当然也可以传递普通组件作为子节点
 //Field组件写在loginForm这个组件中
@@ -142,6 +153,15 @@ yarn add react-formutil
 `Field` 可以以函数、或者 React 组件当作子组件调用，推荐使用函数。
 
 `Field` 可以接收以下几个属性参数：
+
+#### render
+
+该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
+如果设置了该属性，则其会覆盖掉`function as child`方式。
+
+```javascript
+<Field name="username" render={props => <input />} />
+```
 
 #### name
 
@@ -552,6 +572,17 @@ export default withField(FieldCustom, {
 
 `Form` 可以接收以下可选属性参数：
 
+#### render
+
+该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
+如果设置了该属性，则其会覆盖掉`function as child`方式。
+
+```javascript
+<Form
+    render={$formutil => {/* ... */} />}
+/>
+```
+
 #### $defaultValues
 
 `$defaultValues` 可以通过这里批量设置表单的默认值，格式为 `{ name: value }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
@@ -745,7 +776,7 @@ $formutil.$batchDirty(true); //同上效果
 $formutil.$batchTouched(true);
 ```
 
-#### $getFirstError
+#### $getFirstError()
 
 从表单的所有错误项中取出第一个错误描述
 

@@ -6,7 +6,15 @@ class Form extends Component {
     static displayName = 'React.formutil.Form';
 
     static propTypes = {
-        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired,
+        render: PropTypes.func,
+        children(props, ...args) {
+            let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+            if (!props.render) {
+                pt = pt.isRequired;
+            }
+
+            return pt(props, ...args);
+        },
         $defaultValues: PropTypes.object,
         $defaultStates: PropTypes.object,
         $onFormChange: PropTypes.func
@@ -339,7 +347,11 @@ class Form extends Component {
             $pending
         });
 
-        const { children } = this.props;
+        let { children, render } = this.props;
+
+        if (render) {
+            return render($formutil);
+        }
 
         if (typeof children === 'function') {
             return children($formutil);

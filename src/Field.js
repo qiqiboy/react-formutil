@@ -12,7 +12,15 @@ class Field extends Component {
         $defaultState: PropTypes.object,
         $onFieldChange: PropTypes.func,
         name: PropTypes.string,
-        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.array]).isRequired,
+        render: PropTypes.func,
+        children(props, ...args) {
+            let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+            if (!props.render) {
+                pt = pt.isRequired;
+            }
+
+            return pt(props, ...args);
+        },
 
         $validators: PropTypes.object,
         $asyncValidators: PropTypes.object
@@ -320,12 +328,16 @@ class Field extends Component {
     };
 
     render() {
-        const { children } = this.props;
+        let { children, render } = this.props;
         const childProps = {
             ...this.$state,
             ...this.$handler,
             $$formutil: this.context.$formutil
         };
+
+        if (render) {
+            return render(childProps);
+        }
 
         if (typeof children === 'function') {
             return children(childProps);

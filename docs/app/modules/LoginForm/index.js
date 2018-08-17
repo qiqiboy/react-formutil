@@ -12,7 +12,6 @@ class LoginForm extends Component {
         if ($invalid) {
             //通过$batchDirty设置所有表单项
             $batchDirty(true);
-
             alert('共有 ' + Object.keys($weakErrors).length + ' 错误需要处理');
         } else {
             alert('表单填写正确，可以登录');
@@ -72,7 +71,7 @@ class LoginForm extends Component {
         const { $params, $errors, $dirts } = this.props.$formutil;
 
         return (
-            <form className="login-form row" onSubmit={this.submit}>
+            <form className="login-form row" onSubmit={this.submit} noValidate>
                 <div className="col-md-6">
                     <h4>
                         用户登录{' '}

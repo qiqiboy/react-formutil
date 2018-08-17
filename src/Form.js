@@ -301,6 +301,14 @@ class Form extends Component {
                 ($focuses, { path, $state }) => ($focuses[path] = $state.$focused)
             ),
 
+            $getFirstError() {
+                for (let name in $formutil.$weakErrors) {
+                    for (let key in $formutil.$weakErrors[name]) {
+                        return $formutil.$weakErrors[name][key];
+                    }
+                }
+            },
+
             $render: this.$render,
 
             $getField: this.$getField,

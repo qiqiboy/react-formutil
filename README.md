@@ -19,73 +19,73 @@ Happy to build the forms in React ^\_^
 
 * [安装 Installation](#安装-installation)
 * [使用 Usage](#使用-usage)
-    - [<Field />](#field-)
-        + [render](#render)
-        + [name](#name)
-        + [$defaultValue](#defaultvalue)
-        + [$defaultState](#defaultstate)
-        + [$validators](#validators)
-        + [$asyncValidators](#asyncvalidators)
-        + [$onFieldChange](#onfieldchange)
-        + [$state](#state)
-        + [$value](#value)
-        + [$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
-        + [$error](#error)
-        + [$picker()](#picker)
-        + [$reset()](#reset)
-        + [$getComponent()](#getcomponent)
-        + [$setState($newState)](#setstatenewstate)
-        + [$render() | $setValue()](#render--setvalue)
-        + [$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
-        + [$setError($error)](#seterrorerror)
-        + [$validate()](#validate)
-        + [$$formutil](#formutil)
-    - [withField(Component)](#withfieldcomponent)
-    - [<EasyField />](#easyfield-)
-        + [type](#type)
-        + [name](#name-1)
-        + [$defaultValue](#defaultvalue-1)
-        + [$validators](#validators-1)
-        + [$asyncValidators](#asyncvalidators-1)
-        + [$parser](#parser)
-        + [$formatter](#formatter)
-        + [defaultValue](#defaultvalue-2)
-        + [validMessage](#validmessage)
-        + [checked / unchecked](#checked--unchecked)
-    - [<Form />](#form-)
-        + [render](#render-1)
-        + [$defaultValues](#defaultvalues)
-        + [$defaultStates](#defaultstates)
-        + [$onFormChange](#onformchange)
-        + [$getField(name)](#getfieldname)
-        + [$validate(name)](#validatename)
-        + [$validates()](#validates)
-        + [$render(callback)](#rendercallback)
-        + [$setStates($stateTree)](#setstatesstatetree)
-        + [$setValues($valueTree)](#setvaluesvaluetree)
-        + [$setErrors($errorTree)](#seterrorserrortree)
-        + [$reset($stateTree)](#resetstatetree)
-        + [$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
-        + [$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
-        + [$getFirstError()](#getfirsterror)
-        + [$states | $weakStates](#states--weakstates)
-        + [$params | $weakParams](#params--weakparams)
-        + [$errors | $weakErrors](#errors--weakerrors)
-        + [$dirts | $weakDirts](#dirts--weakdirts)
-        + [$touches | $weakTouches](#touches--weaktouches)
-        + [$focuses | $weakFocuses](#focuses--weakfocuses)
-        + [$valid | $invalid](#valid--invalid)
-        + [$dirty | $pristine](#dirty--pristine)
-        + [$touched | $untouched](#touched--untouched)
-        + [$focused](#focused)
-    - [withForm(Component)](#withformcomponent)
-    - [connect(Component)](#connectcomponent)
+    - [`<Field />`](#field-)
+        + [`render`](#render)
+        + [`name`](#name)
+        + [`$defaultValue`](#defaultvalue)
+        + [`$defaultState`](#defaultstate)
+        + [`$validators`](#validators)
+        + [`$asyncValidators`](#asyncvalidators)
+        + [`$onFieldChange`](#onfieldchange)
+        + [`$state`](#state)
+        + [`$value`](#value)
+        + [`$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending`](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
+        + [`$error`](#error)
+        + [`$picker()`](#picker)
+        + [`$reset()`](#reset)
+        + [`$getComponent()`](#getcomponent)
+        + [`$setState($newState)`](#setstatenewstate)
+        + [`$render() | $setValue()`](#render--setvalue)
+        + [`$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
+        + [`$setError($error)`](#seterrorerror)
+        + [`$validate()`](#validate)
+        + [`$$formutil`](#formutil)
+    - [`withField(Component)`](#withfieldcomponent)
+    - [`<EasyField />`](#easyfield-)
+        + [`type`](#type)
+        + [`name`](#name-1)
+        + [`$defaultValue`](#defaultvalue-1)
+        + [`$validators`](#validators-1)
+        + [`$asyncValidators`](#asyncvalidators-1)
+        + [`$parser`](#parser)
+        + [`$formatter`](#formatter)
+        + [`defaultValue`](#defaultvalue-2)
+        + [`validMessage`](#validmessage)
+        + [`checked / unchecked`](#checked--unchecked)
+    - [`<Form />`](#form-)
+        + [`render`](#render-1)
+        + [`$defaultValues`](#defaultvalues)
+        + [`$defaultStates`](#defaultstates)
+        + [`$onFormChange`](#onformchange)
+        + [`$getField(name)`](#getfieldname)
+        + [`$validate(name)`](#validatename)
+        + [`$validates()`](#validates)
+        + [`$render(callback)`](#rendercallback)
+        + [`$setStates($stateTree)`](#setstatesstatetree)
+        + [`$setValues($valueTree)`](#setvaluesvaluetree)
+        + [`$setErrors($errorTree)`](#seterrorserrortree)
+        + [`$reset($stateTree)`](#resetstatetree)
+        + [`$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)`](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
+        + [`$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)`](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
+        + [`$getFirstError()`](#getfirsterror)
+        + [`$states | $weakStates`](#states--weakstates)
+        + [`$params | $weakParams`](#params--weakparams)
+        + [`$errors | $weakErrors`](#errors--weakerrors)
+        + [`$dirts | $weakDirts`](#dirts--weakdirts)
+        + [`$touches | $weakTouches`](#touches--weaktouches)
+        + [`$focuses | $weakFocuses`](#focuses--weakfocuses)
+        + [`$valid | $invalid`](#valid--invalid)
+        + [`$dirty | $pristine`](#dirty--pristine)
+        + [`$touched | $untouched`](#touched--untouched)
+        + [`$focused`](#focused)
+    - [`withForm(Component)`](#withformcomponent)
+    - [`connect(Component)`](#connectcomponent)
 * [FAQ & 常见问题解答](#faq--常见问题解答)
-    - [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
-    - [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
-    - [使用 Field 实现一个上传图片的表单控件](#使用-field-实现一个上传图片的表单控件)
-    - [如何获取对 Field 生成的节点的引用？](#如何获取对-field-生成的节点的引用)
-    - [对于有大量表单项的长页面有没有优化办法](#对于有大量表单项的长页面有没有优化办法)
+    - [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
+    - [`checkbox 多选或 radio 单选组怎么实现`](#checkbox-多选或-radio-单选组怎么实现)
+    - [`使用 Field 实现一个上传图片的表单控件`](#使用-field-实现一个上传图片的表单控件)
+    - [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
+    - [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
 
 <!-- vim-markdown-toc -->
 
@@ -149,7 +149,7 @@ yarn add react-formutil
 </Form>
 ```
 
-### <Field />
+### `<Field />`
 
 `Field` 是一个标准的 react 组件。它可以理解为表单控件的顶层组件，它可以同步表单控件的状态。每一个表单控件应该总是当作 `Field` 组件的子组件嵌套。
 
@@ -157,7 +157,7 @@ yarn add react-formutil
 
 `Field` 可以接收以下几个属性参数：
 
-#### render
+#### `render`
 
 该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
 如果设置了该属性，则其会覆盖掉`function as child`方式。
@@ -166,7 +166,7 @@ yarn add react-formutil
 <Field name="username" render={props => <input />} />
 ```
 
-#### name
+#### `name`
 
 该项必填，`name` 可以是一个简单的字符串，也可以是一个字符串表达式（该表达式执行没有 `scope`, 所以表达式中不能存在变量）
 
@@ -184,7 +184,7 @@ yarn add react-formutil
 }
 ```
 
-#### $defaultValue
+#### `$defaultValue`
 
 该属性可以设置表单控件的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
 
@@ -193,7 +193,7 @@ yarn add react-formutil
 
 `$defaultValue` 可以是任意类型值。
 
-#### $defaultState
+#### `$defaultState`
 
 该属性可以覆盖表单控件的的默认状态，类型必需是`key: value`简单对象：
 
@@ -204,7 +204,7 @@ yarn add react-formutil
 
 上面两者等效，其实表单控件的值只是状态里的一个字段`$value`
 
-#### $validators
+#### `$validators`
 
 该属性可以设置表单控件的校验方式，它是 `key: value` 的对象形式，key 为校验类型标识，value 为校验函数。仅当校验函数返回 true 时，表示该项校验通过，否则其他值将会被当作错误信息保存到状态中。
 
@@ -240,7 +240,7 @@ yarn add react-formutil
 
 在这个例子中，我们通过$validators 设置了 `required` 、 `maxLength` 以及 `disabledChar` 的校验规则。同时通过属性 `props` 表示了需要校验这三个字段。然后我们可以通过状态判断将错误信息展示出来。
 
-#### $asyncValidators
+#### `$asyncValidators`
 
 该属性可以设置表单项的异步校验规则，设置方式与`$validators`类似。但是不同的是，异步校验函数需要返回`promise`对象，该`promise`被`resolve`表示校验成功，`reject`表示校验失败，并且`reject`的`reason`会被当作失败原因保存到状态的`$error`对象。
 
@@ -258,7 +258,7 @@ yarn add react-formutil
 </Field>
 ```
 
-#### $onFieldChange
+#### `$onFieldChange`
 
 由于 react 的渲染是异步的，所以如果存在交叉验证，例如 A 控件依赖于 B 控件的值去校验自身，那么这种情况下，B 的值变更并不会导致 A 立即去应用新的值去校验。所以这种情况下，可以通过该属性设置回调，主动去触发校验 A 控件。
 
@@ -276,7 +276,7 @@ yarn add react-formutil
 </Field>
 ```
 
-#### $state
+#### `$state`
 
 Field 会维护一个状态树，以及一些方法，并且会将状态和方法合并一起通过参数或者组件传递给 Field 的子组件：
 
@@ -333,11 +333,11 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
 
 更多解释
 
-#### $value
+#### `$value`
 
 Field 的值实际是保存在状态里的该字段中，
 
-#### $dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending
+#### `$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending`
 
 Field 的一组状态：
 
@@ -350,23 +350,23 @@ Field 的一组状态：
 *   $valid 表单所有控件均校验通过
 *   $invalid 表单中有至少一个控件校验不通过
 
-#### $error
+#### `$error`
 
 Field 的错误信息
 
-#### $picker()
+#### `$picker()`
 
 返回 Field 的纯粹状态（不包含任何下方的方法）
 
-#### $reset()
+#### `$reset()`
 
 重制当前 Field 为初始状态
 
-#### $getComponent()
+#### `$getComponent()`
 
 获取 Field 的实例对象（虚拟 dom）
 
-#### $setState($newState)
+#### `$setState($newState)`
 
 ```javascript
 $setState({
@@ -377,11 +377,11 @@ $setState({
 
 设置新的$state，$newState 会与当前$state 合并
 
-#### $render() | $setValue()
+#### `$render() | $setValue()`
 
 设置渲染 Field 的值（保存到$value 中）
 
-#### $setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)
+#### `$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`
 
 ```javascript
 $setDirty(true);
@@ -393,7 +393,7 @@ $setValidity('required', true); //表示校验通过
 
 设置$dirty $touched $error 等状态
 
-#### $setError($error)
+#### `$setError($error)`
 
 替换$error
 
@@ -404,11 +404,11 @@ $setError({
 });
 ```
 
-#### $validate()
+#### `$validate()`
 
 重新校验当前 Field
 
-#### $$formutil
+#### `$$formutil`
 
 当前 Field 所属的 Form 的$formutil 对象包含了整个表单的状态以及一些操作方法，具体可以参考下方 Form 说明。
 
@@ -420,7 +420,7 @@ $setError({
 </Field>
 ```
 
-### withField(Component)
+### `withField(Component)`
 
 `withField` 是一个高阶组件，与 `Field` 的区别是调用方式的不同。withField 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Field 组件。一般情况下建议通过 `Field` 组件去构造表单。如果你需要自定义一个复杂的表单项控件，则可以使用该高阶组件：
 
@@ -441,7 +441,7 @@ export default withField(FieldCustom, {
 });
 ```
 
-### <EasyField />
+### `<EasyField />`
 
 `EasyField` 是使用 Field 对浏览器原生常见表单空间进行的组件封装，方便直接调用。它只会生成默认的表单控件，没有其他额外的 dom 元素，支持的类型如下：
 
@@ -462,7 +462,7 @@ export default withField(FieldCustom, {
 
 它接收以下属性参数：
 
-#### type
+#### `type`
 
 除了`select` `checkbox` `radio` `textarea` `group.checkbox` `group.radio`，其他都是渲染默认的 input，type 会原封不动传给 input。
 
@@ -491,15 +491,15 @@ export default withField(FieldCustom, {
 </EasyField>
 ```
 
-#### name
+#### `name`
 
 同`Field`的`name`
 
-#### $defaultValue
+#### `$defaultValue`
 
 同`Field`的`$defaultValue`
 
-#### $validators
+#### `$validators`
 
 同`Field`的`$validators`。EasyFiled 内置了以下集中校验支持：
 
@@ -516,15 +516,15 @@ export default withField(FieldCustom, {
 <EasyField name="useraname" required maxLength="10" minLength="3" max="100" min="10" pattern={/^\d+^/} />
 ```
 
-#### $asyncValidators
+#### `$asyncValidators`
 
 同`Field`的`$asyncValidators`
 
-#### $parser
+#### `$parser`
 
 在输入值更新到 state 中时会传递给 $parser 处理函数。默认为 `value => value`
 
-#### $formatter
+#### `$formatter`
 
 在 state 中的值渲染给表单控件时会传递给 $formatter 处理函数。默认为 `value => value`
 
@@ -532,11 +532,11 @@ export default withField(FieldCustom, {
 <EasyField name="age" $parser={value => Number(value)} $formatter={value => String(value)} />
 ```
 
-#### defaultValue
+#### `defaultValue`
 
 注意，这个是省略前面的`$`符号。如果与`$defaultValue`同时存在，则会被后者覆盖。
 
-#### validMessage
+#### `validMessage`
 
 可以通过该属性，设置内置的校验方法的错误信息展示：
 
@@ -552,7 +552,7 @@ export default withField(FieldCustom, {
 />
 ```
 
-#### checked / unchecked
+#### `checked / unchecked`
 
 如果是 checkbox 或 radio，则可以设置该属性，表示选中/未选中所代表的值。默认为 true 和 false。
 
@@ -563,7 +563,7 @@ export default withField(FieldCustom, {
 </label>
 ```
 
-### <Form />
+### `<Form />`
 
 `Form` 也是一个标准的 react 组件，它类似 Field，同样可以以函数、或者普通组件当作子组件调用。它可以增强子组件，收集子 dom 树中的 `Field` 组件状态，并通过$formutil 传递给被调用组件。
 
@@ -575,7 +575,7 @@ export default withField(FieldCustom, {
 
 `Form` 可以接收以下可选属性参数：
 
-#### render
+#### `render`
 
 该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
 如果设置了该属性，则其会覆盖掉`function as child`方式。
@@ -586,7 +586,7 @@ export default withField(FieldCustom, {
 />
 ```
 
-#### $defaultValues
+#### `$defaultValues`
 
 `$defaultValues` 可以通过这里批量设置表单的默认值，格式为 `{ name: value }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
 
@@ -605,7 +605,7 @@ export default withField(FieldCustom, {
 </Form>
 ```
 
-#### $defaultStates
+#### `$defaultStates`
 
 `$defaultStates` 可以通过这里批量设置表单的默认状态，格式为 `{ name: $state }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
 
@@ -626,7 +626,7 @@ export default withField(FieldCustom, {
 </Form>
 ```
 
-#### $onFormChange
+#### `$onFormChange`
 
 该属性可传入一个函数，当表单的值有变动时，会触发该回调，新的$formutil 对象和本次变动的新旧值的集合会依次以参数形式传递：
 
@@ -662,7 +662,7 @@ export default withField(FieldCustom, {
 
 更多解释参考：
 
-#### $getField(name)
+#### `$getField(name)`
 
 获取对 name 对应的表单项的操作引用，可以获取到包含以下方法的对象：
 
@@ -678,19 +678,19 @@ const {
 } = $formutil.$getField('list[0].name'); //name支持表达式字符串
 ```
 
-#### $validate(name)
+#### `$validate(name)`
 
 立即校验对应 name 的表单项
 
-#### $validates()
+#### `$validates()`
 
 重新校验所有的表单项
 
-#### $render(callback)
+#### `$render(callback)`
 
 强制重新渲染表单组件，可以通过该方法的回调，在当前的渲染完成后回调
 
-#### $setStates($stateTree)
+#### `$setStates($stateTree)`
 
 可以用来更新表单项的状态：
 
@@ -713,7 +713,7 @@ $formutil.$setStates({
 });
 ```
 
-#### $setValues($valueTree)
+#### `$setValues($valueTree)`
 
 可以用来更新表单项的值：
 
@@ -729,7 +729,7 @@ $formutil.$setValues({
 });
 ```
 
-#### $setErrors($errorTree)
+#### `$setErrors($errorTree)`
 
 可以用来设置表单的校验结果：
 
@@ -742,7 +742,7 @@ $formutil.$setErrors({
 });
 ```
 
-#### $reset($stateTree)
+#### `$reset($stateTree)`
 
 可以用来重置表单，会讲表单重置为初始状态（不会改变组件设置的默认状态和默认值）。如过传递了$stateTree，则会重置为合并了$stateTree 后的状态
 
@@ -750,7 +750,7 @@ $formutil.$setErrors({
 $formutil.$reset();
 ```
 
-#### $setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)
+#### `$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)`
 
 可以用来更新表单控件的`$dirty`、`$touched`、`$focused`状态，类似`$setValues`
 
@@ -766,7 +766,7 @@ $formutil.$setFocuses({
 });
 ```
 
-#### $batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)
+#### `$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)`
 
 批量更改所有表单项的状态
 
@@ -779,7 +779,7 @@ $formutil.$batchDirty(true); //同上效果
 $formutil.$batchTouched(true);
 ```
 
-#### $getFirstError()
+#### `$getFirstError()`
 
 从表单的所有错误项中取出第一个错误描述
 
@@ -795,11 +795,11 @@ if ($invalid) {
 }
 ```
 
-#### $states | $weakStates
+#### `$states | $weakStates`
 
 所有表单项的状态集合。`$formutl.$state` 是以 `Field`i 的 name 值经过路径解析后的对象，`$formutil.$weakState` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $params | $weakParams
+#### `$params | $weakParams`
 
 所有表单项的 值`$value` 集合。`$formutil.$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakParams` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
@@ -816,7 +816,7 @@ $weakParams = {
 };
 ```
 
-#### $errors | $weakErrors
+#### `$errors | $weakErrors`
 
 所有表单项的 `$error` 集合。`$formutil.$errors` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakErrors` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
@@ -852,35 +852,35 @@ $weakErrors = {
 };
 ```
 
-#### $dirts | $weakDirts
+#### `$dirts | $weakDirts`
 
 所有表单项的 `$dirty` 集合。`$formutil.$dirts` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakDirts` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $touches | $weakTouches
+#### `$touches | $weakTouches`
 
 所有表单项的 `$touched` 集合。`$formutil.$touches` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakTouches` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $focuses | $weakFocuses
+#### `$focuses | $weakFocuses`
 
 所有表单项的 `$focused` 集合。`$formutil.$focuses` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakFocuses` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-#### $valid | $invalid
+#### `$valid | $invalid`
 
 表单项中所有 `Field` 的`$valid` 均为 `true` 时，`$formutil.$valid` 为 `true`, `$formutil.$invalid` 为 false。表单项中有任意 `Field` 的`$valid` 为 `false` 时，`$formutil.$valid` 为 `false`, `$formutil.$invalid` 为 `True`。
 
-#### $dirty | $pristine
+#### `$dirty | $pristine`
 
 表单项中所有 `Field` 的`$dirty` 均为 `false` 时，`$formutil.$dirty` 为 `false`, `$formutil.$pristine` 为 true。表单项中有任意 `Field` 的`$dirty` 为 `true` 时，`$formutil.$dirty` 为 `true`, `$formutil.$pristine` 为 `false`。
 
-#### $touched | $untouched
+#### `$touched | $untouched`
 
 表单项中所有 `Field` 的`$touched` 均为 `false` 时，`$formutil.$touched` 为 `false`, `$formutil.$untouched` 为 `true`。表单项中有任意 `Field` 的`$touched` 为 `true` 时，`$formutil.$touched` 为 `true`, `$formutil.$untouched` 为 `false`。
 
-#### $focused
+#### `$focused`
 
 表单项中所有 `Field` 的`$focused` 均为 `false` 时，`$formutil.$focused` 为 `false`。表单项中有任意 `Field` 的`$focused` 为 `true` 时，`$formutil.$focused` 为 `true`。
 
-### withForm(Component)
+### `withForm(Component)`
 
 withForm 是基于 Form 封装的高阶组件，withForm 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Form 组件。
 
@@ -894,7 +894,7 @@ export default withForm(LoginForm, {
 });
 ```
 
-### connect(Component)
+### `connect(Component)`
 
 connect 是一个高阶组件，它可以增强当前组件，并获取其最近的父辈级中的 Form 组件的 $formutil 对象，并以 props 传递给当前组件。
 
@@ -928,13 +928,13 @@ export default connect(Submit);
 
 ## FAQ & 常见问题解答
 
-### Field 与 EasyField 有什么区别
+### `Field 与 EasyField 有什么区别`
 
 Field 是抽象的底层，它本身不会渲染任何 dom 结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作（例如不会主动同步$touched $focused 状态）
 
 EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。EasyField 会自动绑定 change、focus、blur 事件，并主动同步`$touched` `$untouched` `$focused`状态
 
-### checkbox 多选或 radio 单选组怎么实现
+### `checkbox 多选或 radio 单选组怎么实现`
 
 可以直接 Field 实现，也可以使用 EasyField 实现（demo 都中有示例）：
 
@@ -969,7 +969,7 @@ const hobbiesItems = [
 </EasyField>;
 ```
 
-### 使用 Field 实现一个上传图片的表单控件
+### `使用 Field 实现一个上传图片的表单控件`
 
 假如我们需要在表单中插入一个按钮，用户需要点击按钮上传图片后，将图片地址同步到表单中
 
@@ -1022,7 +1022,7 @@ export default function FieldFile(props) {
 </div>;
 ```
 
-### 如何获取对 Field 生成的节点的引用？
+### `如何获取对 Field 生成的节点的引用？`
 
 可以通过 `$getField` 获取到一组 `handler` 方法，其中有 `$getComponent` 方法，可以获取到组件对象，然后再通过 `react-dom` 提供的 `findDOMNode` 来获取到对应的实际 dom 元素节点
 
@@ -1040,7 +1040,7 @@ import { findDOMNode } from 'react-dom';
 </Form>;
 ```
 
-### 对于有大量表单项的长页面有没有优化办法
+### `对于有大量表单项的长页面有没有优化办法`
 
 对于一个具有很多表单项、导致页面很大的表单，如果全部在一个组件里维护，会比较痛苦。幸运的事，使用 react-formutl 你可以很方便将大表单拆分成多个模块，既能减小大组件带来的维护难题，还能复用表单模块。
 

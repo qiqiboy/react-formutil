@@ -4,7 +4,7 @@ import Field from './Field';
 function withField(WrappedComponent, config = {}) {
     return class FieldEnhanced extends Component {
         static displayName = 'React.formutil.withField.' +
-        (WrappedComponent.displayName || WrappedComponent.name || 'UnknowComponent');
+        (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
         render() {
             const { ...others } = this.props;

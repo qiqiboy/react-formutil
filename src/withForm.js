@@ -4,7 +4,7 @@ import Form from './Form';
 function withForm(WrappedComponent, config = {}) {
     return class FormEnhanced extends Component {
         static displayName = 'React.formutil.withForm.' +
-        (WrappedComponent.displayName || WrappedComponent.name || 'UnknowComponent');
+        (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
         render() {
             const { ...others } = this.props;

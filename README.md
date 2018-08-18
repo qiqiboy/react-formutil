@@ -19,7 +19,7 @@ Happy to build the forms in React ^\_^
 
 * [安装 Installation](#安装-installation)
 * [使用 Usage](#使用-usage)
-    - [Field](#field)
+    - [<Field />](#field-)
         + [render](#render)
         + [name](#name)
         + [$defaultValue](#defaultvalue)
@@ -40,8 +40,8 @@ Happy to build the forms in React ^\_^
         + [$setError($error)](#seterrorerror)
         + [$validate()](#validate)
         + [$$formutil](#formutil)
-    - [withField](#withfield)
-    - [EasyField](#easyfield)
+    - [withField(Component)](#withfieldcomponent)
+    - [<EasyField />](#easyfield-)
         + [type](#type)
         + [name](#name-1)
         + [$defaultValue](#defaultvalue-1)
@@ -52,7 +52,7 @@ Happy to build the forms in React ^\_^
         + [defaultValue](#defaultvalue-2)
         + [validMessage](#validmessage)
         + [checked / unchecked](#checked--unchecked)
-    - [Form](#form)
+    - [<Form />](#form-)
         + [render](#render-1)
         + [$defaultValues](#defaultvalues)
         + [$defaultStates](#defaultstates)
@@ -78,8 +78,8 @@ Happy to build the forms in React ^\_^
         + [$dirty | $pristine](#dirty--pristine)
         + [$touched | $untouched](#touched--untouched)
         + [$focused](#focused)
-    - [withForm](#withform)
-    - [connect](#connect)
+    - [withForm(Component)](#withformcomponent)
+    - [connect(Component)](#connectcomponent)
 * [FAQ & 常见问题解答](#faq--常见问题解答)
     - [Field 与 EasyField 有什么区别](#field-与-easyfield-有什么区别)
     - [checkbox 多选或 radio 单选组怎么实现](#checkbox-多选或-radio-单选组怎么实现)
@@ -149,7 +149,7 @@ yarn add react-formutil
 </Form>
 ```
 
-### Field
+### <Field />
 
 `Field` 是一个标准的 react 组件。它可以理解为表单控件的顶层组件，它可以同步表单控件的状态。每一个表单控件应该总是当作 `Field` 组件的子组件嵌套。
 
@@ -420,7 +420,7 @@ $setError({
 </Field>
 ```
 
-### withField
+### withField(Component)
 
 `withField` 是一个高阶组件，与 `Field` 的区别是调用方式的不同。withField 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Field 组件。一般情况下建议通过 `Field` 组件去构造表单。如果你需要自定义一个复杂的表单项控件，则可以使用该高阶组件：
 
@@ -441,7 +441,7 @@ export default withField(FieldCustom, {
 });
 ```
 
-### EasyField
+### <EasyField />
 
 `EasyField` 是使用 Field 对浏览器原生常见表单空间进行的组件封装，方便直接调用。它只会生成默认的表单控件，没有其他额外的 dom 元素，支持的类型如下：
 
@@ -563,7 +563,7 @@ export default withField(FieldCustom, {
 </label>
 ```
 
-### Form
+### <Form />
 
 `Form` 也是一个标准的 react 组件，它类似 Field，同样可以以函数、或者普通组件当作子组件调用。它可以增强子组件，收集子 dom 树中的 `Field` 组件状态，并通过$formutil 传递给被调用组件。
 
@@ -880,7 +880,7 @@ $weakErrors = {
 
 表单项中所有 `Field` 的`$focused` 均为 `false` 时，`$formutil.$focused` 为 `false`。表单项中有任意 `Field` 的`$focused` 为 `true` 时，`$formutil.$focused` 为 `true`。
 
-### withForm
+### withForm(Component)
 
 withForm 是基于 Form 封装的高阶组件，withForm 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Form 组件。
 
@@ -894,7 +894,7 @@ export default withForm(LoginForm, {
 });
 ```
 
-### connect
+### connect(Component)
 
 connect 是一个高阶组件，它可以增强当前组件，并获取其最近的父辈级中的 Form 组件的 $formutil 对象，并以 props 传递给当前组件。
 

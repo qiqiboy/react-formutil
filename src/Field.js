@@ -339,11 +339,14 @@ class Field extends Component {
             return render(childProps);
         }
 
-        if (typeof children === 'function') {
+        if (utils.isFunction(children)) {
             return children(childProps);
         }
 
-        return Children.map(children, child => cloneElement(child, childProps));
+        return Children.map(
+            children,
+            child => (child && utils.isFunction(child.type) ? cloneElement(child, childProps) : child)
+        );
     }
 }
 

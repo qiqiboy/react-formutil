@@ -19,6 +19,7 @@ class EasyField extends Component {
         checked: PropTypes.any,
         unchecked: PropTypes.any,
         validMessage: PropTypes.object,
+        render: PropTypes.func,
 
         $parser: PropTypes.func,
         $formatter: PropTypes.func
@@ -167,20 +168,30 @@ class EasyField extends Component {
                             $FieldName: name
                         };
 
-                        const { children, ...restProps } = otherProps;
+                        const { children, render, ...restProps } = otherProps;
 
                         const childProps = {
                             ...props,
                             Field: EasyFieldGroupItem
                         };
 
-                        return (
-                            <Element {...restProps}>
-                                {typeof children === 'function'
-                                    ? children(childProps)
-                                    : React.Children.map(children, child => React.cloneElement(child, childProps))}
-                            </Element>
-                        );
+                        let childNodes;
+
+                        if (render) {
+                            childNodes = render(childProps);
+                        } else if (utils.isFunction(children)) {
+                            childNodes = children(childProps);
+                        } else {
+                            childNodes = React.Children.map(
+                                children,
+                                child =>
+                                    child && utils.isFunction(child.type)
+                                        ? React.cloneElement(child, childProps)
+                                        : child
+                            );
+                        }
+
+                        return <Element {...restProps}>{childNodes}</Element>;
                     }
 
                     let elemProps;

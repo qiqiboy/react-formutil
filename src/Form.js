@@ -353,14 +353,18 @@ class Form extends Component {
             return render($formutil);
         }
 
-        if (typeof children === 'function') {
+        if (utils.isFunction(children)) {
             return children($formutil);
         }
 
-        return Children.map(children, child =>
-            cloneElement(child, {
-                $formutil
-            })
+        return Children.map(
+            children,
+            child =>
+                child && utils.isFunction(child.type)
+                    ? cloneElement(child, {
+                          $formutil
+                      })
+                    : child
         );
     }
 }

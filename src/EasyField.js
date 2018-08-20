@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Field from './Field';
-import * as utils from './utils';
+import { isFunction, isEmpty, isValidProp } from './utils';
 
 /**
  * 提供对浏览器原生表单控件的封装
@@ -28,6 +28,27 @@ class EasyField extends Component {
     static childContextTypes = {
         $getFieldProps: PropTypes.func
     };
+
+    static defaultValidators = [
+        [
+            'required',
+            ($value, check, { type, checked }) =>
+                type === 'checkbox' || type === 'radio' ? $value === checked : !!($value + '')
+        ],
+        ['maxLength', ($value, len) => isEmpty($value) || $value.length <= len],
+        ['minLength', ($value, len) => isEmpty($value) || $value.length >= len],
+        ['max', ($value, limit) => isEmpty($value) || $value * 1 <= limit],
+        ['min', ($value, limit) => isEmpty($value) || $value * 1 >= limit],
+        ['pattern', ($value, regexp) => isEmpty($value) || regexp.test($value)],
+        ['enum', ($value, enumeration) => isEmpty($value) || enumeration.indexOf($value) > -1],
+        ['checker', ($value, checker) => checker($value)]
+    ].reduce(($validators, item) => {
+        const [validKey, validate] = item;
+        $validators[validKey] = function validator($value, propValue, { validMessage = {} }) {
+            return validate(...arguments) || validMessage[validKey] || `Error input: ${validKey}`;
+        };
+        return $validators;
+    }, {});
 
     static defaultProps = {
         type: 'text',
@@ -66,7 +87,6 @@ class EasyField extends Component {
             ...otherProps
         } = this.props;
 
-        const defaultErrMsg = 'Error';
         const [type, groupType] = typeStr.split('.');
 
         const fieldProps = {
@@ -74,52 +94,21 @@ class EasyField extends Component {
             $onFieldChange,
             $defaultState,
             $validators: {
-                required: ($value, check) =>
-                    check === false ||
-                    (type === 'checkbox' || type === 'radio' ? $value === checked : !!($value + '')) ||
-                    validMessage.required ||
-                    `${defaultErrMsg}: required`,
-                maxLength: ($value, len) =>
-                    len === false ||
-                    utils.isEmpty($value) ||
-                    $value.length <= len * 1 ||
-                    validMessage.maxLength ||
-                    `${defaultErrMsg}: maxLength: ${len}`,
-                minLength: ($value, len) =>
-                    len === false ||
-                    utils.isEmpty($value) ||
-                    $value.length >= len * 1 ||
-                    validMessage.minLength ||
-                    `${defaultErrMsg}: minLength: ${len}`,
-                max: ($value, limit) =>
-                    limit === false ||
-                    utils.isEmpty($value) ||
-                    $value * 1 <= limit ||
-                    validMessage.max ||
-                    `${defaultErrMsg}: max: ${limit}`,
-                min: ($value, limit) =>
-                    limit === false ||
-                    utils.isEmpty($value) ||
-                    $value * 1 >= limit ||
-                    validMessage.min ||
-                    `${defaultErrMsg}: min: ${limit}`,
-                pattern: ($value, regexp) =>
-                    regexp === false ||
-                    utils.isEmpty($value) ||
-                    regexp.test($value) ||
-                    validMessage.pattern ||
-                    `${defaultErrMsg}: pattern: ${regexp}`,
+                ...EasyField.defaultValidators,
                 ...$validators
             },
             $asyncValidators,
-            validMessage
+            validMessage,
+            type: typeStr,
+            checked,
+            unchecked
         };
 
         Object.keys({ ...fieldProps.$validators, ...$asyncValidators }).forEach(prop => {
-            if (prop in otherProps) {
+            if (prop in otherProps && [undefined, null, false].indexOf(otherProps[prop]) < 0) {
                 fieldProps[prop] = otherProps[prop];
 
-                if (!utils.isValidProp(prop)) {
+                if (!isValidProp(prop)) {
                     delete otherProps[prop];
                 }
             }
@@ -179,15 +168,13 @@ class EasyField extends Component {
 
                         if (render) {
                             childNodes = render(childProps);
-                        } else if (utils.isFunction(children)) {
+                        } else if (isFunction(children)) {
                             childNodes = children(childProps);
                         } else {
                             childNodes = React.Children.map(
                                 children,
                                 child =>
-                                    child && utils.isFunction(child.type)
-                                        ? React.cloneElement(child, childProps)
-                                        : child
+                                    child && isFunction(child.type) ? React.cloneElement(child, childProps) : child
                             );
                         }
 

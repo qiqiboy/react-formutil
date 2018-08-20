@@ -9,7 +9,7 @@ export function isFunction(arg) {
 }
 
 export function isEmpty(arg) {
-    return typeof arg === 'undefined' || arg === '' || arg === null;
+    return isUndefined(arg) || arg === null || arg + '' === '';
 }
 
 const VALID_PROPS = ['minlength', 'maxlength', 'max', 'min', 'required', 'pattern', 'step'];

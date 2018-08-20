@@ -443,18 +443,20 @@ export default withField(FieldCustom, {
 
 ### `<EasyField />`
 
-`EasyField` 是使用 Field 对浏览器原生常见表单空间进行的组件封装，方便直接调用。它只会生成默认的表单控件，没有其他额外的 dom 元素，支持的类型如下：
+`EasyField` 是使用 Field 对浏览器原生常见表单空间进行的组件封装，包含了常见的表单类型支持以及常用校验方法的封装（参考下方的`$validators`说明），方便直接调用。
 
-*   input[type=text]
-*   input[type=number]
-*   input[type=search]
-*   input[type=password]
-*   input[type=checkbox]
-*   input[type=radio]
-*   select
-*   textarea
-*   group.radio
-*   group.checkbox
+它只会生成默认的表单控件，没有其他额外的 dom 元素，支持的类型如下：
+
+*   `input[type=text]`
+*   `input[type=number]`
+*   `input[type=search]`
+*   `input[type=password]`
+*   `input[type=checkbox]`
+*   `input[type=radio]`
+*   `select`
+*   `textarea`
+*   `group.radio`
+*   `group.checkbox`
 
 事实上，支持任何的 input 元素。并且 EasyField 除了会绑定 onChange 事件来同步输入值，也会绑定 onFocus、onBlur 事件来主动同步`$touched` `$untouched` `$focused`状态。所以无需额外的工作，你就可以方便的使用这些状态来优化你的表单显示。
 
@@ -503,12 +505,16 @@ export default withField(FieldCustom, {
 
 同`Field`的`$validators`。EasyFiled 内置了以下集中校验支持：
 
-*   `required` 必填，如果是 group.checkbox，则必需至少选中一项
-*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验
-*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验
-*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验
-*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验
-*   `pattern` 正则匹配。有效输入时才会校验
+*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
+*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
+*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
+*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
+*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
+*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
+*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
+*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
+
+> 注：校验属性的值为 `false`或`空` 时(例如 `required={false|null|undefined}`) 表示不进行该校验
 
 内置的校验规则无需再次声明，除非规则不符合预期，需要替换，则可以通过`$validators` 传递同名校验方法即可替换默认的。另外，内置的校验规则，如果校验不通过，会尝试去 `validMessage` 匹配错误信息。
 

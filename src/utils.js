@@ -12,6 +12,10 @@ export function isEmpty(arg) {
     return isUndefined(arg) || arg === null || arg + '' === '';
 }
 
+export function isPromise(promise) {
+    return !!promise && isFunction(promise.then);
+}
+
 const VALID_PROPS = ['minlength', 'maxlength', 'max', 'min', 'required', 'pattern', 'step'];
 export function isValidProp(prop) {
     return VALID_PROPS.indexOf(prop.toLowerCase()) > -1;

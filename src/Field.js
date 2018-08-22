@@ -135,82 +135,41 @@ class Field extends Component {
         }
     }
 
-    $validate = () => {
-        this.$syncValidate();
-        this.$asyncValidate();
-    };
-
-    $syncValidate = () => {
-        const { $validators, $asyncValidators } = this.props;
+    $validate = callback => {
+        const $validators = { ...this.props.$validators, ...this.props.$asyncValidators };
         const { $value, $error } = this.$state;
         const { $formutil } = this.context;
 
-        //clear async validators result
-        if ($asyncValidators) {
-            Object.keys($asyncValidators).forEach(key => {
-                if (key in $error) {
-                    delete $error[key];
+        const promises = Object.keys($validators).reduce((promises, key) => {
+            delete $error[key];
+
+            if (key in this.props) {
+                const result = $validators[key]($value, this.props[key], {
+                    ...this.props,
+                    $formutil
+                });
+
+                if (utils.isPromise(result)) {
+                    promises.push(result.catch(reason => this.$setValidity(key, reason === true ? false : reason)));
+                } else if (result !== true) {
+                    $error[key] = result;
                 }
-            });
-        }
-
-        if ($validators) {
-            Object.keys($validators).forEach(key => {
-                if (key in this.props) {
-                    const $valid = $validators[key]($value, this.props[key], {
-                        ...this.props,
-                        $formutil
-                    });
-
-                    if ($valid === true) {
-                        delete $error[key];
-                    } else {
-                        $error[key] = $valid;
-                    }
-                } else {
-                    delete $error[key];
-                }
-            });
-
-            return this.$setState({
-                $error
-            });
-        }
-    };
-
-    $asyncValidate = () => {
-        const $asyncValidators = this.props.$asyncValidators;
-        const { $value, $valid } = this.$state;
-        const { $formutil } = this.context;
-
-        if ($valid && $asyncValidators) {
-            const promises = Object.keys($asyncValidators)
-                .filter(key => key in this.props)
-                .reduce((promises, key) => {
-                    const promise = $asyncValidators[key]($value, this.props[key], {
-                        ...this.props,
-                        $formutil
-                    });
-
-                    if (promise && utils.isFunction(promise.then)) {
-                        return promises.concat(
-                            promise.then(
-                                () => this.$setValidity(key, true),
-                                reason => this.$setValidity(key, reason === true ? false : reason)
-                            )
-                        );
-                    }
-
-                    this.$setValidity(key, promise);
-
-                    return promises;
-                }, []);
-
-            if (promises.length) {
-                this.$setPending(true);
-                Promise.all(promises).then(() => this.$setPending(false));
             }
+
+            return promises;
+        }, []);
+
+        if (promises.length) {
+            this.$setPending(true);
+            Promise.all(promises).then(() => this.$setPending(false));
         }
+
+        return this.$setState(
+            {
+                $error
+            },
+            callback
+        );
     };
 
     $$merge = $newState => {

@@ -294,10 +294,10 @@ class LoginForm extends Component {
                             name="EasyField.checkbox_group"
                             required
                             validMessage={{ required: '请至少选择一项' }}>
-                            {({ Field }) =>
+                            {({ GroupOption }) =>
                                 this.targets.map(item => (
                                     <label key={item.id} className="checkbox-inline">
-                                        <Field $value={item.id} /> {item.name}
+                                        <GroupOption $value={item.id} /> {item.name}
                                     </label>
                                 ))
                             }
@@ -350,11 +350,11 @@ class LoginForm extends Component {
                             defaultValue={this.targets[1].id}
                             required
                             validMessage={{ required: '请选择一项' }}>
-                            {({ Field }) =>
+                            {({ GroupOption }) =>
                                 this.targets.map(item => (
                                     <div className="radio" key={item.id}>
                                         <label key={item.id}>
-                                            <Field $value={item.id} /> {item.name}
+                                            <GroupOption $value={item.id} /> {item.name}
                                         </label>
                                     </div>
                                 ))

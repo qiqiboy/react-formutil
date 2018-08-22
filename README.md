@@ -478,16 +478,18 @@ export default withField(FieldCustom, {
 </EasyField>
 ```
 
-当 `type="group.checkbox"` `type="group.radio"` 等以 `group.`开头的类型时，需要设置 child 渲染方式，类似 Field 组件调用，建议使用函数式 child。EasyField 会传递包含 Field 属性的 props 给 child 组件(注意，这里的 Field 是指渲染出表单控件的 Field 组件对象，与前面的 Field 完全不同，只是刚好同名)，然后你可以自由定义控件的渲染方式：
+当 `type="group.checkbox"` `type="group.radio"` 等以 `group.`开头的类型时，需要设置 child 渲染方式，类似 Field 组件调用，建议使用函数式 child。
 
-在 EasyField 的 child 回调渲染中，必须传递 $value 给 Field：
+`EasyField` 会传递包含 `GroupOption` 属性的 `props` 给 `child` 组件，然后你可以自由定义控件的渲染方式：
+
+在 `EasyField` 的 `child` 回调渲染中，必须传递 $value 给 `GroupOption`：
 
 ```javascript
 <EasyField type="group.checkbox" name="targets" required validMessage={{ required: '请至少选择一项' }}>
-    {({ Field }) =>
+    {({ GroupOption }) =>
         this.targets.map(item => (
             <label key={item.id} className="checkbox-inline">
-                <Field $value={item.id} className="checkbox" /> {item.name}
+                <GroupOption $value={item.id} className="checkbox" /> {item.name}
             </label>
         ))
     }

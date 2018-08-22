@@ -162,7 +162,8 @@ class EasyField extends Component {
 
                         const childProps = {
                             ...props,
-                            Field: EasyFieldGroupItem
+                            Field: DeprecatedEasyFieldGroupOption, // v0.2.21 deprecated
+                            GroupOption: EasyFieldGroupOption
                         };
 
                         let childNodes;
@@ -252,8 +253,24 @@ class EasyField extends Component {
     }
 }
 
-class EasyFieldGroupItem extends Component {
-    static displayName = 'react.formutil.EasyField.GroupItem';
+class DeprecatedEasyFieldGroupOption extends Component {
+    static displayName = 'React.formutil.EasyField.GroupOption.Deprecated';
+
+    componentDidMount() {
+        try {
+            console.warn(
+                `The "Field" property in EasyField's children-props has been deprecated. Please use "GroupOption" instead.`
+            );
+        } catch (err) {}
+    }
+
+    render() {
+        return <EasyFieldGroupOption {...this.props} />;
+    }
+}
+
+class EasyFieldGroupOption extends Component {
+    static displayName = 'React.formutil.EasyField.GroupOption';
 
     static propTypes = {
         $value: PropTypes.any.isRequired
@@ -339,4 +356,5 @@ class EasyFieldGroupItem extends Component {
         );
     }
 }
+
 export default EasyField;

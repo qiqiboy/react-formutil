@@ -20,13 +20,20 @@ class EasyField extends Component {
         unchecked: PropTypes.any,
         validMessage: PropTypes.object,
         render: PropTypes.func,
+        groupNode: PropTypes.any,
 
         $parser: PropTypes.func,
         $formatter: PropTypes.func
     };
 
-    static childContextTypes = {
-        $getFieldProps: PropTypes.func
+    static defaultProps = {
+        type: 'text',
+        checked: true,
+        unchecked: false,
+        validMessage: {},
+
+        $parser: value => value,
+        $formatter: value => value
     };
 
     static defaultValidators = [
@@ -50,14 +57,8 @@ class EasyField extends Component {
         return $validators;
     }, {});
 
-    static defaultProps = {
-        type: 'text',
-        checked: true,
-        unchecked: false,
-        validMessage: {},
-
-        $parser: value => value,
-        $formatter: value => value
+    static childContextTypes = {
+        $getFieldProps: PropTypes.func
     };
 
     getChildContext() {
@@ -157,7 +158,7 @@ class EasyField extends Component {
                             $FieldName: name
                         };
 
-                        const { children, render, ...restProps } = otherProps;
+                        const { children, render, groupNode: Element = 'div', ...restProps } = otherProps;
 
                         const childProps = {
                             ...props,
@@ -176,6 +177,10 @@ class EasyField extends Component {
                                 child =>
                                     child && isFunction(child.type) ? React.cloneElement(child, childProps) : child
                             );
+                        }
+
+                        if (Element === null) {
+                            return childNodes;
                         }
 
                         return <Element {...restProps}>{childNodes}</Element>;

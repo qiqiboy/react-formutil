@@ -52,6 +52,7 @@ Happy to build the forms in React ^\_^
         + [`defaultValue`](#defaultvalue-2)
         + [`validMessage`](#validmessage)
         + [`checked / unchecked`](#checked--unchecked)
+    - [`groupNode`](#groupnode)
     - [`<Form />`](#form-)
         + [`render`](#render-1)
         + [`$defaultValues`](#defaultvalues)
@@ -568,6 +569,12 @@ export default withField(FieldCustom, {
     <EasyField type="checkbox" name="remember" checked="yes" unchecked="no" /> 是否同意用户协议
 </label>
 ```
+
+### `groupNode`
+
+如果是 `group.checkbox` 或者 `group.radio` 类型，默认会渲染一个div节点。如果不希望渲染该div节点，可以通过`groupNode={null}`来禁用。
+
+当然，`groupNode`属性还可以是其它节点，例如：`groupNode="section"`；甚至可以是自定义组件：`groupNode={MyCustomComponent}`。
 
 ### `<Form />`
 

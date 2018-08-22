@@ -243,7 +243,7 @@ class LoginForm extends Component {
                             className="form-control"
                             placeholder="数字"
                             validMessage={{ required: '必需填写', max: '最大输入10' }}
-                            required={null}
+                            required
                             max="10"
                         />
                         {$errors.EasyField &&

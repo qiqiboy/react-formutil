@@ -248,9 +248,35 @@ yarn add react-formutil
 
 在这个例子中，我们通过$validators 设置了 `required` 、 `maxLength` 以及 `disabledChar` 的校验规则。同时通过属性 `props` 表示了需要校验这三个字段。然后我们可以通过状态判断将错误信息展示出来。
 
+当然，也可以只在一个校验函数里校验多个规则，甚至混合异步校验：
+
+```javascript
+<Field
+    baseCheck
+    $validators={{
+        baseCheck(value) {
+            //校验非空
+            if (!value) {
+                return '该项必填';
+            }
+
+            //校验输入长度
+            if (value.length < 5) {
+                return '最小输入五个字符';
+            }
+
+            //异步校验
+            return axios
+                .post('/api/v1/check_account', { account: value })
+                .catch(error => Promise.reject(error.message));
+        }
+    }}
+/>
+```
+
 #### ~~`$asyncValidators`~~
 
-> **`v0.2.22` 起，建议直接使用 `$validators` 即可，不建议单独使用 `$asyncValidators`。**
+> **`v0.2.22` 起，建议直接使用 `$validators` 即可，`$validators` 也支持了异步校验。不建议单独使用 `$asyncValidators`。**
 
 ~~该属性可以设置表单项的异步校验规则，设置方式与`$validators`类似。但是不同的是，异步校验函数需要返回`promise`对象，该`promise`被`resolve`表示校验成功，`reject`表示校验失败，并且`reject`的`reason`会被当作失败原因保存到状态的`$error`对象。~~
 

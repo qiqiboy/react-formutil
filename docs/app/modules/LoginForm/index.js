@@ -39,12 +39,28 @@ class LoginForm extends Component {
     //定义校验规则
     $validators = {
         required: value => (value ? true : '该项必填'),
-        minLength: (value, len) => value.length >= parseInt(len) || `最少输入字符长度：${len}`,
+        minLength: (value, len) => value.length < parseInt(len) || `最少输入字符长度：${len}`,
         isSame: (value, name) =>
             !value ||
             !this.props.$formutil.$params[name] ||
             value === this.props.$formutil.$params[name] ||
-            '两次输入不一致'
+            '两次输入不一致',
+
+        //也可以一个校验函数里校验多个规则，甚至混合异步校验
+        multiCheck(value) {
+            //校验非空
+            if (!value) {
+                return '该项必填';
+            }
+
+            //校验输入长度
+            if (value.length < 5) {
+                return '最小输入五个字符';
+            }
+
+            //异步校验
+            return new Promise((resolve, reject) => setTimeout(() => reject('435454'), 2000));
+        }
     };
 
     //密码记住时间的配置项

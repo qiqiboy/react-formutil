@@ -1,4 +1,5 @@
 const PATH_REGEXP = /\]\.|\]\[|\.|\[|\]/g;
+const global = isUndefined(window) ? global : window;
 
 export function isUndefined(arg) {
     return typeof arg === 'undefined';
@@ -26,9 +27,10 @@ const executeWord = function(word) {
     try {
         const exec = new Function(
             'origin',
-            `return typeof ${word} !== 'undefined' && !(origin in window ) ? ${word} : origin`
+            'global',
+            `return typeof ${word} !== 'undefined' && !(origin in global ) ? ${word} : origin`
         );
-        return exec(word);
+        return exec(word, global);
     } catch (err) {
         return word;
     }

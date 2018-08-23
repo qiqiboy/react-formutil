@@ -150,7 +150,11 @@ class Field extends Component {
                 });
 
                 if (utils.isPromise(result)) {
-                    promises.push(result.catch(reason => this.$setValidity(key, reason === true ? false : reason)));
+                    promises.push(
+                        result.catch(reason =>
+                            this.$setValidity(key, reason instanceof Error ? reason.message : reason)
+                        )
+                    );
                 } else if (result !== true) {
                     $error[key] = result;
                 }

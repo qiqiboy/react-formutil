@@ -211,6 +211,8 @@ yarn add react-formutil
 
 > **异步校验**：如果校验函数返回一个`promise`对象，则`resolved`表示校验通过，`rejected`则校验不通过，同时`rejected`返回的`reason`将会被当作错误信息保存到`$error`对象中。
 
+> 异步校验时，状态里会有 `$pending` 用来表示正在异步校验。
+
 > **特别注意**： 仅仅设置了`$validators`，并不会触发校验，还需要设置匹配`$validators`中每一项的属性标识符，该属性的值会作为第二个参数传递给校验函数。
 
 校验被调用，会传入三个值：value、attr、props

@@ -87,6 +87,7 @@ Happy to build the forms in React ^\_^
     - [`使用 Field 实现一个上传图片的表单控件`](#使用-field-实现一个上传图片的表单控件)
     - [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
     - [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
+    - [`如何在ant-design项目中使用react-formutil?`](#如何在ant-design项目中使用react-formutil)
 
 <!-- vim-markdown-toc -->
 
@@ -102,6 +103,8 @@ yarn add react-formutil
 
 ## 使用 Usage
 
+> [了解如何在 ant-design 项目中使用 react-formutil？](https://github.com/qiqiboy/react-antd-formutil)
+
 先看一个简单的示例：
 
 [Demo on codeSandbox.io](https://codesandbox.io/s/pm9ll05p8m)
@@ -112,12 +115,12 @@ yarn add react-formutil
 
 `react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有几个基于此的高阶组件：
 
--   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
--   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态。Form 可以理解为整个表单页面的 Provider。
--   `withField` 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
--   `withForm` 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
--   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
--   `connect` 是个高阶组件，用来给被包装的组件传递`$formutil` 对象，以供调用，返回的新组件必须位于某个 Form 组件的孙子辈才可以拿到`$formutil`
+*   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
+*   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态。Form 可以理解为整个表单页面的 Provider。
+*   `withField` 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
+*   `withForm` 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
+*   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
+*   `connect` 是个高阶组件，用来给被包装的组件传递`$formutil` 对象，以供调用，返回的新组件必须位于某个 Form 组件的孙子辈才可以拿到`$formutil`
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
@@ -160,8 +163,7 @@ yarn add react-formutil
 
 #### `render`
 
-该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
-如果设置了该属性，则其会覆盖掉`function as child`方式。
+该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。如果设置了该属性，则其会覆盖掉`function as child`方式。
 
 ```javascript
 <Field name="username" render={props => <input />} />
@@ -171,10 +173,10 @@ yarn add react-formutil
 
 该项必填，`name` 可以是一个简单的字符串，也可以是一个字符串表达式（该表达式执行没有 `scope`, 所以表达式中不能存在变量）
 
--   `<Field name="username" />`
--   `<Field name="list[0]" />`
--   `<Field name="list[1].name" />`
--   `<Field name="list[2]['test' + 124]" />`
+*   `<Field name="username" />`
+*   `<Field name="list[0]" />`
+*   `<Field name="list[1].name" />`
+*   `<Field name="list[2]['test' + 124]" />`
 
 以上都是合法的 `name` 值。对于多层级的 `name` 值，生成的表单参数对象，也会基于该对象层级创建。例如，上面的示例，将会生成以下格式的表单参数对象：
 
@@ -189,8 +191,8 @@ yarn add react-formutil
 
 该属性可以设置表单控件的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
 
--   `<Field $defaultValue="username" />`
--   `<Field $defaultValue={{name: 'dog'}} />`
+*   `<Field $defaultValue="username" />`
+*   `<Field $defaultValue={{name: 'dog'}} />`
 
 `$defaultValue` 可以是任意类型值。
 
@@ -217,9 +219,9 @@ yarn add react-formutil
 
 校验被调用，会传入三个值：value、attr、props
 
--   `value` 为当前 Field 的值
--   `attr` 为校验标识值
--   `props` 为当前传给 Field 的所有 props，还包括当前 Field 所属 Fom 的$formutil
+*   `value` 为当前 Field 的值
+*   `attr` 为校验标识值
+*   `props` 为当前传给 Field 的所有 props，还包括当前 Field 所属 Fom 的$formutil
 
 ```javascript
 <Field
@@ -338,9 +340,9 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
 
 该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单状态：
 
--   用户输入时需要通过调用`$render`来更新新值到状态中
--   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
--   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
+*   用户输入时需要通过调用`$render`来更新新值到状态中
+*   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
+*   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
 
 > **需要强调的是，Field 默认不同步`$touched`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
 > 如果你需要其它状态，需要自己去绑定相关事件来更新状态：
@@ -367,14 +369,14 @@ Field 的值实际是保存在状态里的该字段中，
 
 Field 的一组状态：
 
--   $dirty 控件被修改过
--   $pristine 控件没有被修改过，与$dirty 互斥
--   $touched 控件失去过焦点
--   $untouched 控件没有失去过焦点
--   $focused 焦点是否在当前控件
--   $pending 是否正在进行异步检查
--   $valid 表单所有控件均校验通过
--   $invalid 表单中有至少一个控件校验不通过
+*   $dirty 控件被修改过
+*   $pristine 控件没有被修改过，与$dirty 互斥
+*   $touched 控件失去过焦点
+*   $untouched 控件没有失去过焦点
+*   $focused 焦点是否在当前控件
+*   $pending 是否正在进行异步检查
+*   $valid 表单所有控件均校验通过
+*   $invalid 表单中有至少一个控件校验不通过
 
 #### `$error`
 
@@ -473,16 +475,16 @@ export default withField(FieldCustom, {
 
 它只会生成默认的表单控件，没有其他额外的 dom 元素，支持的类型如下：
 
--   `input[type=text]`
--   `input[type=number]`
--   `input[type=search]`
--   `input[type=password]`
--   `input[type=checkbox]`
--   `input[type=radio]`
--   `select`
--   `textarea`
--   `group.radio`
--   `group.checkbox`
+*   `input[type=text]`
+*   `input[type=number]`
+*   `input[type=search]`
+*   `input[type=password]`
+*   `input[type=checkbox]`
+*   `input[type=radio]`
+*   `select`
+*   `textarea`
+*   `group.radio`
+*   `group.checkbox`
 
 事实上，支持任何的 input 元素。并且 EasyField 除了会绑定 onChange 事件来同步输入值，也会绑定 onFocus、onBlur 事件来主动同步`$touched` `$untouched` `$focused`状态。所以无需额外的工作，你就可以方便的使用这些状态来优化你的表单显示。
 
@@ -533,14 +535,14 @@ export default withField(FieldCustom, {
 
 同`Field`的`$validators`。EasyFiled 内置了以下集中校验支持：
 
--   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
--   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
--   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
--   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
--   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
--   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
--   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
--   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
+*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
+*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
+*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
+*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
+*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
+*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
+*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
+*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
 
 > 注：校验属性的值为 `null` 时表示不进行该校验
 
@@ -609,16 +611,15 @@ export default withField(FieldCustom, {
 
 经过 `Form` 增强的组件，会在其 `props` 中接收到一个`$formutil`对象。例如
 
--   你可以通过`$formutil.$params` 拿到整个表单的输入值
--   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
--   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
+*   你可以通过`$formutil.$params` 拿到整个表单的输入值
+*   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
+*   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
 
 `Form` 可以接收以下可选属性参数：
 
 #### `render`
 
-该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
-如果设置了该属性，则其会覆盖掉`function as child`方式。
+该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。如果设置了该属性，则其会覆盖掉`function as child`方式。
 
 ```javascript
 <Form
@@ -1086,9 +1087,9 @@ import { findDOMNode } from 'react-dom';
 
 比如同时要收集用户的个人信息和工作信息，我们可以将其拆分为三个模块：
 
--   `Userinfo.js` 用户基本信心的字段
--   `Workinfo.js` 用户工作信息的字段
--   `Submit.js` 提交区域（因为只有在 Form 组件下级才能拿到$formutil 信息）
+*   `Userinfo.js` 用户基本信心的字段
+*   `Workinfo.js` 用户工作信息的字段
+*   `Submit.js` 提交区域（因为只有在 Form 组件下级才能拿到$formutil 信息）
 
 注： Submit.js 和 Workinfo.js 合并到一起也是可以的。
 
@@ -1210,3 +1211,13 @@ export default function EditInfoPage() {
     );
 }
 ```
+
+### `如何在ant-design项目中使用react-formutil?`
+
+在基于`ant-design`的项目中，使用`react-formutil`也非常简单和方便，并且比`antd`自己的表单实现用起来更畅快、优雅。
+
+由于`antd`中的输入组件有很多，为了更方便的使用，特提供了一个供在`antd`项目中使用专属`react-formutil`组件库：
+
+[![npm](https://img.shields.io/npm/v/react-antd-formutil.svg?style=flat)](https://npm.im/react-antd-formutil)
+
+可以查看该项目来了解更多用法。

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Field from './Field';
-import { isFunction, isEmpty, isValidProp } from './utils';
+import { isFunction, isEmpty, isUndefined, isValidProp } from './utils';
 
 /**
  * 提供对浏览器原生表单控件的封装
@@ -40,7 +40,7 @@ class EasyField extends Component {
         [
             'required',
             ($value, check, { type, checked }) =>
-                type === 'checkbox' || type === 'radio' ? $value === checked : !!($value + '')
+                type === 'checkbox' || type === 'radio' ? $value === checked : !isEmpty($value)
         ],
         ['maxLength', ($value, len) => isEmpty($value) || $value.length <= len],
         ['minLength', ($value, len) => isEmpty($value) || $value.length >= len],
@@ -123,24 +123,35 @@ class EasyField extends Component {
             fieldProps.$defaultValue = $defaultValue;
         }
 
-        let Element;
+        let Element = 'input';
+        let _defaultValue;
 
         switch (type) {
             case 'select':
             case 'textarea':
                 Element = type;
+                if (otherProps.multiple) {
+                    _defaultValue = [];
+                }
                 break;
 
             case 'group':
                 Element = 'div';
-                if (groupType === 'checkbox' && !('$defaultValue' in fieldProps)) {
-                    fieldProps.$defaultValue = [];
+                if (groupType === 'checkbox') {
+                    _defaultValue = [];
                 }
                 break;
 
-            default:
-                Element = 'input';
+            case 'checkbox':
+            case 'radio':
+                _defaultValue = unchecked;
                 break;
+            default:
+                break;
+        }
+
+        if (!('$defaultValue' in fieldProps) && !isUndefined(_defaultValue)) {
+            fieldProps.$defaultValue = _defaultValue;
         }
 
         return (
@@ -196,6 +207,24 @@ class EasyField extends Component {
                                 checked: $formatter(props.$value) === checked,
                                 onChange: ev => {
                                     props.$render($parser(ev.target.checked ? checked : unchecked));
+                                    onChange && onChange(ev);
+                                }
+                            };
+                            break;
+
+                        case 'select':
+                            elemProps = {
+                                value: $formatter(props.$value),
+                                onChange: ev => {
+                                    const node = ev.target;
+                                    const value = node.multiple
+                                        ? [].slice
+                                              .call(node.options)
+                                              .filter(option => option.selected)
+                                              .map(option => option.value)
+                                        : node.value;
+
+                                    props.$render($parser(value));
                                     onChange && onChange(ev);
                                 }
                             };

@@ -542,7 +542,7 @@ export default withField(FieldCustom, {
 -   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
 -   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
 
-> 注：校验属性的值为 `false`或`空` 时(例如 `required={false|null|undefined}`) 表示不进行该校验
+> 注：校验属性的值为 `null` 时表示不进行该校验
 
 内置的校验规则无需再次声明，除非规则不符合预期，需要替换，则可以通过`$validators` 传递同名校验方法即可替换默认的。另外，内置的校验规则，如果校验不通过，会尝试去 `validMessage` 匹配错误信息。
 

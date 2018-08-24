@@ -106,7 +106,7 @@ class EasyField extends Component {
         };
 
         Object.keys({ ...fieldProps.$validators, ...$asyncValidators }).forEach(prop => {
-            if (prop in otherProps && [undefined, null, false].indexOf(otherProps[prop]) < 0) {
+            if (prop in otherProps) {
                 fieldProps[prop] = otherProps[prop];
 
                 if (!isValidProp(prop)) {

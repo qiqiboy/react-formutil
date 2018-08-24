@@ -143,7 +143,7 @@ class Field extends Component {
         const promises = Object.keys($validators).reduce((promises, key) => {
             delete $error[key];
 
-            if (key in this.props) {
+            if (this.props[key] != null) {
                 const result = $validators[key]($value, this.props[key], {
                     ...this.props,
                     $formutil

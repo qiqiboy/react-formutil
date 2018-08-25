@@ -1,6 +1,7 @@
-import { Component, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import * as utils from './utils';
+import warning from 'warning';
 
 class Field extends Component {
     static displayName = 'React.formutil.Field';
@@ -13,9 +14,10 @@ class Field extends Component {
         $onFieldChange: PropTypes.func,
         name: PropTypes.string,
         render: PropTypes.func,
+        component: PropTypes.func,
         children(props, ...args) {
             let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-            if (!props.render) {
+            if (!props.render && !props.component) {
                 pt = pt.isRequired;
             }
 
@@ -88,7 +90,7 @@ class Field extends Component {
         // deprecated methods warning
         ['getComponent', 'validate'].forEach(key => {
             this.$handler[key] = (...args) => {
-                console.warn(`react-formutil: '${key}' has been deprecated, please use '$${key}' instead.`);
+                warning(false, `react-formutil: '%s' has been deprecated, please use '%s' instead.`, key, '$' + key);
                 return this.$handler['$' + key](...args);
             };
         });
@@ -287,14 +289,18 @@ class Field extends Component {
     };
 
     render() {
-        let { children, render } = this.props;
+        let { children, render, component: TheComponent } = this.props;
         const childProps = {
             ...this.$state,
             ...this.$handler,
             $$formutil: this.context.$formutil
         };
 
-        if (render) {
+        if (TheComponent) {
+            return <TheComponent {...childProps} />;
+        }
+
+        if (utils.isFunction(render)) {
             return render(childProps);
         }
 

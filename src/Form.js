@@ -1,15 +1,16 @@
-import { Component, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import * as utils from './utils';
 
 class Form extends Component {
-    static displayName = 'React.formutil.Form';
+    static displayName = 'React.Formutil.Form';
 
     static propTypes = {
         render: PropTypes.func,
+        component: PropTypes.func,
         children(props, ...args) {
             let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-            if (!props.render) {
+            if (!props.render && !props.component) {
                 pt = pt.isRequired;
             }
 
@@ -353,9 +354,13 @@ class Form extends Component {
             $pending
         });
 
-        let { children, render } = this.props;
+        let { children, render, component: TheComponent } = this.props;
 
-        if (render) {
+        if (TheComponent) {
+            return <TheComponent $formutil={$formutil} />;
+        }
+
+        if (utils.isFunction(render)) {
             return render($formutil);
         }
 

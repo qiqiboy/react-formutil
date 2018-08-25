@@ -1,3 +1,5 @@
+import warning from 'warning';
+
 const PATH_REGEXP = /\]\.|\]\[|\.|\[|\]/g;
 const Root = isUndefined(window) ? global : window;
 
@@ -97,7 +99,7 @@ export const parsePath = (...args) => {
             });
         }
     } catch (error) {
-        console.warn(`react-formutil: It seems '${path}' is not a legal expression.`);
+        warning(false, `react-formutil: It seems '%s' is not a legal expression.`, path);
     }
 
     if (args.length > 2) {

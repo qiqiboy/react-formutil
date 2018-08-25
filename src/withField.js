@@ -3,12 +3,12 @@ import Field from './Field';
 
 function withField(WrappedComponent, config = {}) {
     return class FieldEnhanced extends Component {
-        static displayName = 'React.formutil.withField.' +
+        static displayName = 'React.Formutil.withField.' +
         (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
         render() {
             const { ...others } = this.props;
-            const { ...fieldProps } = this.props;
+            const { component, ...fieldProps } = this.props;
 
             ['$validators', '$asyncValidators', '$defaultValue', '$defaultState', '$onFieldChange', 'name']
                 .concat(
@@ -28,11 +28,7 @@ function withField(WrappedComponent, config = {}) {
                     }
                 });
 
-            return (
-                <Field {...config} {...fieldProps}>
-                    {props => <WrappedComponent {...others} {...props} />}
-                </Field>
-            );
+            return <Field {...config} {...fieldProps} render={props => <WrappedComponent {...others} {...props} />} />;
         }
     };
 }

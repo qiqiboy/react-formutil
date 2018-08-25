@@ -20,7 +20,7 @@ Happy to build the forms in React ^\_^
 * [安装 Installation](#安装-installation)
 * [使用 Usage](#使用-usage)
     - [`<Field />`](#field-)
-        + [`render`](#render)
+        + [`render` `component`](#render-component)
         + [`name`](#name)
         + [`$defaultValue`](#defaultvalue)
         + [`$defaultState`](#defaultstate)
@@ -43,6 +43,13 @@ Happy to build the forms in React ^\_^
     - [`withField(Component)`](#withfieldcomponent)
     - [`<EasyField />`](#easyfield-)
         + [`type`](#type)
+            * [渲染普通输入框](#渲染普通输入框)
+            * [渲染下拉选择](#渲染下拉选择)
+            * [渲染单选/多选](#渲染单选多选)
+            * [渲染单选组/多选组](#渲染单选组多选组)
+        + [children | render | compnent](#children--render--compnent)
+            * [渲染原生输入控件](#渲染原生输入控件)
+            * [渲染自定义组件](#渲染自定义组件)
         + [`name`](#name-1)
         + [`$defaultValue`](#defaultvalue-1)
         + [`$validators`](#validators-1)
@@ -53,9 +60,8 @@ Happy to build the forms in React ^\_^
         + [`validMessage`](#validmessage)
         + [`checked / unchecked`](#checked--unchecked)
         + [`valuePropName` `changePropName`](#valuepropname-changepropname)
-    - [`groupNode`](#groupnode)
     - [`<Form />`](#form-)
-        + [`render`](#render-1)
+        + [`render` | `component`](#render--component)
         + [`$defaultValues`](#defaultvalues)
         + [`$defaultStates`](#defaultstates)
         + [`$onFormChange`](#onformchange)
@@ -128,6 +134,8 @@ yarn add react-formutil
 > 需要强调，当使用 Field 和 Form 时，我们建议以函数作为子节点方式调用: [function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)
 >
 > 当然，你也可以通过`render`属性来调用：[render props](https://reactjs.org/docs/render-props.html)
+>
+> 也可以传递`component`来指定直接渲染一个组件。
 
 ```javascript
 //一个函数式子组件书写示例
@@ -147,12 +155,20 @@ yarn add react-formutil
     render={$formutil => <Field name="username" render={props => <input />} />}
 />
 
+//或者使用component属性
+<Form
+    component={MyForm} />
+
 //当然也可以传递普通组件作为子节点
 //Field组件写在loginForm这个组件中
 <Form>
     <LoginForm />
 </Form>
 ```
+
+> **对于 `<Form />` `<Field />` `<EasyField />` 三个组件，其相关属性的优先级为：**
+>
+> `component` > `render` > `children`
 
 ### `<Field />`
 
@@ -162,12 +178,18 @@ yarn add react-formutil
 
 `Field` 可以接收以下几个属性参数：
 
-#### `render`
+#### `render` `component`
 
-该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。如果设置了该属性，则其会覆盖掉`function as child`方式。
+这两个属性为可选，并且不能同时存在（compoennt 会优先于 render，而将其覆盖）。
+
+当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
+
+如果设置了该属性，则其会覆盖掉`function as child`方式。
 
 ```javascript
 <Field name="username" render={props => <input />} />
+// 或
+<Field name="username" component={MyField} />
 ```
 
 #### `name`
@@ -472,9 +494,26 @@ export default withField(FieldCustom, {
 
 ### `<EasyField />`
 
-`EasyField` 是使用 Field 对浏览器原生常见表单空间进行的组件封装，包含了常见的表单类型支持以及常用校验方法的封装（参考下方的`$validators`说明），方便直接调用。
+`EasyField` 是对`Field`的二次封装，向下提供了 `onChange` `onFocus` `onBlur` 三个方法用来同步值的变动以及相关`$dirty` `$touched`等状态。
 
-它只会生成默认的表单控件，没有其他额外的 dom 元素，支持的类型如下：
+并且也也内置了一些常用的校验方法，例如：
+
+*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
+*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
+*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
+*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
+*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
+*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
+*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
+*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
+
+> 注：校验属性的值为 `null` 时表示不进行该校验
+
+它接收以下属性参数：
+
+#### `type`
+
+当设置了 type 时，EasyField 将会尝试直接渲染浏览器表单元素。它支持以下类型：
 
 *   `input[type=text]`
 *   `input[type=number]`
@@ -487,23 +526,27 @@ export default withField(FieldCustom, {
 *   `group.radio`
 *   `group.checkbox`
 
-事实上，支持任何的 input 元素。并且 EasyField 除了会绑定 onChange 事件来同步输入值，也会绑定 onFocus、onBlur 事件来主动同步`$touched` `$untouched` `$focused`状态。所以无需额外的工作，你就可以方便的使用这些状态来优化你的表单显示。
+> EasyField 对亚洲语言（中文、韩文、日文）输入法在输入过程中的的字母合成做了处理
 
-> EasyField 也对亚洲语言（中文、韩文、日文）输入法在输入过程中的的字母合成做了处理
+一些调用示例：
 
-它接收以下属性参数：
+##### 渲染普通输入框
 
-#### `type`
+事实上 type 值只要不是 `selct` `textarea` `checkbox` `radio` `group.xxx` 时都是渲染普通 input 输入框，并且 type 值会传给该 input。
 
-设置控件类型，可以传入字符串或者自定义组件。
+```javascript
+<EasyField name="name" type="text" />
+<EasyField name="pwd" type="password" />
+<EasyField name="email" type="email" />
+<EasyField name="search" type="search" />
+<EasyField name="number" type="number" />
 
-> v0.3.0 起，type 支持自定义组件
+<EasyField name="comment" type="textarea" cols="8" rows="10" />
+```
 
-当 `type` 是字符串时，除了`select` `checkbox` `radio` `textarea` `group.checkbox` `group.radio`，其他都是渲染默认的 input，type 会原封不动传给 input。
+##### 渲染下拉选择
 
-当 `type` 是组件时，则会渲染该组件。
-
-当 `type="select"` 时，还需要设置 option 子节点：
+下拉列表可以将后选项当作子节点直接传递就行，就像普通的 select 标签一样！
 
 ```javascript
 <EasyField name="age" type="select">
@@ -512,11 +555,20 @@ export default withField(FieldCustom, {
 </EasyField>
 ```
 
-当 `type="group.checkbox"` `type="group.radio"` 等以 `group.`开头的类型时，需要设置 child 渲染方式，类似 Field 组件调用，建议使用函数式 child。
+##### 渲染单选/多选
 
-`EasyField` 会传递包含 `GroupOption` 属性的 `props` 给 `child` 组件，然后你可以自由定义控件的渲染方式：
+单选/多选还可以传递 `checked`、`unchekced` 属性，用来覆盖`选中`/`未选中`状态下所对应的值
 
-在 `EasyField` 的 `child` 回调渲染中，必须传递 $value 给 `GroupOption`：
+```javascript
+<EasyField name="agree" checked="yes" unchecked="no" type="checkbox" />
+<EasyField name="agree" type="raido" />
+```
+
+##### 渲染单选组/多选组
+
+当 `type` 值为 `group.xxx` 为渲染输入控件组，当前仅支持`group.checkbox` `group.radio`。它会向函数式子节点传递 `GroupOption` 属性，用来渲染单个后选项。每个后选项的值通过 `$value` 属性指定。
+
+此时支持额外的属性`groupNode`，默认为`'div'`，渲染一个空的 div 标签。`react@16`以上版本可以设置`groupNode={null}`来禁止渲染空的 div 节点
 
 ```javascript
 <EasyField type="group.checkbox" name="targets" required validMessage={{ required: '请至少选择一项' }}>
@@ -530,6 +582,67 @@ export default withField(FieldCustom, {
 </EasyField>
 ```
 
+#### children | render | compnent
+
+当 type 属性没有指定时，会根据这三个属性来进行渲染，并且将 EasyField 定义的同步回调方法（`onChange` `onFocus` `onBlur`）和当前值(`value`)传递下去。
+
+> 也支持浏览器原生控件
+
+##### 渲染原生输入控件
+
+普通文本输入
+
+```javascript
+<EasyField name="username">
+    <input type="text" />
+</EasyField>
+
+<EasyField name="pwd">
+    <input type="password" placeholder="Password" />
+</EasyField>
+```
+
+渲染复选框
+
+```javascript
+<EasyField name="username" valuePropName="checked">
+    <input type="chekcbox" />
+</EasyField>
+
+/* 自定义复选框对应的值，等同于：<EasyField type="checkbox" checked="yes" unchecked="no" /> */
+<EasyField name="username">
+    {({ onChange, value }) => <input type="checkbox" checked={value === 'yes'} onChange={ev => onChange(ev.target.checked ? 'yes' : 'no')} />}
+</EasyField>
+```
+
+##### 渲染自定义组件
+
+上面例子中渲染复选框最后一种示例，就是使用了自定义组件渲染。更多场景是和第三方输入组件进行交互：
+
+与 `ant-design` 进行交互：
+
+```javascript
+import { Input, Switch } from 'antd';
+
+<EasyField name="username">
+    <Input />
+</EasyField>;
+
+<EasyField name="switch" $defaultValue={true}>
+    <Switch />
+</EasyField>;
+```
+
+与 `react-select` 进行交互：
+
+```javascript
+import Select from 'react-select';
+
+<EasyField name="react-select" $defaultValue={undefined}>
+    <Select options={options} />
+</EasyField>;
+```
+
 #### `name`
 
 同`Field`的`name`
@@ -540,24 +653,7 @@ export default withField(FieldCustom, {
 
 #### `$validators`
 
-同`Field`的`$validators`。EasyFiled 内置了以下集中校验支持：
-
-*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
-*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
-*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
-*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
-*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
-*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
-*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
-*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
-
-> 注：校验属性的值为 `null` 时表示不进行该校验
-
-内置的校验规则无需再次声明，除非规则不符合预期，需要替换，则可以通过`$validators` 传递同名校验方法即可替换默认的。另外，内置的校验规则，如果校验不通过，会尝试去 `validMessage` 匹配错误信息。
-
-```javascript
-<EasyField name="useraname" required maxLength="10" minLength="3" max="100" min="10" pattern={/^\d+^/} />
-```
+同`Field`的`$validators`。它会与内置的校验方法进行合并后，可以覆盖同名的默认校验方法。
 
 #### `$asyncValidators`
 
@@ -608,7 +704,7 @@ export default withField(FieldCustom, {
 
 #### `valuePropName` `changePropName`
 
-对于 type 设置为自定义组件时，如果组件的值以及值变动触发的更新回调方法不是默认的 value、onChange，可以通过这些参数更改：
+当不设置 type 属性，而使用自定义渲染时，如果组件的值以及值变动触发的更新回调方法不是默认的 value、onChange，可以通过这些参数更改：
 
 ```javascript
 function MyComponent({ current, onUpdate }) {
@@ -616,15 +712,9 @@ function MyComponent({ current, onUpdate }) {
 }
 
 <label>
-    <EasyField type={MyComponent} valuePropName="current" changePropName="onUpdate" /> 是否同意用户协议
+    <EasyField component={MyComponent} valuePropName="current" changePropName="onUpdate" /> 是否同意用户协议
 </label>;
 ```
-
-### `groupNode`
-
-如果是 `group.checkbox` 或者 `group.radio` 类型，默认会渲染一个 div 节点。如果不希望渲染该 div 节点，可以通过`groupNode={null}`来禁用。
-
-当然，`groupNode`属性还可以是其它节点，例如：`groupNode="section"`；甚至可以是自定义组件：`groupNode={MyCustomComponent}`。
 
 ### `<Form />`
 
@@ -638,13 +728,17 @@ function MyComponent({ current, onUpdate }) {
 
 `Form` 可以接收以下可选属性参数：
 
-#### `render`
+#### `render` | `component`
 
 该属性为可选，当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。如果设置了该属性，则其会覆盖掉`function as child`方式。
 
 ```javascript
 <Form
     render={$formutil => {/* ... */} />}
+/>
+
+<Form
+    component={MyForm}
 />
 ```
 

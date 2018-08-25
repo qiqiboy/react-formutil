@@ -272,7 +272,9 @@ class Form extends Component {
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
             $params: utils.toObject(
                 $stateArray,
-                ($params, { path, $state }) => utils.parsePath($params, path, $state.$value),
+                ($params, { path, $state }) =>
+                    (!utils.isUndefined($state.$value) || $state.$dirty) &&
+                    utils.parsePath($params, path, $state.$value),
                 {
                     ...this.$$defaultValues
                 }
@@ -293,7 +295,11 @@ class Form extends Component {
             ),
 
             $weakStates: utils.toObject($stateArray, ($states, { path, $state }) => ($states[path] = $state)),
-            $weakParams: utils.toObject($stateArray, ($params, { path, $state }) => ($params[path] = $state.$value)),
+            $weakParams: utils.toObject(
+                $stateArray,
+                ($params, { path, $state }) =>
+                    (!utils.isUndefined($state.$value) || $state.$dirty) && ($params[path] = $state.$value)
+            ),
             $weakErrors: utils.toObject($stateArray, ($errors, { path, $state }) => {
                 if ($state.$invalid) {
                     $errors[path] = $state.$error;

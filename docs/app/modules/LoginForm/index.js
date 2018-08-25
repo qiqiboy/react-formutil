@@ -389,7 +389,6 @@ class LoginForm extends Component {
                             type="textarea"
                             name="EasyField.textarea"
                             className="form-control"
-                            defaultValue=""
                             minLength="10"
                             required
                             validMessage={{ required: '必需填写', minLength: '至少输入十个字符' }}

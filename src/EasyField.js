@@ -14,13 +14,15 @@ class EasyField extends Component {
     static displayName = 'React.formutil.EasyField';
 
     static propTypes = {
-        type: PropTypes.string.isRequired,
+        type: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
         defaultValue: PropTypes.any,
         checked: PropTypes.any,
         unchecked: PropTypes.any,
         validMessage: PropTypes.object,
         render: PropTypes.func,
         groupNode: PropTypes.any,
+        valuePropName: PropTypes.string,
+        changePropName: PropTypes.string,
 
         $parser: PropTypes.func,
         $formatter: PropTypes.func
@@ -31,6 +33,9 @@ class EasyField extends Component {
         checked: true,
         unchecked: false,
         validMessage: {},
+
+        valuePropName: 'value',
+        changePropName: 'onChange',
 
         $parser: value => value,
         $formatter: value => value
@@ -82,13 +87,19 @@ class EasyField extends Component {
             type: typeStr,
             checked,
             unchecked,
+            valuePropName,
+            changePropName,
             onChange,
             onFocus,
             onBlur,
             ...otherProps
         } = this.props;
 
-        const [type, groupType] = typeStr.split('.');
+        const fetchValueFromEvent = function(ev) {
+            return ev && ev.target ? ev.target[valuePropName] : ev;
+        };
+
+        const [type, groupType] = isFunction(typeStr) ? [typeStr] : typeStr.split('.');
 
         const fieldProps = {
             name,
@@ -123,7 +134,7 @@ class EasyField extends Component {
             fieldProps.$defaultValue = $defaultValue;
         }
 
-        let Element = 'input';
+        let Element = isFunction(type) ? type : 'input';
         let _defaultValue;
 
         switch (type) {
@@ -232,15 +243,16 @@ class EasyField extends Component {
 
                         default:
                             elemProps = {
-                                value: 'compositionValue' in this ? this.compositionValue : $formatter(props.$value),
+                                [valuePropName]:
+                                    'compositionValue' in this ? this.compositionValue : $formatter(props.$value),
                                 onCompositionEnd: ev => {
                                     this.composition = false;
                                     delete this.compositionValue;
-                                    elemProps.onChange(ev);
+                                    elemProps[changePropName](ev);
                                 },
                                 onCompositionStart: () => (this.composition = true),
-                                onChange: ev => {
-                                    const value = ev.target.value;
+                                [changePropName]: ev => {
+                                    const value = fetchValueFromEvent(ev);
 
                                     if (this.composition) {
                                         this.compositionValue = value;
@@ -337,11 +349,12 @@ class EasyFieldGroupOption extends Component {
                     ? {
                           checked: $formatter($fieldutil.$value).indexOf($value) > -1,
                           onChange: ev => {
+                              const valueArr = $fieldutil.$value || [];
                               $fieldutil.$render(
                                   $parser(
                                       ev.target.checked
-                                          ? $fieldutil.$value.concat($value)
-                                          : $fieldutil.$value.filter(value => value !== $value)
+                                          ? valueArr.concat($value)
+                                          : valueArr.filter(value => value !== $value)
                                   )
                               );
 

@@ -26,10 +26,6 @@ class Field extends Component {
         $asyncValidators: PropTypes.object
     };
 
-    static defaultProps = {
-        $defaultValue: ''
-    };
-
     static contextTypes = {
         $$register: PropTypes.func,
         $$unregister: PropTypes.func,
@@ -43,7 +39,7 @@ class Field extends Component {
         super(props, context);
 
         this.$baseState = {
-            $value: props.$defaultValue,
+            $value: '$defaultValue' in props ? props.$defaultValue : '',
 
             $valid: true,
             $invalid: false,

@@ -52,6 +52,7 @@ Happy to build the forms in React ^\_^
         + [`defaultValue`](#defaultvalue-2)
         + [`validMessage`](#validmessage)
         + [`checked / unchecked`](#checked--unchecked)
+        + [`valuePropName` `changePropName`](#valuepropname-changepropname)
     - [`groupNode`](#groupnode)
     - [`<Form />`](#form-)
         + [`render`](#render-1)
@@ -494,7 +495,13 @@ export default withField(FieldCustom, {
 
 #### `type`
 
-除了`select` `checkbox` `radio` `textarea` `group.checkbox` `group.radio`，其他都是渲染默认的 input，type 会原封不动传给 input。
+设置控件类型，可以传入字符串或者自定义组件。
+
+> v0.3.0 起，type 支持自定义组件
+
+当 `type` 是字符串时，除了`select` `checkbox` `radio` `textarea` `group.checkbox` `group.radio`，其他都是渲染默认的 input，type 会原封不动传给 input。
+
+当 `type` 是组件时，则会渲染该组件。
 
 当 `type="select"` 时，还需要设置 option 子节点：
 
@@ -597,6 +604,20 @@ export default withField(FieldCustom, {
 <label>
     <EasyField type="checkbox" name="remember" checked="yes" unchecked="no" /> 是否同意用户协议
 </label>
+```
+
+#### `valuePropName` `changePropName`
+
+对于 type 设置为自定义组件时，如果组件的值以及值变动触发的更新回调方法不是默认的 value、onChange，可以通过这些参数更改：
+
+```javascript
+function MyComponent({ current, onUpdate }) {
+    return <button onClick={() => onUpdate(124)}>更新</button>;
+}
+
+<label>
+    <EasyField type={MyComponent} valuePropName="current" changePropName="onUpdate" /> 是否同意用户协议
+</label>;
 ```
 
 ### `groupNode`

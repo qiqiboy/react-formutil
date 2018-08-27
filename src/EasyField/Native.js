@@ -52,7 +52,7 @@ class EasyFieldNative extends Component {
                     this.compositionValue = value;
                     this.forceUpdate();
                 } else {
-                    onChange && onChange(value, ev);
+                    onChange(value, ev);
                 }
             },
             onFocus,
@@ -72,7 +72,7 @@ class EasyFieldNative extends Component {
                               .map(option => option.value)
                         : node.value;
 
-                    onChange && onChange(value, ev);
+                    onChange(value, ev);
                 };
                 htmlProps.children = children;
 
@@ -86,7 +86,7 @@ class EasyFieldNative extends Component {
                 htmlProps = {
                     checked: htmlValue === checked,
                     onChange: ev => {
-                        onChange && onChange(ev.target.checked ? checked : unchecked, ev);
+                        onChange(ev.target.checked ? checked : unchecked, ev);
                     },
                     onFocus,
                     onBlur

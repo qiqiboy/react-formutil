@@ -5,6 +5,28 @@ import Native from './Native';
 import Group from './Group';
 import { isEmpty, isUndefined, isFunction, isValidProp } from '../utils';
 
+const TYPE = '__TYPE__';
+const defaultValidators = [
+    [
+        'required',
+        ($value, check, { __TYPE__, checked = true }) =>
+            __TYPE__ === 'checked' ? $value === checked : !isEmpty($value)
+    ],
+    ['maxLength', ($value, len) => isEmpty($value) || $value.length <= len],
+    ['minLength', ($value, len) => isEmpty($value) || $value.length >= len],
+    ['max', ($value, limit) => isEmpty($value) || $value * 1 <= limit],
+    ['min', ($value, limit) => isEmpty($value) || $value * 1 >= limit],
+    ['pattern', ($value, regexp) => isEmpty($value) || regexp.test($value)],
+    ['enum', ($value, enumeration) => isEmpty($value) || enumeration.indexOf($value) > -1],
+    ['checker', ($value, checker) => checker($value)]
+].reduce(($validators, item) => {
+    const [validKey, validate] = item;
+    $validators[validKey] = function validator($value, propValue, { validMessage = {} }) {
+        return validate(...arguments) || validMessage[validKey] || `Error input: ${validKey}`;
+    };
+    return $validators;
+}, {});
+
 /**
  * 提供对浏览器原生表单控件的封装
  * 支持以下类型表单元素：
@@ -51,27 +73,6 @@ class EasyField extends Component {
         $formatter: value => value
     };
 
-    static defaultValidators = [
-        [
-            'required',
-            ($value, check, { type, checked }) =>
-                type === 'checkbox' || type === 'radio' ? $value === checked : !isEmpty($value)
-        ],
-        ['maxLength', ($value, len) => isEmpty($value) || $value.length <= len],
-        ['minLength', ($value, len) => isEmpty($value) || $value.length >= len],
-        ['max', ($value, limit) => isEmpty($value) || $value * 1 <= limit],
-        ['min', ($value, limit) => isEmpty($value) || $value * 1 >= limit],
-        ['pattern', ($value, regexp) => isEmpty($value) || regexp.test($value)],
-        ['enum', ($value, enumeration) => isEmpty($value) || enumeration.indexOf($value) > -1],
-        ['checker', ($value, checker) => checker($value)]
-    ].reduce(($validators, item) => {
-        const [validKey, validate] = item;
-        $validators[validKey] = function validator($value, propValue, { validMessage = {} }) {
-            return validate(...arguments) || validMessage[validKey] || `Error input: ${validKey}`;
-        };
-        return $validators;
-    }, {});
-
     render() {
         const {
             $parser,
@@ -100,6 +101,7 @@ class EasyField extends Component {
             $validators,
             $asyncValidators,
             validMessage,
+            __TYPE__,
             ...otherProps
         } = fieldProps;
 
@@ -114,7 +116,7 @@ class EasyField extends Component {
 
         Object.keys({
             ...(fieldProps.$validators = {
-                ...EasyField.defaultValidators,
+                ...defaultValidators,
                 ...$validators
             }),
             ...$asyncValidators
@@ -128,19 +130,18 @@ class EasyField extends Component {
 
         if (isNative) {
             const [htmlType = 'text', groupType] = (fieldProps.type || '').split('.');
-            let defaultValue;
 
             switch (htmlType) {
                 case 'select':
                 case 'textarea':
                     if (fieldProps.multiple) {
-                        defaultValue = [];
+                        fieldProps[TYPE] = 'array';
                     }
                     break;
 
                 case 'group':
                     if (groupType === 'checkbox') {
-                        defaultValue = [];
+                        fieldProps[TYPE] = 'array';
                     }
 
                     otherProps.type = groupType;
@@ -148,7 +149,7 @@ class EasyField extends Component {
 
                 case 'checkbox':
                 case 'radio':
-                    defaultValue = fieldProps.unchecked;
+                    fieldProps[TYPE] = 'checked';
                     break;
 
                 default:
@@ -156,12 +157,29 @@ class EasyField extends Component {
             }
 
             children = htmlType === 'group' ? <Group /> : <Native />;
-
-            if (!('$defaultValue' in fieldProps) && !isUndefined(defaultValue)) {
-                fieldProps.$defaultValue = defaultValue;
-            }
         } else {
             delete otherProps.children;
+        }
+
+        if (!('$defaultValue' in fieldProps) && TYPE in fieldProps) {
+            let defaultValue;
+            switch (fieldProps[TYPE]) {
+                case 'checked':
+                    const { unchecked = false } = fieldProps;
+                    defaultValue = unchecked;
+                    break;
+                case 'array':
+                    defaultValue = [];
+                    break;
+                case 'object':
+                    defaultValue = {};
+                    break;
+                case 'empty':
+                default:
+                    break;
+            }
+
+            fieldProps.$defaultValue = defaultValue;
         }
 
         return (
@@ -197,23 +215,22 @@ class EasyField extends Component {
                         }
                     };
 
+                    const childPropsUtil = { ...childProps, $fieldutil: $util };
+
                     if (TheComponent) {
-                        return <TheComponent {...childProps} />;
+                        return <TheComponent {...childPropsUtil} />;
                     }
 
                     if (isFunction(render)) {
-                        return render(childProps);
+                        return render(childPropsUtil);
                     }
 
                     if (isFunction(children)) {
-                        return children(childProps);
+                        return children(childPropsUtil);
                     }
 
                     return Children.map(children, child =>
-                        cloneElement(
-                            child,
-                            child && isFunction(child.type) ? { ...childProps, $fieldutil: $util } : childProps
-                        )
+                        cloneElement(child, child && isFunction(child.type) ? childPropsUtil : childProps)
                     );
                 }}
             </Field>

@@ -39,7 +39,7 @@ class LoginForm extends Component {
     //定义校验规则
     $validators = {
         required: value => (value ? true : '该项必填'),
-        minLength: (value, len) => value.length < parseInt(len) || `最少输入字符长度：${len}`,
+        minLength: (value, len) => value.length >= parseInt(len) || `最少输入字符长度：${len}`,
         isSame: (value, name) =>
             !value ||
             !this.props.$formutil.$params[name] ||

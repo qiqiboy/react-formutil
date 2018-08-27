@@ -4,7 +4,7 @@ import * as utils from './utils';
 import warning from 'warning';
 
 class Field extends Component {
-    static displayName = 'React.formutil.Field';
+    static displayName = 'React.Formutil.Field';
 
     static FIELD_UUID = 0;
 

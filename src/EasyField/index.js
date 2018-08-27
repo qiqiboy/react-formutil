@@ -31,8 +31,11 @@ class EasyField extends Component {
 
         defaultValue: PropTypes.any,
         validMessage: PropTypes.object,
+
         valuePropName: PropTypes.string,
         changePropName: PropTypes.string,
+        focusPropName: PropTypes.string,
+        blurPropName: PropTypes.string,
 
         $parser: PropTypes.func,
         $formatter: PropTypes.func
@@ -42,6 +45,8 @@ class EasyField extends Component {
         validMessage: {},
         valuePropName: 'value',
         changePropName: 'onChange',
+        focusPropName: 'onFocus',
+        blurPropName: 'onBlur',
         $parser: value => value,
         $formatter: value => value
     };
@@ -74,6 +79,8 @@ class EasyField extends Component {
             defaultValue,
             valuePropName,
             changePropName,
+            focusPropName,
+            blurPropName,
             render,
             component: TheComponent,
             onChange,
@@ -98,7 +105,8 @@ class EasyField extends Component {
 
         let { children } = fieldProps;
 
-        let isNative = !isUndefined(this.props.type);
+        let isNative =
+            !isUndefined(this.props.type) || (!this.props.children && !this.props.component && !this.props.render);
 
         if (!('$defaultValue' in fieldProps) && 'defaultValue' in this.props) {
             fieldProps.$defaultValue = defaultValue;
@@ -142,6 +150,7 @@ class EasyField extends Component {
                 case 'radio':
                     defaultValue = fieldProps.unchecked;
                     break;
+
                 default:
                     break;
             }
@@ -172,12 +181,12 @@ class EasyField extends Component {
 
                             onChange && onChange(ev);
                         },
-                        onFocus: ev => {
+                        [focusPropName]: ev => {
                             $util.$setFocused(true);
 
                             onFocus && onFocus(ev);
                         },
-                        onBlur: ev => {
+                        [blurPropName]: ev => {
                             if ($util.$untouched) {
                                 $util.$setTouched(true);
                             }
@@ -200,7 +209,12 @@ class EasyField extends Component {
                         return children(childProps);
                     }
 
-                    return Children.map(children, child => cloneElement(child, childProps));
+                    return Children.map(children, child =>
+                        cloneElement(
+                            child,
+                            child && isFunction(child.type) ? { ...childProps, $fieldutil: $util } : childProps
+                        )
+                    );
                 }}
             </Field>
         );

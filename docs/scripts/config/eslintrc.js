@@ -8,6 +8,7 @@ module.exports = {
         amd: true
     },
     rules: {
+        'no-fallthrough': 0,
         'react/jsx-no-target-blank': 0,
         eqeqeq: 0,
         radix: 0,
@@ -41,7 +42,7 @@ module.exports = {
         quotes: 0,
         'array-callback-return': 2,
         //"complexity": [2, 20],
-        'default-case': 2,
+        'default-case': [2, { "commentPattern": "^skip\\sdefault" }],
         curly: 2,
         'dot-location': ['error', 'property'],
         'dot-notation': 2,

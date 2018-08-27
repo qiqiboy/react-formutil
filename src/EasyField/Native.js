@@ -24,7 +24,17 @@ class EasyFieldNative extends Component {
     };
 
     render() {
-        const { value: htmlValue, onChange, onFocus, onBlur, checked, unchecked, children, ...others } = this.props;
+        const {
+            $fieldutil,
+            value: htmlValue,
+            onChange,
+            onFocus,
+            onBlur,
+            checked,
+            unchecked,
+            children,
+            ...others
+        } = this.props;
         const htmlType = this.props.type;
 
         let htmlProps = {
@@ -44,9 +54,11 @@ class EasyFieldNative extends Component {
                 } else {
                     onChange && onChange(value, ev);
                 }
-            }
+            },
+            onFocus,
+            onBlur
         };
-        let Element;
+        let Element = 'input';
 
         switch (htmlType) {
             case 'select':
@@ -71,17 +83,17 @@ class EasyFieldNative extends Component {
 
             case 'checkbox':
             case 'radio':
-                Element = 'input';
                 htmlProps = {
                     checked: htmlValue === checked,
                     onChange: ev => {
                         onChange && onChange(ev.target.checked ? checked : unchecked, ev);
-                    }
+                    },
+                    onFocus,
+                    onBlur
                 };
                 break;
 
             default:
-                Element = 'input';
                 break;
         }
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 function connect(WrappedComponent) {
     return class Connect extends Component {
-        static displayName = 'React.formutil.connect.' +
+        static displayName = 'React.Formutil.connect.' +
         (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
         static contextTypes = {

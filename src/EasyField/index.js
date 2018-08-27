@@ -60,7 +60,9 @@ class EasyField extends Component {
         blurPropName: PropTypes.string,
 
         $parser: PropTypes.func,
-        $formatter: PropTypes.func
+        $formatter: PropTypes.func,
+
+        passUtil: PropTypes.string
     };
 
     static defaultProps = {
@@ -101,6 +103,7 @@ class EasyField extends Component {
             $validators,
             $asyncValidators,
             validMessage,
+            passUtil,
             __TYPE__,
             ...otherProps
         } = fieldProps;
@@ -215,23 +218,23 @@ class EasyField extends Component {
                         }
                     };
 
-                    const childPropsUtil = { ...childProps, $fieldutil: $util };
+                    if (passUtil) {
+                        childProps[passUtil] = $util;
+                    }
 
                     if (TheComponent) {
-                        return <TheComponent {...childPropsUtil} />;
+                        return <TheComponent {...childProps} />;
                     }
 
                     if (isFunction(render)) {
-                        return render(childPropsUtil);
+                        return render(childProps);
                     }
 
                     if (isFunction(children)) {
-                        return children(childPropsUtil);
+                        return children(childProps);
                     }
 
-                    return Children.map(children, child =>
-                        cloneElement(child, child && isFunction(child.type) ? childPropsUtil : childProps)
-                    );
+                    return Children.map(children, child => cloneElement(child, childProps));
                 }}
             </Field>
         );

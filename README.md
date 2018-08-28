@@ -17,85 +17,85 @@ Happy to build the forms in React ^\_^
 
 <!-- vim-markdown-toc GFM -->
 
-* [安装 Installation](#安装-installation)
-* [使用 Usage](#使用-usage)
-    - [`<Field />`](#field-)
-        + [`render` `component`](#render-component)
-        + [`name`](#name)
-        + [`$defaultValue`](#defaultvalue)
-        + [`$defaultState`](#defaultstate)
-        + [`$validators`](#validators)
-        + [~~`$asyncValidators`~~](#asyncvalidators)
-        + [`$onFieldChange`](#onfieldchange)
-        + [`$state`](#state)
-        + [`$value`](#value)
-        + [`$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending`](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
-        + [`$error`](#error)
-        + [`$picker()`](#picker)
-        + [`$reset()`](#reset)
-        + [`$getComponent()`](#getcomponent)
-        + [`$setState($newState)`](#setstatenewstate)
-        + [`$render() | $setValue()`](#render--setvalue)
-        + [`$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
-        + [`$setError($error)`](#seterrorerror)
-        + [`$validate()`](#validate)
-        + [`$$formutil`](#formutil)
-    - [`withField(Component)`](#withfieldcomponent)
-    - [`<EasyField />`](#easyfield-)
-        + [`type`](#type)
-            * [`input`](#input)
-            * [`select`](#select)
-            * [`checkbox/radio`](#checkboxradio)
-            * [`checkbox/radio group`](#checkboxradio-group)
-        + [`children | render | component`](#children--render--component)
-            * [`native form widgets`](#native-form-widgets)
-            * [`custom component`](#custom-component)
-        + [`name`](#name-1)
-        + [`$defaultValue`](#defaultvalue-1)
-        + [`$validators`](#validators-1)
-        + [`$asyncValidators`](#asyncvalidators-1)
-        + [`$parser`](#parser)
-        + [`$formatter`](#formatter)
-        + [`defaultValue`](#defaultvalue-2)
-        + [`validMessage`](#validmessage)
-        + [`checked / unchecked`](#checked--unchecked)
-        + [`valuePropName` `changePropName` `focusPropName` `blurPropName`](#valuepropname-changepropname-focuspropname-blurpropname)
-        + [`passUtil`](#passutil)
-    - [`<Form />`](#form-)
-        + [`render` | `component`](#render--component)
-        + [`$defaultValues`](#defaultvalues)
-        + [`$defaultStates`](#defaultstates)
-        + [`$onFormChange`](#onformchange)
-        + [`$getField(name)`](#getfieldname)
-        + [`$validate(name)`](#validatename)
-        + [`$validates()`](#validates)
-        + [`$render(callback)`](#rendercallback)
-        + [`$setStates($stateTree)`](#setstatesstatetree)
-        + [`$setValues($valueTree)`](#setvaluesvaluetree)
-        + [`$setErrors($errorTree)`](#seterrorserrortree)
-        + [`$reset($stateTree)`](#resetstatetree)
-        + [`$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)`](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
-        + [`$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)`](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
-        + [`$getFirstError()`](#getfirsterror)
-        + [`$states | $weakStates`](#states--weakstates)
-        + [`$params | $weakParams`](#params--weakparams)
-        + [`$errors | $weakErrors`](#errors--weakerrors)
-        + [`$dirts | $weakDirts`](#dirts--weakdirts)
-        + [`$touches | $weakTouches`](#touches--weaktouches)
-        + [`$focuses | $weakFocuses`](#focuses--weakfocuses)
-        + [`$valid | $invalid`](#valid--invalid)
-        + [`$dirty | $pristine`](#dirty--pristine)
-        + [`$touched | $untouched`](#touched--untouched)
-        + [`$focused`](#focused)
-    - [`withForm(Component)`](#withformcomponent)
-    - [`connect(Component)`](#connectcomponent)
-* [FAQ & 常见问题解答](#faq--常见问题解答)
-    - [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
-    - [`checkbox 多选或 radio 单选组怎么实现`](#checkbox-多选或-radio-单选组怎么实现)
-    - [`使用 Field 实现一个上传图片的表单控件`](#使用-field-实现一个上传图片的表单控件)
-    - [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
-    - [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
-    - [`如何在ant-design项目中使用react-formutil?`](#如何在ant-design项目中使用react-formutil)
+-   [安装 Installation](#安装-installation)
+-   [使用 Usage](#使用-usage)
+    -   [`<Field />`](#field-)
+        -   [`render` `component`](#render-component)
+        -   [`name`](#name)
+        -   [`$defaultValue`](#defaultvalue)
+        -   [`$defaultState`](#defaultstate)
+        -   [`$validators`](#validators)
+        -   [~~`$asyncValidators`~~](#asyncvalidators)
+        -   [`$onFieldChange`](#onfieldchange)
+        -   [`$state`](#state)
+        -   [`$value`](#value)
+        -   [`$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending`](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
+        -   [`$error`](#error)
+        -   [`$picker()`](#picker)
+        -   [`$reset()`](#reset)
+        -   [`$getComponent()`](#getcomponent)
+        -   [`$setState($newState)`](#setstatenewstate)
+        -   [`$render() | $setValue()`](#render--setvalue)
+        -   [`$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
+        -   [`$setError($error)`](#seterrorerror)
+        -   [`$validate()`](#validate)
+        -   [`$$formutil`](#formutil)
+    -   [`withField(Component)`](#withfieldcomponent)
+    -   [`<EasyField />`](#easyfield-)
+        -   [`type`](#type)
+            -   [`input`](#input)
+            -   [`select`](#select)
+            -   [`checkbox/radio`](#checkboxradio)
+            -   [`checkbox/radio group`](#checkboxradio-group)
+        -   [`children | render | component`](#children--render--component)
+            -   [`native form widgets`](#native-form-widgets)
+            -   [`custom component`](#custom-component)
+        -   [`name`](#name-1)
+        -   [`$defaultValue`](#defaultvalue-1)
+        -   [`$validators`](#validators-1)
+        -   [`$asyncValidators`](#asyncvalidators-1)
+        -   [`$parser`](#parser)
+        -   [`$formatter`](#formatter)
+        -   [`defaultValue`](#defaultvalue-2)
+        -   [`validMessage`](#validmessage)
+        -   [`checked / unchecked`](#checked--unchecked)
+        -   [`valuePropName` `changePropName` `focusPropName` `blurPropName`](#valuepropname-changepropname-focuspropname-blurpropname)
+        -   [`passUtil`](#passutil)
+    -   [`<Form />`](#form-)
+        -   [`render` | `component`](#render--component)
+        -   [`$defaultValues`](#defaultvalues)
+        -   [`$defaultStates`](#defaultstates)
+        -   [`$onFormChange`](#onformchange)
+        -   [`$getField(name)`](#getfieldname)
+        -   [`$validate(name)`](#validatename)
+        -   [`$validates()`](#validates)
+        -   [`$render(callback)`](#rendercallback)
+        -   [`$setStates($stateTree)`](#setstatesstatetree)
+        -   [`$setValues($valueTree)`](#setvaluesvaluetree)
+        -   [`$setErrors($errorTree)`](#seterrorserrortree)
+        -   [`$reset($stateTree)`](#resetstatetree)
+        -   [`$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)`](#setdirtsdirtytree--settouchestouchedtree--setfocusesfocusedtree)
+        -   [`$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)`](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
+        -   [`$getFirstError()`](#getfirsterror)
+        -   [`$states | $weakStates`](#states--weakstates)
+        -   [`$params | $weakParams`](#params--weakparams)
+        -   [`$errors | $weakErrors`](#errors--weakerrors)
+        -   [`$dirts | $weakDirts`](#dirts--weakdirts)
+        -   [`$touches | $weakTouches`](#touches--weaktouches)
+        -   [`$focuses | $weakFocuses`](#focuses--weakfocuses)
+        -   [`$valid | $invalid`](#valid--invalid)
+        -   [`$dirty | $pristine`](#dirty--pristine)
+        -   [`$touched | $untouched`](#touched--untouched)
+        -   [`$focused`](#focused)
+    -   [`withForm(Component)`](#withformcomponent)
+    -   [`connect(Component)`](#connectcomponent)
+-   [FAQ & 常见问题解答](#faq--常见问题解答)
+    -   [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
+    -   [`checkbox 多选或 radio 单选组怎么实现`](#checkbox-多选或-radio-单选组怎么实现)
+    -   [`使用 Field 实现一个上传图片的表单控件`](#使用-field-实现一个上传图片的表单控件)
+    -   [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
+    -   [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
+    -   [`如何在ant-design项目中使用react-formutil?`](#如何在ant-design项目中使用react-formutil)
 
 <!-- vim-markdown-toc -->
 
@@ -510,6 +510,22 @@ export default withField(FieldCustom, {
 
 > 注：校验属性的值为 `null` 时表示不进行该校验
 
+**小技巧**：你可以利用`checker`很便捷的完成自定义校验，不需要`validMessage` `$validators`：
+
+```javascript
+<EasyField checker={value => {
+    if (!value) {
+        return 'Required!';
+    }
+
+    if (value.length < 6) {
+        return 'minlength: 6';
+    }
+
+    return true; // no error
+}}
+```
+
 它接收以下属性参数：
 
 #### `type`
@@ -656,9 +672,9 @@ import Select from 'react-select';
 
 同`Field`的`$validators`。它会与内置的校验方法进行合并后，可以覆盖同名的默认校验方法。
 
-#### `$asyncValidators`
+#### ~~`$asyncValidators`~~
 
-同`Field`的`$asyncValidators`
+> **`v0.2.22` 起，建议直接使用 `$validators` 即可，`$validators` 也支持了异步校验。不建议单独使用 `$asyncValidators`。**
 
 #### `$parser`
 

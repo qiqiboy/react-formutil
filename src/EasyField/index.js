@@ -192,29 +192,34 @@ class EasyField extends Component {
                         ...otherProps,
 
                         [valuePropName]: $formatter($util.$value),
-                        [changePropName]: (value, ev) => {
-                            if (!ev) {
-                                ev = value;
+                        [changePropName]: (...args) => {
+                            let value = args[0];
+                            let ev = args[args.length - 1];
+
+                            if (!ev || !ev.target) {
+                                ev = args;
+                            } else {
+                                ev = [ev];
                             }
 
                             const newValue = fetchValueFromEvent(value);
                             $util.$render($parser(newValue));
 
-                            onChange && onChange(ev);
+                            onChange && onChange(...ev);
                         },
-                        [focusPropName]: ev => {
+                        [focusPropName]: (...args) => {
                             $util.$setFocused(true);
 
-                            onFocus && onFocus(ev);
+                            onFocus && onFocus(...args);
                         },
-                        [blurPropName]: ev => {
+                        [blurPropName]: (...args) => {
                             if ($util.$untouched) {
                                 $util.$setTouched(true);
                             }
 
                             $util.$setFocused(false);
 
-                            onBlur && onBlur(ev);
+                            onBlur && onBlur(...args);
                         }
                     };
 

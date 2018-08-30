@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Happy to build the forms in React ^_^",
   "main": "lib/index.js",
   "directories": {

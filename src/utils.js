@@ -19,6 +19,18 @@ export function isPromise(promise) {
     return !!promise && isFunction(promise.then);
 }
 
+export function createHOC(withHOC) {
+    return function(...args) {
+        if (isFunction(args[0])) {
+            return withHOC(...args);
+        }
+
+        return function(WrappedComponent) {
+            return withHOC(WrappedComponent, args[0]);
+        };
+    };
+}
+
 const VALID_PROPS = ['minlength', 'maxlength', 'max', 'min', 'required', 'pattern', 'step'];
 export function isValidProp(prop) {
     return VALID_PROPS.indexOf(prop.toLowerCase()) > -1;

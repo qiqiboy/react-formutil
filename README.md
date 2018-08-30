@@ -493,6 +493,19 @@ export default withField(FieldCustom, {
 });
 ```
 
+`withField`同样支持装饰器语法
+
+```javascript
+@withField
+class MyField extends Component {}
+
+//or pass some default props
+@withField({
+    $defaultValue: '123'
+})
+class MyField extends Component {}
+```
+
 ### `<EasyField />`
 
 `EasyField` 是对`Field`的二次封装，向下提供了 `onChange` `onFocus` `onBlur` 三个方法用来同步值的变动以及相关`$dirty` `$touched`等状态。
@@ -1079,6 +1092,19 @@ class LoginForm extends Component {
 export default withForm(LoginForm, {
     $defaultValues: {} //该项将传递给Form组件
 });
+```
+
+`withForm`同样支持装饰器语法
+
+```javascript
+@withForm
+class MyField extends Component {}
+
+//or pass some default props
+@withForm({
+    $defaultValues: {}
+})
+class MyField extends Component {}
 ```
 
 ### `connect(Component)`

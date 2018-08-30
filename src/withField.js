@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Field from './Field';
+import { createHOC } from './utils';
 
 function withField(WrappedComponent, config = {}) {
     return class FieldEnhanced extends Component {
@@ -33,4 +34,4 @@ function withField(WrappedComponent, config = {}) {
     };
 }
 
-export default withField;
+export default createHOC(withField);

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Form from './Form';
+import { createHOC } from './utils';
 
 function withForm(WrappedComponent, config = {}) {
     return class FormEnhanced extends Component {
@@ -30,4 +31,4 @@ function withForm(WrappedComponent, config = {}) {
     };
 }
 
-export default withForm;
+export default createHOC(withForm);

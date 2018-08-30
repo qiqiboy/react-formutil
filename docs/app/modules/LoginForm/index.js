@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import { withForm, Field, EasyField } from 'app/../../src';
 import FieldCity from './FieldCity';
 
+@withForm({
+    $defaultValues: {
+        extra_param: 'test'
+    }
+})
 class LoginForm extends Component {
     submit = ev => {
         ev.preventDefault();
@@ -467,8 +472,4 @@ class LoginForm extends Component {
 }
 
 //可以通过高阶组件直接设置表单默认值
-export default withForm(LoginForm, {
-    $defaultValues: {
-        extra_param: 'test'
-    }
-});
+export default LoginForm;

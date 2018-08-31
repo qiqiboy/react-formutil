@@ -95,7 +95,7 @@ Happy to build the forms in React ^\_^
     - [`使用 Field 实现一个上传图片的表单控件`](#使用-field-实现一个上传图片的表单控件)
     - [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
     - [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
-    - [`如何在ant-design项目中使用react-formutil?`](#如何在ant-design项目中使用react-formutil)
+    - [`如何在 ant-design 或者 Material-UI 等项目中使用 react-formutil?`](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
 
 <!-- vim-markdown-toc -->
 
@@ -111,7 +111,7 @@ yarn add react-formutil
 
 ## 使用 Usage
 
-> [了解如何在 ant-design 项目中使用 react-formutil？](https://github.com/qiqiboy/react-antd-formutil)
+> [了解如何在 `ant-design`、`Material-UI`等流行 react 组件库项目中使用 react-formutil？](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
 
 先看一个简单的示例：
 
@@ -1384,13 +1384,13 @@ export default function EditInfoPage() {
 }
 ```
 
-### `如何在ant-design项目中使用react-formutil?`
+### `如何在 ant-design 或者 Material-UI 等项目中使用 react-formutil?`
 
-在基于`ant-design`的项目中，使用`react-formutil`也非常简单和方便，并且比`antd`自己的表单实现用起来更畅快、优雅：
+在`ant-design`或`Material-UI`项目中使用 react-formutil 也非常简单，以 ant-design 为例：
 
 ```javascript
 import React, { Component } from 'react';
-import { EasyField, withForm } from 'react-formutil';
+import { EasyField, Field, withForm } from 'react-formutil';
 import { Form, Input, Checkbox, DatePicker, Button } from 'antd';
 
 //@decorator
@@ -1411,6 +1411,12 @@ class MyForm extends Component {
     render() {
         return (
             <Form onSubmit={this.onSubmit}>
+                {/* use <Field /> */}
+                <Field name="title">
+                    {props => <Input value={props.value} onChange={ev => props.$render(ev.target.value)} />}
+                </Field>
+
+                {/* use <EasyField />, not need to sync data by set 'onChange' manual */}
                 <EasyField name="username">
                     <Input placeholder="Username" />
                 </EasyField>
@@ -1439,10 +1445,12 @@ class MyForm extends Component {
 }
 ```
 
-是的，可以直接使用`EasyField`嵌套 `antd` 的组件即可。唯一需要注意的是，由于`react-formutil`默认所有的人表单域的值为空字符串，所以和`antd`一起使用时，部分组件由于不接收字符串值，所以需要设置`$defaultValue={undefined}`。
+是的，你可以使用`Field`来手动绑定 onChange 来同步数据，也可以直接使用`EasyField`嵌套 `antd` 的组件即可，`EasyField`会自动绑定好相关数据同步。
 
-另外我们也提供了一个独立的组件专门用于 antd 项目，它使用了`<Form.Item />`来对表单校验状态等做了同步，并且调用起来更加简洁：[`react-antd-formutil`](https://github.com/qiqiboy/react-antd-formutil)
+为了更便捷的在各大流程组件库项目中使用`react-formutil`，我们也提供了针对各个组件库的优化封装组件：
 
-[![npm](https://img.shields.io/npm/v/react-antd-formutil.svg?style=flat)](https://npm.im/react-antd-formutil)
+-   [`react-antd-formutil`](https://github.com/qiqiboy/react-antd-formutil) [![npm](https://img.shields.io/npm/v/react-antd-formutil.svg?style=flat)](https://npm.im/react-antd-formutil)
+-   [`react-material-formutil`](https://github.com/qiqiboy/react-material-formutil) [![npm](https://img.shields.io/npm/v/react-material-formutil.svg?style=flat)](https://npm.im/react-material-formutil)
+-   `react-bootstrap` come soon ^\_^
 
-可以查看该项目来了解更多用法。
+你可以点击上方链接来了解更多。

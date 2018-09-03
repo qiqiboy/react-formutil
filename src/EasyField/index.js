@@ -177,6 +177,9 @@ class EasyField extends Component {
                 case 'object':
                     defaultValue = {};
                     break;
+                case 'number':
+                    defaultValue = 0;
+                    break;
                 case 'empty':
                 default:
                     break;

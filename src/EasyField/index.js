@@ -38,15 +38,7 @@ class EasyField extends Component {
     static displayName = 'React.Formutil.EasyField';
 
     static propTypes = {
-        type(props, ...args) {
-            let pt = PropTypes.string;
-
-            if (!props.children && !props.component && !props.render) {
-                pt = pt.isRequired;
-            }
-
-            return pt(props, ...args);
-        },
+        type: PropTypes.string,
         children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
         component: PropTypes.func,
         render: PropTypes.func,

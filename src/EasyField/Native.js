@@ -18,6 +18,7 @@ class EasyFieldNative extends Component {
     };
 
     static defaultProps = {
+        value: '',
         type: 'text',
         checked: true,
         unchecked: false

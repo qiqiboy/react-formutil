@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "checkJs": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "jsx": "react",
+        "module": "commonjs"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

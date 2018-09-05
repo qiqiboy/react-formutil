@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "esnext",
         "checkJs": true,
         "experimentalDecorators": true,
         "allowSyntheticDefaultImports": true,
@@ -13,8 +13,6 @@
     },
     "exclude": [
         "node_modules",
-        "dist",
-        "build",
-        "buildDev"
+        "demo"
     ]
 }

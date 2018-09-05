@@ -70,6 +70,9 @@
     "react-transition-group": "2.3.0"
   },
   "devDependencies": {
+    "@types/prop-types": "^15.5.5",
+    "@types/react": "^16.4.13",
+    "@types/react-dom": "^16.0.7",
     "address": "1.0.2",
     "autoprefixer": "7.1.6",
     "babel-core": "6.26.0",

@@ -11,8 +11,8 @@ interface FieldComponentProps<any> {
     $asyncValidators?: object;
     name?: string;
     component?: React.ComponentType<FieldComponentProps<any>> | React.ComponentType<any>;
-    render?: (($formutil: $Fieldutil) => React.ReactNode);
-    children?: (($formutil: $Fieldutil) => React.ReactNode) | React.ReactNode;
+    render?: (($fieldutil: $Fieldutil) => React.ReactNode);
+    children?: (($fieldutil: $Fieldutil) => React.ReactNode) | React.ReactNode;
 }
 
 interface EasyFieldComponentProps<any> extends FieldComponentProps {
@@ -105,7 +105,7 @@ interface $Formutil {
     $batchFocused(focused?: boolean, callback?: () => void): void;
 }
 
-interface FormComponentProps {
+interface FormComponentProps<any> {
     $defaultValues?: object;
     $defaultStates?: object;
     $onFormChange?: (($formutil?: $Formutil, newValues?: object, preValues?: object) => any);
@@ -131,3 +131,7 @@ export function withForm<P extends FormComponentProps<any>>(
 ): React.ComponentClass<Omit<P, keyof FormComponentProps<any>>>;
 
 export function withForm(cofig: object): withForm;
+
+export function connect<P>(
+    component: React.ComponentType<P>
+): React.ComponentClass<Omit<P, keyof FormComponentProps<any>>>;

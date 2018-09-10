@@ -42,6 +42,7 @@
     "react": ">15.0.0",
     "prop-types": ">15.0.0"
   },
+  "types": "./index.d.ts",
   "devDependencies": {
     "@types/prop-types": "^15.5.5",
     "@types/react": "^16.4.13",

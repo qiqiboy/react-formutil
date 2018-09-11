@@ -4,12 +4,13 @@
 
 import React from 'react';
 
-// Omit taken from https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
 export = ReactFormutil;
 
 declare namespace ReactFormutil {
+    interface ParamsObject {
+        [key: string]: any;
+    }
+
     export interface FieldComponentProps {
         $defaultValue?: any;
         $defaultState?: object;
@@ -47,7 +48,7 @@ declare namespace ReactFormutil {
         min?: any;
         enum?: any[];
         pattern?: RegExp;
-        checker?: (value?: any, checkerValue?: any, props?: object) => any;
+        checker?: (value?: any, checkerValue?: any, props?: ParamsObject) => any;
 
         component?: React.ComponentType<EasyFieldComponentProps<any>> | React.ComponentType<any>;
         render?: (($fieldutil: $EasyFieldutil) => React.ReactNode);
@@ -80,7 +81,7 @@ declare namespace ReactFormutil {
         $untouched?: boolean;
         $focused?: boolean;
         $pending?: boolean;
-        $error?: object;
+        $error?: ParamsObject;
     }
 
     export interface $Fieldutil extends FieldState {
@@ -105,16 +106,16 @@ declare namespace ReactFormutil {
     }
 
     export interface $Formutil {
-        $states: object;
-        $params: object;
-        $errors: object;
-        $touches: object;
-        $dirts: object;
-        $weakStates: object;
-        $weakParams: object;
-        $weakErrors: object;
-        $weakTouches: object;
-        $weakDirts: object;
+        $states: ParamsObject;
+        $params: ParamsObject;
+        $errors: ParamsObject;
+        $touches: ParamsObject;
+        $dirts: ParamsObject;
+        $weakStates: ParamsObject;
+        $weakParams: ParamsObject;
+        $weakErrors: ParamsObject;
+        $weakTouches: ParamsObject;
+        $weakDirts: ParamsObject;
 
         $valid: boolean;
         $invalid: boolean;
@@ -125,8 +126,8 @@ declare namespace ReactFormutil {
         $focued: boolean;
         $pending: boolean;
 
-        $$registers: object;
-        $$deepRegisters: object;
+        $$registers: ParamsObject;
+        $$deepRegisters: ParamsObject;
 
         $getFirstError(): any;
         $render(callback?: () => void): void;
@@ -148,7 +149,7 @@ declare namespace ReactFormutil {
     export interface FormComponentProps {
         $defaultValues?: object;
         $defaultStates?: object;
-        $onFormChange?: (($formutil?: $Formutil, newValues?: object, preValues?: object) => any);
+        $onFormChange?: (($formutil?: $Formutil, newValues?: ParamsObject, preValues?: ParamsObject) => any);
         component?: React.ComponentType<FieldComponentProps<any>> | React.ComponentType<any>;
         render?: (($formutil: $Formutil) => React.ReactNode);
         children?: (($formutil: $Formutil) => React.ReactNode) | React.ReactNode;
@@ -160,10 +161,10 @@ declare namespace ReactFormutil {
 
     export function withField<P extends FieldComponentProps<any>>(
         component: React.ComponentType<P>,
-        config: FieldComponentProps
-    ): React.ComponentClass<Omit<P, keyof FieldComponentProps<any>>>;
+        config?: FieldComponentProps
+    ): React.ComponentClass<FieldComponentProps>;
 
-    export function withField(cofig: FieldComponentProps): withField;
+    export function withField(config?: FieldComponentProps): withField;
 
     export class EasyField extends React.Component<EasyFieldComponentProps, any> {}
 
@@ -171,12 +172,12 @@ declare namespace ReactFormutil {
 
     export function withForm<P extends FormComponentProps<any>>(
         component: React.ComponentType<P>,
-        config: FormComponentProps
-    ): React.ComponentClass<Omit<P, keyof FormComponentProps<any>>>;
+        config?: FormComponentProps
+    ): React.ComponentClass<FormComponentProps>;
 
-    export function withForm(cofig: FormComponentProps): withForm;
+    export function withForm(config?: FormComponentProps): withForm<P>;
 
     export function connect<P>(
         component: React.ComponentType<P>
-    ): React.ComponentClass<Omit<P, keyof FormComponentProps<any>>>;
+    ): React.ComponentClass<P>;
 }

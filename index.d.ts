@@ -18,11 +18,11 @@ declare namespace ReactFormutil {
         $validators?: object;
         $asyncValidators?: object;
         name?: string;
-        component?: React.ComponentType<FieldComponentProps<any>> | React.ComponentType<any>;
+        component?: React.ComponentType<FieldComponentProps> | React.ComponentType<any>;
         render?: (($fieldutil: $Fieldutil) => React.ReactNode);
         children?: (($fieldutil: $Fieldutil) => React.ReactNode) | React.ReactNode;
 
-        [otherName: string]: any;
+        [otherProp: string]: any;
     }
 
     export interface EasyFieldComponentProps extends FieldComponentProps {
@@ -50,7 +50,7 @@ declare namespace ReactFormutil {
         pattern?: RegExp;
 
         checker?: (value?: any, checkerValue?: any, props?: ParamsObject) => any;
-        component?: React.ComponentType<EasyFieldComponentProps<any>> | React.ComponentType<any>;
+        component?: React.ComponentType<EasyFieldComponentProps> | React.ComponentType<any>;
         render?: (($fieldutil: $EasyFieldutil) => React.ReactNode);
         children?: (($fieldutil: $EasyFieldutil) => React.ReactNode) | React.ReactNode;
     }
@@ -58,7 +58,7 @@ declare namespace ReactFormutil {
     export interface EasyFieldGroupOptionComponentProps {
         $value: any;
 
-        [otherName: string]: any;
+        [otherProp: string]: any;
     }
 
     export interface $EasyFieldutil {
@@ -68,7 +68,7 @@ declare namespace ReactFormutil {
         onFocus?(...args: any[]): void;
         onBlur?(...args: any[]): void;
 
-        [otherName: string]: any;
+        [otherProp: string]: any;
     }
 
     export interface FieldState {
@@ -86,8 +86,8 @@ declare namespace ReactFormutil {
 
     export interface $Fieldutil extends FieldState {
         $$FIELD_UUID: number;
-        $name: string | undefined;
-        $picker: FieldState;
+        $name: string;
+        $picker(): FieldState;
         $getComponent(): React.ReactNode;
         $$merge($newState: FieldState): FieldState;
         $$triggerChange(changedData: { newValue: any; preValue: any }): void;
@@ -101,7 +101,7 @@ declare namespace ReactFormutil {
         $setDirty(dirty: boolean, callback?: () => void): FieldState;
         $setFocused(focused: boolean, callback?: () => void): FieldState;
         $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState;
-        $setErrord(error: object, callback?: () => void): FieldState;
+        $setError(error: object, callback?: () => void): FieldState;
         $validate(callback?: () => void): FieldState;
     }
 
@@ -150,38 +150,38 @@ declare namespace ReactFormutil {
         $defaultValues?: object;
         $defaultStates?: object;
         $onFormChange?: (($formutil?: $Formutil, newValues?: ParamsObject, preValues?: ParamsObject) => any);
-        component?: React.ComponentType<FieldComponentProps<any>> | React.ComponentType<any>;
+        component?: React.ComponentType<FieldComponentProps> | React.ComponentType<any>;
         render?: (($formutil: $Formutil) => React.ReactNode);
         children?: (($formutil: $Formutil) => React.ReactNode) | React.ReactNode;
 
-        [otherName: string]: any;
+        [otherProp: string]: any;
     }
 
-    export class Field extends React.Component<FieldComponentProps, any> {}
+    export class Field extends React.Component<FieldComponentProps> {}
 
     export function withField(
-        component: React.ComponentType,
+        component: React.ComponentType<any>,
         config?: FieldComponentProps
-    ): React.ComponentClass<FieldComponentProps, any>;
+    ): React.ComponentClass<FieldComponentProps>;
 
     export function withField(
         config?: FieldComponentProps
-    ): (component: React.ComponentType, config?: FieldComponentProps) => React.ComponentClass<FieldComponentProps, any>;
+    ): (component: React.ComponentType<any>, config?: FieldComponentProps) => React.ComponentClass<FieldComponentProps>;
 
-    export class EasyField extends React.Component<EasyFieldComponentProps, any> {}
+    export class EasyField extends React.Component<EasyFieldComponentProps> {}
 
-    export class Form extends React.Component<FormComponentProps, any> {}
-
-    export function withForm(
-        component: React.ComponentType,
-        config?: FormComponentProps
-    ): React.ComponentClass<FormComponentProps, any>;
+    export class Form extends React.Component<FormComponentProps> {}
 
     export function withForm(
+        component: React.ComponentType<any>,
         config?: FormComponentProps
-    ): (component: React.ComponentType, config?: FormComponentProps) => React.ComponentClass<FormComponentProps, any>;
+    ): React.ComponentClass<FormComponentProps>;
+
+    export function withForm(
+        config?: FormComponentProps
+    ): (component: React.ComponentType<any>, config?: FormComponentProps) => React.ComponentClass<FormComponentProps>;
 
     export function connect(
         component: React.ComponentType
-    ): React.ComponentClass<any, any>;
+    ): React.ComponentClass<any>;
 }

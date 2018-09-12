@@ -48,8 +48,8 @@ declare namespace ReactFormutil {
         min?: any;
         enum?: any[];
         pattern?: RegExp;
-        checker?: (value?: any, checkerValue?: any, props?: ParamsObject) => any;
 
+        checker?: (value?: any, checkerValue?: any, props?: ParamsObject) => any;
         component?: React.ComponentType<EasyFieldComponentProps<any>> | React.ComponentType<any>;
         render?: (($fieldutil: $EasyFieldutil) => React.ReactNode);
         children?: (($fieldutil: $EasyFieldutil) => React.ReactNode) | React.ReactNode;
@@ -159,25 +159,29 @@ declare namespace ReactFormutil {
 
     export class Field extends React.Component<FieldComponentProps, any> {}
 
-    export function withField<P extends FieldComponentProps<any>>(
-        component: React.ComponentType<P>,
+    export function withField(
+        component: React.ComponentType,
         config?: FieldComponentProps
-    ): React.ComponentClass<FieldComponentProps>;
+    ): React.ComponentClass<FieldComponentProps, any>;
 
-    export function withField(config?: FieldComponentProps): withField;
+    export function withField(
+        config?: FieldComponentProps
+    ): (component: React.ComponentType, config?: FieldComponentProps) => React.ComponentClass<FieldComponentProps, any>;
 
     export class EasyField extends React.Component<EasyFieldComponentProps, any> {}
 
     export class Form extends React.Component<FormComponentProps, any> {}
 
-    export function withForm<P extends FormComponentProps<any>>(
-        component: React.ComponentType<P>,
+    export function withForm(
+        component: React.ComponentType,
         config?: FormComponentProps
-    ): React.ComponentClass<FormComponentProps>;
+    ): React.ComponentClass<FormComponentProps, any>;
 
-    export function withForm(config?: FormComponentProps): withForm<P>;
+    export function withForm(
+        config?: FormComponentProps
+    ): (component: React.ComponentType, config?: FormComponentProps) => React.ComponentClass<FormComponentProps, any>;
 
-    export function connect<P>(
-        component: React.ComponentType<P>
-    ): React.ComponentClass<P>;
+    export function connect(
+        component: React.ComponentType
+    ): React.ComponentClass<any, any>;
 }

@@ -89,6 +89,7 @@ declare namespace ReactFormutil {
         $name: string;
         $picker(): FieldState;
         $getComponent(): React.ReactNode;
+        $getFirstError(): any;
         $$merge($newState: FieldState): FieldState;
         $$triggerChange(changedData: { newValue: any; preValue: any }): void;
         $$reset(newState: FieldState): FieldState;

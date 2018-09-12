@@ -76,6 +76,7 @@ class Field extends Component {
             $picker: () => ({ ...this.$state }),
             $getComponent: () => this,
             $reset: $newState => this.$setState(this.$handler.$$reset($newState)),
+            $getFirstError: this.$getFirstError,
             $render: this.$render,
             $setValue: this.$render,
             $setState: this.$setState,
@@ -286,6 +287,13 @@ class Field extends Component {
         }
 
         return this.$setError($error, callback);
+    };
+
+    $getFirstError = () => {
+        const { $error = {} } = this.$state;
+        for (let name in $error) {
+            return $error[name];
+        }
     };
 
     render() {

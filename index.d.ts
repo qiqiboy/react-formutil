@@ -11,7 +11,7 @@ declare namespace ReactFormutil {
         [key: string]: any;
     }
 
-    export interface FieldComponentProps {
+    interface FieldComponentProps {
         $defaultValue?: any;
         $defaultState?: object;
         $onFieldChange?: ((newValue?: any, preValue?: any, $formutil?: $Formutil) => any);
@@ -25,7 +25,7 @@ declare namespace ReactFormutil {
         [otherProp: string]: any;
     }
 
-    export interface EasyFieldComponentProps extends FieldComponentProps {
+    interface EasyFieldComponentProps extends FieldComponentProps {
         type?: string;
         defaultValue?: any;
         checked?: any;
@@ -55,13 +55,13 @@ declare namespace ReactFormutil {
         children?: (($fieldutil: $EasyFieldutil) => React.ReactNode) | React.ReactNode;
     }
 
-    export interface EasyFieldGroupOptionComponentProps {
+    interface EasyFieldGroupOptionComponentProps {
         $value: any;
 
         [otherProp: string]: any;
     }
 
-    export interface $EasyFieldutil {
+    interface $EasyFieldutil {
         value?: any;
         GroupOption?: React.ComponentClass<EasyFieldGroupOptionComponentProps, any>;
         onChange?(...args: any[]): void;
@@ -71,7 +71,7 @@ declare namespace ReactFormutil {
         [otherProp: string]: any;
     }
 
-    export interface FieldState {
+    interface FieldState {
         $value?: any;
         $valid?: boolean;
         $invalid?: boolean;
@@ -84,8 +84,9 @@ declare namespace ReactFormutil {
         $error?: ParamsObject;
     }
 
-    export interface $Fieldutil extends FieldState {
+    interface $Fieldutil extends FieldState {
         $$FIELD_UUID: number;
+        $$formutil: $Formutil;
         $name: string;
         $picker(): FieldState;
         $getComponent(): React.ReactNode;
@@ -106,7 +107,7 @@ declare namespace ReactFormutil {
         $validate(callback?: () => void): FieldState;
     }
 
-    export interface $Formutil {
+    interface $Formutil {
         $states: ParamsObject;
         $params: ParamsObject;
         $errors: ParamsObject;
@@ -147,7 +148,7 @@ declare namespace ReactFormutil {
         $batchFocused(focused?: boolean, callback?: () => void): void;
     }
 
-    export interface FormComponentProps {
+    interface FormComponentProps {
         $defaultValues?: object;
         $defaultStates?: object;
         $onFormChange?: (($formutil?: $Formutil, newValues?: ParamsObject, preValues?: ParamsObject) => any);
@@ -158,31 +159,29 @@ declare namespace ReactFormutil {
         [otherProp: string]: any;
     }
 
-    export class Field extends React.Component<FieldComponentProps> {}
+    class Field extends React.Component<FieldComponentProps> {}
 
-    export function withField(
+    function withField(
         component: React.ComponentType<any>,
         config?: FieldComponentProps
     ): React.ComponentClass<FieldComponentProps>;
 
-    export function withField(
+    function withField(
         config?: FieldComponentProps
     ): (component: React.ComponentType<any>, config?: FieldComponentProps) => React.ComponentClass<FieldComponentProps>;
 
-    export class EasyField extends React.Component<EasyFieldComponentProps> {}
+    class EasyField extends React.Component<EasyFieldComponentProps> {}
 
-    export class Form extends React.Component<FormComponentProps> {}
+    class Form extends React.Component<FormComponentProps> {}
 
-    export function withForm(
+    function withForm(
         component: React.ComponentType<any>,
         config?: FormComponentProps
     ): React.ComponentClass<FormComponentProps>;
 
-    export function withForm(
+    function withForm(
         config?: FormComponentProps
     ): (component: React.ComponentType<any>, config?: FormComponentProps) => React.ComponentClass<FormComponentProps>;
 
-    export function connect(
-        component: React.ComponentType
-    ): React.ComponentClass<any>;
+    function connect(component: React.ComponentType): React.ComponentClass<any>;
 }

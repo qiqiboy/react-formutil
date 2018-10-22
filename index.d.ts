@@ -113,11 +113,13 @@ declare namespace ReactFormutil {
         $errors: ParamsObject;
         $touches: ParamsObject;
         $dirts: ParamsObject;
+        $focuses: ParamsObject;
         $weakStates: ParamsObject;
         $weakParams: ParamsObject;
         $weakErrors: ParamsObject;
         $weakTouches: ParamsObject;
         $weakDirts: ParamsObject;
+        $weakFocuses: ParamsObject;
 
         $valid: boolean;
         $invalid: boolean;
@@ -163,11 +165,11 @@ declare namespace ReactFormutil {
 
     function withField(
         component: React.ComponentType<any>,
-        config?: FieldComponentProps
+        config?: FieldComponentProps,
     ): React.ComponentClass<FieldComponentProps>;
 
     function withField(
-        config?: FieldComponentProps
+        config?: FieldComponentProps,
     ): (component: React.ComponentType<any>, config?: FieldComponentProps) => React.ComponentClass<FieldComponentProps>;
 
     class EasyField extends React.Component<EasyFieldComponentProps> {}
@@ -176,11 +178,11 @@ declare namespace ReactFormutil {
 
     function withForm(
         component: React.ComponentType<any>,
-        config?: FormComponentProps
+        config?: FormComponentProps,
     ): React.ComponentClass<FormComponentProps>;
 
     function withForm(
-        config?: FormComponentProps
+        config?: FormComponentProps,
     ): (component: React.ComponentType<any>, config?: FormComponentProps) => React.ComponentClass<FormComponentProps>;
 
     function connect(component: React.ComponentType): React.ComponentClass<any>;

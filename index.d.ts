@@ -136,7 +136,7 @@ declare namespace ReactFormutil {
         $validate(name: string): FieldState;
         $validates(): void;
         $reset(stateTree?: object, callback?: () => void): void;
-        $setStates(stateTree?: object, callback: () => void): void;
+        $setStates(stateTree?: object, callback?: () => void): void;
         $setValues(valueTree?: object, callback?: () => void): void;
         $setFocuses(focusedTree?: object, callback?: () => void): void;
         $setDirts(dirtyTree?: object, callback?: () => void): void;

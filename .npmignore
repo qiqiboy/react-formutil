@@ -1,2 +1,4 @@
 docs/
 src/
+*.un~
+jsconfig.json

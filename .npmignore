@@ -2,3 +2,4 @@ docs/
 src/
 *.un~
 jsconfig.json
+tsconfig.json

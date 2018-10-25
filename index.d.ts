@@ -7,119 +7,203 @@ import React from 'react';
 export = ReactFormutil;
 
 declare namespace ReactFormutil {
-    interface ParamsObject {
-        [key: string]: any;
+    interface FormFields {
+        [name: string]: any;
     }
 
-    interface FieldComponentProps {
-        $defaultValue?: any;
-        $defaultState?: object;
-        $onFieldChange?: ((newValue?: any, preValue?: any, $formutil?: $Formutil) => any);
-        $validators?: object;
-        $asyncValidators?: object;
-        name?: string;
-        component?: React.ComponentType<FieldComponentProps> | React.ComponentType<any>;
-        render?: (($fieldutil: $Fieldutil) => React.ReactNode);
-        children?: (($fieldutil: $Fieldutil) => React.ReactNode) | React.ReactNode;
+    type FieldError<Validators = {}> = { [K in keyof Validators]: string };
 
-        [otherProp: string]: any;
+    interface FieldState<T = any, Validators = {}> {
+        $value: T;
+        $valid: boolean;
+        $invalid: boolean;
+        $dirty: boolean;
+        $pristine: boolean;
+        $touched: boolean;
+        $untouched: boolean;
+        $focused: boolean;
+        $pending: boolean;
+        $error: FieldError<Validators>;
     }
 
-    interface EasyFieldComponentProps extends FieldComponentProps {
-        type?: string;
-        defaultValue?: any;
-        checked?: any;
-        unchecked?: any;
-        validMessage?: object;
-        passUtil?: string;
-        valuePropName?: string;
-        changePropName?: string;
-        focusPropName?: string;
-        blurPropName?: string;
-        groupNode?: string | React.ComponentType;
+    type FormParams<Fields> = { [K in keyof Fields]: Fields[K] extends object ? FormParams<Fields[K]> : Fields[K] };
 
-        $parser?: (value: any) => any;
-        $formatter?: (value: any) => any;
+    type FormErrors<Fields, Validators = {}> = {
+        [K in keyof Fields]: Fields[K] extends object ? FormErrors<Fields[K], Validators> : FieldError<Validators>
+    };
 
-        required?: any;
-        maxLength?: any;
-        minLength?: any;
-        max?: any;
-        min?: any;
-        enum?: any[];
-        pattern?: RegExp;
+    type FormTouches<Fields> = { [K in keyof Fields]: Fields[K] extends object ? FormTouches<Fields[K]> : boolean };
 
-        checker?: (value?: any, checkerValue?: any, props?: ParamsObject) => any;
-        component?: React.ComponentType<EasyFieldComponentProps> | React.ComponentType<any>;
-        render?: (($fieldutil: $EasyFieldutil) => React.ReactNode);
-        children?: (($fieldutil: $EasyFieldutil) => React.ReactNode) | React.ReactNode;
+    type FormDirts<Fields> = { [K in keyof Fields]: Fields[K] extends object ? FormDirts<Fields[K]> : boolean };
+
+    type FormFocuses<Fields> = { [K in keyof Fields]: Fields[K] extends object ? FormFocuses<Fields[K]> : boolean };
+
+    type FormStates<Fields, Validators = {}> = {
+        [K in keyof Fields]: Fields[K] extends object
+            ? FormStates<Fields[K], Validators>
+            : FieldState<Fields[K], Validators>
+    };
+
+    type ArgFormParams<Fields> = {
+        [K in keyof Fields]: Fields[K] extends object ? FormParams<Fields[K]> | Fields[K] : Fields[K]
+    };
+
+    type ArgFormErrors<Fields, Validators = {}> = {
+        [K in keyof Fields]: Fields[K] extends object
+            ? FormErrors<Fields[K], Validators> | FieldError<Validators>
+            : FieldError<Validators>
+    };
+
+    type ArgFormTouches<Fields> = {
+        [K in keyof Fields]: Fields[K] extends object ? FormTouches<Fields[K]> | boolean : boolean
+    };
+
+    type ArgFormDirts<Fields> = {
+        [K in keyof Fields]: Fields[K] extends object ? FormDirts<Fields[K]> | boolean : boolean
+    };
+
+    type ArgFormFocuses<Fields> = {
+        [K in keyof Fields]: Fields[K] extends object ? FormFocuses<Fields[K]> | boolean : boolean
+    };
+
+    type ArgFormStates<Fields, Validators = {}> = {
+        [K in keyof Fields]: Fields[K] extends object
+            ? FormStates<Fields[K], Validators> | FieldState<Fields[K], Validators>
+            : FieldState<Fields[K], Validators>
+    };
+
+    type FormWeakParams<Fields> = { [K in keyof Fields]: Fields[K] };
+
+    type FormWeakErrors<Fields, Validators = {}> = { [K in keyof Fields]: FieldError<Validators> };
+
+    type FormWeakTouches<Fields> = { [K in keyof Fields]: boolean };
+
+    type FormWeakDirts<Fields> = { [K in keyof Fields]: boolean };
+
+    type FormWeakFocuses<Fields> = { [K in keyof Fields]: boolean };
+
+    type FormWeakStates<Fields, Validators = {}> = { [K in keyof Fields]: FieldState<Fields[K], Validators> };
+
+    type Registers<Fields, Validators = {}> = { [K in keyof Fields]: $Fieldutil<Validators> };
+
+    type DeepRegisters<Fields, Validators = {}> = {
+        [K in keyof Fields]: Fields[K] extends object ? DeepRegisters<Fields[K], Validators> : $Fieldutil<Validators>
+    };
+
+    type Validate = (value: any, propName: string, fieldProps: FieldComponentProps & { $formutil: $Formutil }) => any;
+
+    interface Validators {
+        [K: string]: Validate;
+    }
+
+    interface FieldComponentProps<T = any, P = {}> {
+        $defaultValue: T;
+        $defaultState: Partial<FieldState<T, P>>;
+        $onFieldChange: ((newValue: T, preValue: T, $formutil: $Formutil<{}, P>) => any);
+        $validators: Validators;
+        $asyncValidators: never;
+        name: string;
+        component: React.ComponentType;
+        render: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode);
+        children: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode) | React.ReactNode;
+    }
+
+    interface EasyFieldValidators extends Validators {
+        required: Validate;
+        maxLength: Validate;
+        minLength: Validate;
+        max: Validate;
+        min: Validate;
+        enum: Validate;
+        pattern: Validate;
+        checker: Validate;
+    }
+
+    type ValidMessage<Validators> = { [K in keyof Validators]?: string };
+
+    interface EasyFieldComponentProps<T = any, Validators = {}>
+        extends Pick<FieldComponentProps<T, Validators>, Exclude<keyof FieldComponentProps, 'render' | 'children'>> {
+        type: string;
+        defaultValue: T;
+        checked: T;
+        unchecked: T;
+        validMessage: ValidMessage<Validators>;
+        passUtil: string;
+        valuePropName: string;
+        changePropName: string;
+        focusPropName: string;
+        blurPropName: string;
+        groupNode: string | React.ComponentType<EasyFieldGroupOptionComponentProps>;
+
+        $parser: (value: any) => T;
+        $formatter: (value: T) => any;
+
+        required: any;
+        maxLength: any;
+        minLength: any;
+        max: any;
+        min: any;
+        enum: any[];
+        pattern: RegExp;
+        checker: Validate;
+
+        render: (($fieldutil: $Easyfieldutil) => React.ReactNode);
+        children: (($fieldutil: $Easyfieldutil) => React.ReactNode) | React.ReactNode;
     }
 
     interface EasyFieldGroupOptionComponentProps {
         $value: any;
 
-        [otherProp: string]: any;
+        [other: string]: any;
     }
 
-    interface $EasyFieldutil {
-        value?: any;
-        GroupOption?: React.ComponentClass<EasyFieldGroupOptionComponentProps, any>;
-        onChange?(...args: any[]): void;
-        onFocus?(...args: any[]): void;
-        onBlur?(...args: any[]): void;
+    interface $Easyfieldutil {
+        value: any;
+        GroupOption: React.ComponentClass;
+        onChange: (...args: any[]) => void;
+        onFocus: (...args: any[]) => void;
+        onBlur: (...args: any[]) => void;
 
-        [otherProp: string]: any;
+        [other: string]: any;
     }
 
-    interface FieldState {
-        $value?: any;
-        $valid?: boolean;
-        $invalid?: boolean;
-        $dirty?: boolean;
-        $pristine?: boolean;
-        $touched?: boolean;
-        $untouched?: boolean;
-        $focused?: boolean;
-        $pending?: boolean;
-        $error?: ParamsObject;
-    }
-
-    interface $Fieldutil extends FieldState {
+    interface $Fieldutil<T = any, Validators = {}> extends FieldState<T, Validators> {
         $$FIELD_UUID: number;
         $$formutil: $Formutil;
         $name: string;
-        $picker(): FieldState;
+        $picker(): FieldState<T, Validators>;
         $getComponent(): React.ReactNode;
-        $getFirstError(): any;
-        $$merge($newState: FieldState): FieldState;
-        $$triggerChange(changedData: { newValue: any; preValue: any }): void;
-        $$reset(newState: FieldState): FieldState;
-        $reset(newState: FieldState): FieldState;
+        $getFirstError(): string;
+        $$merge(newState: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
+        $$triggerChange(changedData: { newValue: T; preValue: T }): void;
+        $$reset(newState: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
+        $reset(newState: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
 
-        $render(value: any, callback?: () => void): FieldState;
-        $setValue(newValue: any, callback?: () => void): FieldState;
-        $setState(newState: object, callback?: () => void): FieldState;
-        $setTouched(touched: boolean, callback?: () => void): FieldState;
-        $setDirty(dirty: boolean, callback?: () => void): FieldState;
-        $setFocused(focused: boolean, callback?: () => void): FieldState;
-        $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState;
-        $setError(error: object, callback?: () => void): FieldState;
-        $validate(callback?: () => void): FieldState;
+        $render(value: T, callback?: () => void): FieldState<T, Validators>;
+        $setValue(newValue: T, callback?: () => void): FieldState<T, Validators>;
+        $setState(newState: Partial<FieldState<T, Validators>>, callback?: () => void): FieldState<T, Validators>;
+        $setTouched(touched: boolean, callback?: () => void): FieldState<T, Validators>;
+        $setDirty(dirty: boolean, callback?: () => void): FieldState<T, Validators>;
+        $setFocused(focused: boolean, callback?: () => void): FieldState<T, Validators>;
+        $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState<T, Validators>;
+        $setError(error: FieldError<Validators>, callback?: () => void): FieldState<T, Validators>;
+        $validate(callback?: () => void): FieldState<T, Validators>;
     }
 
-    interface $Formutil {
-        $states: ParamsObject;
-        $params: ParamsObject;
-        $errors: ParamsObject;
-        $touches: ParamsObject;
-        $dirts: ParamsObject;
-        $focuses: ParamsObject;
-        $weakStates: ParamsObject;
-        $weakParams: ParamsObject;
-        $weakErrors: ParamsObject;
-        $weakTouches: ParamsObject;
-        $weakDirts: ParamsObject;
-        $weakFocuses: ParamsObject;
+    interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
+        $states: FormStates<Fields, Validators>;
+        $params: FormParams<Fields>;
+        $errors: FormErrors<Fields, Validators>;
+        $touches: FormTouches<Fields>;
+        $dirts: FormDirts<Fields>;
+        $focuses: FormFocuses<Fields>;
+
+        $weakStates: FormWeakStates<WeakFields, Validators>;
+        $weakParams: FormWeakParams<WeakFields>;
+        $weakErrors: FormWeakErrors<WeakFields, Validators>;
+        $weakTouches: FormWeakFocuses<WeakFields>;
+        $weakDirts: FormWeakDirts<WeakFields>;
+        $weakFocuses: FormWeakFocuses<WeakFields>;
 
         $valid: boolean;
         $invalid: boolean;
@@ -130,60 +214,83 @@ declare namespace ReactFormutil {
         $focued: boolean;
         $pending: boolean;
 
-        $$registers: ParamsObject;
-        $$deepRegisters: ParamsObject;
+        $$registers: Registers<WeakFields>;
+        $$deepRegisters: DeepRegisters<Fields>;
 
-        $getFirstError(): any;
+        $getField<T extends keyof WeakFields>(name: T): $Fieldutil<WeakFields[T], Validators>;
+        $getFirstError(): string;
         $render(callback?: () => void): void;
-        $validate(name: string): FieldState;
+        $validate<T extends keyof WeakFields>(name: T): FieldState<WeakFields[T], Validators>;
         $validates(): void;
-        $reset(stateTree?: object, callback?: () => void): void;
-        $setStates(stateTree?: object, callback?: () => void): void;
-        $setValues(valueTree?: object, callback?: () => void): void;
-        $setFocuses(focusedTree?: object, callback?: () => void): void;
-        $setDirts(dirtyTree?: object, callback?: () => void): void;
-        $setTouches(touchedTree?: object, callback?: () => void): void;
-        $setErrors(errorTree?: object, callback?: () => void): void;
-        $batchState(state?: FieldState, callback?: () => void): void;
-        $batchDirty(dirty?: boolean, callback?: () => void): void;
-        $batchTouched(touched?: boolean, callback?: () => void): void;
-        $batchFocused(focused?: boolean, callback?: () => void): void;
+        $reset(stateTree?: Partial<ArgFormStates<Fields>>, callback?: () => void): void;
+        $setStates(stateTree: Partial<ArgFormStates<Fields>>, callback?: () => void): void;
+        $setValues(valueTree: Partial<ArgFormParams<Fields>>, callback?: () => void): void;
+        $setFocuses(focusedTree: Partial<ArgFormFocuses<Fields>>, callback?: () => void): void;
+        $setDirts(dirtyTree: Partial<ArgFormDirts<Fields>>, callback?: () => void): void;
+        $setTouches(touchedTree: Partial<ArgFormTouches<Fields>>, callback?: () => void): void;
+        $setErrors(errorTree: Partial<ArgFormErrors<Fields>>, callback?: () => void): void;
+        $batchState(state: Partial<FieldState<any, Validators>>, callback?: () => void): void;
+        $batchDirty(dirty: boolean, callback?: () => void): void;
+        $batchTouched(touched: boolean, callback?: () => void): void;
+        $batchFocused(focused: boolean, callback?: () => void): void;
     }
 
-    interface FormComponentProps {
-        $defaultValues?: object;
-        $defaultStates?: object;
-        $onFormChange?: (($formutil?: $Formutil, newValues?: ParamsObject, preValues?: ParamsObject) => any);
-        component?: React.ComponentType<FieldComponentProps> | React.ComponentType<any>;
-        render?: (($formutil: $Formutil) => React.ReactNode);
-        children?: (($formutil: $Formutil) => React.ReactNode) | React.ReactNode;
-
-        [otherProp: string]: any;
+    interface FormComponentProps<Fields = {}, Validators = {}> {
+        $defaultValues: Partial<ArgFormParams<Fields>>;
+        $defaultStates: Partial<ArgFormStates<Fields, Validators>>;
+        $onFormChange: ((
+            $formutil: $Formutil<Fields, Validators>,
+            newValues: FormParams<Fields>,
+            preValues: FormParams<Fields>
+        ) => void);
+        component: React.ComponentType;
+        render: (($formutil: $Formutil<Fields, Validators>) => React.ReactNode);
+        children: (($formutil: $Formutil<Fields, Validators>) => React.ReactNode) | React.ReactNode;
     }
 
-    class Field extends React.Component<FieldComponentProps> {}
+    class Field extends React.Component<Partial<FieldComponentProps> & FormFields> {}
 
-    function withField(
-        component: React.ComponentType<any>,
-        config?: FieldComponentProps,
-    ): React.ComponentClass<FieldComponentProps>;
+    function withField<SelfProps = {}, T = any, Validators = {}>(
+        component: React.ComponentType<SelfProps>,
+        config?: Partial<FieldComponentProps<T, Validators>>
+    ): React.ComponentClass<$Fieldutil & SelfProps>;
 
-    function withField(
-        config?: FieldComponentProps,
-    ): (component: React.ComponentType<any>, config?: FieldComponentProps) => React.ComponentClass<FieldComponentProps>;
+    function withField<SelfProps = {}, T = any, Validators = {}>(
+        config?: Partial<FieldComponentProps<T, Validators>>
+    ): (
+        component: React.ComponentType<SelfProps>,
+        config?: Partial<FieldComponentProps<T, Validators>>
+    ) => React.ComponentClass<$Fieldutil & SelfProps>;
 
-    class EasyField extends React.Component<EasyFieldComponentProps> {}
+    class EasyField extends React.Component<Partial<EasyFieldComponentProps> & FormFields> {}
 
-    class Form extends React.Component<FormComponentProps> {}
+    class Form extends React.Component<Partial<FormComponentProps> & FormFields> {}
 
-    function withForm(
-        component: React.ComponentType<any>,
-        config?: FormComponentProps,
-    ): React.ComponentClass<FormComponentProps>;
+    function withForm<SelfProps = {}, Fields = {}, Validators = {}>(
+        component: React.ComponentType<SelfProps>,
+        config?: Partial<FormComponentProps<Fields, Validators>>
+    ): React.ComponentClass<
+        SelfProps & {
+            $formutil: $Formutil<Fields, Validators>;
+        }
+    >;
 
-    function withForm(
-        config?: FormComponentProps,
-    ): (component: React.ComponentType<any>, config?: FormComponentProps) => React.ComponentClass<FormComponentProps>;
+    function withForm<SelfProps = {}, Fields = {}, Validators = {}>(
+        config?: Partial<FormComponentProps<Fields, Validators>>
+    ): (
+        component: React.ComponentType<SelfProps>,
+        config?: Partial<FormComponentProps<Fields, Validators>>
+    ) => React.ComponentClass<
+        SelfProps & {
+            $formutil: $Formutil<Fields, Validators>;
+        }
+    >;
 
-    function connect(component: React.ComponentType): React.ComponentClass<any>;
+    function connect<SelfProps = {}, Fields = {}, Validators = {}>(
+        component: React.ComponentType<SelfProps>
+    ): React.ComponentClass<
+        SelfProps & {
+            $formutil: $Formutil<Fields, Validators>;
+        }
+    >;
 }

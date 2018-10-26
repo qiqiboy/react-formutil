@@ -98,6 +98,7 @@ Happy to build the forms in React ^\_^
     - [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
     - [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
     - [`如何在 ant-design 或者 Material-UI 等项目中使用 react-formutil?`](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
+    - [`如何使用typescript开发？`](#如何使用typescript开发)
 
 <!-- vim-markdown-toc -->
 
@@ -1475,3 +1476,80 @@ class MyForm extends Component {
 你可以点击上方链接来了解更多。
 
 如果你还觉得有其它优秀的组件库也需要提供针对性的组件优化，也可以提 issues。
+
+### `如何使用typescript开发？`
+
+`react-formutil@0.3.0` 起提供了针对`typescript`的`DefinitionTypes`声明文件，在开发中可能会用到的主要是以下几个：
+
+* `$Formutil<Field, Validators, WeakFields>` 整个表单的 $formtutil 类型声明
+* `$Fieldutil<T, Validators, Fields, WeakFields>` 单个表单项的 $fieldutil 类型声明
+* `Field<T, Validators, Fields, WeakFields>` Field组件的类型声明
+* `EasyField<T, Validators, Fields, WeakFields>` EasyField组件的类型声明
+* `Form<Fields, Validators, WeakFields>` EasyField组件的类型声明
+
+除了以上列出的，还有很多其它的类型定义，可以自行查看类型声明文件。
+
+> `T` 是指值类型；`Validators` 是指表单的校验项结构；`Fields`是指表单的参数域结构；`WeakFields`是指扁平的`Fields`结构，默认等同于`Fields`。如果你的表单不使用深层结构，那么只需要提供`Fields`即可。
+>
+> `let IErrors: Validators = { required: true, maxLength: string }`
+> `let fields: Fields = { user: { name: string, age: number }, price: number }`
+> `let weakFields: WeakFields = { 'user.name': string, 'user.age': number, price: number }`
+
+```typescript
+import React, { Component } from 'react';
+import { withForm, EasyField, $Formutil } from 'react-formutil';
+
+// 定义整个表单的参数结构
+interface IFields {
+    name: string;
+    age: number;
+}
+
+// 定义整个表单的校验结构
+interface IErrors {
+    required: string;
+    max: string;
+}
+
+// 定义表单组件的props
+// 因为我们使用了withForm高阶组件，所以我们需要声明$formutil这个对象
+// 并且通过给 $Formutil 传递泛型参数，来明确整个$formutil对象中可以获取的表单相关结构信息
+interface IProps {
+    $formutil: $Formutil<IFields, IErrors>;
+}
+
+// @ts-ignore
+@withForm
+class UserForm extends Component<IProps> {
+    componentDidMount() {
+        // 可以调用$formutil对象
+        this.props.$formutil.$setValues({
+            name: 'xiao hong'
+        });
+
+        // 甚至可以访问错误信息结构
+        console.log(this.props.$formutil.$errors.age.required);
+    }
+
+    render() {
+        return (
+            <form>
+                {/* 这里类似上面声明IProps时传递了泛型参数，如果我们需要在EasyField属性配置中访问其对象信息，也需要提供泛型参数定义 */}
+                <EasyField<string, IErrors, IFields> name="name" $onFieldChange={(newValue, oldValue, $formutil) => {
+                    // 可以正常访问$formutil对象
+                }} />
+
+                {/* 这里我们定义该项的值为number类型，所以在渲染该值是需要做类型转换 */}
+                <Field<number> name="age">
+                    { $fieldutil => {
+                            // console.log($fieldutil.$value)
+                            return <input onChange={ev => $fieldutil.$render(Number(ev.target.value))} value={$fieldutil.$value} />
+                        }
+                    }
+                </Field>
+            </form>
+        );
+    }
+}
+```
+

@@ -47,10 +47,12 @@ export type ArgFormParams<Fields> = {
     [K in keyof Fields]: Fields[K] extends object ? ArgFormParams<Fields[K]> | Fields[K] : Fields[K]
 };
 
-export type ArgFormErrors<Fields, Validators = {}> = {
+export type ArgFieldError<Validators> = { [K in keyof Validators]: Validators[K] | true };
+
+export type ArgFormErrors<Fields, Validators> = {
     [K in keyof Fields]: Fields[K] extends object
-        ? ArgFormErrors<Fields[K], Validators> | Partial<FieldError<Validators>>
-        : Partial<FieldError<Validators>>
+        ? ArgFormErrors<Fields[K], Validators> | Partial<ArgFieldError<Validators>>
+        : Partial<ArgFieldError<Validators>>
 };
 
 export type ArgFormTouches<Fields> = {
@@ -102,7 +104,7 @@ export interface Validators<T = any, Fields = {}, P = {}, WeakFields = Fields> {
 export interface FieldComponentProps<T = any, P = {}, Fields = {}, WeakFields = Fields> {
     $defaultValue: T;
     $defaultState: Partial<FieldState<T, P>>;
-    $onFieldChange: ((newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => any);
+    $onFieldChange: ((newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void);
     $validators: Validators<T, Fields, P, WeakFields>;
     $asyncValidators: never;
     name: string;
@@ -111,30 +113,29 @@ export interface FieldComponentProps<T = any, P = {}, Fields = {}, WeakFields = 
     children: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode) | React.ReactNode;
 }
 
-export interface EasyFieldValidators<T = any, Fields = {}, P = {}, WeakFields = Fields>
-    extends Validators<T, Fields, P, WeakFields> {
-    required: Validate<T, Fields, P, WeakFields>;
-    maxLength: Validate<T, Fields, P, WeakFields>;
-    minLength: Validate<T, Fields, P, WeakFields>;
-    max: Validate<T, Fields, P, WeakFields>;
-    min: Validate<T, Fields, P, WeakFields>;
-    enum: Validate<T, Fields, P, WeakFields>;
-    pattern: Validate<T, Fields, P, WeakFields>;
-    checker: Validate<T, Fields, P, WeakFields>;
+export interface EasyFieldValidators {
+    required: string;
+    maxLength: string;
+    minLength: string;
+    max: string;
+    min: string;
+    enum: string;
+    pattern: string;
+    checker: string;
 }
 
 export type ValidMessage<P> = { [K in keyof P]?: string };
 
 export interface EasyFieldComponentProps<T = any, P = {}, Fields = {}, WeakFields = Fields>
     extends Pick<
-            FieldComponentProps<T, P, Fields, WeakFields>,
+            FieldComponentProps<T, EasyFieldValidators & P, Fields, WeakFields>,
             Exclude<keyof FieldComponentProps, 'render' | 'children'>
         > {
     type: string;
     defaultValue: T;
     checked: T;
     unchecked: T;
-    validMessage: ValidMessage<P>;
+    validMessage: ValidMessage<EasyFieldValidators & P>;
     passUtil: string;
     valuePropName: string;
     changePropName: string;
@@ -194,7 +195,7 @@ export interface $Fieldutil<T = any, Validators = {}, Fields = {}, WeakFields = 
     $setDirty(dirty: boolean, callback?: () => void): FieldState<T, Validators>;
     $setFocused(focused: boolean, callback?: () => void): FieldState<T, Validators>;
     $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState<T, Validators>;
-    $setError(error: FieldError<Validators>, callback?: () => void): FieldState<T, Validators>;
+    $setError(error: Partial<ArgFieldError<Validators>>, callback?: () => void): FieldState<T, Validators>;
     $validate(callback?: () => void): FieldState<T, Validators>;
 }
 
@@ -307,3 +308,4 @@ export function connect<SelfProps = {}, Fields = {}, Validators = {}, WeakFields
         $formutil: $Formutil<Fields, Validators, WeakFields>;
     }
 >;
+

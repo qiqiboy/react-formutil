@@ -10,7 +10,9 @@ export interface FormFields {
     [name: string]: any;
 }
 
-export type FieldError<Validators = {}> = { [K in keyof Validators]: Validators[K] };
+export type FieldError<Validators = {}> = {
+    [K in keyof Validators]: void extends Validators[K] ? string : Validators[K]
+};
 
 export interface FieldState<T = any, Validators = {}> {
     $value: T;
@@ -27,7 +29,7 @@ export interface FieldState<T = any, Validators = {}> {
 
 export type FormParams<Fields> = { [K in keyof Fields]: Fields[K] extends object ? FormParams<Fields[K]> : Fields[K] };
 
-export type FormErrors<Fields, Validators = {}> = {
+export type FormErrors<Fields, Validators> = {
     [K in keyof Fields]: Fields[K] extends object ? FormErrors<Fields[K], Validators> : FieldError<Validators>
 };
 
@@ -37,7 +39,7 @@ export type FormDirts<Fields> = { [K in keyof Fields]: Fields[K] extends object 
 
 export type FormFocuses<Fields> = { [K in keyof Fields]: Fields[K] extends object ? FormFocuses<Fields[K]> : boolean };
 
-export type FormStates<Fields, Validators = {}> = {
+export type FormStates<Fields, Validators> = {
     [K in keyof Fields]: Fields[K] extends object
         ? FormStates<Fields[K], Validators>
         : FieldState<Fields[K], Validators>
@@ -47,7 +49,9 @@ export type ArgFormParams<Fields> = {
     [K in keyof Fields]: Fields[K] extends object ? ArgFormParams<Fields[K]> | Fields[K] : Fields[K]
 };
 
-export type ArgFieldError<Validators> = { [K in keyof Validators]: Validators[K] | true };
+export type ArgFieldError<Validators> = {
+    [K in keyof Validators]: void extends Validators[K] ? string | true : Validators[K] | true
+};
 
 export type ArgFormErrors<Fields, Validators> = {
     [K in keyof Fields]: Fields[K] extends object
@@ -67,7 +71,7 @@ export type ArgFormFocuses<Fields> = {
     [K in keyof Fields]: Fields[K] extends object ? ArgFormFocuses<Fields[K]> | boolean : boolean
 };
 
-export type ArgFormStates<Fields, Validators = {}> = {
+export type ArgFormStates<Fields, Validators> = {
     [K in keyof Fields]: Fields[K] extends object
         ? ArgFormStates<Fields[K], Validators> | Partial<FieldState<Fields[K], Validators>>
         : Partial<FieldState<Fields[K], Validators>>
@@ -75,7 +79,7 @@ export type ArgFormStates<Fields, Validators = {}> = {
 
 export type FormWeakParams<Fields> = { [K in keyof Fields]: Fields[K] };
 
-export type FormWeakErrors<Fields, Validators = {}> = { [K in keyof Fields]: FieldError<Validators> };
+export type FormWeakErrors<Fields, Validators> = { [K in keyof Fields]: FieldError<Validators> };
 
 export type FormWeakTouches<Fields> = { [K in keyof Fields]: boolean };
 
@@ -83,12 +87,14 @@ export type FormWeakDirts<Fields> = { [K in keyof Fields]: boolean };
 
 export type FormWeakFocuses<Fields> = { [K in keyof Fields]: boolean };
 
-export type FormWeakStates<Fields, Validators = {}> = { [K in keyof Fields]: FieldState<Fields[K], Validators> };
+export type FormWeakStates<Fields, Validators> = { [K in keyof Fields]: FieldState<Fields[K], Validators> };
 
-export type Registers<Fields, Validators = {}> = { [K in keyof Fields]: $Fieldutil<Fields[K], Validators, Fields> };
+export type Registers<Fields, Validators, WeakFields = Fields> = { [K in keyof WeakFields]: $Fieldutil<WeakFields[K], Validators, Fields, WeakFields> };
 
-export type DeepRegisters<Fields, Validators = {}> = {
-    [K in keyof Fields]: Fields[K] extends object ? DeepRegisters<Fields[K], Validators> : $Fieldutil<Fields[K], Validators, Fields>
+export type DeepRegisters<Fields, Validators, WeakFields = Fields> = {
+    [K in keyof Fields]: Fields[K] extends object
+        ? DeepRegisters<Fields[K], Validators, WeakFields>
+        : $Fieldutil<Fields[K], Validators, Fields, WeakFields>
 };
 
 export type Validate<T = any, Fields = {}, P = {}, WeakFields = Fields> = (
@@ -220,18 +226,18 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $pristine: boolean;
     $touched: boolean;
     $untouched: boolean;
-    $focued: boolean;
+    $focused: boolean;
     $pending: boolean;
 
-    $$registers: Registers<WeakFields, Validators>;
-    $$deepRegisters: DeepRegisters<Fields, Validators>;
+    $$registers: Registers<Fields, Validators, WeakFields>;
+    $$deepRegisters: DeepRegisters<Fields, Validators, WeakFields>;
 
     $getField<T extends keyof WeakFields>(name: T): $Fieldutil<WeakFields[T], Validators>;
     $getFirstError(): string;
     $render(callback?: () => void): void;
     $validate<T extends keyof WeakFields>(name: T): FieldState<WeakFields[T], Validators>;
     $validates(): void;
-    $reset(stateTree?: Partial<ArgFormStates<Fields>>, callback?: () => void): void;
+    $reset(stateTree?: Partial<ArgFormStates<Fields, Validators>>, callback?: () => void): void;
     $setStates(stateTree: Partial<ArgFormStates<Fields, Validators>>, callback?: () => void): void;
     $setValues(valueTree: Partial<ArgFormParams<Fields>>, callback?: () => void): void;
     $setFocuses(focusedTree: Partial<ArgFormFocuses<Fields>>, callback?: () => void): void;
@@ -308,4 +314,3 @@ export function connect<SelfProps = {}, Fields = {}, Validators = {}, WeakFields
         $formutil: $Formutil<Fields, Validators, WeakFields>;
     }
 >;
-

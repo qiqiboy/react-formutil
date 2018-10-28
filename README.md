@@ -1491,9 +1491,9 @@ class MyForm extends Component {
 
 > `T` 是指值类型；`Validators` 是指表单的校验项结构；`Fields`是指表单的参数域结构；`WeakFields`是指扁平的`Fields`结构，默认等同于`Fields`。如果你的表单不使用深层结构，那么只需要提供`Fields`即可。
 >
-> `let IErrors: Validators = { required: true, maxLength: string }`
-> `let fields: Fields = { user: { name: string, age: number }, price: number }`
-> `let weakFields: WeakFields = { 'user.name': string, 'user.age': number, price: number }`
+> `let IErrors: Validators = { required: true, maxLength: string }`  
+> `let fields: Fields = { user: { name: string, age: number }, price: number }`  
+> `let weakFields: WeakFields = { 'user.name': string, 'user.age': number, price: number }`  
 
 ```typescript
 import React, { Component } from 'react';

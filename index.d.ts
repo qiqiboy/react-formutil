@@ -60,53 +60,57 @@ export type FormStates<Fields, Validators> = {
 };
 
 export type ArgFormParams<Fields> = {
-    [K in keyof Fields]: Fields[K] extends object ? Partial<ArgFormParams<Fields[K]>> : Fields[K]
+    [K in keyof Fields]?: DetectAny<
+        Fields[K],
+        Fields[K],
+        Fields[K] extends object ? ArgFormParams<Fields[K]> : Fields[K]
+    >
 };
 
 export type ArgFieldError<Validators> = {
-    [K in keyof Validators]: DetectAny<Validators[K], string | true, Validators[K] | true>
+    [K in keyof Validators]?: DetectAny<Validators[K], string | true, Validators[K] | true>
 };
 
 export type ArgFormErrors<Fields, Validators> = {
-    [K in keyof Fields]: DetectAny<
+    [K in keyof Fields]?: DetectAny<
         Fields[K],
-        Partial<ArgFieldError<Validators>>,
+        ArgFieldError<Validators>,
         Fields[K] extends object
-            ? Partial<ArgFormErrors<Fields[K], Validators>> | Partial<ArgFieldError<Validators>>
-            : Partial<ArgFieldError<Validators>>
+            ? ArgFormErrors<Fields[K], Validators> | ArgFieldError<Validators>
+            : ArgFieldError<Validators>
     >
 };
 
 export type ArgFormTouches<Fields> = {
-    [K in keyof Fields]: DetectAny<
+    [K in keyof Fields]?: DetectAny<
         Fields[K],
         boolean,
-        Fields[K] extends object ? Partial<ArgFormTouches<Fields[K]>> | boolean : boolean
+        Fields[K] extends object ? ArgFormTouches<Fields[K]> | boolean : boolean
     >
 };
 
 export type ArgFormDirts<Fields> = {
-    [K in keyof Fields]: DetectAny<
+    [K in keyof Fields]?: DetectAny<
         Fields[K],
         boolean,
-        Fields[K] extends object ? Partial<ArgFormDirts<Fields[K]>> | boolean : boolean
+        Fields[K] extends object ? ArgFormDirts<Fields[K]> | boolean : boolean
     >
 };
 
 export type ArgFormFocuses<Fields> = {
-    [K in keyof Fields]: DetectAny<
+    [K in keyof Fields]?: DetectAny<
         Fields[K],
         boolean,
-        Fields[K] extends object ? Partial<ArgFormFocuses<Fields[K]>> | boolean : boolean
+        Fields[K] extends object ? ArgFormFocuses<Fields[K]> | boolean : boolean
     >
 };
 
 export type ArgFormStates<Fields, Validators> = {
-    [K in keyof Fields]: DetectAny<
+    [K in keyof Fields]?: DetectAny<
         Fields[K],
         Partial<FieldState<Fields[K], Validators>>,
         Fields[K] extends object
-            ? Partial<ArgFormStates<Fields[K], Validators>> | Partial<FieldState<Fields[K], Validators>>
+            ? ArgFormStates<Fields[K], Validators> | Partial<FieldState<Fields[K], Validators>>
             : Partial<FieldState<Fields[K], Validators>>
     >
 };
@@ -243,7 +247,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $setDirty(dirty: boolean, callback?: () => void): FieldState<T, Validators>;
     $setFocused(focused: boolean, callback?: () => void): FieldState<T, Validators>;
     $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState<T, Validators>;
-    $setError(error: Partial<ArgFieldError<Validators>>, callback?: () => void): FieldState<T, Validators>;
+    $setError(error: ArgFieldError<Validators>, callback?: () => void): FieldState<T, Validators>;
     $validate(callback?: () => void): FieldState<T, Validators>;
 }
 
@@ -283,13 +287,13 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
         name: T
     ): FieldState<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators>;
     $validates(): void;
-    $reset(stateTree?: Partial<ArgFormStates<Fields, Validators>>, callback?: () => void): void;
-    $setStates(stateTree: Partial<ArgFormStates<Fields, Validators>>, callback?: () => void): void;
-    $setValues(valueTree: Partial<ArgFormParams<Fields>>, callback?: () => void): void;
-    $setFocuses(focusedTree: Partial<ArgFormFocuses<Fields>>, callback?: () => void): void;
-    $setDirts(dirtyTree: Partial<ArgFormDirts<Fields>>, callback?: () => void): void;
-    $setTouches(touchedTree: Partial<ArgFormTouches<Fields>>, callback?: () => void): void;
-    $setErrors(errorTree: Partial<ArgFormErrors<Fields, Validators>>, callback?: () => void): void;
+    $reset(stateTree?: ArgFormStates<Fields, Validators>, callback?: () => void): void;
+    $setStates(stateTree: ArgFormStates<Fields, Validators>, callback?: () => void): void;
+    $setValues(valueTree: ArgFormParams<Fields>, callback?: () => void): void;
+    $setFocuses(focusedTree: ArgFormFocuses<Fields>, callback?: () => void): void;
+    $setDirts(dirtyTree: ArgFormDirts<Fields>, callback?: () => void): void;
+    $setTouches(touchedTree: ArgFormTouches<Fields>, callback?: () => void): void;
+    $setErrors(errorTree: ArgFormErrors<Fields, Validators>, callback?: () => void): void;
     $batchState(state: Partial<FieldState<any, Validators>>, callback?: () => void): void;
     $batchDirty(dirty: boolean, callback?: () => void): void;
     $batchTouched(touched: boolean, callback?: () => void): void;
@@ -297,8 +301,8 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
 }
 
 export interface FormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {
-    $defaultValues: Partial<ArgFormParams<Fields>>;
-    $defaultStates: Partial<ArgFormStates<Fields, Validators>>;
+    $defaultValues: ArgFormParams<Fields>;
+    $defaultStates: ArgFormStates<Fields, Validators>;
     $onFormChange: ((
         $formutil: $Formutil<Fields, Validators, WeakFields>,
         newValues: FormParams<Fields>,

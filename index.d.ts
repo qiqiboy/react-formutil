@@ -219,7 +219,7 @@ export interface EasyFieldGroupOptionComponentProps<T = string> {
 
 export interface $Easyfieldutil<T = string> {
     value: T;
-    GroupOption: React.ComponentClass;
+    GroupOption: React.ComponentClass<EasyFieldGroupOptionComponentProps>;
     onChange: (...args: any[]) => void;
     onFocus: (...args: any[]) => void;
     onBlur: (...args: any[]) => void;

@@ -154,15 +154,15 @@ export interface Validators<T = string, Fields = {}, P = {}, WeakFields = Fields
 }
 
 export interface FieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields> {
-    $defaultValue: T;
-    $defaultState: Partial<FieldState<T, P>>;
-    $onFieldChange: ((newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void);
-    $validators: Validators<T, Fields, P, WeakFields>;
-    $asyncValidators: never;
-    name: string;
-    component: React.ComponentType;
-    render: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode);
-    children: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode) | React.ReactNode;
+    $defaultValue?: T;
+    $defaultState?: Partial<FieldState<T, P>>;
+    $onFieldChange?: ((newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void);
+    $validators?: Validators<T, Fields, P, WeakFields>;
+    $asyncValidators?: never;
+    name?: string;
+    component?: React.ComponentType;
+    render?: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode);
+    children?: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode) | React.ReactNode;
 }
 
 export interface EasyFieldValidators {
@@ -183,32 +183,32 @@ export interface EasyFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
             FieldComponentProps<T, EasyFieldValidators & P, Fields, WeakFields>,
             Exclude<keyof FieldComponentProps, 'render' | 'children'>
         > {
-    type: string;
-    defaultValue: T;
-    checked: T;
-    unchecked: T;
-    validMessage: ValidMessage<EasyFieldValidators & P>;
-    passUtil: string;
-    valuePropName: string;
-    changePropName: string;
-    focusPropName: string;
-    blurPropName: string;
-    groupNode: string | React.ComponentType<EasyFieldGroupOptionComponentProps<T>>;
+    type?: string;
+    defaultValue?: T;
+    checked?: T;
+    unchecked?: T;
+    validMessage?: ValidMessage<EasyFieldValidators & P>;
+    passUtil?: string;
+    valuePropName?: string;
+    changePropName?: string;
+    focusPropName?: string;
+    blurPropName?: string;
+    groupNode?: string | React.ComponentType<EasyFieldGroupOptionComponentProps<T>>;
 
-    $parser: (value: any) => T;
-    $formatter: (value: T) => any;
+    $parser?: (value: any) => T;
+    $formatter?: (value: T) => any;
 
-    required: boolean;
-    maxLength: number;
-    minLength: number;
-    max: number;
-    min: number;
-    enum: any[];
-    pattern: RegExp;
-    checker: Validate<T, Fields, P, WeakFields>;
+    required?: boolean | null;
+    maxLength?: number | null;
+    minLength?: number | null;
+    max?: number | null;
+    min?: number | null;
+    enum?: any[] | null;
+    pattern?: RegExp | null;
+    checker?: Validate<T, Fields, P, WeakFields> | null;
 
-    render: (($fieldutil: $Easyfieldutil<T>) => React.ReactNode);
-    children: (($fieldutil: $Easyfieldutil<T>) => React.ReactNode) | React.ReactNode;
+    render?: (($fieldutil: $Easyfieldutil<T>) => React.ReactNode);
+    children?: (($fieldutil: $Easyfieldutil<T>) => React.ReactNode) | React.ReactNode;
 }
 
 export interface EasyFieldGroupOptionComponentProps<T = string> {
@@ -301,66 +301,66 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
 }
 
 export interface FormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {
-    $defaultValues: ArgFormParams<Fields>;
-    $defaultStates: ArgFormStates<Fields, Validators>;
-    $onFormChange: ((
+    $defaultValues?: ArgFormParams<Fields>;
+    $defaultStates?: ArgFormStates<Fields, Validators>;
+    $onFormChange?: ((
         $formutil: $Formutil<Fields, Validators, WeakFields>,
         newValues: FormParams<Fields>,
         preValues: FormParams<Fields>
     ) => void);
-    component: React.ComponentType;
-    render: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode);
-    children: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode) | React.ReactNode;
+    component?: React.ComponentType;
+    render?: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode);
+    children?: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode) | React.ReactNode;
 }
 
 export class Field<T = string, Validators = {}, Fields = {}, WeakFields = Fields> extends React.Component<
-    Partial<FieldComponentProps<T, Validators, Fields, WeakFields>> & FormFields
+    FieldComponentProps<T, Validators, Fields, WeakFields> & FormFields
 > {}
 
 export function withField<SelfProps = {}, T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
-    component: React.ComponentType<SelfProps>,
-    config?: Partial<FieldComponentProps<T, Validators, Fields, WeakFields>>
-): React.ComponentClass<$Fieldutil<T, Validators, Fields, WeakFields> & SelfProps>;
+    component: React.ComponentType<SelfProps & $Fieldutil<T, Validators, Fields, WeakFields>>,
+    config?: FieldComponentProps<T, Validators, Fields, WeakFields>
+): React.ComponentClass<SelfProps>;
 
 export function withField<SelfProps = {}, T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
-    config?: Partial<FieldComponentProps<T, Validators, Fields, WeakFields>>
+    config?: FieldComponentProps<T, Validators, Fields, WeakFields>
 ): (
-    component: React.ComponentType<SelfProps>,
-    config?: Partial<FieldComponentProps<T, Validators, Fields, WeakFields>>
-) => React.ComponentClass<$Fieldutil<T, Validators, Fields, WeakFields> & SelfProps>;
+    component: React.ComponentType<SelfProps & $Fieldutil<T, Validators, Fields, WeakFields>>,
+    config?: FieldComponentProps<T, Validators, Fields, WeakFields>
+) => React.ComponentClass<SelfProps>;
 
 export class EasyField<T = string, Validators = {}, Fields = {}, WeakFields = Fields> extends React.Component<
-    Partial<EasyFieldComponentProps<T, Validators, Fields, WeakFields>> & FormFields
+    EasyFieldComponentProps<T, Validators, Fields, WeakFields> & FormFields
 > {}
 
 export class Form<Fields = {}, Validators = {}, WeakFields = Fields> extends React.Component<
-    Partial<FormComponentProps<Fields, Validators, WeakFields>> & FormFields
+    FormComponentProps<Fields, Validators, WeakFields> & FormFields
 > {}
 
 export function withForm<SelfProps = {}, Fields = {}, Validators = {}, WeakFields = Fields>(
-    component: React.ComponentType<SelfProps>,
-    config?: Partial<FormComponentProps<Fields, Validators, WeakFields>>
-): React.ComponentClass<
-    SelfProps & {
-        $formutil: $Formutil<Fields, Validators, WeakFields>;
-    }
->;
+    component: React.ComponentType<
+        SelfProps & {
+            $formutil: $Formutil<Fields, Validators, WeakFields>;
+        }
+    >,
+    config?: FormComponentProps<Fields, Validators, WeakFields>
+): React.ComponentClass<SelfProps>;
 
 export function withForm<SelfProps = {}, Fields = {}, Validators = {}, WeakFields = Fields>(
-    config?: Partial<FormComponentProps<Fields, Validators, WeakFields>>
+    config?: FormComponentProps<Fields, Validators, WeakFields>
 ): (
-    component: React.ComponentType<SelfProps>,
-    config?: Partial<FormComponentProps<Fields, Validators, WeakFields>>
-) => React.ComponentClass<
-    SelfProps & {
-        $formutil: $Formutil<Fields, Validators, WeakFields>;
-    }
->;
+    component: React.ComponentType<
+        SelfProps & {
+            $formutil: $Formutil<Fields, Validators, WeakFields>;
+        }
+    >,
+    config?: FormComponentProps<Fields, Validators, WeakFields>
+) => React.ComponentClass<SelfProps>;
 
 export function connect<SelfProps = {}, Fields = {}, Validators = {}, WeakFields = Fields>(
-    component: React.ComponentType<SelfProps>
-): React.ComponentClass<
-    SelfProps & {
-        $formutil: $Formutil<Fields, Validators, WeakFields>;
-    }
->;
+    component: React.ComponentType<
+        SelfProps & {
+            $formutil: $Formutil<Fields, Validators, WeakFields>;
+        }
+    >
+): React.ComponentClass<SelfProps>;

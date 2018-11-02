@@ -191,7 +191,7 @@ yarn add react-formutil
 如果设置了该属性，则其会覆盖掉`function as child`方式。
 
 ```javascript
-<Field name="username" render={props => <input />} />
+<Field name="username" render={$fieldutil => <input />} />
 // 或
 <Field name="username" component={MyField} />
 ```
@@ -267,11 +267,11 @@ yarn add react-formutil
         asyncCheck: value =>
             axios.post('/api/v1/check_account', { account: value }).catch(error => Promise.reject(error.message))
     }}>
-    {props => (
+    {$fieldutil => (
         <div className="form-group">
             <label>密码</label>
-            <input type="number" onChange={ev => props.$render(ev.target.value.trim())} value={props.$value} />
-            {props.$invalid && <div className="error">{object.values(props.$error)[0]}</div>}
+            <input type="number" onChange={ev => $fieldutil.$render(ev.target.value.trim())} value={$fieldutil.$value} />
+            {$fieldutil.$invalid && <div className="error">{object.values($fieldutil.$error)[0]}</div>}
         </div>
     )}
 </Field>
@@ -376,11 +376,11 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
 
 ```javascript
 <Field name="username">
-    {props => (
+    {$fieldutil => (
         <input
-            onChange={ev => props.$render(ev.target.value)}
-            onFocus={ev => props.$setFocused(true)}
-            onBlur={ev => props.$setTouched(true) && props.$setFocused(false)}
+            onChange={ev => $fieldutil.$render(ev.target.value)}
+            onFocus={ev => $fieldutil.$setFocused(true)}
+            onBlur={ev => $fieldutil.$setTouched(true) && $fieldutil.$setFocused(false)}
         />
     )}
 </Field>
@@ -469,10 +469,10 @@ $setError({
 
 ```javascript
 <Field>
-    {props => (
+    {$fieldutil => (
         <div>
-            <input value={props.$value} onChange={ev => props.$render(ev.target.value)} />
-            {props.$invalid && <p className="error">{props.$getFirstError()}</p>}
+            <input value={$fieldutil.$value} onChange={ev => $fieldutil.$render(ev.target.value)} />
+            {$fieldutil.$invalid && <p className="error">{$fieldutil.$getFirstError()}</p>}
         </div>
     )}
 </Field>
@@ -486,11 +486,12 @@ $setError({
 
 ```javascript
 <Field name="username">
-{ props => <input onChange={ev => props.$render(ev.target.value)} onFocus={ev => props.$$formutil.$validates()} />
+{ $fieldutil => <input onChange={ev => $fieldutil.$render(ev.target.value)} onFocus={ev => $fieldutil.$$formutil.$validates()} />
 </Field>
 ```
 
 ### `withField(Component)`
+> **特别注意**：v0.4.0版本起，`withField`将会把状态和方法都放到`$fieldutil`对象中传递给被装饰的组件！！这与之前的方式有所区别，请留意。
 
 `withField` 是一个高阶组件，与 `Field` 的区别是调用方式的不同。withField 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Field 组件。一般情况下建议通过 `Field` 组件去构造表单。如果你需要自定义一个复杂的表单项控件，则可以使用该高阶组件：
 
@@ -499,10 +500,10 @@ import React from 'react';
 import { withField } from 'react-formutil';
 
 class FieldCustom extends React.Component {
-    onChange = ev => this.props.$render(ev.target.value);
+    onChange = ev => this.props.$fieldutil.$render(ev.target.value);
 
     render() {
-        return <input onChange={this.onChange} value={this.props.$value} />;
+        return <input onChange={this.onChange} value={this.props.$fieldutil.$value} />;
     }
 }
 
@@ -1190,8 +1191,8 @@ const hobbiesItems = [
         <div>
             {hobbies.map(item => (
                 <label className="checkbox-inline" key={item.id}>
-                    {/* props.Field是每个候选项对应的input[checkbox]，必须渲染出来，并传递 $value */}
-                    <props.Field $value={item.id} />
+                    {/* props.GroupOption是每个候选项对应的input[checkbox]，必须渲染出来，并传递 $value */}
+                    <props.GroupOption $value={item.id} />
                     {item.name}
                 </label>
             ))}

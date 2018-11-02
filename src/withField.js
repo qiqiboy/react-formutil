@@ -29,7 +29,13 @@ function withField(WrappedComponent, config = {}) {
                     }
                 });
 
-            return <Field {...config} {...fieldProps} render={props => <WrappedComponent {...others} {...props} />} />;
+            return (
+                <Field
+                    {...config}
+                    {...fieldProps}
+                    render={props => <WrappedComponent {...others} $fieldutil={props} />}
+                />
+            );
         }
     };
 }

@@ -152,7 +152,7 @@ export type DeepRegisters<Fields, Validators, WeakFields = Fields> = {
 export type Validate<T = string, Fields = {}, P = {}, WeakFields = Fields> = (
     value: T,
     propName: any,
-    fieldProps: EasyFieldComponentProps<T, P, Fields, WeakFields> & { $formutil: $Formutil<Fields, P, WeakFields> }
+    fieldProps: any
 ) => any;
 
 export type Validators<T = string, Fields = {}, P = {}, WeakFields = Fields> = {

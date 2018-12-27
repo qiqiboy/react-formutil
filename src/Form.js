@@ -148,7 +148,17 @@ class Form extends Component {
         return newTree;
     }
 
-    $getField = name => this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
+    $getField = name => {
+        const field = this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
+
+        if (field) {
+            return {
+                ...field,
+                ...field.$picker(),
+                $$formutil: this.$formutil
+            }
+        }
+    };
 
     $$onChange = (name, $state, callback) =>
         this.$setStates(
@@ -197,7 +207,7 @@ class Form extends Component {
         });
 
     $validates = () => utils.objectEach(this.$$registers, handler => handler.$validate());
-    $validate = name => this.$getField(name).$validate();
+    $validate = (name, callback) => this.$getField(name).$validate(callback);
 
     $reset = ($stateTree, callback) => {
         if (utils.isFunction($stateTree)) {

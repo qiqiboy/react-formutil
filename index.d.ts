@@ -283,11 +283,13 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
 
     $getField<T extends keyof WeakFields>(
         name: T
-    ): $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators>;
+    ): $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators> &
+        FieldState<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators>;
     $getFirstError(): string;
     $render(callback?: () => void): void;
     $validate<T extends keyof WeakFields>(
-        name: T
+        name: T,
+        callback?: () => void
     ): FieldState<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators>;
     $validates(): void;
     $reset(stateTree?: ArgFormStates<Fields, Validators>, callback?: () => void): void;

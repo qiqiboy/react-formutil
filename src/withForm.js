@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Form from './Form';
 import { createHOC } from './utils';
+import hoistStatics from 'hoist-non-react-statics';
 
 function withForm(WrappedComponent, config = {}) {
-    return class FormEnhanced extends Component {
+    class FormEnhanced extends Component {
         static displayName = 'React.Formutil.withForm.' +
         (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
@@ -28,7 +29,9 @@ function withForm(WrappedComponent, config = {}) {
                 />
             );
         }
-    };
+    }
+
+    return hoistStatics(FormEnhanced, WrappedComponent);
 }
 
 export default createHOC(withForm);

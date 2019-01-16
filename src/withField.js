@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Field from './Field';
 import { createHOC } from './utils';
+import hoistStatics from 'hoist-non-react-statics';
 
 function withField(WrappedComponent, config = {}) {
-    return class FieldEnhanced extends Component {
+    class FieldEnhanced extends Component {
         static displayName = 'React.Formutil.withField.' +
         (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
@@ -37,7 +38,9 @@ function withField(WrappedComponent, config = {}) {
                 />
             );
         }
-    };
+    }
+
+    return hoistStatics(FieldEnhanced, WrappedComponent);
 }
 
 export default createHOC(withField);

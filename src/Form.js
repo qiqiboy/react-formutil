@@ -156,7 +156,7 @@ class Form extends Component {
                 ...field,
                 ...field.$picker(),
                 $$formutil: this.$formutil
-            }
+            };
         }
     };
 
@@ -226,8 +226,10 @@ class Form extends Component {
         );
     };
 
-    $setValues = ($valueTree, callback) =>
-        this.$setStates(this.fetchTreeFromRegisters($valueTree, $value => ({ $value })), callback);
+    $setValues = ($valueTree, callback) => {
+        Object.assign(this.$$defaultValues, $valueTree);
+        return this.$setStates(this.fetchTreeFromRegisters($valueTree, $value => ({ $value })), callback);
+    };
     $setFocuses = ($focusedTree, callback) =>
         this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })), callback);
     $setDirts = ($dirtyTree, callback) =>
@@ -277,7 +279,7 @@ class Form extends Component {
         const $focused = $stateArray.some(({ $state }) => $state.$focused);
         const $pending = $stateArray.some(({ $state }) => $state.$pending);
 
-        const $formutil = (this.$formutil = {
+        const $formutil = Object.assign(this.$formutil || (this.$formutil = {}), {
             $$registers: this.$$registers,
             $$deepRegisters: this.$$deepRegisters,
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),

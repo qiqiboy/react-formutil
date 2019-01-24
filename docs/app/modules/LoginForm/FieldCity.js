@@ -107,9 +107,9 @@ class FieldCity extends Component {
 
     onCityChange = () => {
         if (this.props.$formutil.$invalid) {
-            this.props.$render(null);
+            this.props.$fieldutil.$render(null);
         } else {
-            this.props.$render(this.props.$formutil.$params);
+            this.props.$fieldutil.$render(this.props.$formutil.$params);
         }
     };
 

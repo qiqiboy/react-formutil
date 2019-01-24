@@ -298,27 +298,32 @@ class Field extends Component {
 
     render() {
         let { children, render, component: TheComponent } = this.props;
-        const childProps = {
+        const $fieldutil = {
             ...this.$state,
             ...this.$handler,
             $$formutil: this.context.$formutil
         };
 
         if (TheComponent) {
-            return <TheComponent {...childProps} />;
+            return <TheComponent $fieldutil={$fieldutil} />;
         }
 
         if (utils.isFunction(render)) {
-            return render(childProps);
+            return render($fieldutil);
         }
 
         if (utils.isFunction(children)) {
-            return children(childProps);
+            return children($fieldutil);
         }
 
         return Children.map(
             children,
-            child => (child && utils.isFunction(child.type) ? cloneElement(child, childProps) : child)
+            child =>
+                child && utils.isFunction(child.type)
+                    ? cloneElement(child, {
+                          $fieldutil
+                      })
+                    : child
         );
     }
 }

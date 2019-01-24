@@ -184,7 +184,7 @@ yarn add react-formutil
 
 #### `render` `component`
 
-这两个属性为可选，并且不能同时存在（compoennt 会优先于 render，而将其覆盖）。
+这两个属性为可选，并且不能同时存在（component 会优先于 render，而将其覆盖）。
 
 当使用[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)方式时，可以不传该属性。
 

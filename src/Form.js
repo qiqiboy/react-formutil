@@ -43,13 +43,14 @@ class Form extends Component {
             $$register: this.$$register,
             $$unregister: this.$$unregister,
             $$onChange: this.$$onChange,
-            $$defaultValues: this.props.$defaultValues,
-            $$defaultStates: this.props.$defaultStates,
+            $$defaultValues: this.$$defaultValues,
+            $$defaultStates: this.$$defaultStates,
             $formutil: this.$formutil
         };
     }
 
     $$defaultValues = JSON.parse(JSON.stringify(this.props.$defaultValues));
+    $$defaultStates = JSON.parse(JSON.stringify(this.props.$defaultStates))
 
     /**
      * @desc 注册或者替换(preName)Field
@@ -227,7 +228,7 @@ class Form extends Component {
     };
 
     $setValues = ($valueTree, callback) => {
-        Object.assign(this.$$defaultValues, $valueTree);
+        Object.assign(this.$$defaultValues, JSON.parse(JSON.stringify($valueTree)));
         return this.$setStates(this.fetchTreeFromRegisters($valueTree, $value => ({ $value })), callback);
     };
     $setFocuses = ($focusedTree, callback) =>

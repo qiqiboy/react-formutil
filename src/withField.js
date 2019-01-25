@@ -34,7 +34,7 @@ function withField(WrappedComponent, config = {}) {
                 <Field
                     {...config}
                     {...fieldProps}
-                    render={props => <WrappedComponent {...others} $fieldutil={props} />}
+                    render={$fieldutil => <WrappedComponent {...others} $fieldutil={$fieldutil} />}
                 />
             );
         }

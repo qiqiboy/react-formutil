@@ -50,7 +50,7 @@ class Form extends Component {
     }
 
     $$defaultValues = JSON.parse(JSON.stringify(this.props.$defaultValues));
-    $$defaultStates = JSON.parse(JSON.stringify(this.props.$defaultStates))
+    $$defaultStates = JSON.parse(JSON.stringify(this.props.$defaultStates));
 
     /**
      * @desc 注册或者替换(preName)Field
@@ -280,7 +280,7 @@ class Form extends Component {
         const $focused = $stateArray.some(({ $state }) => $state.$focused);
         const $pending = $stateArray.some(({ $state }) => $state.$pending);
 
-        const $formutil = Object.assign(this.$formutil || (this.$formutil = {}), {
+        const $formutil = (this.$formutil = {
             $$registers: this.$$registers,
             $$deepRegisters: this.$$deepRegisters,
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
@@ -340,6 +340,9 @@ class Form extends Component {
             $render: this.$render,
 
             $getField: this.$getField,
+
+            // get the newest $formutil
+            $new: () => this.$formutil,
 
             $setStates: this.$setStates,
             $setValues: this.$setValues,

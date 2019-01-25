@@ -68,6 +68,7 @@ Happy to build the forms in React ^\_^
         + [`$defaultValues`](#defaultvalues)
         + [`$defaultStates`](#defaultstates)
         + [`$onFormChange`](#onformchange)
+        + [`$new()`](#new)
         + [`$getField(name)`](#getfieldname)
         + [`$validate(name)`](#validatename)
         + [`$validates()`](#validates)
@@ -126,12 +127,12 @@ yarn add react-formutil
 
 `react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有几个基于此的高阶组件：
 
--   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
--   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态。Form 可以理解为整个表单页面的 Provider。
--   `withField` 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
--   `withForm` 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
--   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
--   `connect` 是个高阶组件，用来给被包装的组件传递`$formutil` 对象，以供调用，返回的新组件必须位于某个 Form 组件的孙子辈才可以拿到`$formutil`
+*   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
+*   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态。Form 可以理解为整个表单页面的 Provider。
+*   `withField` 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
+*   `withForm` 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
+*   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
+*   `connect` 是个高阶组件，用来给被包装的组件传递`$formutil` 对象，以供调用，返回的新组件必须位于某个 Form 组件的孙子辈才可以拿到`$formutil`
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
@@ -200,10 +201,10 @@ yarn add react-formutil
 
 该项必填，`name` 可以是一个简单的字符串，也可以是一个字符串表达式（该表达式执行没有 `scope`, 所以表达式中不能存在变量）
 
--   `<Field name="username" />`
--   `<Field name="list[0]" />`
--   `<Field name="list[1].name" />`
--   `<Field name="list[2]['test' + 124]" />`
+*   `<Field name="username" />`
+*   `<Field name="list[0]" />`
+*   `<Field name="list[1].name" />`
+*   `<Field name="list[2]['test' + 124]" />`
 
 以上都是合法的 `name` 值。对于多层级的 `name` 值，生成的表单参数对象，也会基于该对象层级创建。例如，上面的示例，将会生成以下格式的表单参数对象：
 
@@ -218,8 +219,8 @@ yarn add react-formutil
 
 该属性可以设置表单控件的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
 
--   `<Field $defaultValue="username" />`
--   `<Field $defaultValue={{name: 'dog'}} />`
+*   `<Field $defaultValue="username" />`
+*   `<Field $defaultValue={{name: 'dog'}} />`
 
 `$defaultValue` 可以是任意类型值。
 
@@ -246,9 +247,9 @@ yarn add react-formutil
 
 校验被调用，会传入三个值：value、attr、props
 
--   `value` 为当前 Field 的值
--   `attr` 为校验标识值
--   `props` 为当前传给 Field 的所有 props，还包括当前 Field 所属 Fom 的$formutil
+*   `value` 为当前 Field 的值
+*   `attr` 为校验标识值
+*   `props` 为当前传给 Field 的所有 props，还包括当前 Field 所属 Fom 的$formutil
 
 ```javascript
 <Field
@@ -270,7 +271,11 @@ yarn add react-formutil
     {$fieldutil => (
         <div className="form-group">
             <label>密码</label>
-            <input type="number" onChange={ev => $fieldutil.$render(ev.target.value.trim())} value={$fieldutil.$value} />
+            <input
+                type="number"
+                onChange={ev => $fieldutil.$render(ev.target.value.trim())}
+                value={$fieldutil.$value}
+            />
             {$fieldutil.$invalid && <div className="error">{object.values($fieldutil.$error)[0]}</div>}
         </div>
     )}
@@ -367,9 +372,9 @@ Field 会维护一个状态树，以及一些方法，并且会将状态和方�
 
 该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单状态：
 
--   用户输入时需要通过调用`$render`来更新新值到状态中
--   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
--   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
+*   用户输入时需要通过调用`$render`来更新新值到状态中
+*   渲染表单项时，应该使用受控组件，根据 `$value` 来渲染
+*   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
 
 > **需要强调的是，Field 默认不同步`$touched`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
 > 如果你需要其它状态，需要自己去绑定相关事件来更新状态：
@@ -396,14 +401,14 @@ Field 的值实际是保存在状态里的该字段中，
 
 Field 的一组状态：
 
--   $dirty 控件被修改过
--   $pristine 控件没有被修改过，与$dirty 互斥
--   $touched 控件失去过焦点
--   $untouched 控件没有失去过焦点
--   $focused 焦点是否在当前控件
--   $pending 是否正在进行异步检查
--   $valid 表单所有控件均校验通过
--   $invalid 表单中有至少一个控件校验不通过
+*   $dirty 控件被修改过
+*   $pristine 控件没有被修改过，与$dirty 互斥
+*   $touched 控件失去过焦点
+*   $untouched 控件没有失去过焦点
+*   $focused 焦点是否在当前控件
+*   $pending 是否正在进行异步检查
+*   $valid 表单所有控件均校验通过
+*   $invalid 表单中有至少一个控件校验不通过
 
 #### `$error`
 
@@ -491,7 +496,8 @@ $setError({
 ```
 
 ### `withField(Component)`
-> **特别注意**：v0.4.0版本起，`withField`将会把状态和方法都放到`$fieldutil`对象中传递给被装饰的组件！！这与之前的方式有所区别，请留意。
+
+> **特别注意**：v0.4.0 版本起，`withField`将会把状态和方法都放到`$fieldutil`对象中传递给被装饰的组件！！这与之前的方式有所区别，请留意。
 
 `withField` 是一个高阶组件，与 `Field` 的区别是调用方式的不同。withField 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Field 组件。一般情况下建议通过 `Field` 组件去构造表单。如果你需要自定义一个复杂的表单项控件，则可以使用该高阶组件：
 
@@ -531,14 +537,14 @@ class MyField extends Component {}
 
 并且也也内置了一些常用的校验方法，例如：
 
--   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
--   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
--   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
--   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
--   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
--   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
--   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
--   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
+*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
+*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
+*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
+*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
+*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
+*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
+*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
+*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
 
 > 注：校验属性的值为 `null` 时表示不进行该校验
 
@@ -564,16 +570,16 @@ class MyField extends Component {}
 
 当设置了 type 时，EasyField 将会尝试直接渲染浏览器表单元素。它支持以下类型：
 
--   `input[type=text]`
--   `input[type=number]`
--   `input[type=search]`
--   `input[type=password]`
--   `input[type=checkbox]`
--   `input[type=radio]`
--   `select`
--   `textarea`
--   `group.radio`
--   `group.checkbox`
+*   `input[type=text]`
+*   `input[type=number]`
+*   `input[type=search]`
+*   `input[type=password]`
+*   `input[type=checkbox]`
+*   `input[type=radio]`
+*   `select`
+*   `textarea`
+*   `group.radio`
+*   `group.checkbox`
 
 > EasyField 对亚洲语言（中文、韩文、日文）输入法在输入过程中的的字母合成做了处理
 
@@ -783,9 +789,9 @@ function MyComponent({ current, onUpdate }) {
 
 经过 `Form` 增强的组件，会在其 `props` 中接收到一个`$formutil`对象。例如
 
--   你可以通过`$formutil.$params` 拿到整个表单的输入值
--   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
--   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
+*   你可以通过`$formutil.$params` 拿到整个表单的输入值
+*   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
+*   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
 
 `Form` 可以接收以下可选属性参数：
 
@@ -879,7 +885,57 @@ function MyComponent({ current, onUpdate }) {
 }
 ```
 
-更多解释参考：
+`$formutil`的属性方法详解：
+
+#### `$new()`
+
+获取最新的表单`$formutil`。这里可能会产生一个疑问：**为什么已经拿到了`$formutil`，还要再通过`$new()`再获取一次呢？**
+
+这是因为`$formutil`是随着渲染，每次都时时生成的新对象，即 react 组件的前后两次渲染，拿到的`$formutil`其实都是所属渲染帧的快照！
+
+当使用`withForm`高阶组件时，我们如果通过`this.props.$formutil`来访问，都是安全的，因为最新的`$formutil`都会通过组件的`props`传递过去。
+
+但是，当我们通过`render props`方式（即通过`Form`的 render、children 属性传递[渲染函数](#render--component)），异步回调里获取的上下文中`$fomutil`则可能是之前的某个快照，并不是最新的，所以你获得的表单状态和值都可能是不正确的。
+
+**错误的调用**
+
+```javascript
+<Form>
+    {$formutil => {
+        const onChange = ev => {
+            // 延迟2s执行
+            setTimeout(() => {
+                const { $invalid, $params } = $formutil;
+                // 这里的$formutil来自于回调函数所在作用域上下文中的$formutil
+                // 它是`onChange`事件触发时的最后一次渲染的快照
+                // 如果`onChange`触发，到延迟2s回调函数执行，表单又有变化的话，那么这里拿到的$formutil有可能就是和最新的表单状态不一致
+            }, 2000);
+        };
+
+        return <EasyField name="user" onChange={onChange} required />;
+    }}
+</Form>
+```
+
+**正确的用法**
+
+```javascript
+<Form>
+    {$formutil => {
+        const onChange = ev => {
+            // 延迟2s执行
+            setTimeout(() => {
+                const { $invalid, $params } = $formutil.$new(); 
+                // 注意，这里通过 $formutil.$new() 获取即时的最新的 $formutil，这样子是绝对安全的用法。
+                // 如果不确定该不该用 $formutil.$new()，那么请记住，总是使用$new()总是没错的！
+                // ...
+            }, 2000);
+        };
+
+        return <EasyField name="user" onChange={onChange} required />;
+    }}
+</Form>
+```
 
 #### `$getField(name)`
 
@@ -1278,9 +1334,9 @@ import { findDOMNode } from 'react-dom';
 
 比如同时要收集用户的个人信息和工作信息，我们可以将其拆分为三个模块：
 
--   `Userinfo.js` 用户基本信心的字段
--   `Workinfo.js` 用户工作信息的字段
--   `Submit.js` 提交区域（因为只有在 Form 组件下级才能拿到$formutil 信息）
+*   `Userinfo.js` 用户基本信心的字段
+*   `Workinfo.js` 用户工作信息的字段
+*   `Submit.js` 提交区域（因为只有在 Form 组件下级才能拿到$formutil 信息）
 
 注： Submit.js 和 Workinfo.js 合并到一起也是可以的。
 
@@ -1468,11 +1524,11 @@ class MyForm extends Component {
 
 为了更便捷的在各大流程组件库项目中使用`react-formutil`，我们也提供了针对各个组件库的优化封装组件：
 
--   [`react-antd-formutil`](https://github.com/qiqiboy/react-antd-formutil) [![npm](https://img.shields.io/npm/v/react-antd-formutil.svg?style=flat)](https://npm.im/react-antd-formutil)
--   [`react-material-formutil`](https://github.com/qiqiboy/react-material-formutil) [![npm](https://img.shields.io/npm/v/react-material-formutil.svg?style=flat)](https://npm.im/react-material-formutil)
--   [`react-bootstrap-formutil`](https://github.com/qiqiboy/react-bootstrap-formutil) [![npm](https://img.shields.io/npm/v/react-bootstrap-formutil.svg?style=flat)](https://npm.im/react-bootstrap-formutil)
--   [`react-md-formutil`](https://github.com/qiqiboy/react-md-formutil) [![npm](https://img.shields.io/npm/v/react-md-formutil.svg?style=flat)](https://npm.im/react-md-formutil)
--   and more...
+*   [`react-antd-formutil`](https://github.com/qiqiboy/react-antd-formutil) [![npm](https://img.shields.io/npm/v/react-antd-formutil.svg?style=flat)](https://npm.im/react-antd-formutil)
+*   [`react-material-formutil`](https://github.com/qiqiboy/react-material-formutil) [![npm](https://img.shields.io/npm/v/react-material-formutil.svg?style=flat)](https://npm.im/react-material-formutil)
+*   [`react-bootstrap-formutil`](https://github.com/qiqiboy/react-bootstrap-formutil) [![npm](https://img.shields.io/npm/v/react-bootstrap-formutil.svg?style=flat)](https://npm.im/react-bootstrap-formutil)
+*   [`react-md-formutil`](https://github.com/qiqiboy/react-md-formutil) [![npm](https://img.shields.io/npm/v/react-md-formutil.svg?style=flat)](https://npm.im/react-md-formutil)
+*   and more...
 
 你可以点击上方链接来了解更多。
 
@@ -1482,11 +1538,11 @@ class MyForm extends Component {
 
 `react-formutil@0.3.0` 起提供了针对`typescript`的`DefinitionTypes`声明文件，在开发中可能会用到的主要是以下几个：
 
-* `$Formutil<Field, Validators, WeakFields>` 整个表单的 $formtutil 类型声明
-* `$Fieldutil<T, Validators, Fields, WeakFields>` 单个表单项的 $fieldutil 类型声明
-* `Field<T, Validators, Fields, WeakFields>` Field组件的类型声明
-* `EasyField<T, Validators, Fields, WeakFields>` EasyField组件的类型声明
-* `Form<Fields, Validators, WeakFields>` EasyField组件的类型声明
+*   `$Formutil<Field, Validators, WeakFields>` 整个表单的 $formtutil 类型声明
+*   `$Fieldutil<T, Validators, Fields, WeakFields>` 单个表单项的 $fieldutil 类型声明
+*   `Field<T, Validators, Fields, WeakFields>` Field 组件的类型声明
+*   `EasyField<T, Validators, Fields, WeakFields>` EasyField 组件的类型声明
+*   `Form<Fields, Validators, WeakFields>` EasyField 组件的类型声明
 
 除了以上列出的，还有很多其它的类型定义，可以自行查看类型声明文件。
 
@@ -1494,7 +1550,7 @@ class MyForm extends Component {
 >
 > `let IErrors: Validators = { required: true, maxLength: string }`  
 > `let fields: Fields = { user: { name: string, age: number }, price: number }`  
-> `let weakFields: WeakFields = { 'user.name': string, 'user.age': number, price: number }`  
+> `let weakFields: WeakFields = { 'user.name': string, 'user.age': number, price: number }`
 
 ```typescript
 import React, { Component } from 'react';
@@ -1553,4 +1609,3 @@ class UserForm extends Component<IProps> {
     }
 }
 ```
-

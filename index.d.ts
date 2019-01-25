@@ -281,6 +281,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $$registers: Registers<Fields, Validators, WeakFields>;
     $$deepRegisters: DeepRegisters<Fields, Validators, WeakFields>;
 
+    $new(): $Formutil<Fields, Validators, WeakFields>;
     $getField<T extends keyof WeakFields>(
         name: T
     ): $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators> &

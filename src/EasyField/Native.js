@@ -33,7 +33,6 @@ class EasyFieldNative extends Component {
             onBlur,
             checked,
             unchecked,
-            children,
             ...others
         } = this.props;
         const htmlType = this.props.type;
@@ -75,7 +74,6 @@ class EasyFieldNative extends Component {
 
                     onChange(value, ev);
                 };
-                htmlProps.children = children;
 
                 break;
             case 'textarea':

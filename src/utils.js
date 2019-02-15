@@ -42,7 +42,7 @@ const executeWord = function(word) {
         const exec = new Function(
             'origin',
             'global',
-            `return typeof ${word} !== 'undefined' && !(origin in global) ? ${word} : origin`
+            `return typeof ${word} === 'number' || (typeof ${word} !== 'undefined' && !(origin in global)) ? ${word} : origin`
         );
         return exec(word, Root);
     } catch (err) {

@@ -89,6 +89,8 @@ class EasyField extends Component {
             $onFieldChange,
             $validators,
             $asyncValidators,
+            $parser,
+            $formatter,
             validMessage,
             passUtil,
             __TYPE__,

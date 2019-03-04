@@ -48,7 +48,7 @@ class Form extends Component {
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, preName) => {
-        if (preName && $handler.$$FIELD_UUID === this.$getField(preName).$$FIELD_UUID) {
+        if (preName && $handler.$$FIELD_UUID === (this.$getField(preName) || {}).$$FIELD_UUID) {
             delete this.$$registers[preName];
             utils.objectClear(this.$$defaultValues, preName);
 
@@ -76,7 +76,7 @@ class Form extends Component {
     };
 
     $$unregister = (name, $handler) => {
-        if (name && $handler.$$FIELD_UUID === this.$getField(name).$$FIELD_UUID) {
+        if (name && $handler.$$FIELD_UUID === (this.$getField(name) || {}).$$FIELD_UUID) {
             delete this.$$registers[name];
             utils.objectClear(this.$$defaultValues, name);
 
@@ -261,6 +261,33 @@ class Form extends Component {
         );
 
     _render() {
+        const $formutil = this.$formutil;
+        let { children, render, component: TheComponent } = this.props;
+
+        if (TheComponent) {
+            return <TheComponent $formutil={$formutil} />;
+        }
+
+        if (utils.isFunction(render)) {
+            return render($formutil);
+        }
+
+        if (utils.isFunction(children)) {
+            return children($formutil);
+        }
+
+        return Children.map(
+            children,
+            child =>
+                child && utils.isFunction(child.type)
+                    ? cloneElement(child, {
+                          $formutil
+                      })
+                    : child
+        );
+    }
+
+    render() {
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
             $state: this.$$registers[path].$picker()
@@ -362,32 +389,6 @@ class Form extends Component {
             $pending
         });
 
-        let { children, render, component: TheComponent } = this.props;
-
-        if (TheComponent) {
-            return <TheComponent $formutil={$formutil} />;
-        }
-
-        if (utils.isFunction(render)) {
-            return render($formutil);
-        }
-
-        if (utils.isFunction(children)) {
-            return children($formutil);
-        }
-
-        return Children.map(
-            children,
-            child =>
-                child && utils.isFunction(child.type)
-                    ? cloneElement(child, {
-                          $formutil
-                      })
-                    : child
-        );
-    }
-
-    render() {
         return <FormContext.Provider value={this.getFormContext()}>{this._render()}</FormContext.Provider>;
     }
 }

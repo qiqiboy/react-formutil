@@ -51,9 +51,6 @@ class EasyField extends Component {
         focusPropName: PropTypes.string,
         blurPropName: PropTypes.string,
 
-        $parser: PropTypes.func,
-        $formatter: PropTypes.func,
-
         passUtil: PropTypes.string
     };
 
@@ -63,14 +60,12 @@ class EasyField extends Component {
         changePropName: 'onChange',
         focusPropName: 'onFocus',
         blurPropName: 'onBlur',
-        $parser: value => value,
+        $parser: value => (typeof value === 'string' ? value.trim() : value),
         $formatter: value => value
     };
 
     render() {
         const {
-            $parser,
-            $formatter,
             defaultValue,
             valuePropName,
             changePropName,
@@ -186,7 +181,7 @@ class EasyField extends Component {
                     const childProps = {
                         ...otherProps,
 
-                        [valuePropName]: $formatter($util.$value),
+                        [valuePropName]: $util.$viewValue,
                         [changePropName]: (...args) => {
                             let value = args[0];
                             let ev = args[args.length - 1];
@@ -198,7 +193,7 @@ class EasyField extends Component {
                             }
 
                             const newValue = fetchValueFromEvent(value);
-                            $util.$render($parser(newValue));
+                            $util.$render(newValue);
 
                             onChange && onChange(...ev);
                         },

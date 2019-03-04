@@ -26,7 +26,15 @@ class Field extends Component {
         },
 
         $validators: PropTypes.object,
-        $asyncValidators: PropTypes.object
+        $asyncValidators: PropTypes.object,
+
+        $parser: PropTypes.func,
+        $formatter: PropTypes.func
+    };
+
+    static defaultProps = {
+        $parser: $viewValue => $viewValue,
+        $formatter: $modelValue => $modelValue
     };
 
     constructor(props) {
@@ -34,6 +42,7 @@ class Field extends Component {
 
         this.$baseState = {
             $value: '$defaultValue' in props ? props.$defaultValue : '',
+            $viewValue: '',
 
             $valid: true,
             $invalid: false,
@@ -62,31 +71,40 @@ class Field extends Component {
                 utils.isFunction(this.props.$onFieldChange) &&
                 this.props.$onFieldChange($newValue, $preValue, this.formContext.$formutil),
             $$reset: $newState => {
+                let $initialState;
+
                 if (this.$name) {
                     const context = this.formContext;
                     const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
-                    const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
+
+                    $initialState = utils.parsePath(context.$$defaultStates, this.$name) || {};
 
                     if (!utils.isUndefined($initialValue)) {
-                        this.$baseState.$value = $initialValue;
-                    }
-
-                    if ($initialState) {
-                        Object.assign(this.$baseState, $initialState);
+                        $initialState.$value = $initialValue;
                     }
                 } else {
                     this.$preValue = this.$baseState.$value;
                 }
 
-                return (this.$state = { ...this.$baseState, $error: { ...this.$baseState.$error }, ...$newState });
+                const $state = {
+                    ...this.$baseState,
+                    $error: { ...this.$baseState.$error },
+                    ...$initialState
+                };
+
+                return (this.$state = {
+                    ...$state,
+                    $viewValue: this.props.$formatter($state.$value),
+                    ...$newState
+                });
             },
             $name: this.$name,
             $picker: () => ({ ...this.$state }),
             $getComponent: () => this,
             $reset: $newState => this.$setState(this.$handler.$$reset($newState)),
             $getFirstError: this.$getFirstError,
-            $render: this.$render,
-            $setValue: this.$render,
+            $render: this.$setViewValue,
+            $setValue: this.$setViewValue,
             $setState: this.$setState,
             $setTouched: this.$setTouched,
             $setDirty: this.$setDirty,
@@ -186,6 +204,12 @@ class Field extends Component {
             };
         }
 
+        if ('$viewValue' in $newState && !('$value' in $newState)) {
+            $newState.$value = this.props.$parser($newState.$viewValue);
+        } else if ('$value' in $newState && !('$viewValue' in $newState)) {
+            $newState.$viewValue = this.props.$formatter($newState.$value);
+        }
+
         Object.assign(this.$state, $newState);
 
         if ('$value' in $newState) {
@@ -221,10 +245,10 @@ class Field extends Component {
         return this.$handler.$picker();
     };
 
-    $render = ($value, callback) =>
+    $setViewValue = ($viewValue, callback) =>
         this.$setState(
             {
-                $value,
+                $viewValue,
                 $dirty: true,
                 $pristine: false
             },

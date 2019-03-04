@@ -1,5 +1,6 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
+import FormContext from './context';
 import * as utils from './utils';
 
 class Form extends Component {
@@ -21,15 +22,6 @@ class Form extends Component {
         $onFormChange: PropTypes.func
     };
 
-    static childContextTypes = {
-        $$register: PropTypes.func,
-        $$unregister: PropTypes.func,
-        $$onChange: PropTypes.func,
-        $$defaultValues: PropTypes.object,
-        $$defaultStates: PropTypes.object,
-        $formutil: PropTypes.object
-    };
-
     static defaultProps = {
         $defaultValues: {},
         $defaultStates: {}
@@ -38,7 +30,7 @@ class Form extends Component {
     $$registers = {};
     $$deepRegisters = {};
 
-    getChildContext() {
+    getFormContext() {
         return {
             $$register: this.$$register,
             $$unregister: this.$$unregister,
@@ -268,7 +260,7 @@ class Form extends Component {
             callback
         );
 
-    render() {
+    _render() {
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
             $state: this.$$registers[path].$picker()
@@ -393,6 +385,10 @@ class Form extends Component {
                       })
                     : child
         );
+    }
+
+    render() {
+        return <FormContext.Provider value={this.getFormContext()}>{this._render()}</FormContext.Provider>;
     }
 }
 

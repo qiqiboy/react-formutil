@@ -1,5 +1,6 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
+import FormContext from './context';
 import * as utils from './utils';
 import warning from 'warning';
 
@@ -28,17 +29,8 @@ class Field extends Component {
         $asyncValidators: PropTypes.object
     };
 
-    static contextTypes = {
-        $$register: PropTypes.func,
-        $$unregister: PropTypes.func,
-        $$onChange: PropTypes.func,
-        $$defaultValues: PropTypes.object,
-        $$defaultStates: PropTypes.object,
-        $formutil: PropTypes.object
-    };
-
-    constructor(props, context) {
-        super(props, context);
+    constructor(props) {
+        super(props);
 
         this.$baseState = {
             $value: '$defaultValue' in props ? props.$defaultValue : '',
@@ -68,10 +60,26 @@ class Field extends Component {
             $$merge: this.$$merge,
             $$triggerChange: ({ $newValue, $preValue }) =>
                 utils.isFunction(this.props.$onFieldChange) &&
-                this.props.$onFieldChange($newValue, $preValue, this.context.$formutil),
-            $$reset: $newState =>
-                (this.$state = { ...this.$baseState, $error: { ...this.$baseState.$error }, ...$newState }),
+                this.props.$onFieldChange($newValue, $preValue, this.formContext.$formutil),
+            $$reset: $newState => {
+                if (this.$name) {
+                    const context = this.formContext;
+                    const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
+                    const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
 
+                    if (!utils.isUndefined($initialValue)) {
+                        this.$baseState.$value = $initialValue;
+                    }
+
+                    if ($initialState) {
+                        Object.assign(this.$baseState, $initialState);
+                    }
+                } else {
+                    this.$preValue = this.$baseState.$value;
+                }
+
+                return (this.$state = { ...this.$baseState, $error: { ...this.$baseState.$error }, ...$newState });
+            },
             $name: this.$name,
             $picker: () => ({ ...this.$state }),
             $getComponent: () => this,
@@ -95,41 +103,29 @@ class Field extends Component {
                 return this.$handler['$' + key](...args);
             };
         });
+    }
 
-        if (this.$name && context.$$register) {
-            const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
-            const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
-
-            if (!utils.isUndefined($initialValue)) {
-                this.$baseState.$value = $initialValue;
-            }
-
-            if ($initialState) {
-                Object.assign(this.$baseState, $initialState);
-            }
-
-            this.$handler.$$reset();
-            context.$$register(this.$name, this.$handler);
-        } else {
-            this.$handler.$$reset();
-            this.$preValue = this.$baseState.$value;
+    componentDidMount() {
+        if (this.formContext.$$register) {
+            this.formContext.$$register(this.$name, this.$handler);
         }
     }
 
     componentWillUnmount() {
-        if (this.context.$$unregister) {
-            this.context.$$unregister(this.$name, this.$handler);
+        if (this.formContext.$$unregister) {
+            this.formContext.$$unregister(this.$name, this.$handler);
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.context.$$register && nextProps.name !== this.$name) {
-            if (nextProps.name) {
-                this.context.$$register((this.$name = nextProps.name), this.$handler, this.props.name);
+    componentDidUpdate(prevProps) {
+        if (this.formContext.$$register && prevProps.name !== this.$name) {
+            this.$name = this.props.name;
+
+            if (this.$name) {
+                this.formContext.$$register(this.$name, this.$handler, prevProps.name);
             } else {
                 this.$preValue = this.$state.$value;
-                this.context.$$unregister(this.$name, this.$handler);
-                delete this.$name;
+                this.formContext.$$unregister(prevProps.$name, this.$handler);
             }
         }
     }
@@ -137,7 +133,7 @@ class Field extends Component {
     $validate = callback => {
         const $validators = { ...this.props.$validators, ...this.props.$asyncValidators };
         const { $value, $error } = this.$state;
-        const { $formutil } = this.context;
+        const { $formutil } = this.formContext;
 
         const promises = Object.keys($validators).reduce((promises, key) => {
             delete $error[key];
@@ -200,8 +196,8 @@ class Field extends Component {
     };
 
     $setState = ($newState, callback) => {
-        if (this.$name && this.context.$$onChange) {
-            this.context.$$onChange(this.$name, $newState, callback);
+        if (this.$name && this.formContext.$$onChange) {
+            this.formContext.$$onChange(this.$name, $newState, callback);
         } else {
             this.$$merge($newState);
 
@@ -296,12 +292,12 @@ class Field extends Component {
         }
     };
 
-    render() {
+    _render() {
         let { children, render, component: TheComponent } = this.props;
         const $fieldutil = {
             ...this.$state,
             ...this.$handler,
-            $$formutil: this.context.$formutil
+            $$formutil: this.formContext.$formutil
         };
 
         if (TheComponent) {
@@ -324,6 +320,22 @@ class Field extends Component {
                           $fieldutil
                       })
                     : child
+        );
+    }
+
+    render() {
+        return (
+            <FormContext.Consumer>
+                {context => {
+                    if (!this.formContext) {
+                        this.formContext = context;
+
+                        this.$handler.$$reset();
+                    }
+
+                    return this._render();
+                }}
+            </FormContext.Consumer>
         );
     }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import FormContext from './context';
 import hoistStatics from 'hoist-non-react-statics';
 
 function connect(WrappedComponent) {
@@ -7,12 +7,12 @@ function connect(WrappedComponent) {
         static displayName = 'React.Formutil.connect.' +
         (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
-        static contextTypes = {
-            $formutil: PropTypes.object
-        };
-
         render() {
-            return <WrappedComponent {...this.props} $formutil={this.context.$formutil} />;
+            return (
+                <FormContext.Consumer>
+                    {context => <WrappedComponent {...this.props} $formutil={context.$formutil} />}
+                </FormContext.Consumer>
+            );
         }
     }
 

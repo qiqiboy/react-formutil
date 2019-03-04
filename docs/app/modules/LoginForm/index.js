@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withForm, Field, EasyField } from 'app/../../../react-formutil';
+import { withForm, Field, EasyField } from 'app/../../src';
 import FieldCity from './FieldCity';
 
 @withForm({

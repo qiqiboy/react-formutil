@@ -123,18 +123,8 @@ class FieldCity extends Component {
     componentDidMount() {
         this.getProvinceData();
 
-        if (this.props.$value) {
-            this.props.$formutil.$setValues(this.props.$value);
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (
-            nextProps.$value !== this.props.$value &&
-            nextProps.$value &&
-            (!this.props.$value || nextProps.$value.province !== this.props.$value.province)
-        ) {
-            this.getCityData(nextProps.$value.province);
+        if (this.props.$fieldutil.$value) {
+            this.props.$formutil.$setValues(this.props.$fieldutil.$value);
         }
     }
 

@@ -279,7 +279,7 @@ yarn add react-formutil
             <input
                 type="number"
                 onChange={ev => $fieldutil.$render(ev.target.value.trim())}
-                value={$fieldutil.$value}
+                value={$fieldutil.$viewValue}
             />
             {$fieldutil.$invalid && <div className="error">{object.values($fieldutil.$error)[0]}</div>}
         </div>
@@ -370,12 +370,12 @@ yarn add react-formutil
 
 #### `$fieldutil`
 
-`$fieldutil` 包含了当前`Field`对象的状态以及一组用来更新状态的方法。它会被传递给视图组件用来同步和更新表单的状态值。
+`$fieldutil` 包含了当前`Field`对象的状态模型以及一组用来更新状态模型的方法。它会被传递给视图组件用来同步和更新表单的状态值。
 
 ```js
 {
-    $value: "", //表单值
-    $viewValue: "", //视图值，$value和$viewValue可以通过$parser或者$formatter相互转换
+    $value: "", //表单域状态模型值
+    $viewValue: "", //表单域视图值，$value和$viewValue可以通过$parser或者$formatter相互转换
     $dirty: false, //是否修改过表单项
     $pristine: true, //与$dirty相反
     $touched: false, //是否接触过表单
@@ -386,14 +386,14 @@ yarn add react-formutil
     $error: {}, //表单校验错误信息
     $pending: false, //异步校验时该值将为true
 
-    /*** 上面是状态，下面是可用方法 ***/
+    /*** 上面是状态模型，下面是可用方法 ***/
 
-    $pickr: () => $state, //返回当前状态树
+    $pickr: () => $state, //返回当前状态模型对象
     $reset: ($newState) => $state, //重置为初始状态, $newState存在的话，会做一个合并
     $getComponent: (name) => FieldComponent, //返回Field组件实例
 
-    $render: (value, callback) => {}, //更新表单视图值，callback可选，会在组件更新后回调
-    $setValue: (value, callback) => {}, //直接更新表单模型值，callback可选。$setValue与$render的区别在于，前者的值会经过$parser处理后再更新到表单模型中，后者则不会。
+    $render: (value, callback) => {}, //更新表单域视图值，callback可选，会在组件更新后回调
+    $setValue: (value, callback) => {}, //直接更新表单域模型值，callback可选。$setValue与$render的区别在于，前者的值会经过$parser处理后再更新到表单模型中，后者则不会。
     $setDirty: $dirty => {}, //设置$dirty装态
     $setTouched: $touched => {}, //设置$touched装态
     $setFocused: $focused => {}, //设置$focused装态
@@ -403,10 +403,10 @@ yarn add react-formutil
     $validate: () => {} //触发再次校验
 ```
 
-该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单状态：
+该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单域状态模型：
 
 *   用户输入时需要通过调用`$render`来更新新值到状态中
-*   渲染表单项时，应该使用受控组件，根据 `$value` 或者 `$viewValue` 来渲染
+*   渲染表单项时，应该使用受控组件，根据 `$viewValue` 来渲染
 *   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
 
 > **需要强调的是，Field 默认不同步`$touched`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
@@ -416,6 +416,7 @@ yarn add react-formutil
 <Field name="username">
     {$fieldutil => (
         <input
+            value={$fieldutil.$viewValue}
             onChange={ev => $fieldutil.$render(ev.target.value)}
             onFocus={ev => $fieldutil.$setFocused(true)}
             onBlur={ev => $fieldutil.$setTouched(true) && $fieldutil.$setFocused(false)}
@@ -517,7 +518,7 @@ $setError({
 <Field>
     {$fieldutil => (
         <div>
-            <input value={$fieldutil.$value} onChange={ev => $fieldutil.$render(ev.target.value)} />
+            <input value={$fieldutil.$viewValue} onChange={ev => $fieldutil.$render(ev.target.value)} />
             {$fieldutil.$invalid && <p className="error">{$fieldutil.$getFirstError()}</p>}
         </div>
     )}
@@ -550,7 +551,7 @@ class FieldCustom extends React.Component {
     onChange = ev => this.props.$fieldutil.$render(ev.target.value);
 
     render() {
-        return <input onChange={this.onChange} value={this.props.$fieldutil.$value} />;
+        return <input onChange={this.onChange} value={this.props.$fieldutil.$viewValue} />;
     }
 }
 
@@ -1652,8 +1653,8 @@ class UserForm extends Component<IProps> {
                 {/* 这里我们定义该项的值为number类型，所以在渲染该值是需要做类型转换 */}
                 <Field<number> name="age">
                     { $fieldutil => {
-                            // console.log($fieldutil.$value)
-                            return <input onChange={ev => $fieldutil.$render(Number(ev.target.value))} value={$fieldutil.$value} />
+                            // console.log($fieldutil.$viewValue)
+                            return <input onChange={ev => $fieldutil.$render(Number(ev.target.value))} value={$fieldutil.$viewValue} />
                         }
                     }
                 </Field>

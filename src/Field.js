@@ -202,6 +202,7 @@ class Field extends Component {
             };
         }
 
+        // process $value
         const { $parser, $formatter } = this.props;
 
         if ('$viewValue' in $newState && !('$value' in $newState)) {
@@ -212,6 +213,20 @@ class Field extends Component {
             const $setModelValue = $value => ($newState.$value = $value);
 
             $newState.$viewValue = $formatter ? $formatter($newState.$value, $setModelValue) : $newState.$value;
+        }
+
+        // process $dirty/$pristine
+        if ('$dirty' in $newState) {
+            $newState.$pristine = !$newState.$dirty;
+        } else if ('$pristine' in $newState) {
+            $newState.$dirty = !$newState.$pristine;
+        }
+
+        // process $touched/$untouched
+        if ('$touched' in $newState) {
+            $newState.$untouched = !$newState.$touched;
+        } else if ('$untouched' in $newState) {
+            $newState.$touched = !$newState.$untouched;
         }
 
         Object.assign(this.$state, $newState);
@@ -253,8 +268,7 @@ class Field extends Component {
         this.$setState(
             {
                 $viewValue,
-                $dirty: true,
-                $pristine: false
+                $dirty: true
             },
             callback
         );
@@ -278,8 +292,7 @@ class Field extends Component {
     $setTouched = ($touched, callback) =>
         this.$setState(
             {
-                $touched,
-                $untouched: !$touched
+                $touched
             },
             callback
         );
@@ -287,8 +300,7 @@ class Field extends Component {
     $setDirty = ($dirty, callback) =>
         this.$setState(
             {
-                $dirty,
-                $pristine: !$dirty
+                $dirty
             },
             callback
         );

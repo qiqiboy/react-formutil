@@ -11,7 +11,7 @@ Happy to build the forms in React ^\_^
 > 1.  一切都是状态，$value、$diry/$pristine、$touched/$untouched、$valid/$invalid、$error 等都是状态
 > 2.  非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构
 > 3.  采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
-> 4.  支持高阶组件和函数式子组件（[function as child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)）式调用，更灵活
+> 4.  同时支持高阶组件和函数式子组件（[render props](https://reactjs.org/docs/render-props.html)）式调用，更灵活
 > 5.  具备灵活的表单校验方式，支持同步和异步校验
 > 6.  规范的 jsx 语法调用，更符合 react 理念
 > 7.  [对流行的 react 组件库做了适配优化，现已支持](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)：`ant-design` `material-ui` `react-bootstrap` `react-md`
@@ -57,8 +57,11 @@ Happy to build the forms in React ^\_^
             * [`custom component`](#custom-component)
         + [`name`](#name-1)
         + [`$defaultValue`](#defaultvalue-1)
+        + [`$defaultState`](#defaultstate-1)
         + [`$validators`](#validators-1)
         + [~~`$asyncValidators`~~](#asyncvalidators-1)
+        + [`$parser`](#parser-1)
+        + [`$formatter`](#formatter-1)
         + [`defaultValue`](#defaultvalue-2)
         + [`validMessage`](#validmessage)
         + [`checked / unchecked`](#checked--unchecked)
@@ -340,14 +343,29 @@ yarn add react-formutil
 
 #### `$parser`
 
-视图中的值更新到 Field 的 state 中时，会经过 `$parser` 处理。默认为 `value => value`
+视图中的值更新到 Field 的 state 中时，会经过 `$parser` 处理。
+
+```javascript
+// 通过$parser属性来过滤前后输入空格
+<Field name="fieldName" $parser={(viewValue, $setViewValue) => viewValue.trim()}>
+    //...
+</Field>
+```
+
+注意，上述写法不会更新视图值。如果希望限制用户输入任意空格，可以通过`$parser`的第二个参数`$setViewValue`，来在用户每次输入后立即更新视图值。
+
+```javascript
+// 通过$parser属性来过滤前后输入空格
+<Field name="fieldName" $parser={(viewValue, $setViewValue) => $setViewValue(viewValue.trim())} />
+```
 
 #### `$formatter`
 
-Field 的 state 的值通过 `$formatter` 处理后传递给视图渲染。默认为 `value => value`
+Field 的 state 的值通过 `$formatter` 处理后传递给视图渲染。
 
 ```javascript
-<EasyField name="age" $parser={value => Number(value)} $formatter={value => String(value)} />
+// 通过$formatter将模型中的值转换为标准的金额书写格式
+<Field name="amount" $formatter={(value, $setModelValue) => priceFormat(value)} />
 ```
 
 #### `$fieldutil`
@@ -374,8 +392,8 @@ Field 的 state 的值通过 `$formatter` 处理后传递给视图渲染。默�
     $reset: ($newState) => $state, //重置为初始状态, $newState存在的话，会做一个合并
     $getComponent: (name) => FieldComponent, //返回Field组件实例
 
-    $render: (value, callback) => {}, //更新表单值，callback可选，会在组件更新后回调
-    $setValue: value => {}, //同$render，只是个别名
+    $render: (value, callback) => {}, //更新表单视图值，callback可选，会在组件更新后回调
+    $setValue: (value, callback) => {}, //直接更新表单模型值，callback可选。$setValue与$render的区别在于，前者的值会经过$parser处理后再更新到表单模型中，后者则不会。
     $setDirty: $dirty => {}, //设置$dirty装态
     $setTouched: $touched => {}, //设置$touched装态
     $setFocused: $focused => {}, //设置$focused装态
@@ -558,7 +576,13 @@ class MyField extends Component {}
 
 `EasyField` 是对`Field`的二次封装，向下提供了 `onChange` `onFocus` `onBlur` 三个方法用来同步值的变动以及相关`$dirty` `$touched`等状态。
 
-并且也也内置了一些常用的校验方法，例如：
+**特别提醒：`EasyField`会默认对所有的字符串输入做前后空格的过滤。如果不需要这个特性，可以通过重写`$parser`属性来关闭该功能：**
+
+```javascript
+<EasyField name="name" type="username" $parser={value => value} />
+```
+
+`EasyField`内置了一些常用的校验方法，例如：
 
 *   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
 *   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
@@ -723,23 +747,37 @@ import Select from 'react-select';
 
 #### `name`
 
-同`Field`的`name`
+同`Field`的[`name`](#name)
 
 #### `$defaultValue`
 
-同`Field`的`$defaultValue`
+同`Field`的 [`$defaultValue`](#defaultvalue)
+
+#### `$defaultState`
+
+同`Field`的 [`$defaultState`](#defaultstate)
 
 #### `$validators`
 
-同`Field`的`$validators`。它会与内置的校验方法进行合并后，可以覆盖同名的默认校验方法。
+同`Field`的[`$validators`](#validators)。它会与内置的校验方法进行合并后，可以覆盖同名的默认校验方法。
 
 #### ~~`$asyncValidators`~~
 
+同`Field`的[`$asyncValidators`](#asyncvalidators)
+
 > **`v0.2.22` 起，建议直接使用 `$validators` 即可，`$validators` 也支持了异步校验。不建议单独使用 `$asyncValidators`。**
+
+#### `$parser`
+
+同`Field`的 [`$parser`](#parser)
+
+#### `$formatter`
+
+同`Field`的 [`$formatter`](#formatter)
 
 #### `defaultValue`
 
-注意，这个是省略前面的`$`符号。如果与`$defaultValue`同时存在，则会被后者覆盖。
+注意，这个是省略前面的`$`符号。如果与[`$defaultValue`](#defaultvalue)同时存在，则会被后者覆盖。
 
 #### `validMessage`
 

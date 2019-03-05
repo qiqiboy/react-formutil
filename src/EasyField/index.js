@@ -60,8 +60,7 @@ class EasyField extends Component {
         changePropName: 'onChange',
         focusPropName: 'onFocus',
         blurPropName: 'onBlur',
-        $parser: value => (typeof value === 'string' ? value.trim() : value),
-        $formatter: value => value
+        $parser: value => (typeof value === 'string' ? value.trim() : value)
     };
 
     render() {

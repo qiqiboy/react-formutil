@@ -167,8 +167,8 @@ export interface FieldComponentProps<T = string, P = {}, Fields = {}, WeakFields
     $onFieldChange?: ((newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void);
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
-    $parser?: ($viewValue: any) => T;
-    $formatter?: ($modelValue: T) => any;
+    $parser?: ($viewValue: any, $setViewValue: ($newViewValue: any) => any) => T;
+    $formatter?: ($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any;
     name?: string;
     component?: React.ComponentType;
     render?: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode);
@@ -244,8 +244,8 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $$reset(newState?: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
     $reset(newState?: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
 
-    $render(viewValue: any, callback?: () => void): FieldState<T, Validators>;
-    $setValue(viewValue: any, callback?: () => void): FieldState<T, Validators>;
+    $render($viewValue: any, callback?: () => void): FieldState<T, Validators>;
+    $setValue($modelValue: any, callback?: () => void): FieldState<T, Validators>;
     $setState(newState: Partial<FieldState<T, Validators>>, callback?: () => void): FieldState<T, Validators>;
     $setTouched(touched: boolean, callback?: () => void): FieldState<T, Validators>;
     $setDirty(dirty: boolean, callback?: () => void): FieldState<T, Validators>;

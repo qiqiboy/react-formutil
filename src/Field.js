@@ -32,11 +32,6 @@ class Field extends Component {
         $formatter: PropTypes.func
     };
 
-    static defaultProps = {
-        $parser: $viewValue => $viewValue,
-        $formatter: $modelValue => $modelValue
-    };
-
     constructor(props) {
         super(props);
 
@@ -91,10 +86,13 @@ class Field extends Component {
                     $error: { ...this.$baseState.$error },
                     ...$initialState
                 };
+                const { $formatter } = this.props;
 
                 return (this.$state = {
                     ...$state,
-                    $viewValue: this.props.$formatter($state.$value),
+                    $viewValue: $formatter
+                        ? $formatter($state.$value, $value => (this.$state.$value = $value))
+                        : $state.$value,
                     ...$newState
                 });
             },
@@ -103,8 +101,8 @@ class Field extends Component {
             $getComponent: () => this,
             $reset: $newState => this.$setState(this.$handler.$$reset($newState)),
             $getFirstError: this.$getFirstError,
-            $render: this.$setViewValue,
-            $setValue: this.$setViewValue,
+            $render: this.$render,
+            $setValue: this.$setValue,
             $setState: this.$setState,
             $setTouched: this.$setTouched,
             $setDirty: this.$setDirty,
@@ -204,10 +202,16 @@ class Field extends Component {
             };
         }
 
+        const { $parser, $formatter } = this.props;
+
         if ('$viewValue' in $newState && !('$value' in $newState)) {
-            $newState.$value = this.props.$parser($newState.$viewValue);
+            const $setViewValue = $value => ($newState.$viewValue = $value);
+
+            $newState.$value = $parser ? $parser($newState.$viewValue, $setViewValue) : $newState.$viewValue;
         } else if ('$value' in $newState && !('$viewValue' in $newState)) {
-            $newState.$viewValue = this.props.$formatter($newState.$value);
+            const $setModelValue = $value => ($newState.$value = $value);
+
+            $newState.$viewValue = $formatter ? $formatter($newState.$value, $setModelValue) : $newState.$value;
         }
 
         Object.assign(this.$state, $newState);
@@ -245,12 +249,20 @@ class Field extends Component {
         return this.$handler.$picker();
     };
 
-    $setViewValue = ($viewValue, callback) =>
+    $render = ($viewValue, callback) =>
         this.$setState(
             {
                 $viewValue,
                 $dirty: true,
                 $pristine: false
+            },
+            callback
+        );
+
+    $setValue = ($value, callback) =>
+        this.$setState(
+            {
+                $value
             },
             callback
         );

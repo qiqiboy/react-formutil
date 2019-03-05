@@ -1,5 +1,6 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
+import FormContext from './context';
 import * as utils from './utils';
 import warning from 'warning';
 
@@ -25,23 +26,18 @@ class Field extends Component {
         },
 
         $validators: PropTypes.object,
-        $asyncValidators: PropTypes.object
+        $asyncValidators: PropTypes.object,
+
+        $parser: PropTypes.func,
+        $formatter: PropTypes.func
     };
 
-    static contextTypes = {
-        $$register: PropTypes.func,
-        $$unregister: PropTypes.func,
-        $$onChange: PropTypes.func,
-        $$defaultValues: PropTypes.object,
-        $$defaultStates: PropTypes.object,
-        $formutil: PropTypes.object
-    };
-
-    constructor(props, context) {
-        super(props, context);
+    constructor(props) {
+        super(props);
 
         this.$baseState = {
             $value: '$defaultValue' in props ? props.$defaultValue : '',
+            $viewValue: '',
 
             $valid: true,
             $invalid: false,
@@ -68,17 +64,45 @@ class Field extends Component {
             $$merge: this.$$merge,
             $$triggerChange: ({ $newValue, $preValue }) =>
                 utils.isFunction(this.props.$onFieldChange) &&
-                this.props.$onFieldChange($newValue, $preValue, this.context.$formutil),
-            $$reset: $newState =>
-                (this.$state = { ...this.$baseState, $error: { ...this.$baseState.$error }, ...$newState }),
+                this.props.$onFieldChange($newValue, $preValue, this.formContext.$formutil),
+            $$reset: $newState => {
+                let $initialState;
 
+                if (this.$name) {
+                    const context = this.formContext;
+                    const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
+
+                    $initialState = utils.parsePath(context.$$defaultStates, this.$name) || {};
+
+                    if (!utils.isUndefined($initialValue)) {
+                        $initialState.$value = $initialValue;
+                    }
+                } else {
+                    this.$preValue = this.$baseState.$value;
+                }
+
+                const $state = {
+                    ...this.$baseState,
+                    $error: { ...this.$baseState.$error },
+                    ...$initialState
+                };
+                const { $formatter } = this.props;
+
+                return (this.$state = {
+                    ...$state,
+                    $viewValue: $formatter
+                        ? $formatter($state.$value, $value => (this.$state.$value = $value))
+                        : $state.$value,
+                    ...$newState
+                });
+            },
             $name: this.$name,
             $picker: () => ({ ...this.$state }),
             $getComponent: () => this,
             $reset: $newState => this.$setState(this.$handler.$$reset($newState)),
             $getFirstError: this.$getFirstError,
             $render: this.$render,
-            $setValue: this.$render,
+            $setValue: this.$setValue,
             $setState: this.$setState,
             $setTouched: this.$setTouched,
             $setDirty: this.$setDirty,
@@ -95,41 +119,29 @@ class Field extends Component {
                 return this.$handler['$' + key](...args);
             };
         });
+    }
 
-        if (this.$name && context.$$register) {
-            const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
-            const $initialState = utils.parsePath(context.$$defaultStates, this.$name);
-
-            if (!utils.isUndefined($initialValue)) {
-                this.$baseState.$value = $initialValue;
-            }
-
-            if ($initialState) {
-                Object.assign(this.$baseState, $initialState);
-            }
-
-            this.$handler.$$reset();
-            context.$$register(this.$name, this.$handler);
-        } else {
-            this.$handler.$$reset();
-            this.$preValue = this.$baseState.$value;
+    componentDidMount() {
+        if (this.formContext.$$register) {
+            this.formContext.$$register(this.$name, this.$handler);
         }
     }
 
     componentWillUnmount() {
-        if (this.context.$$unregister) {
-            this.context.$$unregister(this.$name, this.$handler);
+        if (this.formContext.$$unregister) {
+            this.formContext.$$unregister(this.$name, this.$handler);
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.context.$$register && nextProps.name !== this.$name) {
-            if (nextProps.name) {
-                this.context.$$register((this.$name = nextProps.name), this.$handler, this.props.name);
+    componentDidUpdate(prevProps) {
+        if (this.formContext.$$register && prevProps.name !== this.$name) {
+            this.$name = this.props.name;
+
+            if (this.$name) {
+                this.formContext.$$register(this.$name, this.$handler, prevProps.name);
             } else {
                 this.$preValue = this.$state.$value;
-                this.context.$$unregister(this.$name, this.$handler);
-                delete this.$name;
+                this.formContext.$$unregister(prevProps.$name, this.$handler);
             }
         }
     }
@@ -137,7 +149,7 @@ class Field extends Component {
     $validate = callback => {
         const $validators = { ...this.props.$validators, ...this.props.$asyncValidators };
         const { $value, $error } = this.$state;
-        const { $formutil } = this.context;
+        const { $formutil } = this.formContext;
 
         const promises = Object.keys($validators).reduce((promises, key) => {
             delete $error[key];
@@ -190,6 +202,33 @@ class Field extends Component {
             };
         }
 
+        // process $value
+        const { $parser, $formatter } = this.props;
+
+        if ('$viewValue' in $newState && !('$value' in $newState)) {
+            const $setViewValue = $value => ($newState.$viewValue = $value);
+
+            $newState.$value = $parser ? $parser($newState.$viewValue, $setViewValue) : $newState.$viewValue;
+        } else if ('$value' in $newState && !('$viewValue' in $newState)) {
+            const $setModelValue = $value => ($newState.$value = $value);
+
+            $newState.$viewValue = $formatter ? $formatter($newState.$value, $setModelValue) : $newState.$value;
+        }
+
+        // process $dirty/$pristine
+        if ('$dirty' in $newState) {
+            $newState.$pristine = !$newState.$dirty;
+        } else if ('$pristine' in $newState) {
+            $newState.$dirty = !$newState.$pristine;
+        }
+
+        // process $touched/$untouched
+        if ('$touched' in $newState) {
+            $newState.$untouched = !$newState.$touched;
+        } else if ('$untouched' in $newState) {
+            $newState.$touched = !$newState.$untouched;
+        }
+
         Object.assign(this.$state, $newState);
 
         if ('$value' in $newState) {
@@ -200,8 +239,8 @@ class Field extends Component {
     };
 
     $setState = ($newState, callback) => {
-        if (this.$name && this.context.$$onChange) {
-            this.context.$$onChange(this.$name, $newState, callback);
+        if (this.$name && this.formContext.$$onChange) {
+            this.formContext.$$onChange(this.$name, $newState, callback);
         } else {
             this.$$merge($newState);
 
@@ -225,12 +264,19 @@ class Field extends Component {
         return this.$handler.$picker();
     };
 
-    $render = ($value, callback) =>
+    $render = ($viewValue, callback) =>
         this.$setState(
             {
-                $value,
-                $dirty: true,
-                $pristine: false
+                $viewValue,
+                $dirty: true
+            },
+            callback
+        );
+
+    $setValue = ($value, callback) =>
+        this.$setState(
+            {
+                $value
             },
             callback
         );
@@ -246,8 +292,7 @@ class Field extends Component {
     $setTouched = ($touched, callback) =>
         this.$setState(
             {
-                $touched,
-                $untouched: !$touched
+                $touched
             },
             callback
         );
@@ -255,8 +300,7 @@ class Field extends Component {
     $setDirty = ($dirty, callback) =>
         this.$setState(
             {
-                $dirty,
-                $pristine: !$dirty
+                $dirty
             },
             callback
         );
@@ -296,12 +340,12 @@ class Field extends Component {
         }
     };
 
-    render() {
+    _render() {
         let { children, render, component: TheComponent } = this.props;
         const $fieldutil = {
             ...this.$state,
             ...this.$handler,
-            $$formutil: this.context.$formutil
+            $$formutil: this.formContext.$formutil
         };
 
         if (TheComponent) {
@@ -324,6 +368,22 @@ class Field extends Component {
                           $fieldutil
                       })
                     : child
+        );
+    }
+
+    render() {
+        return (
+            <FormContext.Consumer>
+                {context => {
+                    if (!this.formContext) {
+                        this.formContext = context;
+
+                        this.$handler.$$reset();
+                    }
+
+                    return this._render();
+                }}
+            </FormContext.Consumer>
         );
     }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withForm, Field, EasyField } from 'app/../../../react-formutil';
+import { withForm, Field, EasyField } from 'app/../../src';
 import FieldCity from './FieldCity';
 
 @withForm({
@@ -104,7 +104,7 @@ class LoginForm extends Component {
                             </a>
                         </small>
                     </h4>
-                    <Field name="username" required $validators={this.$validators}>
+                    <Field name="username" required $validators={this.$validators} $parser={value => value.trim()}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                 <label className="control-label">用户名</label>
@@ -112,8 +112,8 @@ class LoginForm extends Component {
                                     type="text"
                                     className="form-control"
                                     placeholder="用户名"
-                                    value={props.$value}
-                                    onChange={ev => props.$render(ev.target.value.trim())}
+                                    value={props.$viewValue}
+                                    onChange={ev => props.$render(ev.target.value)}
                                 />
                                 {props.$dirty &&
                                     props.$invalid && (
@@ -127,6 +127,7 @@ class LoginForm extends Component {
                         minLength="5"
                         required
                         isSame="confirm_password"
+                        $parser={value => value.trim()}
                         $onFieldChange={() => this.props.$formutil.$validate('confirm_password')}
                         $validators={this.$validators}>
                         {props => (
@@ -137,7 +138,7 @@ class LoginForm extends Component {
                                     className="form-control"
                                     placeholder="Password"
                                     value={props.$value}
-                                    onChange={ev => props.$render(ev.target.value.trim())}
+                                    onChange={ev => props.$render(ev.target.value)}
                                 />
                                 {props.$dirty &&
                                     props.$invalid && (
@@ -151,6 +152,7 @@ class LoginForm extends Component {
                         minLength="5"
                         required
                         isSame="password"
+                        $parser={value => value.trim()}
                         $onFieldChange={() => this.props.$formutil.$validate('password')}
                         $validators={this.$validators}>
                         {props => (
@@ -162,7 +164,7 @@ class LoginForm extends Component {
                                     placeholder="Confirm password"
                                     value={props.$value}
                                     onChange={(ev /* 这里同样，需要更新组件后再次去校验依赖该表单项字段的项目 */) =>
-                                        props.$render(ev.target.value.trim())
+                                        props.$render(ev.target.value)
                                     }
                                 />
                                 {props.$dirty &&

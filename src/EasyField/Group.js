@@ -1,7 +1,10 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
+import createContext from 'create-react-context';
 import { isFunction } from '../utils';
 import warning from 'warning';
+
+const { Provider, Consumer } = createContext({});
 
 class EasyFieldGroup extends Component {
     static displayName = 'React.Formutil.EasyField.Group';
@@ -23,17 +26,13 @@ class EasyFieldGroup extends Component {
         groupNode: 'div'
     };
 
-    static childContextTypes = {
-        $fieldutil: PropTypes.object
-    };
-
-    getChildContext() {
+    getGroupContext() {
         return {
             $fieldutil: this.props
         };
     }
 
-    render() {
+    _render() {
         const { className, groupNode: Element, children } = this.props;
 
         const childProps = {
@@ -51,6 +50,10 @@ class EasyFieldGroup extends Component {
 
         return <Element className={className}>{childNodes}</Element>;
     }
+
+    render() {
+        return <Provider value={this.getGroupContext()}>{this._render()}</Provider>;
+    }
 }
 
 class EasyFieldGroupOption extends Component {
@@ -60,63 +63,65 @@ class EasyFieldGroupOption extends Component {
         $value: PropTypes.any.isRequired
     };
 
-    static contextTypes = {
-        $fieldutil: PropTypes.object
-    };
-
     render() {
         const { $value, onChange, onFocus, onBlur, ...others } = this.props;
-        const { $fieldutil } = this.context;
-        const { type, name } = $fieldutil;
-
-        const elemProps =
-            type === 'radio'
-                ? {
-                      checked: $fieldutil.value === $value,
-                      onChange: ev => {
-                          $fieldutil.onChange($value, ev);
-
-                          onChange && onChange(ev);
-                      }
-                  }
-                : type === 'checkbox'
-                    ? {
-                          checked: $fieldutil.value.indexOf($value) > -1,
-                          onChange: ev => {
-                              $fieldutil.onChange(
-                                  ev.target.checked
-                                      ? $fieldutil.value.concat($value)
-                                      : $fieldutil.value.filter(value => value !== $value),
-                                  ev
-                              );
-
-                              onChange && onChange(ev);
-                          }
-                      }
-                    : {
-                          value: $fieldutil.value,
-                          onChange: ev => {
-                              $fieldutil.onChange(ev);
-
-                              onChange && onChange(ev);
-                          }
-                      };
 
         return (
-            <input
-                name={name}
-                {...others}
-                {...elemProps}
-                type={type}
-                onFocus={ev => {
-                    $fieldutil.onFocus(ev);
-                    onFocus && onFocus(ev);
+            <Consumer>
+                {({ $fieldutil }) => {
+                    const { type, name } = $fieldutil;
+
+                    const elemProps =
+                        type === 'radio'
+                            ? {
+                                  checked: $fieldutil.value === $value,
+                                  onChange: ev => {
+                                      $fieldutil.onChange($value, ev);
+
+                                      onChange && onChange(ev);
+                                  }
+                              }
+                            : type === 'checkbox'
+                                ? {
+                                      checked: $fieldutil.value.indexOf($value) > -1,
+                                      onChange: ev => {
+                                          $fieldutil.onChange(
+                                              ev.target.checked
+                                                  ? $fieldutil.value.concat($value)
+                                                  : $fieldutil.value.filter(value => value !== $value),
+                                              ev
+                                          );
+
+                                          onChange && onChange(ev);
+                                      }
+                                  }
+                                : {
+                                      value: $fieldutil.value,
+                                      onChange: ev => {
+                                          $fieldutil.onChange(ev);
+
+                                          onChange && onChange(ev);
+                                      }
+                                  };
+
+                    return (
+                        <input
+                            name={name}
+                            {...others}
+                            {...elemProps}
+                            type={type}
+                            onFocus={ev => {
+                                $fieldutil.onFocus(ev);
+                                onFocus && onFocus(ev);
+                            }}
+                            onBlur={ev => {
+                                $fieldutil.onBlur(ev);
+                                onBlur && onBlur(ev);
+                            }}
+                        />
+                    );
                 }}
-                onBlur={ev => {
-                    $fieldutil.onBlur(ev);
-                    onBlur && onBlur(ev);
-                }}
-            />
+            </Consumer>
         );
     }
 }

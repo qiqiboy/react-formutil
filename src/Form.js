@@ -1,5 +1,6 @@
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
+import FormContext from './context';
 import * as utils from './utils';
 
 class Form extends Component {
@@ -21,15 +22,6 @@ class Form extends Component {
         $onFormChange: PropTypes.func
     };
 
-    static childContextTypes = {
-        $$register: PropTypes.func,
-        $$unregister: PropTypes.func,
-        $$onChange: PropTypes.func,
-        $$defaultValues: PropTypes.object,
-        $$defaultStates: PropTypes.object,
-        $formutil: PropTypes.object
-    };
-
     static defaultProps = {
         $defaultValues: {},
         $defaultStates: {}
@@ -38,7 +30,7 @@ class Form extends Component {
     $$registers = {};
     $$deepRegisters = {};
 
-    getChildContext() {
+    getFormContext() {
         return {
             $$register: this.$$register,
             $$unregister: this.$$unregister,
@@ -56,7 +48,7 @@ class Form extends Component {
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, preName) => {
-        if (preName && $handler.$$FIELD_UUID === this.$getField(preName).$$FIELD_UUID) {
+        if (preName && $handler.$$FIELD_UUID === (this.$getField(preName) || {}).$$FIELD_UUID) {
             delete this.$$registers[preName];
             utils.objectClear(this.$$defaultValues, preName);
 
@@ -84,7 +76,7 @@ class Form extends Component {
     };
 
     $$unregister = (name, $handler) => {
-        if (name && $handler.$$FIELD_UUID === this.$getField(name).$$FIELD_UUID) {
+        if (name && $handler.$$FIELD_UUID === (this.$getField(name) || {}).$$FIELD_UUID) {
             delete this.$$registers[name];
             utils.objectClear(this.$$defaultValues, name);
 
@@ -268,6 +260,33 @@ class Form extends Component {
             callback
         );
 
+    _render() {
+        const $formutil = this.$formutil;
+        let { children, render, component: TheComponent } = this.props;
+
+        if (TheComponent) {
+            return <TheComponent $formutil={$formutil} />;
+        }
+
+        if (utils.isFunction(render)) {
+            return render($formutil);
+        }
+
+        if (utils.isFunction(children)) {
+            return children($formutil);
+        }
+
+        return Children.map(
+            children,
+            child =>
+                child && utils.isFunction(child.type)
+                    ? cloneElement(child, {
+                          $formutil
+                      })
+                    : child
+        );
+    }
+
     render() {
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
@@ -370,29 +389,7 @@ class Form extends Component {
             $pending
         });
 
-        let { children, render, component: TheComponent } = this.props;
-
-        if (TheComponent) {
-            return <TheComponent $formutil={$formutil} />;
-        }
-
-        if (utils.isFunction(render)) {
-            return render($formutil);
-        }
-
-        if (utils.isFunction(children)) {
-            return children($formutil);
-        }
-
-        return Children.map(
-            children,
-            child =>
-                child && utils.isFunction(child.type)
-                    ? cloneElement(child, {
-                          $formutil
-                      })
-                    : child
-        );
+        return <FormContext.Provider value={this.getFormContext()}>{this._render()}</FormContext.Provider>;
     }
 }
 

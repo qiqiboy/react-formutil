@@ -87,12 +87,13 @@ class Field extends Component {
                     ...$initialState
                 };
                 const { $formatter } = this.props;
+                const $viewValue = $formatter
+                    ? $formatter($state.$value, $value => ($state.$value = $value))
+                    : $state.$value;
 
                 return (this.$state = {
                     ...$state,
-                    $viewValue: $formatter
-                        ? $formatter($state.$value, $value => (this.$state.$value = $value))
-                        : $state.$value,
+                    $viewValue,
                     ...$newState
                 });
             },

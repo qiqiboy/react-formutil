@@ -60,13 +60,12 @@
     "jquery": "3.1.1",
     "lodash": "4.17.5",
     "normalize.css": "5.0.0",
-    "prop-types": "15.6.0",
-    "react": "^16.3.2",
+    "prop-types": "15.7.2",
+    "react": "16.8.3",
     "react-animated-router": "0.1.11",
     "react-awesome-snippets": "0.0.18",
-    "react-dom": "^16.3.3",
-    "react-easyform": "0.2.4",
-    "react-router-dom": "4.2.2",
+    "react-dom": "16.8.3",
+    "react-router-dom": "4.3.1",
     "react-transition-group": "2.3.0"
   },
   "devDependencies": {

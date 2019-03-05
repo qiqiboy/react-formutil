@@ -19,8 +19,8 @@ Happy to build the forms in React ^\_^
 <!-- vim-markdown-toc GFM -->
 
 * [安装 Installation](#安装-installation)
-        + [稳定版](#稳定版)
-        + [Beta 版](#beta-版)
+    - [稳定版](#稳定版)
+    - [Beta 版](#beta-版)
 * [使用 Usage](#使用-usage)
     - [`<Field />`](#field-)
         + [`render` `component`](#render-component)
@@ -114,7 +114,9 @@ Happy to build the forms in React ^\_^
 
 ## 安装 Installation
 
-#### 稳定版
+目前有两个版本可以选择，如果你是`react-formutil`的新用户，或者你在使用 react 的[`Strict Mode`](https://reactjs.org/docs/strict-mode.html)，请安装 Beta 版！
+
+### 稳定版
 
 稳定版支持所有`v15.0`以后版本的 react
 
@@ -126,7 +128,7 @@ npm install react-formutil --save
 yarn add react-formutil
 ```
 
-#### Beta 版
+### Beta 版
 
 Beta 版本使用了`react@16.3`中新增的`Context API`，并替换更新了已经被`Deprecate`的生命周期方法，实现了对 v16 以及未来 v17 版本的支持!
 

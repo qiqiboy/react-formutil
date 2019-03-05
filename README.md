@@ -343,7 +343,7 @@ yarn add react-formutil
 
 #### `$parser`
 
-视图中的值更新到 Field 的 state 中时，会经过 `$parser` 处理。
+当用户在表单中进行输入时（主动更新视图），视图中的值在更新到 Field 的 state 中前，会经过 `$parser` 处理。
 
 ```javascript
 // 通过$parser属性来过滤前后输入空格
@@ -352,7 +352,7 @@ yarn add react-formutil
 </Field>
 ```
 
-注意，上述写法不会更新视图值。如果希望限制用户输入任意空格，可以通过`$parser`的第二个参数`$setViewValue`，来在用户每次输入后立即更新视图值。
+注意，上述写法不会修改视图值。如果希望限制用户输入任意空格，可以通过`$parser`的第二个参数`$setViewValue`，来在用户每次输入后立即更新视图值。
 
 ```javascript
 // 通过$parser属性来过滤前后输入空格
@@ -361,7 +361,7 @@ yarn add react-formutil
 
 #### `$formatter`
 
-Field 的 state 的值通过 `$formatter` 处理后传递给视图渲染。
+当在表单模型中主动更新 Field 的 state 的值时，会通过 `$formatter` 将模型中的值转换为`$viewValue`后传递给视图渲染。
 
 ```javascript
 // 通过$formatter将模型中的值转换为标准的金额书写格式

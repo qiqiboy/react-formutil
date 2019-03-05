@@ -39,7 +39,8 @@ Happy to build the forms in React ^\_^
             * [`$reset()`](#reset)
             * [`$getComponent()`](#getcomponent)
             * [`$setState($newState)`](#setstatenewstate)
-            * [`$render() | $setValue()`](#render--setvalue)
+            * [`$render()`](#render)
+            * [`$setValue()`](#setvalue)
             * [`$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
             * [`$setError($error)`](#seterrorerror)
             * [`$validate()`](#validate)
@@ -99,6 +100,7 @@ Happy to build the forms in React ^\_^
     - [`connect(Component)`](#connectcomponent)
 * [FAQ & 常见问题解答](#faq--常见问题解答)
     - [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
+    - [`Field中的 $value 与 $viewValue 有什么区别`](#field中的-value-与-viewvalue-有什么区别)
     - [`checkbox 多选或 radio 单选组怎么实现`](#checkbox-多选或-radio-单选组怎么实现)
     - [`使用 Field 实现一个上传图片的表单控件`](#使用-field-实现一个上传图片的表单控件)
     - [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
@@ -132,12 +134,12 @@ yarn add react-formutil
 
 `react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有几个基于此的高阶组件：
 
-*   `Field` 组件主要用来负责和具体的表单控件做状态的同步，并向顶层的 `Form` 注册自身。虽然它是一个标准的 react 组件，但是可以把它理解成单个表单控件的 Provider。
-*   `Form` 组件通过 `context` 提供了一些方法给 `Field` 组件，并且它增强了传递过来的子组件，向其传递了整个表单的状态[`$formutil`](#formutil-1)。Form 可以理解为整个表单页面的 Provider。
-*   `withField` 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
-*   `withForm` 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
-*   `EasyField` 是基于 `Field` 进行的组件封装，方便直接调用浏览器原生控件去生成表单(可以参考 demo 中的例子)
-*   `connect` 是个高阶组件，用来给被包装的组件传递 [`$formutil`](#formutil-1) 对象，以供调用，返回的新组件必须位于某个 Form 组件的孙子辈才可以拿到[`$formutil`](#formutil-1)
+*   [`<Field />`](#field-) 是一个抽象的组件，它维护了一个表示当前域的状态模型。
+*   [`<Form />`](#form-) 也是一个抽象的组件，它主要作为整个表单的控制器，用来和其组件树中的`Field`做状态模型的收集与同步。
+*   [`withField`](#withfieldcomponent) 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
+*   [`withForm`](#withformcomponent) 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
+*   [`<EasyField />`](#easyfield-) 是基于 `Field` 进行的组件封装，可以直接渲染出基于原生态浏览器的表单控件的表单项，方便直接使用。另外它也提供了一组抽象接口用于对接其他 react 组件库。
+*   [`connect`](#connectcomponent) 是个高阶组件，用来给被包装的组件传递 [`$formutil`](#formutil-1) 对象。
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
@@ -182,9 +184,11 @@ yarn add react-formutil
 
 ### `<Field />`
 
-`Field` 是一个标准的 react 组件。它可以理解为表单控件的顶层组件，它通过向子组件传递 [`$fieldutil`](#fieldutil) 对象来同步表单控件的状态。每一个表单控件应该总是当作 `Field` 组件的子组件嵌套。
+`Field` 是一个标准的 react 组件，一个`Field`即代表一个表单域。它维护了一个与当前域有关的状态模型（具体可以参考：[`$fieldutil`](#fieldutil)）。
 
-`Field` 可以以函数、或者 React 组件当作子组件调用，推荐使用函数。
+它可以理解为表单控件的顶层组件，它本身不渲染任何实际 DOM 节点。它通过向子组件传递 [`$fieldutil`](#fieldutil) 对象来同步表单控件的状态。
+
+每个表单域的渲染都应当通过`Field`来实现。它提供了多种调用方法，可以以函数、或者 React 组件当作子组件调用，推荐使用[render props](https://reactjs.org/docs/render-props.html)。
 
 `Field` 可以接收以下几个属性参数：
 
@@ -281,7 +285,7 @@ yarn add react-formutil
                 onChange={ev => $fieldutil.$render(ev.target.value.trim())}
                 value={$fieldutil.$viewValue}
             />
-            {$fieldutil.$invalid && <div className="error">{object.values($fieldutil.$error)[0]}</div>}
+            {$fieldutil.$invalid && <div className="error">{$fieldutil.$getFirstError()}</div>}
         </div>
     )}
 </Field>
@@ -343,7 +347,7 @@ yarn add react-formutil
 
 #### `$parser`
 
-当用户在表单中进行输入时（主动更新视图），视图中的值在更新到 Field 的 state 中前，会经过 `$parser` 处理。
+当用户在表单中进行输入时（主动更新视图），视图中的值在更新到状态模型中前，会经过 `$parser` 处理。
 
 ```javascript
 // 通过$parser属性来过滤前后输入空格
@@ -352,7 +356,7 @@ yarn add react-formutil
 </Field>
 ```
 
-注意，上述写法不会修改视图值。如果希望限制用户输入任意空格，可以通过`$parser`的第二个参数`$setViewValue`，来在用户每次输入后立即更新视图值。
+注意，上述写法不会修改当前视图值，它仅仅影响状态模型中的值。如果希望限制用户的输入（例如禁止用户输入任意空格），可以通过`$parser`的第二个参数`$setViewValue`，来在用户每次输入后立即更新视图值。
 
 ```javascript
 // 通过$parser属性来过滤前后输入空格
@@ -361,12 +365,14 @@ yarn add react-formutil
 
 #### `$formatter`
 
-当在表单模型中主动更新 Field 的 state 的值时，会通过 `$formatter` 将模型中的值转换为`$viewValue`后传递给视图渲染。
+当在表单模型中主动更新模型值时，会通过 `$formatter` 将模型中的值转换为`$viewValue`后传递给视图渲染。
 
 ```javascript
 // 通过$formatter将模型中的值转换为标准的金额书写格式
 <Field name="amount" $formatter={(value, $setModelValue) => priceFormat(value)} />
 ```
+
+`$formatter`同样有一个回调方法`$setModelValue`，它可以用来在处理模型值时再次对其进行修改。
 
 #### `$fieldutil`
 
@@ -406,8 +412,8 @@ yarn add react-formutil
 该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单域状态模型：
 
 *   用户输入时需要通过调用`$render`来更新新值到状态中
-*   渲染表单项时，应该使用受控组件，根据 `$viewValue` 来渲染
-*   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error`来渲染
+*   渲染表单项时，应该使用受控组件，并且根据状态模型中的 `$viewValue` 来渲染值<small>（不建议使用`$value`来渲染视图，因为这样就无法使用`$parser` `$formatter`来对数据做二次过滤）</small>
+*   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error` 等来渲染
 
 > **需要强调的是，Field 默认不同步`$touched`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
 > 如果你需要其它状态，需要自己去绑定相关事件来更新状态：
@@ -429,32 +435,36 @@ yarn add react-formutil
 
 ##### `$value`
 
-`Field` 的值实际是保存在状态里的该字段中
+当前表单域的状态模型值。从表单控件中获取的值保存在该字段下。该值会被同步到整个表单的`$params`中。
 
 ##### `$viewValue`
 
 该属性为 `v0.5.0` 新增
 
-`Field` 的视图值。默认情况下其等同于`$value`。当你自定义了`$parser`时，会导致视图值与表单值不一致，此时渲染视图时应当使用`$viewValue`来渲染。
+当前表单域的视图值。一般情况下其等同于`$value`。
+
+当你自定义了`$parser`时，会导致视图值与表单值不一致，此时渲染视图时应当使用`$viewValue`来渲染。
 
 > 事实上，当你需要根据表单值更新 Field 视图时，你应当总是使用 `$viewValue` 来代替 `$value`，这总是安全的！
 
 ##### `$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending`
 
-Field 的一组状态：
+当前表单域的其它状态：
 
-*   $dirty 控件被修改过
-*   $pristine 控件没有被修改过，与$dirty 互斥
-*   $touched 控件失去过焦点
-*   $untouched 控件没有失去过焦点
-*   $focused 焦点是否在当前控件
-*   $pending 是否正在进行异步检查
-*   $valid 表单所有控件均校验通过
-*   $invalid 表单中有至少一个控件校验不通过
+*   `$dirty` 控件被修改过
+*   `$pristine` 控件没有被修改过，与$dirty 互斥
+*   `$touched` 控件失去过焦点
+*   `$untouched` 控件没有失去过焦点
+*   `$focused` 焦点是否在当前控件
+*   `$valid` 表单所有控件均校验通过
+*   `$invalid` 表单中有至少一个控件校验不通过
+*   `$pending` 是否正在进行异步检查
 
 ##### `$error`
 
-Field 的错误信息
+保存了当前表单域的错误信息。它是一个`{ [validdate key]: [error message] }`对象。
+
+> 当没有任何错误信息时，它是一个空对象。所以，需要判断当前表单域是否有错误时，应当通过`$invalid` `$valid`来判断！
 
 ##### `$picker()`
 
@@ -462,13 +472,15 @@ Field 的错误信息
 
 ##### `$reset()`
 
-重制当前 Field 为初始状态
+重置当前表单域名为初始状态，即所有的`$value` `$viewValue` `$dirty`等状态都会恢复为初始状态。
 
 ##### `$getComponent()`
 
-获取 Field 的实例对象（虚拟 dom）
+获取当前表单域的实例对象引用（虚拟 dom）
 
 ##### `$setState($newState)`
+
+设置新的`$state`，`$newState`会与当前`$state`合并
 
 ```javascript
 $setState({
@@ -477,13 +489,21 @@ $setState({
 });
 ```
 
-设置新的$state，$newState 会与当前$state 合并
+##### `$render()`
 
-##### `$render() | $setValue()`
+更新表单域的视图值，并且该值会经过`$parser`处理后更新到表单域的状态模型中。
 
-设置渲染 Field 的值（保存到$value 中）
+另外如果该表单域模型状态中的`$dirty`为`false`，也会同时将`$dirty`设置为`true`（`$pristine`为`false`）。
+
+> **提醒** 当从表单控件中同步值时，应当使用`$render`，而不是`$setValue`!
+
+##### `$setValue()`
+
+更新表单域的模型值，并且该值会经过`$formatter`后更新到视图上。
 
 ##### `$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`
+
+设置$dirty $touched $error 等状态
 
 ```javascript
 $setDirty(true);
@@ -493,11 +513,9 @@ $setValidity('required', '必需填写'); //第二个参数不为true，则表�
 $setValidity('required', true); //表示校验通过
 ```
 
-设置$dirty $touched $error 等状态
-
 ##### `$setError($error)`
 
-替换$error
+直接替换当前表单域的`$error`。
 
 ```javascript
 $setError({
@@ -512,7 +530,7 @@ $setError({
 
 ##### `$getFirstError()`
 
-获取该 Field 的错误项中的首个错误描述
+获取当前表单域的错误项中的首个错误描述。由于`$error`是个对象，所以这里提供了一个方法简化错误信息的获取。
 
 ```javascript
 <Field>
@@ -527,9 +545,9 @@ $setError({
 
 ##### `$$formutil`
 
-当前 Field 所属的 Form 的$formutil 对象包含了整个表单的状态以及一些操作方法，具体可以参考下方 Form 说明。
+当前表单域所属的 Form 的[`$formutil`](#formutil-1)对象，它包含了整个表单的状态以及一些操作方法，具体可以参考下方 Form 说明。
 
-> 特别注意，这里`$$formutil`是双$符号打头
+> 特别注意，这里`$$formutil`是双`$`符号打头，表示不推荐使用。绝大多数情况下，对当前表单域的访问应当通过`$fieldutil`来完成状态的获取与收集。
 
 ```javascript
 <Field name="username">
@@ -541,7 +559,7 @@ $setError({
 
 > **特别注意**：v0.4.0 版本起，`withField`将会把状态和方法都放到`$fieldutil`对象中传递给被装饰的组件！！这与之前的方式有所区别，请留意。
 
-`withField` 是一个高阶组件，与 `Field` 的区别是调用方式的不同。withField 的第二个参数为可选配置，如过定义了该参数，会将配置传递给 Field 组件。一般情况下建议通过 `Field` 组件去构造表单。如果你需要自定义一个复杂的表单项控件，则可以使用该高阶组件：
+`withField` 是一个高阶组件，它基于`Field`组件实现。可以通过 withField 的第二个可选参数来为生成的表单域组件设置默认的 props!
 
 ```javascript
 import React from 'react';
@@ -556,7 +574,7 @@ class FieldCustom extends React.Component {
 }
 
 export default withField(FieldCustom, {
-    $defaultValue: '' //该项将传递给Field组件
+    $defaultValue: '1234' // 该项将传递给Field组件
 });
 ```
 
@@ -575,7 +593,7 @@ class MyField extends Component {}
 
 ### `<EasyField />`
 
-`EasyField` 是对`Field`的二次封装，向下提供了 `onChange` `onFocus` `onBlur` 三个方法用来同步值的变动以及相关`$dirty` `$touched`等状态。
+`EasyField` 是对`Field`的二次封装，它提供了基于浏览器原生表单控件实现的表单域快捷调用，同时也提供了统一的 `value` `onChange` `onFocus` `onBlur` 等接口方法来与其它第三方组件库对接。
 
 **特别提醒：`EasyField`会默认对所有的字符串输入做前后空格的过滤。如果不需要这个特性，可以通过重写`$parser`属性来关闭该功能：**
 
@@ -720,9 +738,11 @@ class MyField extends Component {}
 
 ##### `custom component`
 
-上面例子中渲染复选框最后一种示例，就是使用了自定义组件渲染。更多场景是和第三方输入组件进行交互：
+由于`EasyField`提供了统一的 `value` `onChange` `onFocus` `onBlur` 抽象接口，所以只要自定义组件支持通过这几个属性，就可以搭配使用！
 
-与 `ant-design` 进行交互：
+另外也可以通过 `valuePropname` `changePropName` `focusPropName` `blurPropName` 来修改暴漏的接口方法属性名。
+
+例如，与 `ant-design` 进行交互：
 
 ```javascript
 import { Input, Switch } from 'antd';
@@ -835,9 +855,11 @@ function MyComponent({ current, onUpdate }) {
 
 ### `<Form />`
 
-`Form` 也是一个标准的 react 组件，它类似 Field，同样可以以函数、或者普通组件当作子组件调用。它可以增强子组件，收集子 dom 树中的 `Field` 组件状态，并通过 [`$formutil`](#formutil-1) 传递给被调用组件。
+`Form` 是一个标准的 react 组件，它的调用方法与 `Field` 类似。一个表单应当只具有一个顶层`Form`，它下面可以包含多个`Field`域。
 
-经过 `Form` 增强的组件，会在其 `props` 中接收到一个[`$formutil`](#formutil-1)对象。例如
+`Form` 通过 [`$formutil`](#formutil-1) 来与其内部的各个`Field`做状态模型的注册、收集与同步。它会基于每个`Field`的`nmae`属性，来将其作用域下的所有的`Field`的状态模型，统一收集处理。
+
+所有传递给 `Form` 组件或者函数，会在其 `props`/`arguments` 中接收到一个[`$formutil`](#formutil-1)对象，它提供了多种状态集合以及对表单的一些操作方法。例如
 
 *   你可以通过`$formutil.$params` 拿到整个表单的输入值
 *   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
@@ -939,7 +961,9 @@ function MyComponent({ current, onUpdate }) {
 
 #### `$formutil`
 
-`$formutil`的属性方法详解：
+`$formutil` 前面我们提到了，它是`Form`组件基于其组件树下的所有`Field`的状态模型，经过收集整理后返回的关于整个表单的状态模型集合。另外它也包含了一组用于操作整个表单的方法。
+
+具体每个状态属性以及方法的解释，请参考：
 
 ##### `$new()`
 
@@ -1073,7 +1097,7 @@ $formutil.$setErrors({
 
 ##### `$reset($stateTree)`
 
-可以用来重置表单，会讲表单重置为初始状态（不会改变组件设置的默认状态和默认值）。如过传递了$stateTree，则会重置为合并了$stateTree 后的状态
+可以用来重置表单，会将表单重置为初始状态（不会改变组件设置的默认状态和默认值）。如过传递了$stateTree，则会重置为合并了$stateTree 后的状态
 
 ```javascript
 $formutil.$reset();
@@ -1126,7 +1150,7 @@ if ($invalid) {
 
 ##### `$states | $weakStates`
 
-所有表单项的状态集合。`$formutl.$state` 是以 `Field`i 的 name 值经过路径解析后的对象，`$formutil.$weakState` 是以 `Field` 的 `name` 字符串当 key 的对象。
+所有表单项的状态集合。`$formutl.$state` 是以 `Field` 的 name 值经过路径解析后的对象，`$formutil.$weakState` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
 ##### `$params | $weakParams`
 
@@ -1272,9 +1296,50 @@ export default connect(Submit);
 
 ### `Field 与 EasyField 有什么区别`
 
-Field 是抽象的底层，它本身不会渲染任何 dom 结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作（例如不会主动同步$touched $focused 状态）
+`Field` 是抽象的底层，它本身不会渲染任何 dom 结构出来，它仅提供了同步、渲染表单控件的接口。要实现具体的表单，需要通过 Field，使用它提供的接口，手动实现监听用户输入、同步数据等工作（例如不会主动同步`$touched` `$focused` 状态）
 
-EasyField 则是基于 Field 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。EasyField 会自动绑定 change、focus、blur 事件，并主动同步`$touched` `$untouched` `$focused`状态
+`EasyField` 则是基于 `Field` 封装的另一个组件，它针对浏览器原生的表单控件，封装实现了数据同步、表单校验，可以简化调用。`EasyField` 会自动绑定 `change`、`focus`、`blur` 事件，并主动同步`$touched` `$untouched` `$focused`状态
+
+### `Field中的 $value 与 $viewValue 有什么区别`
+
+从`v0.5.0`起，Field 表单域中的状态模型中，新增了`$viewValue`。它与之前的`$value`的区别是：
+
+*   `$value`表示的是表单域状态模型值，用来向`Form`同步。`$formutil`中的`$params`即为从每个`Field`中收集的`$value`集合！
+*   `$viewValue`表示的是表单域的视图值，即视图中显示的值是根据该值显示的。它一般情况下都与`$value`相同，但是当我们自定义了`$parser` `$formatter`时，可能会导致两者不同。
+
+当渲染视图时，应当根据`$viewValue`来渲染，否则会导致`$parser` `$formatter`属性失效（因为这两个属性就是处理`$value`与`$viewValue`的转换的，如果不想使用默认支持的这两个数据处理钩子，使用`$value`当然也没什么问题～）！
+
+**为什么要做出这样的改动？**
+
+这是因为 `v0.5.0` 之前的版本，只有一个状态模型值`$value`。经过`$parser`处理的值会直接更新到模型中，而视图也是根据模型中的值渲染的，这就会导致`$parser`进而影响到视图值的显示！
+
+例如，当我们希望过滤用户输入的空格时，我们一般会通过`$parser`传递过滤函数：
+
+```javascript
+<Field name="user_name" $parser={value => value.trim()} />
+```
+
+但是，以上代码在`v0.5.0`之前的版本中，会导致用户完全无法输入空格：完全无法输入 `Jobs Smith`，中间的那个空格永远输入不上，因为一旦输入就会立即被`$parser`过滤掉，并且更新回视图中！
+
+`v0.5.0`版本通过新增加的`$viewValue`，来将视图值单独存储，与原来的模型值`$value`做了区分。这样，就可以正常的输入 `Jobs Smith` 啦！
+
+**副作用**
+
+当然，这一改动也会导致`$parser`的某些用法产生与之前版本的预期不一致。
+
+例如，当我们希望提供一个只能输入整数（其它字符直接不可输入）金额输入框时：
+
+```javascript
+<Field name="user_name" $parser={value => value.split(/[^\d]/g, '')} />
+```
+
+以上代码在`v0.5.0`之前的版本中，即可达到目的。因为`$parser`处理过后的值会被更新到状态模型中，视图也是根据这个过滤后的值渲染的，所以就可以直接实现禁止用户输入非整数字符。
+
+但是在`v0.5.0`之后的版本中，视图根据`$viewValue`渲染的话，会导致状态模型中的值被正确处理了，但是视图中的值还是用户原始输入，即可能包含非法值。要实现过滤视图中显示的值，我们可以通过`$parser`提供的第二个回调参数`$setViewValue`来同步更新视图值：
+
+```javascript
+<Field name="user_name" $parser={(value, $setViewValue) => $setViewValue(value.split(/[^\d]/g, ''))} />
+```
 
 ### `checkbox 多选或 radio 单选组怎么实现`
 

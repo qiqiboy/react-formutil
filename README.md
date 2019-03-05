@@ -118,7 +118,7 @@ Happy to build the forms in React ^\_^
 
 ### 稳定版
 
-稳定版支持所有`v15.0`以后版本的 react
+稳定版支持所有`v15.0`以后版本的 react。稳定版文档请参考：[react-formutil稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.7)
 
 ```bash
 # npm

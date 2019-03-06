@@ -3,6 +3,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import SourceCode from 'modules/SourceCode';
 import { HashRouter, Switch, Route, Redirect, NavLink as Link } from 'react-router-dom';
+import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 import LoginForm from 'modules/LoginForm';
 

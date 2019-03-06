@@ -5,6 +5,9 @@ import FieldCity from './FieldCity';
 @withForm({
     $defaultValues: {
         extra_param: 'test'
+    },
+    $onFormChange($formutil, ...args) {
+        console.log('curParams: ', args[0], 'prevParams: ', args[1]);
     }
 })
 class LoginForm extends Component {
@@ -462,6 +465,8 @@ class LoginForm extends Component {
                 <div className="col-md-3">
                     <h4>表单项值</h4>
                     <pre>{JSON.stringify(this.props.$formutil.$params, '\n', 2)}</pre>
+                    <h4>表单错误</h4>
+                    <pre>{JSON.stringify(this.props.$formutil.$errors, '\n', 2)}</pre>
                 </div>
 
                 <div className="col-md-3">

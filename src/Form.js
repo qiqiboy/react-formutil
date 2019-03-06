@@ -65,8 +65,6 @@ class Form extends Component {
                 name,
                 $newValue: $handler.$picker().$value
             });
-
-            $handler.$validate();
         }
 
         if (name || preName) {
@@ -99,6 +97,7 @@ class Form extends Component {
             const $newValues = {};
             const $preValues = {};
             let hasFormChanged = false;
+
             $$fieldChangedQueue.forEach(item => {
                 if (item.$newValue !== item.$preValue) {
                     if ('$newValue' in item && '$preValue' in item) {
@@ -168,10 +167,12 @@ class Form extends Component {
 
         utils.objectEach(this.$$registers, (handler, name) => {
             const $newState = $parsedTree[name] || utils.parsePath($parsedTree, name);
+
             if ($newState) {
-                if ('$value' in $newState) {
-                    const $newValue = $newState.$value;
-                    const $preValue = this.$formutil.$weakParams[name];
+                const $preValue = this.$formutil.$weakParams[name];
+                const { $value: $newValue } = handler.$$merge($newState);
+
+                if ('$value' in $newState || '$viewValue' in $newState) {
                     const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
 
                     if (findItem) {
@@ -184,8 +185,6 @@ class Form extends Component {
                         });
                     }
                 }
-
-                handler.$$merge($newState);
             }
         });
 

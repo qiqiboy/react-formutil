@@ -32,13 +32,12 @@ class Field extends Component {
         $formatter: PropTypes.func
     };
 
+    isMounting = false;
+
     constructor(props) {
         super(props);
 
         this.$baseState = {
-            $value: '$defaultValue' in props ? props.$defaultValue : '',
-            $viewValue: '',
-
             $valid: true,
             $invalid: false,
 
@@ -52,9 +51,7 @@ class Field extends Component {
 
             $pending: false,
 
-            $error: {},
-
-            ...props.$defaultState
+            $error: {}
         };
 
         this.$name = props.name;
@@ -64,12 +61,12 @@ class Field extends Component {
             $$merge: this.$$merge,
             $$triggerChange: ({ $newValue, $preValue }) =>
                 utils.isFunction(this.props.$onFieldChange) &&
-                this.props.$onFieldChange($newValue, $preValue, this.formContext.$formutil),
+                this.props.$onFieldChange($newValue, $preValue, this.$formContext.$formutil),
             $$reset: $newState => {
                 let $initialState;
+                const context = this.$formContext;
 
-                if (this.$name) {
-                    const context = this.formContext;
+                if (this.$name && context.$$defaultValues) {
                     const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
 
                     $initialState = utils.parsePath(context.$$defaultStates, this.$name) || {};
@@ -77,30 +74,20 @@ class Field extends Component {
                     if (!utils.isUndefined($initialValue)) {
                         $initialState.$value = $initialValue;
                     }
-                } else {
-                    this.$preValue = this.$baseState.$value;
                 }
 
-                const $state = {
-                    ...this.$baseState,
-                    $error: { ...this.$baseState.$error },
-                    ...$initialState
-                };
-                const { $formatter } = this.props;
-                const $viewValue = $formatter
-                    ? $formatter($state.$value, $value => ($state.$value = $value))
-                    : $state.$value;
-
-                return (this.$state = {
-                    ...$state,
-                    $viewValue,
+                return this.$$merge({
+                    ...this.$baseState, // the default state
+                    ...this.props.$defaultState, // self default state
+                    $value: '$defaultValue' in this.props ? this.props.$defaultValue : '',
+                    ...$initialState, // the default state from Form
                     ...$newState
                 });
             },
             $name: this.$name,
-            $picker: () => ({ ...this.$state }),
+            $picker: () => this.$state,
             $getComponent: () => this,
-            $reset: $newState => this.$setState(this.$handler.$$reset($newState)),
+            $reset: $newState => this.$handler.$$reset($newState),
             $getFirstError: this.$getFirstError,
             $render: this.$render,
             $setValue: this.$setValue,
@@ -123,37 +110,43 @@ class Field extends Component {
     }
 
     componentDidMount() {
-        if (this.formContext.$$register) {
-            this.formContext.$$register(this.$name, this.$handler);
+        this.isMounting = true;
+
+        if (this.$formContext.$$register) {
+            this.$formContext.$$register(this.$name, this.$handler);
         }
     }
 
     componentWillUnmount() {
-        if (this.formContext.$$unregister) {
-            this.formContext.$$unregister(this.$name, this.$handler);
+        if (this.$formContext.$$unregister) {
+            this.$formContext.$$unregister(this.$name, this.$handler);
         }
+
+        this.isMounting = false;
     }
 
     componentDidUpdate(prevProps) {
-        if (this.formContext.$$register && prevProps.name !== this.$name) {
+        if (this.$formContext.$$register && prevProps.name !== this.$name) {
             this.$name = this.props.name;
 
             if (this.$name) {
-                this.formContext.$$register(this.$name, this.$handler, prevProps.name);
+                this.$formContext.$$register(this.$name, this.$handler, prevProps.name);
             } else {
-                this.$preValue = this.$state.$value;
-                this.formContext.$$unregister(prevProps.$name, this.$handler);
+                this.$formContext.$$unregister(prevProps.$name, this.$handler);
             }
         }
     }
 
     $validate = callback => {
         const $validators = { ...this.props.$validators, ...this.props.$asyncValidators };
-        const { $value, $error } = this.$state;
-        const { $formutil } = this.formContext;
+        const {
+            $value,
+            $error: { ...$newError }
+        } = this.$state;
+        const { $formutil } = this.$formContext;
 
         const promises = Object.keys($validators).reduce((promises, key) => {
-            delete $error[key];
+            delete $newError[key];
 
             if (this.props[key] != null) {
                 const result = $validators[key]($value, this.props[key], {
@@ -168,7 +161,7 @@ class Field extends Component {
                         )
                     );
                 } else if (result !== true) {
-                    $error[key] = result;
+                    $newError[key] = result;
                 }
             }
 
@@ -180,27 +173,16 @@ class Field extends Component {
             Promise.all(promises).then(() => this.$setPending(false));
         }
 
-        return this.$setState(
-            {
-                $error
-            },
-            callback
-        );
+        return this.$setError($newError, callback);
     };
 
-    $$merge = $newState => {
+    $$merge = ({ ...$newState }) => {
         if ('$error' in $newState) {
             if (!$newState.$error) {
                 $newState.$error = {};
             }
 
-            const $valid = Object.keys($newState.$error).length === 0;
-
-            $newState = {
-                $valid,
-                $invalid: !$valid,
-                ...$newState
-            };
+            $newState.$valid = Object.keys($newState.$error).length === 0;
         }
 
         // process $value
@@ -214,6 +196,13 @@ class Field extends Component {
             const $setModelValue = $value => ($newState.$value = $value);
 
             $newState.$viewValue = $formatter ? $formatter($newState.$value, $setModelValue) : $newState.$value;
+        }
+
+        // process $valid/$invalid
+        if ('$valid' in $newState) {
+            $newState.$invalid = !$newState.$valid;
+        } else if ('$invalid' in $newState) {
+            $newState.$dirty = !$newState.$invalid;
         }
 
         // process $dirty/$pristine
@@ -230,9 +219,11 @@ class Field extends Component {
             $newState.$touched = !$newState.$untouched;
         }
 
-        Object.assign(this.$state, $newState);
+        this.$state = { ...this.$state, ...$newState };
 
         if ('$value' in $newState) {
+            this.$preValue = this.$state.$value;
+
             this.$validate();
         }
 
@@ -240,29 +231,31 @@ class Field extends Component {
     };
 
     $setState = ($newState, callback) => {
-        if (this.$name && this.formContext.$$onChange) {
-            this.formContext.$$onChange(this.$name, $newState, callback);
-        } else {
-            this.$$merge($newState);
+        if (this.isMounting) {
+            if (this.$name && this.$formContext.$$onChange) {
+                this.$formContext.$$onChange(this.$name, $newState, callback);
+            } else {
+                this.$$merge($newState);
 
-            this.forceUpdate(() => {
-                utils.isFunction(callback) && callback();
+                this.forceUpdate(() => {
+                    utils.isFunction(callback) && callback();
 
-                const { $onFieldChange } = this.props;
+                    const { $onFieldChange } = this.props;
 
-                if (
-                    '$value' in $newState &&
-                    utils.isFunction($onFieldChange) &&
-                    this.$state.$value !== this.$preValue
-                ) {
-                    $onFieldChange(this.$state.$value, this.$preValue);
+                    if (
+                        '$value' in $newState &&
+                        utils.isFunction($onFieldChange) &&
+                        this.$state.$value !== this.$preValue
+                    ) {
+                        $onFieldChange(this.$state.$value, this.$preValue);
+                    }
+                });
+            }
 
-                    this.$preValue = this.$state.$value;
-                }
-            });
+            return this.$handler.$picker();
         }
 
-        return this.$handler.$picker();
+        return this.$$merge($newState);
     };
 
     $render = ($viewValue, callback) =>
@@ -323,15 +316,17 @@ class Field extends Component {
         );
 
     $setValidity = (key, valid = false, callback) => {
-        const { $error } = this.$state;
+        const {
+            $error: { ...$newError }
+        } = this.$state;
 
         if (valid === true) {
-            delete $error[key];
+            delete $newError[key];
         } else {
-            $error[key] = valid;
+            $newError[key] = valid;
         }
 
-        return this.$setError($error, callback);
+        return this.$setError($newError, callback);
     };
 
     $getFirstError = () => {
@@ -346,7 +341,7 @@ class Field extends Component {
         const $fieldutil = {
             ...this.$state,
             ...this.$handler,
-            $$formutil: this.formContext.$formutil
+            $$formutil: this.$formContext.$formutil
         };
 
         if (TheComponent) {
@@ -373,12 +368,14 @@ class Field extends Component {
     }
 
     render() {
+        const shouldInitial = !this.$formContext;
+
         return (
             <FormContext.Consumer>
                 {context => {
-                    if (!this.formContext) {
-                        this.formContext = context;
+                    this.$formContext = context;
 
+                    if (shouldInitial) {
                         this.$handler.$$reset();
                     }
 

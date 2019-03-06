@@ -110,7 +110,11 @@ class Form extends Component {
             $$fieldChangedQueue.forEach(item => {
                 if (item.$newValue !== item.$preValue) {
                     if ('$newValue' in item && '$preValue' in item) {
-                        this.$getField(item.name).$$triggerChange(item);
+                        const $handler = this.$getField(item.name);
+
+                        if ($handler) {
+                            this.$getField(item.name).$$triggerChange(item);
+                        }
                     }
 
                     '$newValue' in item && utils.parsePath($newValues, item.name, item.$newValue);

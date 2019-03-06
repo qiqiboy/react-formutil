@@ -68,6 +68,16 @@ class LoginForm extends Component {
 
             //异步校验
             return new Promise((resolve, reject) => setTimeout(() => reject('435454'), 2000));
+        },
+
+        asyncCheck(value) {
+            if (value) {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => reject(new Error('名字重复啦！')), 3000);
+                });
+            }
+
+            return true;
         }
     };
 
@@ -107,7 +117,12 @@ class LoginForm extends Component {
                             </a>
                         </small>
                     </h4>
-                    <Field name="username" required $validators={this.$validators} $parser={value => value.trim()}>
+                    <Field
+                        name="username"
+                        required
+                        asyncCheck
+                        $validators={this.$validators}
+                        $parser={value => value.trim()}>
                         {props => (
                             <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                 <label className="control-label">用户名</label>
@@ -122,6 +137,8 @@ class LoginForm extends Component {
                                     props.$invalid && (
                                         <span className="help-block">{Object.values(props.$error)[0]}</span>
                                     )}
+
+                                {props.$pending && <span className="help-block">正在异步校验</span>}
                             </div>
                         )}
                     </Field>

@@ -77,7 +77,7 @@ class Field extends Component {
                 }
 
                 return this.$$merge({
-                    ...this.$baseState, // the default state
+                    ...this.$baseState, // the base state
                     ...this.props.$defaultState, // self default state
                     $value: '$defaultValue' in this.props ? this.props.$defaultValue : '',
                     ...$initialState, // the default state from Form

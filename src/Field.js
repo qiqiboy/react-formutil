@@ -126,13 +126,15 @@ class Field extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.$formContext.$$register && prevProps.name !== this.$name) {
-            this.$name = this.props.name;
+        if (this.props.name !== prevProps.name) {
+            this.$name = this.$handler.$name = this.props.name;
 
-            if (this.$name) {
-                this.$formContext.$$register(this.$name, this.$handler, prevProps.name);
-            } else {
-                this.$formContext.$$unregister(prevProps.$name, this.$handler);
+            if (this.$formContext.$$register) {
+                if (this.$name) {
+                    this.$formContext.$$register(this.$name, this.$handler, prevProps.name);
+                } else {
+                    this.$formContext.$$unregister(prevProps.$name, this.$handler);
+                }
             }
         }
     }

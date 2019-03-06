@@ -62,32 +62,12 @@ class Field extends Component {
             $$triggerChange: ({ $newValue, $preValue }) =>
                 utils.isFunction(this.props.$onFieldChange) &&
                 this.props.$onFieldChange($newValue, $preValue, this.$formContext.$formutil),
-            $$reset: $newState => {
-                let $initialState;
-                const context = this.$formContext;
-
-                if (this.$name && context.$$defaultValues) {
-                    const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
-
-                    $initialState = utils.parsePath(context.$$defaultStates, this.$name) || {};
-
-                    if (!utils.isUndefined($initialValue)) {
-                        $initialState.$value = $initialValue;
-                    }
-                }
-
-                return this.$$merge({
-                    ...this.$baseState, // the base state
-                    ...this.props.$defaultState, // self default state
-                    $value: '$defaultValue' in this.props ? this.props.$defaultValue : '',
-                    ...$initialState, // the default state from Form
-                    ...$newState
-                });
-            },
             $name: this.$name,
-            $picker: () => this.$state,
+            $new: () => this.$fieldutil,
+            $picker: this.$getState,
+            $getState: this.$getState,
             $getComponent: () => this,
-            $reset: $newState => this.$handler.$$reset($newState),
+            $reset: this.$reset,
             $getFirstError: this.$getFirstError,
             $render: this.$render,
             $setValue: this.$setValue,
@@ -229,8 +209,10 @@ class Field extends Component {
             this.$validate();
         }
 
-        return this.$handler.$picker();
+        return this.$handler.$getState();
     };
+
+    $getState = () => this.$state;
 
     $setState = ($newState, callback) => {
         if (this.isMounting) {
@@ -254,10 +236,33 @@ class Field extends Component {
                 });
             }
 
-            return this.$handler.$picker();
+            return this.$handler.$getState();
         }
 
         return this.$$merge($newState);
+    };
+
+    $reset = $newState => {
+        let $initialState;
+        const context = this.$formContext;
+
+        if (this.$name && context.$$defaultValues) {
+            const $initialValue = utils.parsePath(context.$$defaultValues, this.$name);
+
+            $initialState = utils.parsePath(context.$$defaultStates, this.$name) || {};
+
+            if (!utils.isUndefined($initialValue)) {
+                $initialState.$value = $initialValue;
+            }
+        }
+
+        return this.$$merge({
+            ...this.$baseState, // the base state
+            ...this.props.$defaultState, // self default state
+            $value: '$defaultValue' in this.props ? this.props.$defaultValue : '',
+            ...$initialState, // the default state from Form
+            ...$newState
+        });
     };
 
     $render = ($viewValue, callback) =>
@@ -340,11 +345,11 @@ class Field extends Component {
 
     _render() {
         let { children, render, component: TheComponent } = this.props;
-        const $fieldutil = {
+        const $fieldutil = (this.$fieldutil = {
             ...this.$state,
             ...this.$handler,
             $$formutil: this.$formContext.$formutil
-        };
+        });
 
         if (TheComponent) {
             return <TheComponent $fieldutil={$fieldutil} />;
@@ -378,7 +383,7 @@ class Field extends Component {
                     this.$formContext = context;
 
                     if (shouldInitial) {
-                        this.$handler.$$reset();
+                        this.$reset();
                     }
 
                     return this._render();

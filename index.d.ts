@@ -235,12 +235,13 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $$FIELD_UUID: number;
     $$formutil: $Formutil<Fields, Validators, WeakFields>;
     $name: string;
+    $new(): $Fieldutil<T, Validators, Fields, WeakFields>;
     $picker(): FieldState<T, Validators>;
+    $getState(): FieldState<T, Validators>;
     $getComponent(): React.ReactNode;
     $getFirstError(): string;
     $$merge(newState: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
     $$triggerChange(changedData: { newValue: T; preValue: T }): void;
-    $$reset(newState?: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
     $reset(newState?: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
 
     $render($viewValue: any, callback?: () => void): FieldState<T, Validators>;

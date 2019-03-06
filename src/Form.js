@@ -63,7 +63,7 @@ class Form extends Component {
 
             this.$$fieldChangedQueue.push({
                 name,
-                $newValue: $handler.$picker().$value
+                $newValue: $handler.$getState().$value
             });
         }
 
@@ -144,11 +144,7 @@ class Form extends Component {
         const field = this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
 
         if (field) {
-            return {
-                ...field,
-                ...field.$picker(),
-                $$formutil: this.$formutil
-            };
+            return field.$new();
         }
     };
 
@@ -289,7 +285,7 @@ class Form extends Component {
     render() {
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
-            $state: this.$$registers[path].$picker()
+            $state: this.$$registers[path].$getState()
         }));
 
         const $invalid = $stateArray.some(({ $state }) => $state.$invalid);

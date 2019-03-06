@@ -37,7 +37,7 @@ Happy to build the forms in React ^\_^
             * [`$viewValue`](#viewvalue)
             * [`$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending`](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
             * [`$error`](#error)
-            * [`$picker()`](#picker)
+            * [`$getState()`](#getstate)
             * [`$reset()`](#reset)
             * [`$getComponent()`](#getcomponent)
             * [`$setState($newState)`](#setstatenewstate)
@@ -488,7 +488,7 @@ yarn add react-formutil@next
 
 > 当没有任何错误信息时，它是一个空对象。所以，需要判断当前表单域是否有错误时，应当通过`$invalid` `$valid`来判断！
 
-##### `$picker()`
+##### `$getState()`
 
 返回 Field 的纯粹状态（不包含任何下方的方法）
 
@@ -1045,7 +1045,7 @@ function MyComponent({ current, onUpdate }) {
 
 ```javascript
 const {
-    $picker(){}, //返回当前$state
+    $getState(){}, //返回当前$state
     $validate(){}, //重新校验
     $reset($state){}, //重置表单项状态
     $getComponent(){}, //获取Field组件的引用

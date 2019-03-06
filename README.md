@@ -617,10 +617,12 @@ class MyField extends Component {}
 
 `EasyField` 是对`Field`的二次封装，它提供了基于浏览器原生表单控件实现的表单域快捷调用，同时也提供了统一的 `value` `onChange` `onFocus` `onBlur` 等接口方法来与其它第三方组件库对接。
 
-**特别提醒：`EasyField`会默认对所有的字符串输入做前后空格的过滤。如果不需要这个特性，可以通过重写`$parser`属性来关闭该功能：**
+**特别提醒：`EasyField`会默认对所有的字符串输入做前后空格的过滤。如果不需要这个特性，可以通过重写`$parser`属性或者将其设置为`null`来关闭该功能：**
 
 ```javascript
 <EasyField name="name" type="username" $parser={value => value} />
+// OR
+<EasyField name="name" type="username" $parser={null} />
 ```
 
 `EasyField`内置了一些常用的校验方法，例如：

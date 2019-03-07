@@ -130,7 +130,7 @@ class FieldCity extends Component {
 
     render() {
         const { provinceData, cityData, loading } = this.state;
-        const { province = '', city = '' } = this.props.$value || this.props.$formutil.$params;
+        const { province = '', city = '' } = this.props.$fieldutil.$value || this.props.$formutil.$params;
 
         return (
             <div className="row">

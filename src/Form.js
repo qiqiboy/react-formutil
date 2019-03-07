@@ -19,7 +19,8 @@ class Form extends Component {
         },
         $defaultValues: PropTypes.object,
         $defaultStates: PropTypes.object,
-        $onFormChange: PropTypes.func
+        $onFormChange: PropTypes.func,
+        $processer: PropTypes.func
     };
 
     static defaultProps = {
@@ -287,10 +288,21 @@ class Form extends Component {
     }
 
     render() {
+        const { $processer } = this.props;
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
             $state: this.$$registers[path].$getState()
         }));
+
+        const $weakParams = utils.toObject($stateArray, ($params, { path, $state }) => {
+            if ($processer) {
+                $processer($state, path);
+            }
+
+            if ('$value' in $state && ($state.$dirty || !utils.isUndefined($state.$value))) {
+                $params[path] = $state.$value;
+            }
+        });
 
         const $invalid = $stateArray.some(({ $state }) => $state.$invalid);
         const $dirty = $stateArray.some(({ $state }) => $state.$dirty);
@@ -304,9 +316,7 @@ class Form extends Component {
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
             $params: utils.toObject(
                 $stateArray,
-                ($params, { path, $state }) =>
-                    (!utils.isUndefined($state.$value) || $state.$dirty) &&
-                    utils.parsePath($params, path, $state.$value),
+                ($params, { path, $state }) => path in $weakParams && utils.parsePath($params, path, $weakParams[path]),
                 {
                     ...this.$$defaultValues
                 }
@@ -327,11 +337,7 @@ class Form extends Component {
             ),
 
             $weakStates: utils.toObject($stateArray, ($states, { path, $state }) => ($states[path] = $state)),
-            $weakParams: utils.toObject(
-                $stateArray,
-                ($params, { path, $state }) =>
-                    (!utils.isUndefined($state.$value) || $state.$dirty) && ($params[path] = $state.$value)
-            ),
+            $weakParams,
             $weakErrors: utils.toObject($stateArray, ($errors, { path, $state }) => {
                 if ($state.$invalid) {
                     $errors[path] = $state.$error;

@@ -75,6 +75,7 @@ Happy to build the forms in React ^\_^
         + [`$defaultValues`](#defaultvalues)
         + [`$defaultStates`](#defaultstates)
         + [`$onFormChange`](#onformchange)
+        + [`$processer`](#processer)
         + [`$formutil`](#formutil-1)
             * [`$new()`](#new)
             * [`$getField(name)`](#getfieldname)
@@ -118,7 +119,7 @@ Happy to build the forms in React ^\_^
 
 ### 稳定版
 
-稳定版支持所有`v15.0`以后版本的 react。稳定版文档请参考：[react-formutil稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.7)
+稳定版支持所有`v15.0`以后版本的 react。稳定版文档请参考：[react-formutil 稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.7)
 
 ```bash
 # npm
@@ -983,6 +984,56 @@ function MyComponent({ current, onUpdate }) {
 }
 ```
 
+#### `$processer`
+
+> **注**：该属性为`v0.5.0`新增！
+
+`$processer` 可以用来对表单域项的`$state`做进一步的加工！**在这里对`$state`做的修改都将影响到最终的表单状态！所以请慎用！**
+
+在`Form`控制器提取每个表单项的状态模型，汇总到`$formutil`中时，会将每个域的状态模型以及其`name`值传递给`$processer`函数，该函数可以对$state 进行修改、加工!
+
+但是，请注意，这里对`$state`的修改，不会影响到表单项的实际的状态模型！
+
+```javascript
+/**
+ * @param $state: object 该表单域项的状态模型对象，{ $value, $valid, $invalid, $dirty, ... }
+ * @param name: string 该表单域项的name，例如：'username'
+ */
+function $processer($state, name) {
+    // proceess $state
+}
+```
+
+**Form 在收集表单域的值时，是从`$state.$value`中获取的；而且还会判断该值是否为`undefined`，如果其值不存在，或者是`undefined`，并且`$state.$dirty`也是`true`，则会忽略该值！！**。
+
+如果你了解以上信息，可以通过`$processer`方法，来对表单域的值做进一步的加工或过滤！
+
+例如，当某些值不想被收集到`$params`中时，可以通过`$processer`来将其删除！
+
+```javascript
+// 将某些字段的对象值转换为字符串
+<Form $processer={($state, name) => {
+    // userInfo为一个对象值，我们将其转换为json字符串
+    if (name === 'userInfo') {
+        $state.$value = JSON.stringify($state.$value);
+    }
+}}
+
+// 过滤掉所有值为Null或者Undefined的字段
+<Form $processer={($state) => {
+    if ($value === undefined || $value === null) {
+        // 删除该值
+        delete $state.$value;
+    }
+}}
+
+// 强制所有的值都收集。通过将所有的$dirty都设置为true，来强制收集所有的值!
+// 这里只是举例，实际中都不需要这么做！
+<Form $processer={($state) => {
+    $state.$dirty = true;
+}}
+```
+
 #### `$formutil`
 
 `$formutil` 前面我们提到了，它是`Form`组件基于其组件树下的所有`Field`的状态模型，经过收集整理后返回的关于整个表单的状态模型集合。另外它也包含了一组用于操作整个表单的方法。
@@ -1179,6 +1230,10 @@ if ($invalid) {
 ##### `$params | $weakParams`
 
 所有表单项的 值`$value` 集合。`$formutil.$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakParams` 是以 `Field` 的 `name` 字符串当 key 的对象。
+
+> **请注意：** 只有表单项的`$dirty`状态为`false`，或者其值`$value`不是`undefined`时，其值才会被收集解析道`$params`或者`$weakParams`中！
+>
+> 如果你希望调整该行为，可以通过[`$processer`](#processer)来调整表单对值的收集逻辑。
 
 ```javascript
 $params = {

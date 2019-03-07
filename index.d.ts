@@ -315,6 +315,10 @@ export interface FormComponentProps<Fields = {}, Validators = {}, WeakFields = F
         newValues: FormParams<Fields>,
         preValues: FormParams<Fields>
     ) => void);
+    $processer?: <K extends keyof WeakFields>(
+        $state: FieldState<DetectAny<WeakFields[K], string, WeakFields[K]>, Validators>,
+        name: K,
+    ) => void;
     component?: React.ComponentType;
     render?: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode);
     children?: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode) | React.ReactNode;

@@ -37,6 +37,7 @@ Happy to build the forms in React ^\_^
             * [`$viewValue`](#viewvalue)
             * [`$dirty | $pristine | $touched | $untouched | $invalid | $valid | $focused | $pending`](#dirty--pristine--touched--untouched--invalid--valid--focused--pending)
             * [`$error`](#error)
+            * [`$new()`](#new)
             * [`$getState()`](#getstate)
             * [`$reset()`](#reset)
             * [`$getComponent()`](#getcomponent)
@@ -77,7 +78,7 @@ Happy to build the forms in React ^\_^
         + [`$onFormChange`](#onformchange)
         + [`$processer`](#processer)
         + [`$formutil`](#formutil-1)
-            * [`$new()`](#new)
+            * [`$new()`](#new-1)
             * [`$getField(name)`](#getfieldname)
             * [`$validate(name)`](#validatename)
             * [`$validates()`](#validates)
@@ -370,6 +371,8 @@ yarn add react-formutil@next
 
 #### `$parser`
 
+> 这里介绍的是针对`0.5.0`以后版本。如果你在使用之前的版本，请参考：[`$parser`](https://github.com/qiqiboy/react-formutil/tree/0.4.7#parser)
+
 当用户在表单中进行输入时（主动更新视图），视图中的值在更新到状态模型中前，会经过 `$parser` 处理。
 
 ```javascript
@@ -387,6 +390,8 @@ yarn add react-formutil@next
 ```
 
 #### `$formatter`
+
+> 这里介绍的是针对`0.5.0`以后版本。如果你在使用之前的版本，请参考：[`$formatter`](https://github.com/qiqiboy/react-formutil/tree/0.4.7#formatter)
 
 当在表单模型中主动更新模型值时，会通过 `$formatter` 将模型中的值转换为`$viewValue`后传递给视图渲染。
 
@@ -417,7 +422,7 @@ yarn add react-formutil@next
 
     /*** 上面是状态模型，下面是可用方法 ***/
 
-    $pickr: () => $state, //返回当前状态模型对象
+    $getState: () => $state, //返回当前状态模型对象
     $reset: ($newState) => $state, //重置为初始状态, $newState存在的话，会做一个合并
     $getComponent: (name) => FieldComponent, //返回Field组件实例
 
@@ -462,7 +467,7 @@ yarn add react-formutil@next
 
 ##### `$viewValue`
 
-该属性为 `v0.5.0` 新增
+> 该属性为 `v0.5.0` 新增
 
 当前表单域的视图值。一般情况下其等同于`$value`。
 
@@ -489,7 +494,17 @@ yarn add react-formutil@next
 
 > 当没有任何错误信息时，它是一个空对象。所以，需要判断当前表单域是否有错误时，应当通过`$invalid` `$valid`来判断！
 
+##### `$new()`
+
+> 该属性为 `v0.5.0` 新增。
+
+获取最新的`$fieldutil`。
+
+每一次渲染后，`Field`传递的`$fieldutil`对象都是当前的状态的快照。当异步或者回调方法中传递`$fieldutil`对象，拿到的可能与最新的状态不一致。可以通过该方法获取到最新一次渲染后的`$fieldutil`对象!
+
 ##### `$getState()`
+
+> 该属性为 `v0.5.0` 新增。如果你在使用旧版本，请使用`$picker()`代替。
 
 返回 Field 的纯粹状态（不包含任何下方的方法）
 

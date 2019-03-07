@@ -1000,11 +1000,11 @@ function MyComponent({ current, onUpdate }) {
  * @param name: string 该表单域项的name，例如：'username'
  */
 function $processer($state, name) {
-    // proceess $state
+    // process $state
 }
 ```
 
-**Form 在收集表单域的值时，是从`$state.$value`中获取的；而且还会判断该值是否为`undefined`，如果其值不存在，或者是`undefined`，并且`$state.$dirty`也是`true`，则会忽略该值！！**。
+**Form 在收集表单域的值时，是从`$state.$value`中获取的；但是如果`$value`不存在，或者其值是`undefined` && `$state.$dirty`也是`true`时，则会忽略该值！！**。
 
 如果你了解以上信息，可以通过`$processer`方法，来对表单域的值做进一步的加工或过滤！
 
@@ -1017,7 +1017,7 @@ function $processer($state, name) {
     if (name === 'userInfo') {
         $state.$value = JSON.stringify($state.$value);
     }
-}}
+}} />
 
 // 过滤掉所有值为Null或者Undefined的字段
 <Form $processer={($state) => {
@@ -1025,13 +1025,13 @@ function $processer($state, name) {
         // 删除该值
         delete $state.$value;
     }
-}}
+}} />
 
 // 强制所有的值都收集。通过将所有的$dirty都设置为true，来强制收集所有的值!
 // 这里只是举例，实际中都不需要这么做！
 <Form $processer={($state) => {
     $state.$dirty = true;
-}}
+}} />
 ```
 
 #### `$formutil`

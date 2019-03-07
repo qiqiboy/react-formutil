@@ -212,7 +212,7 @@ class Field extends Component {
         return this.$handler.$getState();
     };
 
-    $getState = () => this.$state;
+    $getState = () => ({ ...this.$state });
 
     $setState = ($newState, callback) => {
         if (this.isMounting) {

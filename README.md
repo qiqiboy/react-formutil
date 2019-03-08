@@ -105,6 +105,7 @@ Happy to build the forms in React ^\_^
 * [FAQ & 常见问题解答](#faq--常见问题解答)
     - [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
     - [`Field中的 $value 与 $viewValue 有什么区别`](#field中的-value-与-viewvalue-有什么区别)
+    - [`如何在我自己的项目中便捷的使用Field组件？`](#如何在我自己的项目中便捷的使用field组件)
     - [`checkbox 多选或 radio 单选组怎么实现`](#checkbox-多选或-radio-单选组怎么实现)
     - [`使用 Field 实现一个上传图片的表单控件`](#使用-field-实现一个上传图片的表单控件)
     - [`如何获取对 Field 生成的节点的引用？`](#如何获取对-field-生成的节点的引用)
@@ -120,7 +121,7 @@ Happy to build the forms in React ^\_^
 
 ### 稳定版
 
-稳定版支持所有`v15.0`以后版本的 react。稳定版文档请参考：[react-formutil 稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.7)
+稳定版支持所有`v15` - `v16`版本的 react（不支持未来发布的`v17`版本，因为该版本使用旧版的`context API`；目前也不再更新新功能支持，只修复 Bug）。稳定版文档请参考：[react-formutil 稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.7)
 
 ```bash
 # npm
@@ -132,9 +133,9 @@ yarn add react-formutil
 
 ### Beta 版
 
-Beta 版本使用了`react@16.3`中新增的`Context API`，并替换更新了已经被`Deprecate`的生命周期方法，实现了对 v16 以及未来 v17 版本的支持!
+Beta 版本使用了`react@16.3`中新增的`context API`，并替换更新了已经被`Deprecate`的生命周期方法，实现了对 v16 以及未来 v17 版本的支持!
 
-虽然使用了`react@16.3`中新增的`Context API`，但是其也对早前版本做了兼容处理。所以同样支持所有`v15.0`以后的 react！
+虽然使用了`react@16.3`中新增的`Context API`，但是其也对早前版本做了兼容处理。所以同样支持所有`v15.0` - `v16.3`的所有版本 react！
 
 ```bash
 # npm
@@ -213,6 +214,10 @@ yarn add react-formutil@next
 它可以理解为表单控件的顶层组件，它本身不渲染任何实际 DOM 节点。它通过向子组件传递 [`$fieldutil`](#fieldutil) 对象来同步表单控件的状态。
 
 每个表单域的渲染都应当通过`Field`来实现。它提供了多种调用方法，可以以函数、或者 React 组件当作子组件调用，推荐使用[render props](https://reactjs.org/docs/render-props.html)。
+
+> **我们提供了一个教程，关于如果快速通过`Field`组件集成进项目：**
+>
+> [`如何在我自己的项目中便捷的使用Field组件？`](#如何在我自己的项目中便捷的使用field组件)
 
 `Field` 可以接收以下几个属性参数：
 
@@ -1435,6 +1440,180 @@ export default connect(Submit);
 <Field name="user_name" $parser={(value, $setViewValue) => $setViewValue(value.split(/[^\d]/g, ''))} />
 ```
 
+### `如何在我自己的项目中便捷的使用Field组件？`
+
+`<Field />`组件本身的设计理念如果你已经了解后，那么一定会产生这样的疑问:
+
+> 在我自己的项目中，每个表单控件都基于`Field`去写，处理状态与错误显示，有点太复杂、太啰嗦了。有没有更优化的方法？
+
+答案当然是“有的”！
+
+*   如果你在使用`ant-design`、`Material-UI`或者`react-boostrap`等第三方的 UI 库，你可以参考：[`如何在 ant-design 或者 Material-UI 等项目中使用 react-formutil?`](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
+*   如果你对上面提到的`react-antd-formutil`、`react-material-formutil`等适配库的实现比较了解，你也可以参考其对你目前使用的 UI 组件库做适配！
+*   如果你在使用团队自己对组件库，或者是个新接触`react-formutil`的新手，想快速实现项目中应用，请往下看
+
+对于在使用自己私有（团队内部）表单 UI 组件或者实现的项目，我们这里提供了一个示例，供参考如果基于`Field`快速对当前项目的表单使用做适配：
+
+```tppescript
+import React, { Component } from 'react';
+import { Field, $Fieldutil } from 'react-formutil';
+import classnames from 'classnames';
+
+export interface FormFieldProps {
+    type?: string; // 控件类型，select表示下拉框，textarea表示多行输入，其它都会传递给input组件
+    label?: React.ReactNode; // 添加个label支持
+    name: string; // 表单项name值，同Field
+    className?: string;
+    controlProps?: object; // 传递给表单控件的属性
+    $validators?: object; // 校验项，同Field
+    validMessage?: object; // 错误信息展示 { [validation name]: [ error message ] }
+
+    [validationKey: string]: any;
+}
+
+// 提供一些默认校验方法
+const $defaultValidators = {
+    required(value, prop, { validMessage }) {
+        return value !== '' || validMessage.required;
+    },
+    min(value, limit, { validMessage }) {
+        return Number(value) >= Number(limit) || validMessage.min;
+    },
+    max(value, limit, { validMessage }) {
+        return Number(value) <= Number(limit) || validMessage.max;
+    },
+    minLength(value, limit, { validMessage }) {
+        return value.length >= Number(limit) || validMessage.minLength;
+    },
+    maxLength(value, limit, { validMessage }) {
+        return value.length <= Number(limit) || validMessage.maxLength;
+    }
+};
+
+/**
+ * @description
+ * 基于react-formutil的Field封装的表单项调用示例
+ *
+ * 因为不同团队，使用不同的开发框架，或者内部自己实现。对表单的UI显示、状态显示、错误内容显示等都有各自独特的地方。
+ * 这也是为什么react-formutil的Field只提供了基础的底层服务，而不会参与任何的DOM渲染！
+ *
+ * 这个示例，以浏览器原生form控件为示例，对input、select、textarea做封装，并且提供对 required、min、max、minLength、maxLength 等常见校验
+ *
+ * @usage
+ * 这里示范该组件实现后，如何进行调用：
+ *
+ * ******* 一个用户名输入框，并且校验非空 *******
+ * <FormField name="username" required />
+ *
+ * ******** 选择性别 *******
+ * <FormField type="select" name="sex" required>
+ *      <option value="1">男</option>
+ *      <option value="2">女</option>
+ * </FormField>
+ *
+ * ******** 多行输入 *******
+ * <FormField type="textarea" name="sex" required />
+ *
+ * ******** 输入数字 *******
+ * <FormField type="number" name="sex" max={100} min={10} />
+ *
+ * ******** 勾选框 *******
+ * <FormField type="checkbox" name="agree">我同意</FormField>
+ */
+class FormField extends Component<FormFieldProps> {
+    static defaultProps = {
+        type: 'text',
+        validMessage: {}
+    };
+    public render() {
+        const { type, label, $validators, children, className, controlProps = {}, ...others } = this.props;
+
+        let ControlField;
+
+        switch (type) {
+            case 'select':
+                ControlField = 'select';
+                break;
+            case 'textarea':
+                ControlField = 'textarea';
+                break;
+            default:
+                ControlField = 'input';
+                break;
+        }
+
+        return (
+            <Field
+                {...others}
+                $validators={{
+                    ...$defaultValidators,
+                    ...$validators
+                }}
+                render={($fieldutil: $Fieldutil<any>) => {
+                    const handleEvents = {
+                        onChange(ev) {
+                            // 这里判断下type类型，checkout、radio使用checked属性
+                            if (type === 'checkbox' || type === 'radio') {
+                                $fieldutil.$render(ev.target.checked);
+                            } else {
+                                $fieldutil.$render(ev.target.value);
+                            }
+                        },
+                        onFocus(ev) {
+                            // 当输入框获得焦点时，同步$focused = true状态
+                            $fieldutil.$setFocused(true);
+                        },
+                        onBlur(ev) {
+                            // 当输入框获得焦点时，同步$focused = false状态
+                            $fieldutil.$setFocused(false);
+
+                            // 首次blur时，设置$touched状态
+                            if ($fieldutil.$untouched) {
+                                $fieldutil.$setTouched(true);
+                            }
+                        }
+                    };
+
+                    return (
+                        <div
+                            className={classnames('form-field', className, {
+                                /* 添加各种状态className */
+                                'field-dirty': $fieldutil.$dirty,
+                                'field-touched': $fieldutil.$touched,
+                                'field-focused': $fieldutil.$focused,
+                                'field-invalid': $fieldutil.$invalid,
+                                'field-pending': $fieldutil.$pending
+                            })}>
+                            {/* 支持渲染label属性 */
+                            typeof label === 'string' ? <label className="field-label">{label}</label> : label}
+
+                            {/* 渲染实际的表单控件 */}
+                            <ControlField
+                                {...controlProps}
+                                className={classnames('field-control', (controlProps as any).className)}
+                                type={type}
+                                children={type === 'select' ? children : null}
+                                {...handleEvents}
+                            />
+
+                            {/* 非下拉框时将children渲染到这里 */
+                            type !== 'select' ? children : null}
+
+                            {/*  当状态为$diry时，并且有错误时，显示错误信息 */
+                            $fieldutil.$dirty && $fieldutil.$invalid && (
+                                <div className="field-error">{$fieldutil.$getFirstError()}</div>
+                            )}
+                        </div>
+                    );
+                }}
+            />
+        );
+    }
+}
+
+export default FormField;
+```
+
 ### `checkbox 多选或 radio 单选组怎么实现`
 
 可以直接 Field 实现，也可以使用 EasyField 实现（demo 都中有示例）：
@@ -1767,7 +1946,7 @@ class MyForm extends Component {
 
 ```typescript
 import React, { Component } from 'react';
-import { withForm, EasyField, $Formutil } from 'react-formutil';
+import { withForm, EasyField, $Formutil, $Fieldutil } from 'react-formutil';
 
 // 定义整个表单的参数结构
 interface IFields {
@@ -1788,8 +1967,6 @@ interface IProps {
     $formutil: $Formutil<IFields, IErrors>;
 }
 
-// @ts-ignore
-@withForm
 class UserForm extends Component<IProps> {
     componentDidMount() {
         // 可以调用$formutil对象
@@ -1805,13 +1982,13 @@ class UserForm extends Component<IProps> {
         return (
             <form>
                 {/* 这里类似上面声明IProps时传递了泛型参数，如果我们需要在EasyField属性配置中访问其对象信息，也需要提供泛型参数定义 */}
-                <EasyField<string, IErrors, IFields> name="name" $onFieldChange={(newValue, oldValue, $formutil) => {
+                <EasyField name="name" $onFieldChange={(newValue, oldValue, $formutil: $Formutil<IFields, IErrors>) => {
                     // 可以正常访问$formutil对象
                 }} />
 
                 {/* 这里我们定义该项的值为number类型，所以在渲染该值是需要做类型转换 */}
-                <Field<number> name="age">
-                    { $fieldutil => {
+                <Field name="age">
+                    { $fieldutil: $Fieldutil<number> => {
                             // console.log($fieldutil.$viewValue)
                             return <input onChange={ev => $fieldutil.$render(Number(ev.target.value))} value={$fieldutil.$viewValue} />
                         }
@@ -1821,4 +1998,6 @@ class UserForm extends Component<IProps> {
         );
     }
 }
+
+export default withForm(UserForm)
 ```

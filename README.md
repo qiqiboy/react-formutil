@@ -1454,7 +1454,7 @@ export default connect(Submit);
 
 对于在使用自己私有（团队内部）表单 UI 组件或者实现的项目，我们这里提供了一个示例，供参考如果基于`Field`快速对当前项目的表单使用做适配：
 
-```tppescript
+```typescript
 import React, { Component } from 'react';
 import { Field, $Fieldutil } from 'react-formutil';
 import classnames from 'classnames';

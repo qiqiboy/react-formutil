@@ -1468,7 +1468,7 @@ export interface FormFieldProps {
     $validators?: object; // 校验项，同Field
     validMessage?: object; // 错误信息展示 { [validation name]: [ error message ] }
 
-    [validationKey: string]: any;
+    [validationKey: string]: any; // 事实上支持Field的所有属性，包括$parser $formatter等
 }
 
 // 提供一些默认校验方法
@@ -1613,6 +1613,8 @@ class FormField extends Component<FormFieldProps> {
 
 export default FormField;
 ```
+
+以上代码即为基础的基于`Field`组件，去封装一个适用于现有项目的适配器组件！你可以参考上述代码，根据实际情况进行修改，以更好的运行以及添加其它功能。
 
 ### `checkbox 多选或 radio 单选组怎么实现`
 

@@ -56,6 +56,10 @@ export type FormFocuses<Fields> = {
     [K in keyof Fields]: DetectAny<Fields[K], boolean, Fields[K] extends object ? FormFocuses<Fields[K]> : boolean>
 };
 
+export type FormPendings<Fields> = {
+    [K in keyof Fields]: DetectAny<Fields[K], boolean, Fields[K] extends object ? FormPendings<Fields[K]> : boolean>
+};
+
 export type FormStates<Fields, Validators> = {
     [K in keyof Fields]: DetectAny<
         Fields[K],
@@ -94,6 +98,14 @@ export type ArgFormTouches<Fields> = {
     >
 };
 
+export type ArgFormPendings<Fields> = {
+    [K in keyof Fields]?: DetectAny<
+        Fields[K],
+        boolean,
+        Fields[K] extends object ? ArgFormPendings<Fields[K]> | boolean : boolean
+    >
+};
+
 export type ArgFormDirts<Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
@@ -129,6 +141,8 @@ export type FormWeakTouches<Fields> = { [K in keyof Fields]: boolean };
 export type FormWeakDirts<Fields> = { [K in keyof Fields]: boolean };
 
 export type FormWeakFocuses<Fields> = { [K in keyof Fields]: boolean };
+
+export type FormWeakPendings<Fields> = { [K in keyof Fields]: boolean };
 
 export type FormWeakStates<Fields, Validators> = {
     [K in keyof Fields]: FieldState<DetectAny<Fields[K], string, Fields[K]>, Validators>
@@ -254,6 +268,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $setTouched(touched: boolean, callback?: () => void): FieldState<T, Validators>;
     $setDirty(dirty: boolean, callback?: () => void): FieldState<T, Validators>;
     $setFocused(focused: boolean, callback?: () => void): FieldState<T, Validators>;
+    $setPending(pending: boolean, callback?: () => void): FieldState<T, Validators>;
     $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState<T, Validators>;
     $setError(error: ArgFieldError<Validators>, callback?: () => void): FieldState<T, Validators>;
     $validate(callback?: () => void): FieldState<T, Validators>;
@@ -266,6 +281,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $touches: FormTouches<Fields>;
     $dirts: FormDirts<Fields>;
     $focuses: FormFocuses<Fields>;
+    $pendings: FormPendings<Fields>;
 
     $weakStates: FormWeakStates<WeakFields, Validators>;
     $weakParams: FormWeakParams<WeakFields>;
@@ -273,6 +289,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $weakTouches: FormWeakFocuses<WeakFields>;
     $weakDirts: FormWeakDirts<WeakFields>;
     $weakFocuses: FormWeakFocuses<WeakFields>;
+    $weakPendings: FormWeakPendings<WeakFields>;
 
     $valid: boolean;
     $invalid: boolean;
@@ -304,11 +321,14 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $setFocuses(focusedTree: ArgFormFocuses<Fields>, callback?: () => void): void;
     $setDirts(dirtyTree: ArgFormDirts<Fields>, callback?: () => void): void;
     $setTouches(touchedTree: ArgFormTouches<Fields>, callback?: () => void): void;
+    $setPendings(pendingTree: ArgFormPendings<Fields>, callback?: () => void): void;
     $setErrors(errorTree: ArgFormErrors<Fields, Validators>, callback?: () => void): void;
     $batchState(state: Partial<FieldState<any, Validators>>, callback?: () => void): void;
     $batchDirty(dirty: boolean, callback?: () => void): void;
     $batchTouched(touched: boolean, callback?: () => void): void;
     $batchFocused(focused: boolean, callback?: () => void): void;
+    $batchPending(pending: boolean, callback?: () => void): void;
+    $batchError($error: ArgFieldError<Validators>, callback?: () => void): void;
 }
 
 export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {

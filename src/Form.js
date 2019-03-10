@@ -1,4 +1,4 @@
-import React, { Component, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import FormContext from './context';
 import * as utils from './utils';
@@ -313,10 +313,10 @@ class Form extends Component {
 
     _render() {
         const $formutil = this.$formutil;
-        let { children, render, component: TheComponent } = this.props;
+        let { children, render, component } = this.props;
 
-        if (TheComponent) {
-            return <TheComponent $formutil={$formutil} />;
+        if (component) {
+            return createElement(component, { $formutil });
         }
 
         if (utils.isFunction(render)) {

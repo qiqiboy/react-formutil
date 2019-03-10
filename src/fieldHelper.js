@@ -1,4 +1,4 @@
-import React, { Children, cloneElement } from 'react';
+import { Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import * as utils from './utils';
 
@@ -29,7 +29,8 @@ export const FieldPropTypes = {
     component: PropTypes.func,
     children(props, ...args) {
         let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-        if (!props.render && !props.component) {
+
+        if (!props.render && !props.component && props.children !== null) {
             pt = pt.isRequired;
         }
 
@@ -50,10 +51,10 @@ export function GET_FIELD_UUID() {
 }
 
 export function renderField($fieldutil, props) {
-    let { children, render, component: TheComponent } = props;
+    let { children, render, component } = props;
 
-    if (TheComponent) {
-        return <TheComponent $fieldutil={$fieldutil} />;
+    if (component) {
+        return createElement(component, { $fieldutil });
     }
 
     if (utils.isFunction(render)) {

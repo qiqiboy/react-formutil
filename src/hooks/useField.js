@@ -8,13 +8,10 @@ import warning from 'warning';
  * @description
  * The custom hook for Field
  *
- * @usage
+ * @param {string | object} [name]
+ * @param {object} [props]
  *
- * useField('name');
- *
- * useField('age', {
- *  $defaultValue: 18
- * });
+ * @return {object} $Fieldutil
  */
 function useField(name, props = {}) {
     let $name;
@@ -32,7 +29,9 @@ function useField(name, props = {}) {
     }
 
     const $formContext = useFormContext();
+    /** @type {any} */
     const $this = useRef({}).current;
+    /** @type {React.MutableRefObject<any[]>} */
     const callbackRef = useRef([]);
 
     $this.$formContext = $formContext;
@@ -46,18 +45,6 @@ function useField(name, props = {}) {
 
         return $registered.$reset();
     });
-
-    useEffect(() => {
-        if ($formContext.$$register) {
-            if ($name) {
-                $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
-            } else {
-                $formContext.$$unregister($name, $this.$fieldHandler);
-            }
-        }
-
-        $this.$prevName = $name;
-    }, [$name]);
 
     useEffect(() => {
         const { $state } = $this;
@@ -77,16 +64,6 @@ function useField(name, props = {}) {
     }, [$this.$state.$value]);
 
     useEffect(() => {
-        const callbackQueue = [...callbackRef.current];
-
-        callbackRef.current.length = 0;
-
-        while (callbackQueue.length) {
-            callbackRef.pop()();
-        }
-    });
-
-    useEffect(() => {
         $this.isMounting = true;
 
         warning(
@@ -94,7 +71,7 @@ function useField(name, props = {}) {
             `You should enusre that the useField() with the name '${$name}' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated.`
         );
 
-        warning($name, `You should pass a name argument to useField(name? string), otherwise it will be isolated!`);
+        warning($name, `You should pass a name argument to useField(), otherwise it will be isolated!`);
 
         return () => {
             if ($formContext.$$unregister) {
@@ -104,6 +81,28 @@ function useField(name, props = {}) {
             $this.isMounting = false;
         };
     }, []);
+
+    useEffect(() => {
+        if ($formContext.$$register) {
+            if ($name) {
+                $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+            } else {
+                $formContext.$$unregister($name, $this.$fieldHandler);
+            }
+        }
+
+        $this.$prevName = $name;
+    }, [$name]);
+
+    useEffect(() => {
+        const callbackQueue = [...callbackRef.current];
+
+        callbackRef.current.length = 0;
+
+        while (callbackQueue.length) {
+            callbackQueue.pop()();
+        }
+    });
 
     function $setState($newState, callback) {
         if ($this.isMounting) {

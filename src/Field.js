@@ -9,6 +9,11 @@ class Field extends Component {
 
     $$FIELD_UUID = GET_FIELD_UUID();
 
+    /** @type { any } */
+    $formContext;
+    /** @type { any } */
+    $state;
+
     componentDidMount() {
         this.isMounting = true;
 
@@ -24,8 +29,8 @@ class Field extends Component {
 
         warning($name, `You should assign a name to <Field />, otherwise it will be isolated!`);
 
-        if (this.$formContext.$$register) {
-            this.$registered = this.$formContext.$$register(this.props.name, this.$fieldHandler);
+        if ($formContext.$$register) {
+            this.$registered = $formContext.$$register($name, this.$fieldHandler);
         }
 
         this.$prevValue = this.$state.$value;

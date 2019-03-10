@@ -53,32 +53,38 @@ class Form extends Component {
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, prevName) => {
-        let $registered = this.$$getRegister(prevName);
+        let $registered;
 
-        if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
-            utils.objectClear(this.$$registers, prevName);
-            utils.objectClear(this.$$defaultValues, prevName);
+        if (prevName) {
+            $registered = this.$$getRegister(prevName);
 
-            this.$$fieldChangedQueue.push({
-                name: prevName,
-                $prevValue: $registered.$getState().$value
-            });
+            if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
+                utils.objectClear(this.$$registers, prevName);
+                utils.objectClear(this.$$defaultValues, prevName);
+
+                this.$$fieldChangedQueue.push({
+                    name: prevName,
+                    $prevValue: $registered.$getState().$value
+                });
+            }
         }
 
-        $registered = this.$$getRegister(name);
+        if (name) {
+            $registered = this.$$getRegister(name);
 
-        warning(
-            !$registered,
-            `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
-        );
+            warning(
+                !$registered,
+                `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
+            );
 
-        if (!$registered && name) {
-            this.$$registers[name] = $handler;
+            if (!$registered) {
+                this.$$registers[name] = $handler;
 
-            this.$$fieldChangedQueue.push({
-                name,
-                $newValue: $handler.$getState().$value
-            });
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $newValue: $handler.$getState().$value
+                });
+            }
         }
 
         if (name || prevName) {
@@ -90,19 +96,21 @@ class Form extends Component {
     };
 
     $$unregister = (name, $handler) => {
-        const $registered = this.$getField(name);
+        if (name) {
+            const $registered = this.$getField(name);
 
-        if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
-            utils.objectClear(this.$$registers, name);
-            utils.objectClear(this.$$defaultValues, name);
+            if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
+                utils.objectClear(this.$$registers, name);
+                utils.objectClear(this.$$defaultValues, name);
 
-            this.$$fieldChangedQueue.push({
-                name,
-                $prevValue: $registered.$getState().$value
-            });
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $prevValue: $registered.$getState().$value
+                });
 
-            this.creatDeepRegisters();
-            this.$render();
+                this.creatDeepRegisters();
+                this.$render();
+            }
         }
     };
 

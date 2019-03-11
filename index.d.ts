@@ -417,9 +417,3 @@ export function connect<SelfProps = {}, Fields = {}, Validators = {}, WeakFields
         }
     >
 ): React.ComponentClass<Omit<SelfProps, '$formutil'>>;
-
-export function useFormutil<Fields = {}, Validators = {}, WeakFields = Fields>(): $Formutil<
-    Fields,
-    Validators,
-    WeakFields
->;

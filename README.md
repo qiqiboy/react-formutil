@@ -102,6 +102,9 @@ Happy to build the forms in React ^\_^
             * [`$focused`](#focused)
     - [`withForm(Component)`](#withformcomponent)
     - [`connect(Component)`](#connectcomponent)
+    - [`Hooks`](#hooks)
+        + [`useField`](#usefield)
+        + [`useForm`](#useform)
 * [FAQ & 常见问题解答](#faq--常见问题解答)
     - [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
     - [`Field中的 $value 与 $viewValue 有什么区别`](#field中的-value-与-viewvalue-有什么区别)
@@ -1391,6 +1394,118 @@ export default connect(Submit);
 </Form>
 ```
 
+### `Hooks`
+
+[`Hooks`](https://reactjs.org/docs/hooks-intro.html) 是`react@16.8`开始，正式推出的新的组件开发 API。`react-formutil@0.5.0`开始，也提供了相关的适用与这一全新开发方式的相关`Hooks`。
+
+**请注意**，与官方态度一样，`Hooks`并不是要对之前基于`class component`开发方式的否定，它是可选的、并且向后兼容，不会破坏目前任何基于现有`react-formutil`的项目正常运行。
+
+**如果你要开始使用`Hooks`，请确保你已经安装了最新的`react-formutil@>0.5.0`以及`react@>16.8.0` `react-dom@>16.8.0`。**
+
+全新的`Hooks`方法，位于`react-formutil/hooks`下（如果要使用新增的`useField` `useForm` hooks，必须从这里导出获取）。
+
+你可以直接将项目中的，所有的从`react-formutil`的导出，全部改为从`react-formutil/hooks`导出（是的，所有你需要的组件、HOC、TS 类型定义等都可以从这里导出）。当然，这是一个建议，如果你这么做了，理论上可以减少一点构建体积`^_^`。如果没用到 hooks 的地方，依然保持目前的导出方式，依然没有问题！
+
+#### `useField`
+
+`useField` 可以用来获取或者生成一个新的[`$fieldutil`](#fieldutil)对象。它接受类似`Field`组件所有能接受的`props`参数：
+
+```typescript
+function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
+    name?: string,
+    props?: Omit<HooksFieldProps<T, Validators, Fields, WeakFields>, 'name'>
+): $Fieldutil<T, Validators, Fields, WeakFields>;
+
+function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
+    props?: HooksFieldProps<T, Validators, Fields, WeakFields>
+): $Fieldutil<T, Validators, Fields, WeakFields>;
+```
+
+我们来尝试使用下`useField`。但是首先，假如我们要定义一个`Field`控件，它是个普通的`input`输入框，使用非`hooks`方法，大概长这样：
+
+```javascript
+import { Field } from 'react-formutil';
+
+/**
+ * 你可以直接将自定义组件的所有props直接传递给`Field`，这样你的自定义组件就可以变成一个标准的类`Field`组件,
+ * 它可以接受任意的`Field`支持的属性值，例如`$defualtValue` `$validators`。
+ *
+ * <UserNameField name="username" $defaultValue="Lucy" />
+ */
+function UserNameField(props) {
+    return (
+        <Field {...props}>
+            {$fieldutil => <input value={$fieldutil.$viewValue} onChange={ev => $fieldutil.$render(ev.target.value)} />}
+        </Field>
+    );
+}
+```
+
+假如使用`useField`的话，会是什么样子呢？
+
+```javascript
+import { Field } from 'react-formutil/hooks'; // 请注意，这里的模块导入位置
+
+function UserNameField(props) {
+    const $fieldutil = useField(props);
+
+    return <input value={$fieldutil.$viewValue} onChange={ev => $fieldutil.$render(ev.target.value)} />;
+}
+```
+
+就是这么简单！上面的代码完全等效，但是明显使用`hooks`方式，更加简洁，没有`HOC`、没有`render props`，完全就是个普通的函数定义！
+
+就像调用`Field`组件时，我们可以传递一些默认值、默认校验方法等，使用`useField`也可以这么做！
+
+```javascript
+function UserNameField({ name }) {
+    const $fieldutil = useField(name, {
+        $validators: {
+            required(value) {
+                return !!value || 'Required!';
+            }
+        }
+    });
+
+    return <input value={$fieldutil.$viewValue} onChange={ev => $fieldutil.$render(ev.target.value)} />;
+}
+```
+
+#### `useForm`
+
+`useForm`可以用来获取上下文中的[`$formutil`](#formutil-1)对象。请注意，与`useField`不同，这里只能获取当前组件所在的`Form`中的`$formutil`对象，而不能创建一个新的`Form`上下文！！它比较类似于`connect`高阶组件的作用！
+
+> `useField`可以获取已经存在的其它`Field`的`$fieldutil`，如果没有，它会创建一个新的`$fieldutil`句柄
+
+```javascript
+import { Form, useForm } from 'react-formutil/hooks';
+
+function UserInfoSubmitForm() {
+    const $formutil = useForm();
+
+    const onSubmit = function() {
+        const { $invalid, $getFirstError } = $formutil;
+
+        if ($invalid) {
+            alert($getFirstError());
+        } else {
+            // submit data
+        }
+    };
+
+    return <button className="btn-submit" onClick={onSubmit} />;
+}
+
+// 使用，必须位于<Form />组件，或者withForm()高阶组件所在的组件树中才能获取到！
+<Form>
+    {/*...*/}
+    <Others>
+        <UserInfoSubmitForm />
+    </Others>
+    {/*...*/}
+</Form>;
+```
+
 ## FAQ & 常见问题解答
 
 ### `Field 与 EasyField 有什么区别`
@@ -1600,9 +1715,8 @@ class FormField extends Component<FormFieldProps> {
                             type !== 'select' ? children : null}
 
                             {/*  当状态为$diry时，并且有错误时，显示错误信息 */
-                            $fieldutil.$dirty && $fieldutil.$invalid && (
-                                <div className="field-error">{$fieldutil.$getFirstError()}</div>
-                            )}
+                            $fieldutil.$dirty &&
+                                $fieldutil.$invalid && <div className="field-error">{$fieldutil.$getFirstError()}</div>}
                         </div>
                     );
                 }}

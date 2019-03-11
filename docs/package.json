@@ -62,17 +62,12 @@
     "lodash": "4.17.5",
     "normalize.css": "5.0.0",
     "prop-types": "15.7.2",
-    "react": "16.8.3",
     "react-animated-router": "0.1.11",
     "react-awesome-snippets": "0.0.18",
-    "react-dom": "16.8.3",
     "react-router-dom": "4.3.1",
     "react-transition-group": "2.3.0"
   },
   "devDependencies": {
-    "@types/prop-types": "^15.5.5",
-    "@types/react": "^16.4.13",
-    "@types/react-dom": "^16.0.7",
     "address": "1.0.2",
     "autoprefixer": "7.1.6",
     "babel-core": "6.26.0",

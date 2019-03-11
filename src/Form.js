@@ -1,7 +1,8 @@
-import React, { Component, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import FormContext from './context';
 import * as utils from './utils';
+import warning from 'warning';
 
 class Form extends Component {
     static displayName = 'React.Formutil.Form';
@@ -31,63 +32,97 @@ class Form extends Component {
     $$registers = {};
     $$deepRegisters = {};
 
+    constructor(props) {
+        super(props);
+
+        this.$$defaultInitialize();
+    }
+
     getFormContext() {
         return {
+            $$registers: this.$$registers,
             $$register: this.$$register,
             $$unregister: this.$$unregister,
             $$onChange: this.$$onChange,
-            $$defaultValues: this.$$defaultValues,
-            $$defaultStates: this.$$defaultStates,
+            $$getDefault: this.$$getDefault,
             $formutil: this.$formutil
         };
     }
 
-    $$defaultValues = JSON.parse(JSON.stringify(this.props.$defaultValues));
-    $$defaultStates = JSON.parse(JSON.stringify(this.props.$defaultStates));
-
     /**
      * @desc 注册或者替换(preName)Field
      */
-    $$register = (name, $handler, preName) => {
-        if (preName && $handler.$$FIELD_UUID === (this.$getField(preName) || {}).$$FIELD_UUID) {
-            delete this.$$registers[preName];
-            utils.objectClear(this.$$defaultValues, preName);
+    $$register = (name, $handler, prevName) => {
+        let $registered;
 
-            this.$$fieldChangedQueue.push({
-                name: preName,
-                $preValue: this.$formutil.$weakParams[preName]
-            });
+        if (prevName) {
+            $registered = this.$$getRegister(prevName);
+
+            if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
+                utils.objectClear(this.$$registers, prevName);
+                utils.objectClear(this.$$defaultValues, prevName);
+
+                this.$$fieldChangedQueue.push({
+                    name: prevName,
+                    $prevValue: $registered.$getState().$value
+                });
+            }
         }
 
         if (name) {
-            this.$$registers[name] = $handler;
+            $registered = this.$$getRegister(name);
 
-            this.$$fieldChangedQueue.push({
-                name,
-                $newValue: $handler.$getState().$value
-            });
+            warning(
+                !$registered,
+                `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
+            );
+
+            if (!$registered) {
+                this.$$registers[name] = $handler;
+
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $newValue: $handler.$getState().$value
+                });
+            }
         }
 
-        if (name || preName) {
+        if (name || prevName) {
             this.creatDeepRegisters();
             this.$render();
         }
+
+        return $registered || $handler;
     };
 
     $$unregister = (name, $handler) => {
-        if (name && $handler.$$FIELD_UUID === (this.$getField(name) || {}).$$FIELD_UUID) {
-            delete this.$$registers[name];
-            utils.objectClear(this.$$defaultValues, name);
+        if (name) {
+            const $registered = this.$getField(name);
 
-            this.$$fieldChangedQueue.push({
-                name,
-                $preValue: this.$formutil.$weakParams[name]
-            });
+            if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
+                utils.objectClear(this.$$registers, name);
+                utils.objectClear(this.$$defaultValues, name);
 
-            this.creatDeepRegisters();
-            this.$render();
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $prevValue: $registered.$getState().$value
+                });
+
+                this.creatDeepRegisters();
+                this.$render();
+            }
         }
     };
+
+    $$defaultInitialize = () => {
+        this.$$defaultValues = JSON.parse(JSON.stringify(this.props.$defaultValues));
+        this.$$defaultStates = JSON.parse(JSON.stringify(this.props.$defaultStates));
+    };
+
+    $$getDefault = () => ({
+        $$defaultStates: this.$$defaultStates,
+        $$defaultValues: this.$$defaultValues
+    });
 
     $$fieldChangedQueue = [];
     $$triggerFormChange = () => {
@@ -96,12 +131,12 @@ class Form extends Component {
             this.$$fieldChangedQueue.length = 0;
 
             const $newValues = {};
-            const $preValues = {};
+            const $prevValues = {};
             let hasFormChanged = false;
 
             $$fieldChangedQueue.forEach(item => {
-                if (item.$newValue !== item.$preValue) {
-                    if ('$newValue' in item && '$preValue' in item) {
+                if (item.$newValue !== item.$prevValue) {
+                    if ('$newValue' in item && '$prevValue' in item) {
                         const $handler = this.$getField(item.name);
 
                         if ($handler) {
@@ -110,14 +145,14 @@ class Form extends Component {
                     }
 
                     '$newValue' in item && utils.parsePath($newValues, item.name, item.$newValue);
-                    '$preValue' in item && utils.parsePath($preValues, item.name, item.$preValue);
+                    '$prevValue' in item && utils.parsePath($prevValues, item.name, item.$prevValue);
 
                     hasFormChanged = true;
                 }
             });
 
             if (hasFormChanged && utils.isFunction(this.props.$onFormChange)) {
-                this.props.$onFormChange(this.$formutil, $newValues, $preValues);
+                this.props.$onFormChange(this.$formutil, $newValues, $prevValues);
             }
         }
     };
@@ -145,8 +180,20 @@ class Form extends Component {
         return newTree;
     }
 
+    $$getRegister = name => {
+        if (name) {
+            const field = this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
+
+            if (field) {
+                return field;
+            }
+        }
+    };
+
     $getField = name => {
-        const field = this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
+        const field = this.$$getRegister(name);
+
+        warning(field, `$getField('${name}'') fail to find the right Field. Maybe it has been removed.`);
 
         if (field) {
             return field.$new();
@@ -170,7 +217,7 @@ class Form extends Component {
             const $newState = $parsedTree[name] || utils.parsePath($parsedTree, name);
 
             if ($newState) {
-                const $preValue = this.$formutil.$weakParams[name];
+                const $prevValue = this.$formutil.$weakParams[name];
                 const { $value: $newValue } = handler.$$merge($newState);
 
                 if ('$value' in $newState || '$viewValue' in $newState) {
@@ -182,7 +229,7 @@ class Form extends Component {
                         this.$$fieldChangedQueue.push({
                             name,
                             $newValue,
-                            $preValue
+                            $prevValue
                         });
                     }
                 }
@@ -192,17 +239,18 @@ class Form extends Component {
         this.$render(callback);
     };
 
-    $render = callback =>
-        this.forceUpdate(() => {
-            utils.isFunction(callback) && callback();
+    componentDidUpdate() {
+        this.$$triggerFormChange();
+    }
 
-            this.$$triggerFormChange();
-        });
+    $render = callback => this.forceUpdate(callback);
 
     $validates = () => utils.objectEach(this.$$registers, handler => handler.$validate());
     $validate = (name, callback) => this.$getField(name).$validate(callback);
 
     $reset = ($stateTree, callback) => {
+        this.$$defaultInitialize();
+
         if (utils.isFunction($stateTree)) {
             callback = $stateTree;
             $stateTree = {};
@@ -213,7 +261,7 @@ class Form extends Component {
 
         return this.$setStates(
             utils.objectMap(this.$$registers, (handler, name) =>
-                handler.$$reset($parsedTree[name] || utils.parsePath($parsedTree, name))
+                handler.$reset($parsedTree[name] || utils.parsePath($parsedTree, name))
             ),
             callback
         );
@@ -226,12 +274,11 @@ class Form extends Component {
     $setFocuses = ($focusedTree, callback) =>
         this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })), callback);
     $setDirts = ($dirtyTree, callback) =>
-        this.$setStates(this.fetchTreeFromRegisters($dirtyTree, $dirty => ({ $dirty, $pristine: !$dirty })), callback);
+        this.$setStates(this.fetchTreeFromRegisters($dirtyTree, $dirty => ({ $dirty })), callback);
     $setTouches = ($touchedTree, callback) =>
-        this.$setStates(
-            this.fetchTreeFromRegisters($touchedTree, $touched => ({ $touched, $untouched: !$touched })),
-            callback
-        );
+        this.$setStates(this.fetchTreeFromRegisters($touchedTree, $touched => ({ $touched })), callback);
+    $setPendings = ($pendingTree, callback) =>
+        this.$setStates(this.fetchTreeFromRegisters($pendingTree, $pending => ({ $pending })), callback);
     $setErrors = ($errorTree, callback) =>
         this.$setStates(this.fetchTreeFromRegisters($errorTree, $error => ({ $error })), callback);
 
@@ -239,16 +286,14 @@ class Form extends Component {
     $batchDirty = ($dirty, callback) =>
         this.$batchState(
             {
-                $dirty,
-                $pristine: !$dirty
+                $dirty
             },
             callback
         );
     $batchTouched = ($touched, callback) =>
         this.$batchState(
             {
-                $touched,
-                $untouched: !$touched
+                $touched
             },
             callback
         );
@@ -259,13 +304,27 @@ class Form extends Component {
             },
             callback
         );
+    $batchPending = ($pending, callback) =>
+        this.$batchState(
+            {
+                $pending
+            },
+            callback
+        );
+    $batchError = ($error, callback) =>
+        this.$batchState(
+            {
+                $error
+            },
+            callback
+        );
 
     _render() {
         const $formutil = this.$formutil;
-        let { children, render, component: TheComponent } = this.props;
+        let { children, render, component } = this.props;
 
-        if (TheComponent) {
-            return <TheComponent $formutil={$formutil} />;
+        if (component) {
+            return createElement(component, { $formutil });
         }
 
         if (utils.isFunction(render)) {
@@ -335,6 +394,9 @@ class Form extends Component {
             $focuses: utils.toObject($stateArray, ($focuses, { path, $state }) =>
                 utils.parsePath($focuses, path, $state.$focused)
             ),
+            $pendings: utils.toObject($stateArray, ($pendings, { path, $state }) =>
+                utils.parsePath($pendings, path, $state.$pending)
+            ),
 
             $weakStates: utils.toObject($stateArray, ($states, { path, $state }) => ($states[path] = $state)),
             $weakParams,
@@ -351,6 +413,10 @@ class Form extends Component {
             $weakFocuses: utils.toObject(
                 $stateArray,
                 ($focuses, { path, $state }) => ($focuses[path] = $state.$focused)
+            ),
+            $weakPendings: utils.toObject(
+                $stateArray,
+                ($weakPendings, { path, $state }) => ($weakPendings[path] = $state.$pending)
             ),
 
             $getFirstError() {

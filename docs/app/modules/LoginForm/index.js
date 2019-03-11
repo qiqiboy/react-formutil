@@ -118,8 +118,8 @@ class LoginForm extends Component {
                         </small>
                     </h4>
                     <Field
-                        name="username"
                         required
+                        name="username"
                         asyncCheck
                         $validators={this.$validators}
                         $parser={value => value.trim()}>

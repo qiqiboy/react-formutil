@@ -111,7 +111,7 @@ export const parsePath = (...args) => {
             });
         }
     } catch (error) {
-        warning(false, `react-formutil: It seems '%s' is not a legal expression.`, path);
+        warning(false, `The name '%s' of Field seems is not a legal expression.`, path);
     }
 
     if (args.length > 2) {

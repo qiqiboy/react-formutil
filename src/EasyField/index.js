@@ -1,4 +1,4 @@
-import React, { Component, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import Field from '../Field';
 import Native from './Native';
@@ -71,7 +71,7 @@ class EasyField extends Component {
             focusPropName,
             blurPropName,
             render,
-            component: TheComponent,
+            component,
             onChange,
             onFocus,
             onBlur,
@@ -98,8 +98,7 @@ class EasyField extends Component {
 
         let { children } = fieldProps;
 
-        let isNative =
-            !isUndefined(this.props.type) || (!this.props.children && !this.props.component && !this.props.render);
+        let isNative = !isUndefined(this.props.type) || (!children && !component && !render);
 
         if (!('$defaultValue' in fieldProps) && 'defaultValue' in this.props) {
             fieldProps.$defaultValue = defaultValue;
@@ -218,8 +217,8 @@ class EasyField extends Component {
                         childProps[passUtil] = $util;
                     }
 
-                    if (TheComponent) {
-                        return <TheComponent {...childProps} />;
+                    if (component) {
+                        return createElement(component, childProps);
                     }
 
                     if (isFunction(render)) {

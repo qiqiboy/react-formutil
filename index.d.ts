@@ -56,6 +56,10 @@ export type FormFocuses<Fields> = {
     [K in keyof Fields]: DetectAny<Fields[K], boolean, Fields[K] extends object ? FormFocuses<Fields[K]> : boolean>
 };
 
+export type FormPendings<Fields> = {
+    [K in keyof Fields]: DetectAny<Fields[K], boolean, Fields[K] extends object ? FormPendings<Fields[K]> : boolean>
+};
+
 export type FormStates<Fields, Validators> = {
     [K in keyof Fields]: DetectAny<
         Fields[K],
@@ -91,6 +95,14 @@ export type ArgFormTouches<Fields> = {
         Fields[K],
         boolean,
         Fields[K] extends object ? ArgFormTouches<Fields[K]> | boolean : boolean
+    >
+};
+
+export type ArgFormPendings<Fields> = {
+    [K in keyof Fields]?: DetectAny<
+        Fields[K],
+        boolean,
+        Fields[K] extends object ? ArgFormPendings<Fields[K]> | boolean : boolean
     >
 };
 
@@ -130,6 +142,8 @@ export type FormWeakDirts<Fields> = { [K in keyof Fields]: boolean };
 
 export type FormWeakFocuses<Fields> = { [K in keyof Fields]: boolean };
 
+export type FormWeakPendings<Fields> = { [K in keyof Fields]: boolean };
+
 export type FormWeakStates<Fields, Validators> = {
     [K in keyof Fields]: FieldState<DetectAny<Fields[K], string, Fields[K]>, Validators>
 };
@@ -161,7 +175,7 @@ export type Validators<T = string, Fields = {}, P = {}, WeakFields = Fields> = {
 export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields> {
     $defaultValue?: T;
     $defaultState?: Partial<FieldState<T, P>>;
-    $onFieldChange?: ((newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void);
+    $onFieldChange?: (newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void;
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
     $parser?: (($viewValue: any, $setViewValue: ($newViewValue: any) => any) => T) | null;
@@ -172,7 +186,7 @@ export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
 export interface FieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields>
     extends BaseFieldComponentProps<T, P, Fields, WeakFields> {
     component?: React.ComponentType<{ $fieldutil: $Fieldutil<T, P> } & OtherKeys>;
-    render?: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode);
+    render?: ($fieldutil: $Fieldutil<T, P>) => React.ReactNode;
     children?: (($fieldutil: $Fieldutil<T, P>) => React.ReactNode) | React.ReactNode;
 }
 
@@ -216,7 +230,7 @@ export interface EasyFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
     defaultValue?: T;
     groupNode?: string | React.ComponentType<EasyFieldGroupOptionComponentProps<T>>;
     component?: React.ComponentType<{ $easyfieldutil: $Easyfieldutil<T> } & OtherKeys>;
-    render?: (($easyfieldutil: $Easyfieldutil<T>) => React.ReactNode);
+    render?: ($easyfieldutil: $Easyfieldutil<T>) => React.ReactNode;
     children?: (($easyfieldutil: $Easyfieldutil<T>) => React.ReactNode) | React.ReactNode;
 }
 
@@ -254,6 +268,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $setTouched(touched: boolean, callback?: () => void): FieldState<T, Validators>;
     $setDirty(dirty: boolean, callback?: () => void): FieldState<T, Validators>;
     $setFocused(focused: boolean, callback?: () => void): FieldState<T, Validators>;
+    $setPending(pending: boolean, callback?: () => void): FieldState<T, Validators>;
     $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState<T, Validators>;
     $setError(error: ArgFieldError<Validators>, callback?: () => void): FieldState<T, Validators>;
     $validate(callback?: () => void): FieldState<T, Validators>;
@@ -266,6 +281,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $touches: FormTouches<Fields>;
     $dirts: FormDirts<Fields>;
     $focuses: FormFocuses<Fields>;
+    $pendings: FormPendings<Fields>;
 
     $weakStates: FormWeakStates<WeakFields, Validators>;
     $weakParams: FormWeakParams<WeakFields>;
@@ -273,6 +289,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $weakTouches: FormWeakFocuses<WeakFields>;
     $weakDirts: FormWeakDirts<WeakFields>;
     $weakFocuses: FormWeakFocuses<WeakFields>;
+    $weakPendings: FormWeakPendings<WeakFields>;
 
     $valid: boolean;
     $invalid: boolean;
@@ -304,21 +321,24 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $setFocuses(focusedTree: ArgFormFocuses<Fields>, callback?: () => void): void;
     $setDirts(dirtyTree: ArgFormDirts<Fields>, callback?: () => void): void;
     $setTouches(touchedTree: ArgFormTouches<Fields>, callback?: () => void): void;
+    $setPendings(pendingTree: ArgFormPendings<Fields>, callback?: () => void): void;
     $setErrors(errorTree: ArgFormErrors<Fields, Validators>, callback?: () => void): void;
     $batchState(state: Partial<FieldState<any, Validators>>, callback?: () => void): void;
     $batchDirty(dirty: boolean, callback?: () => void): void;
     $batchTouched(touched: boolean, callback?: () => void): void;
     $batchFocused(focused: boolean, callback?: () => void): void;
+    $batchPending(pending: boolean, callback?: () => void): void;
+    $batchError($error: ArgFieldError<Validators>, callback?: () => void): void;
 }
 
 export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {
     $defaultValues?: ArgFormParams<Fields>;
     $defaultStates?: ArgFormStates<Fields, Validators>;
-    $onFormChange?: ((
+    $onFormChange?: (
         $formutil: $Formutil<Fields, Validators, WeakFields>,
         newValues: FormParams<Fields>,
         preValues: FormParams<Fields>
-    ) => void);
+    ) => void;
     $processer?: <K extends keyof WeakFields>(
         $state: FieldState<DetectAny<WeakFields[K], string, WeakFields[K]>, Validators>,
         name: K
@@ -328,7 +348,7 @@ export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields
 export interface FormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields>
     extends BaseFormComponentProps<Fields, Validators, WeakFields> {
     component?: React.ComponentType<{ $formutil: $Formutil<Fields, Validators, WeakFields> } & OtherKeys>;
-    render?: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode);
+    render?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode;
     children?: (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode) | React.ReactNode;
 }
 

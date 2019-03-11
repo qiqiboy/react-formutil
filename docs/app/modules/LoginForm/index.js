@@ -73,7 +73,7 @@ class LoginForm extends Component {
         asyncCheck(value) {
             if (value) {
                 return new Promise((resolve, reject) => {
-                    setTimeout(() => reject(new Error('名字重复啦！')), 3000);
+                    setTimeout(() => reject('名字重复啦！'), 3000);
                 });
             }
 
@@ -121,6 +121,8 @@ class LoginForm extends Component {
                         required
                         name="username"
                         asyncCheck
+                        minLength={5}
+                        $validateFirst
                         $validators={this.$validators}
                         $parser={value => value.trim()}>
                         {props => (
@@ -134,9 +136,7 @@ class LoginForm extends Component {
                                     onChange={ev => props.$render(ev.target.value)}
                                 />
                                 {props.$dirty &&
-                                    props.$invalid && (
-                                        <span className="help-block">{Object.values(props.$error)[0]}</span>
-                                    )}
+                                    props.$invalid && <span className="help-block">{props.$getFirstError()}</span>}
 
                                 {props.$pending && <span className="help-block">正在异步校验</span>}
                             </div>

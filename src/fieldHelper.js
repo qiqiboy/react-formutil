@@ -20,6 +20,10 @@ const $baseState = {
     $error: {}
 };
 
+function isError(result) {
+    return /*!utils.isUndefined(result) && */ result !== true;
+}
+
 export const FieldPropTypes = {
     $defaultValue: PropTypes.any,
     $defaultState: PropTypes.object,
@@ -39,6 +43,7 @@ export const FieldPropTypes = {
 
     $validators: PropTypes.object,
     $asyncValidators: PropTypes.object,
+    $validateFirst: PropTypes.bool,
 
     $parser: PropTypes.func,
     $formatter: PropTypes.func
@@ -151,35 +156,47 @@ export function createFieldHandler($this, owner) {
             $error: { ...$newError }
         } = $this.$state;
         const { $formutil } = $formContext;
+        const $snapError = {};
+        let $skipRestValidate = false;
 
-        const promises = Object.keys($validators).reduce((promises, key) => {
+        const $validatePromises = Object.keys($validators).reduce((promises, key) => {
             delete $newError[key];
 
-            if (props[key] != null) {
+            if (!$skipRestValidate && props[key] != null) {
                 const result = $validators[key]($value, props[key], {
                     ...props,
-                    $formutil
+                    $formutil,
+                    $fieldutil: $this.$fieldutil,
+                    $snapError
                 });
 
                 if (utils.isPromise(result)) {
-                    promises.push(
-                        result.catch(reason => $setValidity(key, reason instanceof Error ? reason.message : reason))
-                    );
-                } else if (result !== true) {
-                    $newError[key] = result;
+                    promises.push(result.catch(reason => $setValidity(key, reason || key)));
+                } else if (isError(result)) {
+                    $snapError[key] = result || key;
+
+                    if (props.$validateFirst) {
+                        $skipRestValidate = true;
+                    }
                 }
             }
 
             return promises;
         }, []);
 
-        if (promises.length) {
+        if ($validatePromises.length) {
             $setPending(true);
 
-            Promise.all(promises).then(() => $setPending(false));
+            Promise.all($validatePromises).then(() => $setPending(false));
         }
 
-        return $setError($newError, callback);
+        return $setError(
+            {
+                ...$newError,
+                ...$snapError
+            },
+            callback
+        );
     }
 
     function $render($viewValue, callback) {
@@ -242,10 +259,10 @@ export function createFieldHandler($this, owner) {
             $error: { ...$newError }
         } = $this.$state;
 
-        if (valid === true) {
-            delete $newError[key];
-        } else {
+        if (isError(valid)) {
             $newError[key] = valid;
+        } else {
+            delete $newError[key];
         }
 
         return $setError($newError, callback);
@@ -264,7 +281,7 @@ export function createFieldHandler($this, owner) {
         const { $error = {} } = $this.$state;
 
         for (let name in $error) {
-            return $error[name];
+            return $error[name] instanceof Error ? $error[name].message : $error[name];
         }
     }
 

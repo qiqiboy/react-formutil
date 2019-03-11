@@ -165,7 +165,9 @@ export type DeepRegisters<Fields, Validators, WeakFields = Fields> = {
 export type Validate<T = string, Fields = {}, P = {}, WeakFields = Fields> = (
     value: T,
     propName: any,
-    fieldProps: EasyFieldComponentProps<T, P, Fields, WeakFields> & OtherKeys
+    fieldProps: EasyFieldComponentProps<T, P, Fields, WeakFields> & {
+        $snapError: FieldError<P>;
+    } & OtherKeys
 ) => any;
 
 export type Validators<T = string, Fields = {}, P = {}, WeakFields = Fields> = {
@@ -178,6 +180,7 @@ export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
     $onFieldChange?: (newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void;
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
+    $validateFirst?: boolean;
     $parser?: (($viewValue: any, $setViewValue: ($newViewValue: any) => any) => T) | null;
     $formatter?: (($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any) | null;
     name?: string;
@@ -308,7 +311,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
         name: T
     ): $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators> &
         FieldState<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators>;
-    $getFirstError(): string;
+    $getFirstError<T extends keyof WeakFields>(name?: T): string;
     $render(callback?: () => void): void;
     $validate<T extends keyof WeakFields>(
         name: T,

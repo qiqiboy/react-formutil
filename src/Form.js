@@ -419,10 +419,18 @@ class Form extends Component {
                 ($weakPendings, { path, $state }) => ($weakPendings[path] = $state.$pending)
             ),
 
-            $getFirstError() {
+            $getFirstError(name) {
+                if (name) {
+                    const $fieldutil = $formutil.$getField(name);
+
+                    return $fieldutil && $fieldutil.$getFirstError();
+                }
+
                 for (let name in $formutil.$weakErrors) {
-                    for (let key in $formutil.$weakErrors[name]) {
-                        return $formutil.$weakErrors[name][key];
+                    const $fieldError = $formutil.$weakErrors[name];
+
+                    for (let key in $fieldError[name]) {
+                        return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
                     }
                 }
             },

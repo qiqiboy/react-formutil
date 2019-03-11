@@ -29,6 +29,7 @@ Happy to build the forms in React ^\_^
         + [`$defaultState`](#defaultstate)
         + [`$validators`](#validators)
         + [~~`$asyncValidators`~~](#asyncvalidators)
+        + [`$validateFirst`](#validatefirst)
         + [`$onFieldChange`](#onfieldchange)
         + [`$parser`](#parser)
         + [`$formatter`](#formatter)
@@ -136,9 +137,11 @@ yarn add react-formutil
 
 ### Beta 版
 
-Beta 版本使用了`react@16.3`中新增的`context API`，并替换更新了已经被`Deprecate`的生命周期方法，实现了对 v16 以及未来 v17 版本的支持!
+Beta 版本使用了`react@16.3`中替换更新了已经被标记为`deprecated`的老版 API，实现了对 v16 以及未来 v17 版本的支持!
 
-虽然使用了`react@16.3`中新增的`Context API`，但是其也对早前版本做了兼容处理。所以同样支持所有`v15.0` - `v16.3`的所有版本 react！
+虽然使用了较新的版本的 API，但是其对早前版本做了兼容处理。所以同样支持所有`v15.0` - `v16.3`的所有版本 react！
+
+另外 Beta 版本也对`16.8.0`新增加的[`Hooks`](#hooks)提供了支持，在`react-formutil/hooks`下新增加了`useField`和`useForm`的两个自定义 hook。你可以参考下方的[`Hooks`](#hooks)介绍，也选择使用这一最新的 react 组件开发方式！
 
 ```bash
 # npm
@@ -290,7 +293,10 @@ yarn add react-formutil@next
 
 *   `value` 为当前 Field 的值
 *   `attr` 为校验标识值
-*   `props` 为当前传给 Field 的所有 props，还包括当前 Field 所属 Fom 的 $formutil
+*   `props` 为当前传给 Field 的所有 props，还包括以下三个特殊的值：
+    *   `props.$snapError` 表示当前校验中，前面已经校验出的错误信息<small>（该属性为`0.5.0`新增）</small>
+    *   `props.$fielduitl` 当前 Field 的`$fielduitl`对象<small>（该属性为`0.5.0`新增）</small>
+    *   `props.$formutil` 当前 Field 所属 Form 的`$formutil`对象
 
 ```javascript
 <Field
@@ -358,6 +364,14 @@ yarn add react-formutil@next
 ~~该属性可以设置表单项的异步校验规则，设置方式与`$validators`类似。但是不同的是，异步校验函数需要返回`promise`对象，该`promise`被`resolve`表示校验成功，`reject`表示校验失败，并且`reject`的`reason`会被当作失败原因保存到状态的`$error`对象。~~
 
 ~~异步校验时，状态里会有`$pending`用来表示正在异步校验。~~
+
+#### `$validateFirst`
+
+> 该属性为 `v0.5.0` 新增。
+
+默认情况下，每次 Field 的值改变，在调用设置的校验方法时，会将所有的校验函数都执行一遍。
+
+通过该属性，可以设置调用校验函数时，是否遇到第一个错误后停止。校验顺序为`$validators`对象中的校验函数的声明顺序。
 
 #### `$onFieldChange`
 
@@ -1234,8 +1248,14 @@ $formutil.$batchTouched(true);
 
 从表单的所有错误项中取出第一个错误描述
 
+如果传递`name`参数，则为获取`name`对应的表单项的第一个错误信息！
+
 ```javascript
+// 获取整个表单的第一个错误
 $formutil.$getFirstError();
+
+// 获取name值为username的Field的第一个错误
+$formutil.$getFirstError('username');
 
 //例如
 const { $invalid, $getFirstError } = this.props.$formutil;

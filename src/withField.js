@@ -12,7 +12,7 @@ function withField(WrappedComponent, config = {}) {
             const { ...others } = this.props;
             const { component, ...fieldProps } = this.props;
 
-            ['$validators', '$asyncValidators', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', 'name']
+            ['$validators', '$asyncValidators', '$validateFirst', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', 'name']
                 .concat(
                     Object.keys({
                         ...config.$validators,

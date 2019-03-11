@@ -65,12 +65,14 @@ export function renderField($fieldutil, props) {
         return children($fieldutil);
     }
 
-    return Children.map(children, child =>
-        child && utils.isFunction(child.type)
-            ? cloneElement(child, {
-                  $fieldutil
-              })
-            : child
+    return Children.map(
+        children,
+        child =>
+            child && utils.isFunction(child.type)
+                ? cloneElement(child, {
+                      $fieldutil
+                  })
+                : child
     );
 }
 

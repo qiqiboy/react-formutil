@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 import useFormContext from './useFormContext';
 import * as utils from '../utils';
 import { createFieldHandler, GET_FIELD_UUID } from '../fieldHelper';
@@ -46,24 +46,27 @@ function useField(name, props = {}) {
         return $registered.$reset();
     });
 
-    useEffect(() => {
-        const { $state } = $this;
+    useLayoutEffect(
+        () => {
+            const { $state } = $this;
 
-        if ($this.isMounting) {
-            if (!$name || !$formContext.$$register) {
-                const { $prevValue } = $this;
+            if ($this.isMounting) {
+                if (!$name || !$formContext.$$register) {
+                    const { $prevValue } = $this;
 
-                $registered.$$triggerChange({
-                    $newValue: $state.$value,
-                    $prevValue
-                });
+                    $registered.$$triggerChange({
+                        $newValue: $state.$value,
+                        $prevValue
+                    });
+                }
             }
-        }
 
-        $this.$prevValue = $state.$value;
-    }, [$this.$state.$value]);
+            $this.$prevValue = $state.$value;
+        },
+        [$this.$state.$value]
+    );
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         $this.isMounting = true;
 
         warning(
@@ -82,25 +85,30 @@ function useField(name, props = {}) {
         };
     }, []);
 
-    useEffect(() => {
-        if ($formContext.$$register) {
-            if ($name) {
-                $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
-            } else {
-                $formContext.$$unregister($name, $this.$fieldHandler);
+    useLayoutEffect(
+        () => {
+            if ($formContext.$$register) {
+                if ($name) {
+                    $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+                } else {
+                    $formContext.$$unregister($name, $this.$fieldHandler);
+                }
             }
-        }
 
-        $this.$prevName = $name;
-    }, [$name]);
+            $this.$prevName = $name;
+        },
+        [$name]
+    );
 
-    useEffect(() => {
-        const callbackQueue = [...callbackRef.current];
+    useLayoutEffect(() => {
+        if (callbackRef.current.length > 0) {
+            const callbackQueue = [...callbackRef.current];
 
-        callbackRef.current.length = 0;
+            callbackRef.current.length = 0;
 
-        while (callbackQueue.length) {
-            callbackQueue.pop()();
+            while (callbackQueue.length) {
+                callbackQueue.pop()();
+            }
         }
     });
 

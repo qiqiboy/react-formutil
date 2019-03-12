@@ -75,9 +75,12 @@ class EasyFieldNative extends Component {
                     onChange(value, ev);
                 };
 
+                delete others.type;
+
                 break;
             case 'textarea':
                 Element = htmlType;
+                delete others.type;
                 break;
 
             case 'checkbox':

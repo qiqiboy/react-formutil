@@ -208,7 +208,8 @@ export interface EasyFieldDefaultValidators<T = string, Fields = {}, P = {}, Wea
 export type ValidMessage<P> = { [K in keyof P]?: string };
 
 export interface BaseEasyFieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields>
-    extends BaseFieldComponentProps<T, P, Fields, WeakFields> {
+    extends BaseFieldComponentProps<T, P, Fields, WeakFields>,
+        EasyFieldDefaultValidators {
     checked?: T;
     unchecked?: T;
     validMessage?: ValidMessage<EasyFieldDefaultValidators & P>;
@@ -220,29 +221,37 @@ export interface BaseEasyFieldComponentProps<T = string, P = {}, Fields = {}, We
 }
 
 export interface EasyFieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields>
-    extends BaseEasyFieldComponentProps<T, P, Fields, WeakFields>,
-        EasyFieldDefaultValidators {
+    extends BaseEasyFieldComponentProps<T, P, Fields, WeakFields> {
     type?: string;
     defaultValue?: T;
     groupNode?: string | React.ComponentType<EasyFieldGroupOptionComponentProps<T> & OtherKeys>;
-    component?: React.ComponentType<{ $easyfieldutil: $Easyfieldutil<T> } & OtherKeys>;
-    render?: ($easyfieldutil: $Easyfieldutil<T>) => React.ReactNode;
-    children?: (($easyfieldutil: $Easyfieldutil<T>) => React.ReactNode) | React.ReactNode;
+    component?: React.ComponentType<$FieldHandler<T> & OtherKeys>;
+    render?: ($fieldHandler: $FieldHandler<T>) => React.ReactNode;
+    children?: (($fieldHandler: $FieldHandler<T>) => React.ReactNode) | React.ReactNode;
 }
 
 export interface EasyFieldGroupOptionComponentProps<T = string> {
     $value: T;
 }
 
-export type $Easyfieldutil<
+type FieldHanderCallback = (...args: any[]) => void;
+export type $FieldHandler<
     T = string,
-    PropNames = {
-        value: T;
-        onChange;
-        onFocus;
-        onBlur;
-    }
-> = { [K in keyof PropNames]: DetectAny<PropNames[K], (...args: any[]) => void, PropNames[K]> } & OtherKeys;
+    valuePropName = 'value',
+    changePropName = 'onChage',
+    focusPropName = 'onFocus',
+    blurPropName = 'onBlur',
+    passUtil = never
+    // @ts-ignore
+> = { [K in valuePropName]: T } &
+    // @ts-ignore
+    { [K in changePropName]: FieldHanderCallback } &
+    // @ts-ignore
+    { [K in focusPropName]: FieldHanderCallback } &
+    // @ts-ignore
+    { [K in blurPropName]: FieldHanderCallback } &
+    // @ts-ignore
+    { [K in passUtil]: K extends string ? $Fieldutil<T> : never };
 
 export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields = Fields>
     extends Readonly<FieldState<T, Validators>> {
@@ -250,24 +259,24 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     readonly $$formutil: $Formutil<Fields, Validators, WeakFields>;
     readonly $name: string;
     $new(): $Fieldutil<T, Validators, Fields, WeakFields>;
-    $picker(): FieldState<T, Validators>;
-    $getState(): FieldState<T, Validators>;
+    $picker(): Readonly<FieldState<T, Validators>>;
+    $getState(): Readonly<FieldState<T, Validators>>;
     $getComponent(): React.ReactNode;
     $getFirstError(): string;
-    $$merge(newState: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
+    $$merge(newState: Partial<FieldState<T, Validators>>): Readonly<FieldState<T, Validators>>;
     $$triggerChange(changedData: { newValue: T; preValue: T }): void;
-    $reset(newState?: Partial<FieldState<T, Validators>>): FieldState<T, Validators>;
+    $reset(newState?: Partial<FieldState<T, Validators>>): Readonly<FieldState<T, Validators>>;
 
-    $render($viewValue: any, callback?: () => void): FieldState<T, Validators>;
-    $setValue($modelValue: T, callback?: () => void): FieldState<T, Validators>;
-    $setState(newState: Partial<FieldState<T, Validators>>, callback?: () => void): FieldState<T, Validators>;
-    $setTouched(touched: boolean, callback?: () => void): FieldState<T, Validators>;
-    $setDirty(dirty: boolean, callback?: () => void): FieldState<T, Validators>;
-    $setFocused(focused: boolean, callback?: () => void): FieldState<T, Validators>;
-    $setPending(pending: boolean, callback?: () => void): FieldState<T, Validators>;
-    $setValidity(errorKey: string, validResult: any, callback?: () => void): FieldState<T, Validators>;
-    $setError(error: ArgFieldError<Validators>, callback?: () => void): FieldState<T, Validators>;
-    $validate(callback?: () => void): FieldState<T, Validators>;
+    $render($viewValue: any, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setValue($modelValue: T, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setState(newState: Partial<FieldState<T, Validators>>, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setTouched(touched: boolean, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setDirty(dirty: boolean, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setFocused(focused: boolean, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setPending(pending: boolean, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setValidity(errorKey: string, validResult: any, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $setError(error: ArgFieldError<Validators>, callback?: () => void): Readonly<FieldState<T, Validators>>;
+    $validate(callback?: () => void): Readonly<FieldState<T, Validators>>;
 }
 
 export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
@@ -413,4 +422,3 @@ export function connect<SelfProps = {}, Fields = {}, Validators = {}, WeakFields
         }
     >
 ): React.ComponentClass<Omit<SelfProps, '$formutil'>>;
-

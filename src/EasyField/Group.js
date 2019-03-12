@@ -4,6 +4,7 @@ import createContext from 'create-react-context';
 import { isFunction } from '../utils';
 import warning from 'warning';
 
+/** @type {any} */
 const { Provider, Consumer } = createContext({});
 
 class EasyFieldGroup extends Component {
@@ -18,7 +19,7 @@ class EasyFieldGroup extends Component {
         name: PropTypes.string,
         type: PropTypes.string.isRequired,
         groupNode: PropTypes.any,
-        render: PropTypes.func
+        children: PropTypes.oneOfType([PropTypes.func, PropTypes.element]).isRequired
     };
 
     static defaultProps = {
@@ -27,22 +28,20 @@ class EasyFieldGroup extends Component {
     };
 
     getGroupContext() {
-        return {
-            $fieldutil: this.props
-        };
+        return this.props;
     }
 
     _render() {
         const { className, groupNode: Element, children } = this.props;
 
-        const childProps = {
+        const GroupOptionProps = {
             GroupOption: EasyFieldGroupOption,
             Field: DeprecatedEasyFieldGroupOption
         };
 
         const childNodes = isFunction(children)
-            ? children(childProps)
-            : Children.map(children, child => cloneElement(child, childProps));
+            ? children(GroupOptionProps)
+            : Children.map(children, child => cloneElement(child, GroupOptionProps));
 
         if (Element === null) {
             return childNodes;
@@ -63,32 +62,36 @@ class EasyFieldGroupOption extends Component {
         $value: PropTypes.any.isRequired
     };
 
+    componentDidMount() {
+        warning('$value' in this.props, `You should pass a $value to <GroupOption />.`)
+    }
+
     render() {
         const { $value, onChange, onFocus, onBlur, ...others } = this.props;
 
         return (
             <Consumer>
-                {({ $fieldutil }) => {
-                    const { type, name } = $fieldutil;
+                {$groupHander => {
+                    const { type, name } = $groupHander;
 
                     const elemProps =
                         type === 'radio'
                             ? {
-                                  checked: $fieldutil.value === $value,
+                                  checked: $groupHander.value === $value,
                                   onChange: ev => {
-                                      $fieldutil.onChange($value, ev);
+                                      $groupHander.onChange($value, ev);
 
                                       onChange && onChange(ev);
                                   }
                               }
                             : type === 'checkbox'
                                 ? {
-                                      checked: $fieldutil.value.indexOf($value) > -1,
+                                      checked: $groupHander.value.indexOf($value) > -1,
                                       onChange: ev => {
-                                          $fieldutil.onChange(
+                                          $groupHander.onChange(
                                               ev.target.checked
-                                                  ? $fieldutil.value.concat($value)
-                                                  : $fieldutil.value.filter(value => value !== $value),
+                                                  ? $groupHander.value.concat($value)
+                                                  : $groupHander.value.filter(value => value !== $value),
                                               ev
                                           );
 
@@ -96,9 +99,9 @@ class EasyFieldGroupOption extends Component {
                                       }
                                   }
                                 : {
-                                      value: $fieldutil.value,
+                                      value: $groupHander.value,
                                       onChange: ev => {
-                                          $fieldutil.onChange(ev);
+                                          $groupHander.onChange(ev);
 
                                           onChange && onChange(ev);
                                       }
@@ -111,11 +114,11 @@ class EasyFieldGroupOption extends Component {
                             {...elemProps}
                             type={type}
                             onFocus={ev => {
-                                $fieldutil.onFocus(ev);
+                                $groupHander.onFocus(ev);
                                 onFocus && onFocus(ev);
                             }}
                             onBlur={ev => {
-                                $fieldutil.onBlur(ev);
+                                $groupHander.onBlur(ev);
                                 onBlur && onBlur(ev);
                             }}
                         />

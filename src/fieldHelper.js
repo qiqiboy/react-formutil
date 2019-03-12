@@ -24,7 +24,7 @@ function isError(result) {
     return /*!utils.isUndefined(result) && */ result !== true;
 }
 
-export const FieldPropTypes = {
+export const propTypes = {
     name: PropTypes.string,
 
     $defaultValue: PropTypes.any,
@@ -50,7 +50,7 @@ export const FieldPropTypes = {
     }
 };
 
-export const FieldDisplayName = 'React.Formutil.Field';
+export const displayName = 'React.Formutil.Field';
 
 export function GET_FIELD_UUID() {
     return FIELD_UUID++;
@@ -82,7 +82,7 @@ export function renderField($fieldutil, props) {
     );
 }
 
-export function createFieldHandler($this, owner) {
+export function createHandler($this, owner) {
     const $fieldHandler = {
         $$FIELD_UUID: $this.$$FIELD_UUID,
 

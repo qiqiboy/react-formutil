@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { createFieldHandler, GET_FIELD_UUID, FieldPropTypes, FieldDisplayName, renderField } from './fieldHelper';
+import { createHandler, GET_FIELD_UUID, propTypes, displayName, renderField } from './fieldHelper';
 import FormContext from './context';
 import warning from 'warning';
 
 class Field extends Component {
-    static displayName = FieldDisplayName;
-    static propTypes = FieldPropTypes;
+    static displayName = displayName;
+    static propTypes = propTypes;
 
     $$FIELD_UUID = GET_FIELD_UUID();
 
@@ -107,7 +107,7 @@ class Field extends Component {
                     this.$formContext = context;
 
                     if (!this.$fieldHandler) {
-                        this.$fieldHandler = createFieldHandler(this, this);
+                        this.$fieldHandler = createHandler(this, this);
                     }
 
                     if (!this.$registered) {

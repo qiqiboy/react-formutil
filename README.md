@@ -8,10 +8,10 @@ Happy to build the forms in React ^\_^
 
 > #### react-formutil 的优势
 >
-> 1.  一切都是状态，$value、$diry/$pristine、$touched/$untouched、$valid/$invalid、$error 等都是状态
+> 1.  一切都是状态，$value/$viewValue、$diry/$pristine、$touched/$untouched、$valid/$invalid、$error 等都是状态
 > 2.  非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构
 > 3.  采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
-> 4.  同时支持高阶组件和函数式子组件（[render props](https://reactjs.org/docs/render-props.html)）式调用，更灵活
+> 4.  同时支持高阶组件和函数式子组件（[render props](https://reactjs.org/docs/render-props.html)）式调用，更灵活（>=0.5.0 起支持[`Hooks`](#hooks)）
 > 5.  具备灵活的表单校验方式，支持同步和异步校验
 > 6.  规范的 jsx 语法调用，更符合 react 理念
 > 7.  [对流行的 react 组件库做了适配优化，现已支持](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)：`ant-design` `material-ui` `react-bootstrap` `react-md`
@@ -19,8 +19,8 @@ Happy to build the forms in React ^\_^
 <!-- vim-markdown-toc GFM -->
 
 * [安装 Installation](#安装-installation)
-    - [稳定版](#稳定版)
-    - [Beta 版](#beta-版)
+    - [`稳定版`](#稳定版)
+    - [`Beta版`](#beta版)
 * [使用 Usage](#使用-usage)
     - [`<Field />`](#field-)
         + [`render` `component`](#render-component)
@@ -52,18 +52,20 @@ Happy to build the forms in React ^\_^
             * [`$$formutil`](#formutil)
     - [`withField(Component)`](#withfieldcomponent)
     - [`<EasyField />`](#easyfield-)
-        + [`type`](#type)
+        + [`$fieldHandler`](#fieldhandler)
+        + [`渲染原生表单控件`](#渲染原生表单控件)
             * [`input`](#input)
             * [`select`](#select)
             * [`checkbox/radio`](#checkboxradio)
             * [`checkbox/radio group`](#checkboxradio-group)
-        + [`children | render | component`](#children--render--component)
-            * [`native form widgets`](#native-form-widgets)
-            * [`custom component`](#custom-component)
+        + [`渲染自定义组件`](#渲染自定义组件)
+            * [`原生表单控件`](#原生表单控件)
+            * [`第三方组件`](#第三方组件)
         + [`name`](#name-1)
         + [`$defaultValue`](#defaultvalue-1)
         + [`$defaultState`](#defaultstate-1)
         + [`$validators`](#validators-1)
+        + [`$validateLazy`](#validatelazy-1)
         + [~~`$asyncValidators`~~](#asyncvalidators-1)
         + [`$parser`](#parser-1)
         + [`$formatter`](#formatter-1)
@@ -105,6 +107,7 @@ Happy to build the forms in React ^\_^
     - [`connect(Component)`](#connectcomponent)
     - [`Hooks`](#hooks)
         + [`useField`](#usefield)
+        + [`useHandler`](#usehandler)
         + [`useForm`](#useform)
 * [FAQ & 常见问题解答](#faq--常见问题解答)
     - [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
@@ -123,7 +126,7 @@ Happy to build the forms in React ^\_^
 
 目前有两个版本可以选择，如果你是`react-formutil`的新用户，或者你在使用 react 的[`Strict Mode`](https://reactjs.org/docs/strict-mode.html)，请安装 Beta 版！
 
-### 稳定版
+### `稳定版`
 
 稳定版支持所有`v15` - `v16`版本的 react（不支持未来发布的`v17`版本，因为该版本使用旧版的`context API`；目前也不再更新新功能支持，只修复 Bug）。稳定版文档请参考：[react-formutil 稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.7)
 
@@ -135,9 +138,9 @@ npm install react-formutil --save
 yarn add react-formutil
 ```
 
-### Beta 版
+### `Beta版`
 
-Beta 版本使用了`react@16.3`中替换更新了已经被标记为`deprecated`的老版 API，实现了对 v16 以及未来 v17 版本的支持!
+Beta 版本替换更新了`react@16.3`开始已经被标记为`deprecated`的老版 API，实现了对 v16 以及未来 v17 版本的支持!
 
 虽然使用了较新的版本的 API，但是其对早前版本做了兼容处理。所以同样支持所有`v15.0` - `v16.3`的所有版本 react！
 
@@ -285,9 +288,9 @@ yarn add react-formutil@next
 
 > **异步校验**：如果校验函数返回一个`promise`对象，则`resolved`表示校验通过，`rejected`则校验不通过，同时`rejected`返回的`reason`将会被当作错误信息保存到`$error`对象中。
 
-> 异步校验时，状态里会有 `$pending` 用来表示正在异步校验。**如果值快速变化，会触发多次异步校验，但是Field只会响应最后一次异步校验结果，前面没有结束的异步校验，无论结果是否通过，都会被忽略！！**
+> 异步校验时，状态里会有 `$pending` 用来表示正在异步校验。**如果值快速变化，会触发多次异步校验，但是 Field 只会响应最后一次异步校验结果，前面没有结束的异步校验，无论结果是否通过，都会被忽略！！**
 
-> **异步校验不会被自动取消，你需要自己在校验函数实现时，确保被多次调用时，可以取消掉之前未结束的异步校验（例如未响应的ajax请求，需要`abort`掉它）。**
+> **异步校验不会被自动取消，你需要自己在校验函数实现时，确保被多次调用时，可以取消掉之前未结束的异步校验（例如未响应的 ajax 请求，需要`abort`掉它）。**
 
 > **特别注意**： 仅仅设置了`$validators`，并不会触发校验，还需要设置匹配`$validators`中每一项的属性标识符，该属性的值会作为第二个参数传递给校验函数。
 
@@ -375,9 +378,9 @@ yarn add react-formutil@next
 
 通过该属性，可以设置调用校验函数时，启用`懒加载模式`：即是否遇到第一个错误后停止调用后续其它校验函数。校验顺序为`$validators`对象中的校验函数的声明顺序。所以如果你有异步校验，最好将其放到`$validators`声明的最后，以确保`$validateLazy`能有效节省不必要的校验。
 
-> 如果你在考虑实现一组用于多数表单项的校验函数，那么建议将这些校验规则分开，然后通过传递对应到每个校验函数的标识符来在不同的Field上启用不同的校验，并且可以利用`$validateLazy`来使用懒校验，提升校验性能。
+> 如果你在考虑实现一组用于多数表单项的校验函数，那么建议将这些校验规则分开，然后通过传递对应到每个校验函数的标识符来在不同的 Field 上启用不同的校验，并且可以利用`$validateLazy`来使用懒校验，提升校验性能。
 >
-> 如果仅仅是对个别Field做校验，我们更加建议将多个校验规则，在一个校验函数里实现！这样可以更加自由的设定校验顺序以及逻辑。
+> 如果仅仅是对个别 Field 做校验，我们更加建议将多个校验规则，在一个校验函数里实现！这样可以更加自由的设定校验顺序以及逻辑。
 
 #### `$onFieldChange`
 
@@ -659,7 +662,11 @@ class MyField extends Component {}
 
 ### `<EasyField />`
 
-`EasyField` 是对`Field`的二次封装，它提供了基于浏览器原生表单控件实现的表单域快捷调用，同时也提供了统一的 `value` `onChange` `onFocus` `onBlur` 等接口方法来与其它第三方组件库对接。
+我们深知提供的`<Field />`只是底层控制，并不能直接转换为生产力。实际使用中，还需要[使用`Field`来适配自己项目所用的表单 UI 组件](#如何在我自己的项目中便捷的使用field组件)。
+
+所以我们也提供了一个`EasyField`组件，它通过`Field`将浏览器支持的原生表单控件都实现了支持，并且支持多选组和单选组：[只需要指定`type`属性就可以使用了](#渲染原生表单控件)
+
+同时，`<EasyField />`也提供了统一的值变动与获取绑定的 API（通过标准的`value` `onChange` `onFocus` `onBlur`等属性，大部分流行的组件库，例如`ant-design`的`data-entry`组件都实现了这种统一、规范的对外访问方式）。
 
 **特别提醒：`EasyField`会默认对所有的字符串输入做前后空格的过滤。如果不需要这个特性，可以通过重写`$parser`属性或者将其设置为`null`来关闭该功能：**
 
@@ -669,38 +676,34 @@ class MyField extends Component {}
 <EasyField name="name" type="username" $parser={null} />
 ```
 
-`EasyField`内置了一些常用的校验方法，例如：
+#### `$fieldHandler`
 
-*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
-*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
-*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
-*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
-*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
-*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
-*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
-*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
+与`Field`向下传递`$fieldutil`对象类似，`EasyField`也会向下传递一个`$fieldHandler`的对像。
 
-> 注：校验属性的值为 `null` 时表示不进行该校验
+`$fieldHandler`与`$fieldutil`是不同的，它是一个标准的包含`value` `onChange` `onFocus` `onBlur`四个属性的`data-entry`交互规范 API。当然，你也可以通过指定 `valuePropname` `changePropName` `focusPropName` `blurPropName` 属性来修改暴漏的接口方法属性名。
 
-**小技巧**：你可以利用`checker`很便捷的完成自定义校验，不需要`validMessage` `$validators`：
+这意味着，所有支持这四个属性（或者部分支持）的组件，都可以嵌套/传递给`EasyField`使用！
 
 ```javascript
-<EasyField checker={value => {
-    if (!value) {
-        return 'Required!';
-    }
-
-    if (value.length < 6) {
-        return 'minlength: 6';
-    }
-
-    return true; // no error
-}}
+// $fieldHandler的默认结构。通过指定valuePropName changePropName或者passUtil属性，都会影响实际的$fieldHandler中的值。
+// value 表单项的值
+// onChange 值变动回调，更新值到表单控制器中
+// onFocus 用来同步$focused状态
+// onBlur 用来同步$focused $touched等状态
+{
+    value, onChange, onFocus, onBlur;
+}
 ```
 
-它接收以下属性参数：
+之所以会有这么一个`$fieldHandler`对象，是因为`Field`提供的`$fieldutil`太抽象，无法直接对接各种原生表单控件和第三方表单组件。而`$fieldHandler`则只包含标准的`value` `onChange` `onFocus` `onBlur`等属性，可以放心的直接传递给支持的组件。
 
-#### `type`
+`<EasyField />` 支持所有`<Field />`组件所接受的属性参数，可以用来指定该表单项的`name`、默认值、校验规则，以及使用`$parser` `$formatter`做值的过滤转换等。
+
+它主要提供了两种调用方式：
+
+#### `渲染原生表单控件`
+
+`EasyField` 支持一个特殊的`type`属性，类似浏览器表单控件的`type`属性。如果传递了`type`属性，就默认会渲染浏览器原生控件。
 
 当设置了 type 时，EasyField 将会尝试直接渲染浏览器表单元素。它支持以下类型：
 
@@ -710,12 +713,13 @@ class MyField extends Component {}
 *   `input[type=password]`
 *   `input[type=checkbox]`
 *   `input[type=radio]`
+*   `input[...]`
 *   `select`
 *   `textarea`
 *   `group.radio`
 *   `group.checkbox`
 
-> EasyField 对亚洲语言（中文、韩文、日文）输入法在输入过程中的的字母合成做了处理
+**EasyField 对亚洲语言（中文、韩文、日文）输入法在输入过程中的的字母合成做了处理**
 
 一些调用示例：
 
@@ -771,15 +775,19 @@ class MyField extends Component {}
 </EasyField>
 ```
 
-#### `children | render | component`
+#### `渲染自定义组件`
 
-当 type 属性没有指定时，会根据这三个属性来进行渲染，并且将 EasyField 定义的同步回调方法（`onChange` `onFocus` `onBlur`）和当前值(`value`)传递下去。
+如果不指定`type`属性，那么 `EasyField` 将会尝试通过 `children | render | component` 三个属性来渲染你传递的自定义组件。
 
-> 也支持浏览器原生控件
+与`Field`向下传递`$fieldutil`对象类似，`EasyField`也会向下传递一个`$fieldHandler`的对象。
 
-##### `native form widgets`
+`$fieldHandler`与`$fieldutil`是不同的，它是一个标准的包含`value` `onChange` `onFocus` `onBlur`是个属性的`data-entry`交互规范 API。当然，你也可以通过指定 `valuePropname` `changePropName` `focusPropName` `blurPropName` 属性来修改暴漏的接口方法属性名。
 
-普通文本输入
+这意味着，所有支持这四个属性（或者部分支持）的组件，都可以嵌套/传递给`EasyField`使用！比如前面我们提到的通过`type`属性来渲染原生表单控件，其实还可以这么调用：
+
+##### `原生表单控件`
+
+**普通文本输入**
 
 ```javascript
 <EasyField name="username">
@@ -789,30 +797,47 @@ class MyField extends Component {}
 <EasyField name="pwd">
     <input type="password" placeholder="Password" />
 </EasyField>
+
+<EasyField name="select">
+    <select>
+        <option value="">Select</option>
+        <option value="1">Option 1</option>
+    </select>
+</EasyField>
 ```
 
-渲染复选框
+**渲染复选框**
+
+因为`input[type=checkbox]`和`input[type=radio]`是通过节点的`checked`属性来访问其是否被选中的状态的，所以我们可以传递一个`valuePropName`，来表示从节点中收集该属性值，而不是`value`！
 
 ```javascript
 <EasyField name="username" valuePropName="checked">
     <input type="chekcbox" />
 </EasyField>
+```
 
-/* 自定义复选框对应的值，等同于：<EasyField type="checkbox" checked="yes" unchecked="no" /> */
+上述代码，拿到的值是`true`和`false`。如果希望能获取到其它值，我们可以象使用`Field`渲染时一样，只需要稍微改造下传递给`onChange`时的值就好了。比如这样：
+
+```javascript
+// 这里只是举例，实际中不推荐大家这么调用
+// <EasyField type="checkbox" checked="yes" unchecked="no" />
 <EasyField name="username">
-    {({ onChange, value }) => <input type="checkbox" checked={value === 'yes'} onChange={ev => onChange(ev.target.checked ? 'yes' : 'no')} />}
+    {({ onChange, value }) => (
+        <input type="checkbox" checked={value === 'yes'} onChange={ev => onChange(ev.target.checked ? 'yes' : 'no')} />
+    )}
 </EasyField>
 ```
 
-##### `custom component`
+##### `第三方组件`
 
-由于`EasyField`提供了统一的 `value` `onChange` `onFocus` `onBlur` 抽象接口，所以只要自定义组件支持通过这几个属性，就可以搭配使用！
+我们只需要通过 `children | render | component` 三个属性，来支持根据传递的`$fieldHandler`来渲染以及更新值就可以了。
 
-另外也可以通过 `valuePropname` `changePropName` `focusPropName` `blurPropName` 来修改暴漏的接口方法属性名。
+社区提供了很多优秀的组件库，我们要使用他们也很简单。
 
 例如，与 `ant-design` 进行交互：
 
 ```javascript
+// antd的Input实现了标准的value onChange接口
 import { Input, Switch } from 'antd';
 
 <EasyField name="username">
@@ -827,10 +852,28 @@ import { Input, Switch } from 'antd';
 与 `react-select` 进行交互：
 
 ```javascript
+// react-select也实现了标准的value onChange接口
 import Select from 'react-select';
 
+// 因为Field默认值都是空字符串，react-select不接受字符串，所以我们传递默认值为空undefined
 <EasyField name="react-select" $defaultValue={undefined}>
     <Select options={options} />
+</EasyField>;
+```
+
+假如第三方的组件没有支持 `value` `onChange`等属性接口，那么也可以根据实际情况，通过指定`valuePropName` `changePropname`等或者通过给`children` 或 `render`传递渲染方法，然后在自定义方法里指定如何渲染即可：
+
+```javascript
+// 假设我们要使用TheThirdlyComponent这个组件渲染表单，但是其接受值的属性名为renderValue，值变动的回调属性名为onValueChange
+<EasyField name="custom" valuePropName="renderValue" changePropName={onValueChange}>
+    <TheThirdlyComponent />
+</EasyField>;
+
+// 也可以这样
+<EasyField name="custom">
+    {$handler => {
+        return <TheThirdlyComponent renderValue={$handler.value} onValueChange={value => $handler.onChange(value)} />;
+    }}
 </EasyField>;
 ```
 
@@ -848,7 +891,46 @@ import Select from 'react-select';
 
 #### `$validators`
 
-同`Field`的[`$validators`](#validators)。它会与内置的校验方法进行合并后，可以覆盖同名的默认校验方法。
+同`Field`的[`$validators`](#validators)。
+
+但是请注意，**`EasyField`内置了一些常用的校验方法**，例如：
+
+*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
+*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
+*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
+*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
+*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
+*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
+*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
+*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
+
+> 注：校验属性的值为 `null` 时表示不进行该校验
+
+**小技巧**：你可以利用`checker`很便捷的完成自定义校验，不需要`validMessage` `$validators`：
+
+```javascript
+<EasyField checker={value => {
+    if (!value) {
+        return 'Required!';
+    }
+
+    if (value.length < 6) {
+        return 'minlength: 6';
+    }
+
+    return true; // no error
+}}
+```
+
+你可以通过直接给`EasyField`传递相应的校验规则标识符来启用对应的校验规则。
+
+当你给`EasyField`传递`$validators`时，它会与内置的校验方法进行合并，并且会覆盖同名的默认校验方法。当内置的几种校验方法不能满足需求时，可以使用像`Field`的`$validators`属性一样指定自定义校验。
+
+**如果你已经了解了默认支持 checker 校验属性，我们建议自定义校验逻辑都直接通过该方式实现**
+
+#### `$validateLazy`
+
+同`Field`的[`$validateLazy`](#validatelazy)
 
 #### ~~`$asyncValidators`~~
 
@@ -860,6 +942,8 @@ import Select from 'react-select';
 
 同`Field`的 [`$parser`](#parser)
 
+`EasyField`默认启用了对字符串值过滤前后空格。如果你不需要这个特性，可以通过将该属性设置为`null`或者覆盖实现来关闭这个设置。
+
 #### `$formatter`
 
 同`Field`的 [`$formatter`](#formatter)
@@ -869,6 +953,8 @@ import Select from 'react-select';
 注意，这个是省略前面的`$`符号。如果与[`$defaultValue`](#defaultvalue)同时存在，则会被后者覆盖。
 
 #### `validMessage`
+
+**仅对使用内置校验规则有效。如果自定义校验要支持该属性，需要实现校验函数时支持该属性**
 
 可以通过该属性，设置内置的校验方法的错误信息展示：
 
@@ -885,6 +971,8 @@ import Select from 'react-select';
 ```
 
 #### `checked / unchecked`
+
+**仅对指定了`type`值的原生控件渲染有效**
 
 如果是 checkbox 或 radio，则可以设置该属性，表示选中/未选中所代表的值。默认为 true 和 false。
 
@@ -911,7 +999,9 @@ function MyComponent({ current, onUpdate }) {
 
 #### `passUtil`
 
-但使用自定义组件时，如果需要访问当前 Field 的状态，可以通过设置该参数，传入一个字符串，EasyField 会将状态通过该参数值传递给自定义组件：
+默认情况下，`EasyField`给自定义组件传递的属性中，不包括当前表单项组件的`$fieldutil`对象。
+
+如果使用自定义组件时，如果需要访问当前 Field 的状态，可以通过设置该参数，传入一个字符串，`EasyField` 会将状态通过该参数值传递给自定义组件：
 
 ```javascript
 <EasyField name="custom" passUtil="$fieldutil">
@@ -1496,6 +1586,33 @@ function UserNameField({ name }) {
     return <input value={$fieldutil.$viewValue} onChange={ev => $fieldutil.$render(ev.target.value)} />;
 }
 ```
+
+#### `useHandler`
+
+`useHandler`基于`EasyField`实现，会反馈传递的[`$fieldHandler`](#fieldhandler)对象。我们可以通过这个 hook 更方便使用和继承`EasyField`的功能与特性！！
+
+这里还是以渲染一个用户输入为例：
+
+```typescript
+import { useHandler } from 'react-formutil/hooks';
+
+function UserNameField(props) {
+    const $handler = useHandler(props);
+
+    return <input {...$handler} />;
+}
+
+/** 直接调用，并且利用EasyField的内置校验，要求必填，并且不能少于5个字符
+<UserNameField
+    name="username" 
+    required
+    minLength={5}
+    validMessage={{ required: '请填写用户名!',maxLength: '用户名长度不能小于5个字符！' }}
+/>
+ */
+```
+
+是不是比上面使用`useField`更简单了呢？而且更厉害的是，直接也具有了支持`EasyField`内置校验规则的能力！！
 
 #### `useForm`
 

@@ -1,7 +1,7 @@
 import { useState, useLayoutEffect, useRef } from 'react';
 import useFormContext from './useFormContext';
 import * as utils from '../utils';
-import { createFieldHandler, GET_FIELD_UUID } from '../fieldHelper';
+import { createHandler, GET_FIELD_UUID } from '../fieldHelper';
 import warning from 'warning';
 
 /**
@@ -38,7 +38,7 @@ function useField(name, props = {}) {
     $this.props = props;
     $this.$setState = $setState;
 
-    const $registered = $this.$registered || ($this.$fieldHandler = createFieldHandler($this));
+    const $registered = $this.$registered || ($this.$fieldHandler = createHandler($this));
     // we not directly use this $state, just from $this.$state
     const [, setState] = useState(() => {
         $this.$fieldHandler.$$FIELD_UUID = GET_FIELD_UUID();

@@ -429,7 +429,7 @@ class Form extends Component {
                 for (let name in $formutil.$weakErrors) {
                     const $fieldError = $formutil.$weakErrors[name];
 
-                    for (let key in $fieldError[name]) {
+                    for (let key in $fieldError) {
                         return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
                     }
                 }

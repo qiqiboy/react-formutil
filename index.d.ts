@@ -180,7 +180,7 @@ export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
     $onFieldChange?: (newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void;
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
-    $validateFirst?: boolean;
+    $validateLazy?: boolean;
     $parser?: (($viewValue: any, $setViewValue: ($newViewValue: any) => any) => T) | null;
     $formatter?: (($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any) | null;
     name?: string;

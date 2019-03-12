@@ -29,7 +29,7 @@ Happy to build the forms in React ^\_^
         + [`$defaultState`](#defaultstate)
         + [`$validators`](#validators)
         + [~~`$asyncValidators`~~](#asyncvalidators)
-        + [`$validateFirst`](#validatefirst)
+        + [`$validateLazy`](#validatelazy)
         + [`$onFieldChange`](#onfieldchange)
         + [`$parser`](#parser)
         + [`$formatter`](#formatter)
@@ -285,7 +285,9 @@ yarn add react-formutil@next
 
 > **异步校验**：如果校验函数返回一个`promise`对象，则`resolved`表示校验通过，`rejected`则校验不通过，同时`rejected`返回的`reason`将会被当作错误信息保存到`$error`对象中。
 
-> 异步校验时，状态里会有 `$pending` 用来表示正在异步校验。
+> 异步校验时，状态里会有 `$pending` 用来表示正在异步校验。**如果值快速变化，会触发多次异步校验，但是Field只会响应最后一次异步校验结果，前面没有结束的异步校验，无论结果是否通过，都会被忽略！！**
+
+> **异步校验不会被自动取消，你需要自己在校验函数实现时，确保被多次调用时，可以取消掉之前未结束的异步校验（例如未响应的ajax请求，需要`abort`掉它）。**
 
 > **特别注意**： 仅仅设置了`$validators`，并不会触发校验，还需要设置匹配`$validators`中每一项的属性标识符，该属性的值会作为第二个参数传递给校验函数。
 
@@ -294,8 +296,8 @@ yarn add react-formutil@next
 *   `value` 为当前 Field 的值
 *   `attr` 为校验标识值
 *   `props` 为当前传给 Field 的所有 props，还包括以下三个特殊的值：
-    *   `props.$snapError` 表示当前校验中，前面已经校验出的错误信息<small>（该属性为`0.5.0`新增）</small>
-    *   `props.$fielduitl` 当前 Field 的`$fielduitl`对象<small>（该属性为`0.5.0`新增）</small>
+    *   `props.$validError` 表示当前校验中，前面已经校验出的错误信息<small>（该属性为`0.5.0`新增）</small>
+    *   `props.$fieldutil` 当前 Field 的`$fieldutil`对象<small>（该属性为`0.5.0`新增）</small>
     *   `props.$formutil` 当前 Field 所属 Form 的`$formutil`对象
 
 ```javascript
@@ -365,13 +367,17 @@ yarn add react-formutil@next
 
 ~~异步校验时，状态里会有`$pending`用来表示正在异步校验。~~
 
-#### `$validateFirst`
+#### `$validateLazy`
 
 > 该属性为 `v0.5.0` 新增。
 
 默认情况下，每次 Field 的值改变，在调用设置的校验方法时，会将所有的校验函数都执行一遍。
 
-通过该属性，可以设置调用校验函数时，是否遇到第一个错误后停止。校验顺序为`$validators`对象中的校验函数的声明顺序。
+通过该属性，可以设置调用校验函数时，启用`懒加载模式`：即是否遇到第一个错误后停止调用后续其它校验函数。校验顺序为`$validators`对象中的校验函数的声明顺序。所以如果你有异步校验，最好将其放到`$validators`声明的最后，以确保`$validateLazy`能有效节省不必要的校验。
+
+> 如果你在考虑实现一组用于多数表单项的校验函数，那么建议将这些校验规则分开，然后通过传递对应到每个校验函数的标识符来在不同的Field上启用不同的校验，并且可以利用`$validateLazy`来使用懒校验，提升校验性能。
+>
+> 如果仅仅是对个别Field做校验，我们更加建议将多个校验规则，在一个校验函数里实现！这样可以更加自由的设定校验顺序以及逻辑。
 
 #### `$onFieldChange`
 

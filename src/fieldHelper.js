@@ -25,10 +25,18 @@ function isError(result) {
 }
 
 export const FieldPropTypes = {
+    name: PropTypes.string,
+
     $defaultValue: PropTypes.any,
     $defaultState: PropTypes.object,
     $onFieldChange: PropTypes.func,
-    name: PropTypes.string,
+    $validators: PropTypes.object,
+    $asyncValidators: PropTypes.object,
+    $validateLazy: PropTypes.bool,
+
+    $parser: PropTypes.func,
+    $formatter: PropTypes.func,
+
     render: PropTypes.func,
     component: PropTypes.func,
     children(props, ...args) {
@@ -39,14 +47,7 @@ export const FieldPropTypes = {
         }
 
         return pt(props, ...args);
-    },
-
-    $validators: PropTypes.object,
-    $asyncValidators: PropTypes.object,
-    $validateFirst: PropTypes.bool,
-
-    $parser: PropTypes.func,
-    $formatter: PropTypes.func
+    }
 };
 
 export const FieldDisplayName = 'React.Formutil.Field';
@@ -156,8 +157,9 @@ export function createFieldHandler($this, owner) {
             $error: { ...$newError }
         } = $this.$state;
         const { $formutil } = $formContext;
-        const $snapError = {};
+        const $validError = {};
         let $skipRestValidate = false;
+        let $isCancelAsyncValidate = false;
 
         const $validatePromises = Object.keys($validators).reduce((promises, key) => {
             delete $newError[key];
@@ -167,15 +169,22 @@ export function createFieldHandler($this, owner) {
                     ...props,
                     $formutil,
                     $fieldutil: $this.$fieldutil,
-                    $snapError
+                    $validError
                 });
 
                 if (utils.isPromise(result)) {
-                    promises.push(result.catch(reason => $setValidity(key, reason || key)));
+                    promises.push(
+                        // @ts-ignore
+                        result.catch(reason => {
+                            if (!$isCancelAsyncValidate) {
+                                $setValidity(key, reason || key);
+                            }
+                        })
+                    );
                 } else if (isError(result)) {
-                    $snapError[key] = result || key;
+                    $validError[key] = result || key;
 
-                    if (props.$validateFirst) {
+                    if (props.$validateLazy) {
                         $skipRestValidate = true;
                     }
                 }
@@ -185,15 +194,29 @@ export function createFieldHandler($this, owner) {
         }, []);
 
         if ($validatePromises.length) {
-            $setPending(true);
+            if ($this.$shouldCancelPrevAsyncValidate) {
+                $this.$shouldCancelPrevAsyncValidate();
+            } else {
+                $setPending(true);
+            }
 
-            Promise.all($validatePromises).then(() => $setPending(false));
+            $this.$shouldCancelPrevAsyncValidate = () => {
+                $isCancelAsyncValidate = true;
+            };
+
+            Promise.all($validatePromises).then(() => {
+                if (!$isCancelAsyncValidate) {
+                    $setPending(false);
+
+                    $this.$shouldCancelPrevAsyncValidate = null;
+                }
+            });
         }
 
         return $setError(
             {
                 ...$newError,
-                ...$snapError
+                ...$validError
             },
             callback
         );

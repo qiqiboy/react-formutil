@@ -1003,7 +1003,7 @@ function MyComponent({ current, onUpdate }) {
 
 默认情况下，`EasyField`给自定义组件传递的属性中，不包括当前表单项组件的`$fieldutil`对象。
 
-如果使用自定义组件时，如果需要访问当前 Field 的状态，可以通过设置该参数，传入一个字符串，`EasyField` 会将状态通过该参数值传递给自定义组件：
+如果使用自定义组件时，如果需要访问当前 Field 的状态，可以通过设置该参数`true`，或者传入一个字符串，`EasyField` 会将`$fieldutil`通过该参数值传递给自定义组件：
 
 ```javascript
 <EasyField name="custom" passUtil="$fieldutil">
@@ -2191,15 +2191,18 @@ class MyForm extends Component {
 
 `react-formutil@0.3.0` 起提供了针对`typescript`的`DefinitionTypes`声明文件，在开发中可能会用到的主要是以下几个：
 
-*   `$Formutil<Field, Validators, WeakFields>` 整个表单的 $formtutil 类型声明
-*   `$Fieldutil<T, Validators, Fields, WeakFields>` 单个表单项的 $fieldutil 类型声明
+*   `$Formutil<Field, Validators, WeakFields>` 整个表单的 `$formtutil` 类型声明
+*   `$Fieldutil<T, Validators, Fields, WeakFields>` 单个表单项的 `$fieldutil` 类型声明
 *   `Field<T, Validators, Fields, WeakFields>` Field 组件的类型声明
-*   `EasyField<T, Validators, Fields, WeakFields>` EasyField 组件的类型声明
-*   `Form<Fields, Validators, WeakFields>` EasyField 组件的类型声明
+*   `FieldProps<T, Validators, Fields, WeakFields>` `Field` 组件的 props 类型声明
+*   `EasyField<T, Validators, Fields, WeakFields>` `EasyField` 组件的类型声明
+*   `EasyFieldProps<T, Validators, Fields, WeakFields>` `EasyField` 组件的 props 类型声明
+*   `Form<Fields, Validators, WeakFields>` `Form` 组件的类型声明
+*   `FormProps<Fields, Validators, WeakFields>` `Form` 组件的 props 类型声明
 
 除了以上列出的，还有很多其它的类型定义，可以自行查看类型声明文件。
 
-> `T` 是指值类型；`Validators` 是指表单的校验项结构；`Fields`是指表单的参数域结构；`WeakFields`是指扁平的`Fields`结构，默认等同于`Fields`。如果你的表单不使用深层结构，那么只需要提供`Fields`即可。
+> `T` 是指值类型；<br/>`Validators` 是指表单的校验项结构；<br/>`Fields`是指表单的参数域结构；<br/>`WeakFields`是指扁平的`Fields`结构，默认等同于`Fields`。如果你的表单不使用深层结构，那么只需要提供`Fields`即可。
 >
 > `let IErrors: Validators = { required: true, maxLength: string }`  
 > `let fields: Fields = { user: { name: string, age: number }, price: number }`  

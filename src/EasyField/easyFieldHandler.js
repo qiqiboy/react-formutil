@@ -98,7 +98,7 @@ export function createHandler($fieldutil, props, childProps) {
     };
 
     if (passUtil) {
-        $handleProps[passUtil] = $fieldutil;
+        $handleProps[passUtil === true ? '$fieldutil' : passUtil] = $fieldutil;
     }
 
     return $handleProps;

@@ -165,10 +165,11 @@ export type DeepRegisters<Fields, Validators, WeakFields = Fields> = {
 export type Validate<T = string, Fields = {}, P = {}, WeakFields = Fields> = (
     value: T,
     propName: any,
-    fieldProps: BaseEasyFieldComponentProps<T, P, Fields, WeakFields> &
-        FieldValidatorProps<P> & {
-            $validError?: FieldError<P>;
-        } & OtherKeys
+    fieldProps: EasyFieldProps<T, P, Fields, WeakFields> & {
+        $validError: FieldError<P>;
+        $fieldutil?: $Fieldutil<T, P, Fields, WeakFields>;
+        $formutil?: $Formutil<Fields, P, WeakFields>;
+    } & OtherKeys
 ) => any;
 
 export type Validators<T = string, Fields = {}, P = {}, WeakFields = Fields> = {
@@ -186,6 +187,14 @@ export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
     $formatter?: (($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any) | null;
     name?: string;
 }
+
+export type FieldProps<T = string, P = {}, Fields = {}, WeakFields = Fields> = BaseFieldComponentProps<
+    T,
+    P,
+    Fields,
+    WeakFields
+> &
+    FieldValidatorProps<P>;
 
 export interface FieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields>
     extends BaseFieldComponentProps<T, P, Fields, WeakFields> {
@@ -219,6 +228,14 @@ export interface BaseEasyFieldComponentProps<T = string, P = {}, Fields = {}, We
     focusPropName?: string;
     blurPropName?: string;
 }
+
+export type EasyFieldProps<T = string, P = {}, Fields = {}, WeakFields = Fields> = BaseEasyFieldComponentProps<
+    T,
+    P,
+    Fields,
+    WeakFields
+> &
+    FieldValidatorProps<P>;
 
 export interface EasyFieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields>
     extends BaseEasyFieldComponentProps<T, P, Fields, WeakFields> {
@@ -350,6 +367,12 @@ export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields
     ) => void;
 }
 
+export type FormProps<Fields = {}, Validators = {}, WeakFields = Fields> = BaseFormComponentProps<
+    Fields,
+    Validators,
+    WeakFields
+>;
+
 export interface FormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields>
     extends BaseFormComponentProps<Fields, Validators, WeakFields> {
     component?: React.ComponentType<{ $formutil: $Formutil<Fields, Validators, WeakFields> } & OtherKeys>;
@@ -367,26 +390,18 @@ export function withField<SelfProps = {}, T = string, Validators = {}, Fields = 
             $fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>;
         }
     >,
-    config?: BaseFieldComponentProps<T, Validators, Fields, WeakFields> & FieldValidatorProps<Validators>
-): React.ComponentClass<
-    Omit<SelfProps, '$fieldutil'> &
-        BaseFieldComponentProps<T, Validators, Fields, WeakFields> &
-        FieldValidatorProps<Validators>
->;
+    config?: FieldProps<T, Validators, Fields, WeakFields>
+): React.ComponentClass<Omit<SelfProps, '$fieldutil'> & FieldProps<T, Validators, Fields, WeakFields>>;
 
 export function withField<SelfProps = {}, T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
-    config?: BaseFieldComponentProps<T, Validators, Fields, WeakFields> & FieldValidatorProps<Validators>
+    config?: FieldProps<T, Validators, Fields, WeakFields>
 ): <SelfProps, T, Validators, Fields, WeakFields>(
     component: React.ComponentType<
         SelfProps & {
             $fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>;
         }
     >
-) => React.ComponentClass<
-    Omit<SelfProps, '$fieldutil'> &
-        BaseFieldComponentProps<T, Validators, Fields, WeakFields> &
-        FieldValidatorProps<Validators>
->;
+) => React.ComponentClass<Omit<SelfProps, '$fieldutil'> & FieldProps<T, Validators, Fields, WeakFields>>;
 
 export class EasyField<T = string, Validators = {}, Fields = {}, WeakFields = Fields> extends React.Component<
     EasyFieldComponentProps<T, Validators, Fields, WeakFields> & FieldValidatorProps<Validators> & OtherKeys

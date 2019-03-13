@@ -137,6 +137,7 @@ export function parseProps(props) {
         $formatter,
         validMessage,
         __TYPE__,
+        passUtil,
 
         ...childProps // exclude props that will not pass to children
     } = fieldProps;

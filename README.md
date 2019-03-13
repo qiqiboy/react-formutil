@@ -300,8 +300,10 @@ yarn add react-formutil@next
 *   `attr` 为校验标识值
 *   `props` 为当前传给 Field 的所有 props，还包括以下三个特殊的值：
     *   `props.$validError` 表示当前校验中，前面已经校验出的错误信息<small>（该属性为`0.5.0`新增）</small>
-    *   `props.$fieldutil` 当前 Field 的`$fieldutil`对象<small>（该属性为`0.5.0`新增）</small>
-    *   `props.$formutil` 当前 Field 所属 Form 的`$formutil`对象
+    *   `props.$fieldutil` 当前 Field 的`$fieldutil`对象<small>（该属性为`0.5.0`新增）</small>。
+        *   <small>该值为上一次渲染的状态，可以通过`$fieldutil.$new()`尝试获取最新渲染状态</small>
+    *   `props.$formutil` 当前 Field 所属 Form 的`$formutil`对象。
+        *   <small>该值为上一次渲染的状态，可以通过`$formutil.$new()`尝试获取最新渲染状态</small>
 
 ```javascript
 <Field

@@ -1,6 +1,7 @@
 import { Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import * as utils from './utils';
+import warning from 'warning';
 
 let FIELD_UUID = 0;
 const $baseState = {
@@ -22,6 +23,14 @@ const $baseState = {
 
 function isError(result) {
     return /*!utils.isUndefined(result) && */ result !== true;
+}
+
+function warningValidatorReturn(result, key, name) {
+    warning(
+        !utils.isUndefined(result),
+        `You should return a string or Error when the validation('${name &&
+            name + ': '}${key}') failed, otherwise return true.`
+    );
 }
 
 export const propTypes = {
@@ -71,14 +80,12 @@ export function renderField($fieldutil, props) {
         return children($fieldutil);
     }
 
-    return Children.map(
-        children,
-        child =>
-            child && utils.isFunction(child.type)
-                ? cloneElement(child, {
-                      $fieldutil
-                  })
-                : child
+    return Children.map(children, child =>
+        child && utils.isFunction(child.type)
+            ? cloneElement(child, {
+                  $fieldutil
+              })
+            : child
     );
 }
 
@@ -184,6 +191,8 @@ export function createHandler($this, owner) {
                 } else if (isError(result)) {
                     $validError[key] = result || key;
 
+                    warningValidatorReturn(result, key, props.name);
+
                     if (props.$validateLazy) {
                         $skipRestValidate = true;
                     }
@@ -277,13 +286,15 @@ export function createHandler($this, owner) {
         );
     }
 
-    function $setValidity(key, valid = false, callback) {
+    function $setValidity(key, result = true, callback) {
         const {
             $error: { ...$newError }
         } = $this.$state;
 
-        if (isError(valid)) {
-            $newError[key] = valid;
+        if (isError(result)) {
+            $newError[key] = result || key;
+
+            warningValidatorReturn(result, key, $this.props.name);
         } else {
             delete $newError[key];
         }

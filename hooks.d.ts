@@ -3,7 +3,7 @@
 // Definitions by: qiqiboy <https://github.com/qiqiboy>
 
 import React from 'react';
-import { $FieldHandler, $Fieldutil, $Formutil, EasyFieldProps, FieldProps, Omit } from './index';
+import { $FieldHandler, $Fieldutil, $Formutil, EasyFieldProps, FieldProps, Omit, OtherKeys } from './index';
 export * from './index';
 
 export function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
@@ -24,4 +24,4 @@ export function useHandler<T = string, Validators = {}, Fields = {}, WeakFields 
 
 export function useHandler<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
     props: EasyFieldProps<T, Validators, Fields, WeakFields>
-): $FieldHandler<T>;
+): $FieldHandler<T> & OtherKeys;

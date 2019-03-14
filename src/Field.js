@@ -78,6 +78,8 @@ class Field extends Component {
             } else {
                 this.$registered.$$merge($newState);
 
+                this.$registered.$$detectChange($newState);
+
                 this.forceUpdate(callback);
             }
 
@@ -116,6 +118,7 @@ class Field extends Component {
 
                     if (shouldInitial) {
                         this.$registered.$reset();
+                        this.$registered.$validate();
                     }
 
                     return this._render();

@@ -4,6 +4,14 @@ import FormContext from './context';
 import * as utils from './utils';
 import warning from 'warning';
 
+const FORM_VALIDATE_RESULT = 'FORM_VALIDATE_RESULT';
+
+const runCallback = function(callback, ...args) {
+    if (utils.isFunction(callback)) {
+        callback(...args);
+    }
+};
+
 class Form extends Component {
     static displayName = 'React.Formutil.Form';
 
@@ -21,6 +29,7 @@ class Form extends Component {
         $defaultValues: PropTypes.object,
         $defaultStates: PropTypes.object,
         $onFormChange: PropTypes.func,
+        $validator: PropTypes.func,
         $processer: PropTypes.func
     };
 
@@ -151,8 +160,12 @@ class Form extends Component {
                 }
             });
 
-            if (hasFormChanged && utils.isFunction(this.props.$onFormChange)) {
-                this.props.$onFormChange(this.$formutil, $newValues, $prevValues);
+            if (hasFormChanged) {
+                if (utils.isFunction(this.props.$onFormChange)) {
+                    this.props.$onFormChange(this.$formutil, $newValues, $prevValues);
+                }
+
+                this.$$formValidate();
             }
         }
     };
@@ -163,23 +176,6 @@ class Form extends Component {
         utils.objectEach(this.$$registers, (handler, name) => utils.parsePath(this.$$deepRegisters, name, handler));
     };
 
-    fetchTreeFromRegisters(dataTree, process) {
-        const newTree = {};
-        const parsedTree = { ...dataTree };
-
-        utils.objectEach(dataTree, (data, name) => utils.parsePath(parsedTree, name, data));
-
-        utils.objectEach(this.$$registers, (handler, name) => {
-            const data = parsedTree[name] || utils.parsePath(parsedTree, name);
-
-            if (!utils.isUndefined(data)) {
-                utils.parsePath(newTree, name, process(data));
-            }
-        });
-
-        return newTree;
-    }
-
     $$getRegister = name => {
         if (name) {
             const field = this.$$registers[name] || utils.parsePath(this.$$deepRegisters, name);
@@ -189,6 +185,79 @@ class Form extends Component {
             }
         }
     };
+
+    $$formValidate = callback => {
+        const { $validator } = this.props;
+
+        if (utils.isFunction($validator)) {
+            let $isCancelAsyncValidate = false;
+
+            if (this.$shouldCancelPrevAsyncValidate) {
+                this.$shouldCancelPrevAsyncValidate();
+            }
+
+            const result = $validator(this.$formutil.$params, this.formtutil);
+
+            if (utils.isPromise(result)) {
+                if (!this.$$formPending) {
+                    this.$$formPending = true;
+
+                    this.$render();
+                }
+
+                this.$shouldCancelPrevAsyncValidate = () => {
+                    $isCancelAsyncValidate = true;
+                };
+
+                result
+                    .catch(reason => {
+                        if (!$isCancelAsyncValidate) {
+                            this.$$setFormErrors(reason);
+                        }
+                    })
+                    .then(() => {
+                        if (!$isCancelAsyncValidate) {
+                            this.$$formPending = false;
+
+                            this.$render(callback);
+                        }
+                    });
+            } else {
+                this.$$setFormErrors(result, callback);
+            }
+        } else {
+            runCallback(callback);
+        }
+    };
+
+    $$setFormErrors = (validResults, callback) =>
+        this.$$setStates(
+            validResults || {},
+            (result, handler) => {
+                const { $error = {} } = handler.$getState();
+
+                if (result) {
+                    return {
+                        $error: {
+                            ...$error,
+                            [FORM_VALIDATE_RESULT]: result
+                        }
+                    };
+                }
+
+                if ($error[FORM_VALIDATE_RESULT]) {
+                    delete $error[FORM_VALIDATE_RESULT];
+
+                    return {
+                        $error
+                    };
+                }
+
+                return;
+            },
+            callback,
+            true
+        );
 
     $getField = name => {
         const field = this.$$getRegister(name);
@@ -208,35 +277,48 @@ class Form extends Component {
             callback
         );
 
-    $setStates = ($stateTree, callback) => {
+    $$setStates = ($stateTree = {}, processer, callback, force) => {
+        let hasStateChange = false;
         const $parsedTree = { ...$stateTree };
 
-        utils.objectEach($stateTree || {}, (data, name) => utils.parsePath($parsedTree, name, data));
+        utils.objectEach($stateTree, (data, name) => utils.parsePath($parsedTree, name, data));
 
         utils.objectEach(this.$$registers, (handler, name) => {
-            const $newState = $parsedTree[name] || utils.parsePath($parsedTree, name);
+            const data = $parsedTree[name] || utils.parsePath($parsedTree, name);
 
-            if ($newState) {
-                const $prevValue = this.$formutil.$weakParams[name];
-                const { $value: $newValue } = handler.$$merge($newState);
+            if (!utils.isUndefined(data) || force) {
+                const $newState = processer(data, handler);
 
-                if ('$value' in $newState || '$viewValue' in $newState) {
-                    const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
+                if ($newState) {
+                    const $prevValue = this.$formutil.$weakParams[name];
+                    const { $value: $newValue } = handler.$$merge($newState);
 
-                    if (findItem) {
-                        findItem.$newValue = $newValue;
-                    } else {
-                        this.$$fieldChangedQueue.push({
-                            name,
-                            $newValue,
-                            $prevValue
-                        });
+                    handler.$$detectChange($newState);
+
+                    if ('$value' in $newState || '$viewValue' in $newState) {
+                        const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
+
+                        if (findItem) {
+                            findItem.$newValue = $newValue;
+                        } else {
+                            this.$$fieldChangedQueue.push({
+                                name,
+                                $newValue,
+                                $prevValue
+                            });
+                        }
                     }
+
+                    hasStateChange = true;
                 }
             }
         });
 
-        this.$render(callback);
+        if (hasStateChange) {
+            this.$render(callback);
+        } else {
+            runCallback(callback);
+        }
     };
 
     componentDidUpdate() {
@@ -245,7 +327,11 @@ class Form extends Component {
 
     $render = callback => this.forceUpdate(callback);
 
-    $validates = () => utils.objectEach(this.$$registers, handler => handler.$validate());
+    $validates = callback => {
+        utils.objectEach(this.$$registers, handler => handler.$validate());
+
+        this.$$formValidate(callback);
+    };
     $validate = (name, callback) => this.$getField(name).$validate(callback);
 
     $reset = ($stateTree, callback) => {
@@ -256,31 +342,21 @@ class Form extends Component {
             $stateTree = {};
         }
 
-        const $parsedTree = { ...$stateTree };
-        utils.objectEach($stateTree || {}, (data, name) => utils.parsePath($parsedTree, name, data));
-
-        return this.$setStates(
-            utils.objectMap(this.$$registers, (handler, name) =>
-                handler.$reset($parsedTree[name] || utils.parsePath($parsedTree, name))
-            ),
-            callback
-        );
+        return this.$$setStates($stateTree, ($state, handler) => handler.$reset($state), callback, true);
     };
+
+    $setStates = ($stateTree, callback) => this.$$setStates($stateTree, $state => $state, callback);
 
     $setValues = ($valueTree, callback) => {
         Object.assign(this.$$defaultValues, JSON.parse(JSON.stringify($valueTree)));
-        return this.$setStates(this.fetchTreeFromRegisters($valueTree, $value => ({ $value })), callback);
+
+        return this.$$setStates($valueTree, $value => ({ $value }), callback);
     };
-    $setFocuses = ($focusedTree, callback) =>
-        this.$setStates(this.fetchTreeFromRegisters($focusedTree, $focused => ({ $focused })), callback);
-    $setDirts = ($dirtyTree, callback) =>
-        this.$setStates(this.fetchTreeFromRegisters($dirtyTree, $dirty => ({ $dirty })), callback);
-    $setTouches = ($touchedTree, callback) =>
-        this.$setStates(this.fetchTreeFromRegisters($touchedTree, $touched => ({ $touched })), callback);
-    $setPendings = ($pendingTree, callback) =>
-        this.$setStates(this.fetchTreeFromRegisters($pendingTree, $pending => ({ $pending })), callback);
-    $setErrors = ($errorTree, callback) =>
-        this.$setStates(this.fetchTreeFromRegisters($errorTree, $error => ({ $error })), callback);
+    $setFocuses = ($focusedTree, callback) => this.$$setStates($focusedTree, $focused => ({ $focused }), callback);
+    $setDirts = ($dirtyTree, callback) => this.$$setStates($dirtyTree, $dirty => ({ $dirty }), callback);
+    $setTouches = ($touchedTree, callback) => this.$$setStates($touchedTree, $touched => ({ $touched }), callback);
+    $setPendings = ($pendingTree, callback) => this.$$setStates($pendingTree, $pending => ({ $pending }), callback);
+    $setErrors = ($errorTree, callback) => this.$$setStates($errorTree, $error => ({ $error }), callback);
 
     $batchState = ($state, callback) => this.$setStates(utils.objectMap(this.$$registers, () => $state), callback);
     $batchDirty = ($dirty, callback) =>
@@ -367,7 +443,7 @@ class Form extends Component {
         const $dirty = $stateArray.some(({ $state }) => $state.$dirty);
         const $touched = $stateArray.some(({ $state }) => $state.$touched);
         const $focused = $stateArray.some(({ $state }) => $state.$focused);
-        const $pending = $stateArray.some(({ $state }) => $state.$pending);
+        const $pending = this.$$formPending || $stateArray.some(({ $state }) => $state.$pending);
 
         const $formutil = (this.$formutil = {
             $$registers: this.$$registers,

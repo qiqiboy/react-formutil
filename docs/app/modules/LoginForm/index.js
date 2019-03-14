@@ -122,7 +122,7 @@ class LoginForm extends Component {
                         name="username"
                         asyncCheck
                         minLength={5}
-                        $validateFirst
+                        $validateLazy
                         $validators={this.$validators}
                         $parser={value => value.trim()}>
                         {props => (

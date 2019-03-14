@@ -43,7 +43,9 @@ function useField(name, props = {}) {
     const [, setState] = useState(() => {
         $this.$fieldHandler.$$FIELD_UUID = GET_FIELD_UUID();
 
-        return $registered.$reset();
+        $registered.$reset();
+
+        return $registered.$validate();
     });
 
     useLayoutEffect(
@@ -118,6 +120,8 @@ function useField(name, props = {}) {
                 $formContext.$$onChange($name, $newState, callback);
             } else {
                 setState($registered.$$merge($newState));
+
+                $registered.$$detectChange($newState);
 
                 if (utils.isFunction(callback)) {
                     callbackRef.current.push(callback);

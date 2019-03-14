@@ -44,6 +44,11 @@ export type FormErrors<Fields, Validators> = {
     >
 };
 
+// $validator on <Form />
+export type FormValiateResult<Fields> =
+    | { [K in keyof Fields]?: DetectAny<Fields[K], any, Fields[K] extends object ? FormValiateResult<Fields[K]> : any> }
+    | undefined;
+
 export type FormTouches<Fields> = {
     [K in keyof Fields]: DetectAny<Fields[K], boolean, Fields[K] extends object ? FormTouches<Fields[K]> : boolean>
 };
@@ -336,7 +341,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
         name: T,
         callback?: () => void
     ): Readonly<FieldState<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators>>;
-    $validates(): void;
+    $validates(callback?: () => void): void;
     $reset(stateTree?: ArgFormStates<Fields, Validators>, callback?: () => void): void;
     $setStates(stateTree: ArgFormStates<Fields, Validators>, callback?: () => void): void;
     $setValues(valueTree: ArgFormParams<Fields>, callback?: () => void): void;
@@ -361,6 +366,10 @@ export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields
         newValues: Readonly<FormParams<Fields>>,
         preValues: Readonly<FormParams<Fields>>
     ) => void;
+    $validator?: (
+        $params: FormParams<Fields>,
+        $formutil: $Formutil<Fields, Validators, WeakFields>
+    ) => FormValiateResult<Fields> | Promise<FormValiateResult<Fields>>;
     $processer?: <K extends keyof WeakFields>(
         $state: FieldState<DetectAny<WeakFields[K], string, WeakFields[K]>, Validators>,
         name: K

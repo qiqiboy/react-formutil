@@ -80,12 +80,14 @@ export function renderField($fieldutil, props) {
         return children($fieldutil);
     }
 
-    return Children.map(children, child =>
-        child && utils.isFunction(child.type)
-            ? cloneElement(child, {
-                  $fieldutil
-              })
-            : child
+    return Children.map(
+        children,
+        child =>
+            child && utils.isFunction(child.type)
+                ? cloneElement(child, {
+                      $fieldutil
+                  })
+                : child
     );
 }
 
@@ -94,11 +96,9 @@ export function createHandler($this, owner) {
         $$FIELD_UUID: $this.$$FIELD_UUID,
 
         $$merge,
-        $$triggerChange({ $newValue, $prevValue }) {
-            if (utils.isFunction($this.props.$onFieldChange)) {
-                $this.props.$onFieldChange($newValue, $prevValue, $this.$formContext.$formutil);
-            }
-        },
+        $$detectChange,
+        $$triggerChange,
+
         $new() {
             return $this.$fieldutil;
         },
@@ -122,6 +122,20 @@ export function createHandler($this, owner) {
         $setError,
         $setPending
     };
+
+    function $$detectChange($newState) {
+        if ('$value' in $newState || '$viewValue' in $newState) {
+            $validate();
+        }
+    }
+
+    function $$triggerChange({ $newValue, $prevValue }) {
+        const { $onFieldChange } = $this.props;
+
+        if (utils.isFunction($onFieldChange)) {
+            $onFieldChange($newValue, $prevValue, $this.$formContext.$formutil);
+        }
+    }
 
     function $reset($newState) {
         let $initialState;
@@ -161,6 +175,7 @@ export function createHandler($this, owner) {
         const $validators = { ...props.$validators, ...props.$asyncValidators };
         const {
             $value,
+            $pending,
             $error: { ...$newError }
         } = $this.$state;
         const { $formutil } = $formContext;
@@ -202,10 +217,12 @@ export function createHandler($this, owner) {
             return promises;
         }, []);
 
+        if ($this.$shouldCancelPrevAsyncValidate) {
+            $this.$shouldCancelPrevAsyncValidate();
+        }
+
         if ($validatePromises.length) {
-            if ($this.$shouldCancelPrevAsyncValidate) {
-                $this.$shouldCancelPrevAsyncValidate();
-            } else {
+            if (!$pending) {
                 $setPending(true);
             }
 
@@ -220,6 +237,8 @@ export function createHandler($this, owner) {
                     $this.$shouldCancelPrevAsyncValidate = null;
                 }
             });
+        } else if ($pending) {
+            $setPending(false);
         }
 
         return $setError(
@@ -362,13 +381,7 @@ export function createHandler($this, owner) {
             $newState.$touched = !$newState.$untouched;
         }
 
-        $this.$state = { ...$this.$state, ...$newState };
-
-        if ('$value' in $newState) {
-            $validate();
-        }
-
-        return $getState();
+        return ($this.$state = { ...$this.$state, ...$newState });
     }
 
     return $fieldHandler;

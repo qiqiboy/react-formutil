@@ -79,6 +79,7 @@ Happy to build the forms in React ^\_^
         + [`$defaultValues`](#defaultvalues)
         + [`$defaultStates`](#defaultstates)
         + [`$onFormChange`](#onformchange)
+        + [`$validator`](#validator)
         + [`$processer`](#processer)
         + [`$formutil`](#formutil-1)
             * [`$new()`](#new-1)
@@ -1119,6 +1120,77 @@ function MyComponent({ current, onUpdate }) {
 }
 ```
 
+#### `$validator`
+
+> **注**：该属性为`v0.5.0`新增！
+
+现在你可以通过`$validator`属性，来直接对整个表单值进行校验了。当表单值更新时，会调用该校验函数，然后根据其返回值更新表单的校验结果。
+
+其函数签名如下([`如何使用typescript开发？`](#如何使用typescript开发))：
+
+```typescript
+($params: FormParams<Fields>, $formutil: $Formutil<Fields, Validators, WeakFields>) => FormValidateResult<Fields>;
+```
+
+**与`Field`的`$validators`有以下区别：**
+
+*   `Form`的`$validator`仅当表单值有变动时才会调用，而`Field`的`$validators`则会每次更新`Field`的值时都会调用（即使前后两次值相同）。
+*   `Form`的`$validator`是在表单值稳定下来后才会调用（异步），而`Field`的`$validators`则是与更新值是同步调用。
+    *   **所以`$validator`非常适合用来校验那些互相依赖的字段，例如两次密码输入是否一致**
+*   `Form`的`$validator`校验结果应当以`{ [ Field name ]: 'error message' }`形式返回，或者包在`promise`对象中以 rejected 状态返回。
+    *   `{ username: 'error message', 'nestedObj.username': 'error message', nestedArray: [ 'error message' ] }`
+
+例 1: 校验密码是否一致
+
+```javascript
+<Form
+    $validator={$params => {
+        if ($params.password !== $params.confirm_password) {
+            return {
+                password: 'The twice passwords are not equal.'
+            };
+        }
+    }}
+/>
+```
+
+例 2: 异步校验用户名是否重复
+
+```javascript
+<Form
+    $validator={async function($params) {
+        cosnt result = await asyncCheckUsername($params.username)
+        if (result.isReplica) {
+            throw {
+                username: 'The username has exist.'
+            }
+        }
+    }}
+/>
+```
+
+例 3: 返回多个字段校验结果
+
+```javascript
+<Form
+    $validator={$params => {
+        const errors = {};
+
+        if ($params.password !== $params.confirm_password) {
+            errors.password = 'The twice passwords are not equal.';
+        }
+
+        if (isEmail($params.email) === false) {
+            errors.email = 'Wrong email!';
+        }
+
+        return errors;
+    }}
+/>
+```
+
+**虽然我们提供了这个属性用于表单整体校验，但是我们依然建议校验应该基于每个`<Field />`进行来作为最佳实践！**
+
 #### `$processer`
 
 > **注**：该属性为`v0.5.0`新增！
@@ -1129,12 +1201,12 @@ function MyComponent({ current, onUpdate }) {
 
 但是，请注意，这里对`$state`的修改，不会影响到表单项的实际的状态模型！
 
-```javascript
+```typescript
 /**
  * @param $state: object 该表单域项的状态模型对象，{ $value, $valid, $invalid, $dirty, ... }
  * @param name: string 该表单域项的name，例如：'username'
  */
-function $processer($state, name) {
+function $processer($state: FieldState<T>, name: string) {
     // process $state
 }
 ```

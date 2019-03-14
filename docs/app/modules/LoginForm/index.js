@@ -14,16 +14,18 @@ class LoginForm extends Component {
     submit = ev => {
         ev.preventDefault();
 
-        const { $invalid, $batchDirty, $weakErrors } = this.props.$formutil;
+        this.props.$formutil.$getField('username').$reset();
 
-        //如果表单有错误，我们可以将所有表单项设置为$dirty，以将所有错误显示出来
-        if ($invalid) {
-            //通过$batchDirty设置所有表单项
-            $batchDirty(true);
-            alert('共有 ' + Object.keys($weakErrors).length + ' 错误需要处理');
-        } else {
-            alert('表单填写正确，可以登录');
-        }
+        /*         const { $invalid, $batchDirty, $weakErrors } = this.props.$formutil;
+ * 
+ *         //如果表单有错误，我们可以将所有表单项设置为$dirty，以将所有错误显示出来
+ *         if ($invalid) {
+ *             //通过$batchDirty设置所有表单项
+ *             $batchDirty(true);
+ *             alert('共有 ' + Object.keys($weakErrors).length + ' 错误需要处理');
+ *         } else {
+ *             alert('表单填写正确，可以登录');
+ *         } */
     };
 
     autoInput = () => {

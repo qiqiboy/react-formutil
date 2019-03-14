@@ -47,7 +47,7 @@ export type FormErrors<Fields, Validators> = {
 // $validator on <Form />
 export type FormValiateResult<Fields> =
     | { [K in keyof Fields]?: DetectAny<Fields[K], any, Fields[K] extends object ? FormValiateResult<Fields[K]> : any> }
-    | undefined;
+    | void | undefined;
 
 export type FormTouches<Fields> = {
     [K in keyof Fields]: DetectAny<Fields[K], boolean, Fields[K] extends object ? FormTouches<Fields[K]> : boolean>

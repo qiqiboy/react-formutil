@@ -80,14 +80,12 @@ export function renderField($fieldutil, props) {
         return children($fieldutil);
     }
 
-    return Children.map(
-        children,
-        child =>
-            child && utils.isFunction(child.type)
-                ? cloneElement(child, {
-                      $fieldutil
-                  })
-                : child
+    return Children.map(children, child =>
+        child && utils.isFunction(child.type)
+            ? cloneElement(child, {
+                  $fieldutil
+              })
+            : child
     );
 }
 
@@ -95,6 +93,7 @@ export function createHandler($this, owner) {
     const $fieldHandler = {
         $$FIELD_UUID: $this.$$FIELD_UUID,
 
+        $$reset,
         $$merge,
         $$detectChange,
         $$triggerChange,
@@ -109,7 +108,9 @@ export function createHandler($this, owner) {
             return owner;
         },
 
-        $reset,
+        $reset($state, callback) {
+            return $this.$setState($$reset($state), callback);
+        },
         $getFirstError,
         $validate,
         $setState: $this.$setState,
@@ -137,7 +138,7 @@ export function createHandler($this, owner) {
         }
     }
 
-    function $reset($newState) {
+    function $$reset($newState) {
         let $initialState;
 
         const { props, $formContext } = $this;
@@ -381,7 +382,9 @@ export function createHandler($this, owner) {
             $newState.$touched = !$newState.$untouched;
         }
 
-        return ($this.$state = { ...$this.$state, ...$newState });
+        $this.$state = { ...$this.$state, ...$newState };
+
+        return $getState();
     }
 
     return $fieldHandler;

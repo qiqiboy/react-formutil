@@ -47,7 +47,8 @@ export type FormErrors<Fields, Validators> = {
 // $validator on <Form />
 export type FormValiateResult<Fields> =
     | { [K in keyof Fields]?: DetectAny<Fields[K], any, Fields[K] extends object ? FormValiateResult<Fields[K]> : any> }
-    | void | undefined;
+    | void
+    | undefined;
 
 export type FormTouches<Fields> = {
     [K in keyof Fields]: DetectAny<Fields[K], boolean, Fields[K] extends object ? FormTouches<Fields[K]> : boolean>
@@ -287,7 +288,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $getFirstError(): string;
     $$merge(newState: Partial<FieldState<T, Validators>>): Readonly<FieldState<T, Validators>>;
     $$triggerChange(changedData: { newValue: T; preValue: T }): void;
-    $reset(newState?: Partial<FieldState<T, Validators>>): Readonly<FieldState<T, Validators>>;
+    $reset(newState?: Partial<FieldState<T, Validators>>, callback?: () => void): Readonly<FieldState<T, Validators>>;
 
     $render($viewValue: any, callback?: () => void): Readonly<FieldState<T, Validators>>;
     $setValue($modelValue: T, callback?: () => void): Readonly<FieldState<T, Validators>>;

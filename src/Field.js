@@ -117,7 +117,7 @@ class Field extends Component {
                     }
 
                     if (shouldInitial) {
-                        this.$registered.$reset();
+                        this.$registered.$$reset();
                         this.$registered.$validate();
                     }
 

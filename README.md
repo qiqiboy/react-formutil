@@ -1603,11 +1603,11 @@ export default connect(Submit);
 ```typescript
 function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
     name?: string,
-    props?: Omit<HooksFieldProps<T, Validators, Fields, WeakFields>, 'name'>
+    props?: Omit<FieldProps<T, Validators, Fields, WeakFields>, 'name'>
 ): $Fieldutil<T, Validators, Fields, WeakFields>;
 
 function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
-    props?: HooksFieldProps<T, Validators, Fields, WeakFields>
+    props?: FieldProps<T, Validators, Fields, WeakFields>
 ): $Fieldutil<T, Validators, Fields, WeakFields>;
 ```
 

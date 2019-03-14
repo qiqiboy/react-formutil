@@ -43,7 +43,7 @@ function useField(name, props = {}) {
     const [, setState] = useState(() => {
         $this.$fieldHandler.$$FIELD_UUID = GET_FIELD_UUID();
 
-        $registered.$reset();
+        $registered.$$reset();
 
         return $registered.$validate();
     });

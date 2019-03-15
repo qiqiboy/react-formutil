@@ -16,6 +16,8 @@ Happy to build the forms in React ^\_^
 > 6.  规范的 jsx 语法调用，更符合 react 理念
 > 7.  [对流行的 react 组件库做了适配优化，现已支持](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)：`ant-design` `material-ui` `react-bootstrap` `react-md`
 
+**无论你是否已经了解了`react-formutil`的特性、用法以及 API，开始项目前，请务必阅读下我们建议的[最佳实践](#最佳实践-best-practices)！**
+
 <!-- vim-markdown-toc GFM -->
 
 * [安装 Installation](#安装-installation)
@@ -110,6 +112,7 @@ Happy to build the forms in React ^\_^
         + [`useField`](#usefield)
         + [`useHandler`](#usehandler)
         + [`useForm`](#useform)
+* [最佳实践 Best Practices](#最佳实践-best-practices)
 * [FAQ & 常见问题解答](#faq--常见问题解答)
     - [`Field 与 EasyField 有什么区别`](#field-与-easyfield-有什么区别)
     - [`Field中的 $value 与 $viewValue 有什么区别`](#field中的-value-与-viewvalue-有什么区别)
@@ -1722,6 +1725,47 @@ function UserInfoSubmitForm() {
     {/*...*/}
 </Form>;
 ```
+
+## 最佳实践 Best Practices
+
+`react-formutil`旨在提供一个`非强侵入性` `高度抽象` `方便迁移` `简化接入`的表单工具。正是由于下面的几点思考，才有了与众不同的`rect-formutil`！
+
+*   一张表单只能有一个顶层 `<Form />` 或者 `withForm`。但是你可以通过将一个`<Form />`使用`<Field />`/`withField`包装后，使其变身为一个`Field`组件，来快捷复用以及嵌套表单使用！
+
+    <hr/>
+
+*   表单项`Field`应当是尽可能的做到`小粒度` `低耦合` `独立性`，保证其可复用性。例如表单校验，我们强烈建议通过`<Field />`的[`$validators`](#validators)来对每个`Field`配置校验规则，而不是统一在`Form`层面进行校验！！
+
+    *   `$validators`对象也是可以复用的，你可以将所有的校验规则都放到一个`$validators`对象中，然后传递给所有的`<Field />`。但是不用担心这些规则会对所有`<Field />`生效。因为校验规则的生效，还需要对`<Field />`传递对应的校验规则标识符才会启用！
+    *   我们知道其它很多表单库，或多或少，其文档、官方示例，甚至 API，都在推荐在`<Form />`层面对数据进行校验，但是我们认为这样会造成`Form`与`Field`的强耦合，不利于`Field`的组件复用！
+    *   我们也提供了`<Form />`的[`$validator`](#validator)属性来在`<Form />`层面做校验，但是请注意，仅建议用于那些校验时其字段相互耦合依赖的表单，例如两次密码输入确认场景
+
+    <hr/>
+
+*   `Field`应当尽量保证对外渲染的值与接口接受到的值保持一致（包括类型、格式），对于复杂的`Field`数据收集，很多情况下，组件层面我们拿到的是`array`/`object`，但是接口可能需要 json 字符串。
+
+    *   我们**不建议**在`submit`时再对数据进行转换，因为这导致视图与服务 server 的数据结构不一致，导致无论提交数据还是渲染 server 数据，都需要无穷无尽的数据转换。你可以通过以下办法对数据在表单层面进行加工转换
+    *   第一种办法，对于自己封装的`Field`，应当在通过`$fieldutil.render()`在传递数据值时对值做好数据转换
+    *   第二种办法，针对第三方封装的`Field`或者只是个别情况下，那么我们应当通过 [`$parser`](#parser)属性来指定`$viewValue`与`$modleValue`的转换（即视图数据到模型数据）
+    *   如果你对前两种方法较为陌生，那么至少你应当通过`Form`的[`$processer`](#processer)属性对数据进行转换。
+
+    <hr/>
+
+*   `<Field />`的[`name`](#name)属性是支持深层路径索引（nested 嵌套）的，所以你可以善于利用其这一特性，方便的将值收集到对象或者数组中。
+
+    <hr/>
+
+*   大表单请尽可能进行拆分处理，将其转换为可以复用的`表单片段（即只包含相关性、相似性的一组Field）`，然后通过组合这些表单片段来达到复用或者优化大表单单一组件过大的问题。
+
+    *   [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
+
+    <hr/>
+
+-   Typescript 开发中，对于`withField` `withForm` `connect`三个高阶组件调用，请使用`函数式调用`，避免`@decorator`装饰器语法，因为高阶组件会改变类签名，导致类型校验失败。
+
+    *   通过`函数调用`方式使用提供的高阶组件，可以正确处理组件上挂在的`$fieldutil` `$formutil`类型声明，避免被当作必需属性。
+
+    <hr/>
 
 ## FAQ & 常见问题解答
 

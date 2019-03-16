@@ -4,13 +4,7 @@ import FormContext from './context';
 import * as utils from './utils';
 import warning from 'warning';
 
-const FORM_VALIDATE_RESULT = 'FORM_VALIDATE_RESULT';
-
-const runCallback = function(callback, ...args) {
-    if (utils.isFunction(callback)) {
-        callback(...args);
-    }
-};
+export const FORM_VALIDATE_RESULT = 'FORM_VALIDATE_RESULT';
 
 class Form extends Component {
     static displayName = 'React.Formutil.Form';
@@ -165,7 +159,9 @@ class Form extends Component {
                     this.props.$onFormChange(this.$formutil, $newValues, $prevValues);
                 }
 
-                this.$$formValidate();
+                if (utils.isFunction(this.props.$validator)) {
+                    this.$$formValidate();
+                }
             }
         }
     };
@@ -189,45 +185,43 @@ class Form extends Component {
     $$formValidate = callback => {
         const { $validator } = this.props;
 
-        if (utils.isFunction($validator)) {
-            let $isCancelAsyncValidate = false;
+        let $isCancelAsyncValidate = false;
 
-            if (this.$shouldCancelPrevAsyncValidate) {
-                this.$shouldCancelPrevAsyncValidate();
-            }
-
-            const result = $validator(this.$formutil.$params, this.formtutil);
-
-            if (utils.isPromise(result)) {
-                if (!this.$$formPending) {
-                    this.$$formPending = true;
-
-                    this.$render();
-                }
-
-                this.$shouldCancelPrevAsyncValidate = () => {
-                    $isCancelAsyncValidate = true;
-                };
-
-                result
-                    .catch(reason => {
-                        if (!$isCancelAsyncValidate) {
-                            this.$$setFormErrors(reason);
-                        }
-                    })
-                    .then(() => {
-                        if (!$isCancelAsyncValidate) {
-                            this.$$formPending = false;
-
-                            this.$render(callback);
-                        }
-                    });
-            } else {
-                this.$$setFormErrors(result, callback);
-            }
-        } else {
-            runCallback(callback);
+        if (this.$shouldCancelPrevAsyncValidate) {
+            this.$shouldCancelPrevAsyncValidate();
         }
+
+        const result = $validator(this.$formutil.$params, this.formtutil);
+
+        if (utils.isPromise(result)) {
+            if (!this.$$formPending) {
+                this.$$formPending = true;
+
+                this.$render();
+            }
+
+            this.$shouldCancelPrevAsyncValidate = () => {
+                $isCancelAsyncValidate = true;
+            };
+
+            return result
+                .then(() => void 0, reason => reason)
+                .then(reason => {
+                    if (!$isCancelAsyncValidate) {
+                        this.$shouldCancelPrevAsyncValidate = null;
+
+                        this.$$formPending = false;
+
+                        return this.$$setFormErrors(reason, callback);
+                    }
+
+                    return utils.runCallback(callback, this.$formutil);
+                });
+        } else if (this.$$formPending) {
+            this.$$formPending = false;
+        }
+
+        return this.$$setFormErrors(result, callback);
     };
 
     $$setFormErrors = (validResults, callback) =>
@@ -315,22 +309,29 @@ class Form extends Component {
         });
 
         if (hasStateChange) {
-            this.$render(callback);
-        } else {
-            runCallback(callback);
+            return this.$render(callback);
         }
+
+        return Promise.resolve(utils.runCallback(callback, this.$formutil));
     };
 
     componentDidUpdate() {
         this.$$triggerFormChange();
     }
 
-    $render = callback => this.forceUpdate(callback);
+    $render = callback =>
+        new Promise(resolve => this.forceUpdate(() => resolve(utils.runCallback(callback, this.$formutil))));
 
     $validates = callback => {
-        utils.objectEach(this.$$registers, handler => handler.$validate());
+        const validPromises = [];
 
-        this.$$formValidate(callback);
+        utils.objectEach(this.$$registers, handler => validPromises.push(handler.$validate()));
+
+        if (utils.isFunction(this.props.$validator)) {
+            validPromises.push(this.$$formValidate());
+        }
+
+        return Promise.all(validPromises).then(() => utils.runCallback(callback, this.$formutil));
     };
     $validate = (name, callback) => this.$getField(name).$validate(callback);
 

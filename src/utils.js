@@ -19,6 +19,14 @@ export function isPromise(promise) {
     return !!promise && isFunction(promise.then);
 }
 
+export const runCallback = function(callback, ...args) {
+    if (isFunction(callback)) {
+        callback(...args);
+    }
+
+    return args[0];
+};
+
 export function createHOC(withHOC) {
     return function(...args) {
         if (isFunction(args[0])) {

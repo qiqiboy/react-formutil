@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useRef } from 'react';
 import useFormContext from './useFormContext';
-import * as utils from '../utils';
+import { isFunction, runCallback } from '../utils';
 import { createHandler, GET_FIELD_UUID } from '../fieldHelper';
 import warning from 'warning';
 
@@ -43,30 +43,29 @@ function useField(name, props = {}) {
     const [, setState] = useState(() => {
         $this.$fieldHandler.$$FIELD_UUID = GET_FIELD_UUID();
 
-        $registered.$$reset();
+        const $state = $registered.$$reset();
 
-        return $registered.$validate();
+        $registered.$validate();
+
+        return $state;
     });
 
-    useLayoutEffect(
-        () => {
-            const { $state } = $this;
+    useLayoutEffect(() => {
+        const { $state } = $this;
 
-            if ($this.isMounting) {
-                if (!$name || !$formContext.$$register) {
-                    const { $prevValue } = $this;
+        if ($this.isMounting) {
+            if (!$name || !$formContext.$$register) {
+                const { $prevValue } = $this;
 
-                    $registered.$$triggerChange({
-                        $newValue: $state.$value,
-                        $prevValue
-                    });
-                }
+                $registered.$$triggerChange({
+                    $newValue: $state.$value,
+                    $prevValue
+                });
             }
+        }
 
-            $this.$prevValue = $state.$value;
-        },
-        [$this.$state.$value]
-    );
+        $this.$prevValue = $state.$value;
+    }, [$this.$state.$value]);
 
     useLayoutEffect(() => {
         $this.isMounting = true;
@@ -87,20 +86,17 @@ function useField(name, props = {}) {
         };
     }, []);
 
-    useLayoutEffect(
-        () => {
-            if ($formContext.$$register) {
-                if ($name) {
-                    $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
-                } else {
-                    $formContext.$$unregister($name, $this.$fieldHandler);
-                }
+    useLayoutEffect(() => {
+        if ($formContext.$$register) {
+            if ($name) {
+                $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+            } else {
+                $formContext.$$unregister($name, $this.$fieldHandler);
             }
+        }
 
-            $this.$prevName = $name;
-        },
-        [$name]
-    );
+        $this.$prevName = $name;
+    }, [$name]);
 
     useLayoutEffect(() => {
         if (callbackRef.current.length > 0) {
@@ -109,29 +105,30 @@ function useField(name, props = {}) {
             callbackRef.current.length = 0;
 
             while (callbackQueue.length) {
-                callbackQueue.pop()();
+                callbackQueue.pop()($this.$fieldutil);
             }
         }
     });
 
     function $setState($newState, callback) {
-        if ($this.isMounting) {
-            if ($name && $formContext.$$onChange) {
-                $formContext.$$onChange($name, $newState, callback);
-            } else {
-                setState($registered.$$merge($newState));
+        return new Promise(resolve => {
+            const execute = () => resolve(runCallback(callback, $this.$fieldutil));
 
-                $registered.$$detectChange($newState);
+            if ($this.isMounting) {
+                if ($name && $formContext.$$onChange) {
+                    $formContext.$$onChange($name, $newState, execute);
+                } else {
+                    setState($registered.$$merge($newState));
 
-                if (utils.isFunction(callback)) {
-                    callbackRef.current.push(callback);
+                    $registered.$$detectChange($newState);
+
+                    callbackRef.current.push(execute);
                 }
+            } else {
+                $registered.$$merge($newState);
+                execute();
             }
-
-            return $registered.$getState();
-        }
-
-        return $registered.$$merge($newState);
+        });
     }
 
     return ($this.$fieldutil = {

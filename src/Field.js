@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createHandler, GET_FIELD_UUID, propTypes, displayName, renderField } from './fieldHelper';
 import FormContext from './context';
 import warning from 'warning';
+import { runCallback } from './utils';
 
 class Field extends Component {
     static displayName = displayName;
@@ -69,25 +70,27 @@ class Field extends Component {
         }
     }
 
-    $setState = ($newState, callback) => {
-        if (this.isMounting) {
-            const $name = this.props.name;
+    $setState = ($newState, callback) =>
+        new Promise(resolve => {
+            const execute = () => resolve(runCallback(callback, this.$fieldutil));
 
-            if ($name && this.$formContext.$$onChange) {
-                this.$formContext.$$onChange($name, $newState, callback);
+            if (this.isMounting) {
+                const $name = this.props.name;
+
+                if ($name && this.$formContext.$$onChange) {
+                    this.$formContext.$$onChange($name, $newState, execute);
+                } else {
+                    this.$registered.$$merge($newState);
+
+                    this.$registered.$$detectChange($newState);
+
+                    this.forceUpdate(execute);
+                }
             } else {
                 this.$registered.$$merge($newState);
-
-                this.$registered.$$detectChange($newState);
-
-                this.forceUpdate(callback);
+                execute();
             }
-
-            return this.$registered.$getState();
-        }
-
-        return this.$registered.$$merge($newState);
-    };
+        });
 
     _render() {
         const $fieldutil = (this.$fieldutil = {

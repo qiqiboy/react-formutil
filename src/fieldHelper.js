@@ -2,6 +2,7 @@ import { Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import * as utils from './utils';
 import warning from 'warning';
+import { FORM_VALIDATE_RESULT } from './Form';
 
 let FIELD_UUID = 0;
 const $baseState = {
@@ -184,6 +185,8 @@ export function createHandler($this, owner) {
         let $skipRestValidate = false;
         let $isCancelAsyncValidate = false;
 
+        delete $newError[FORM_VALIDATE_RESULT];
+
         const $validatePromises = Object.keys($validators).reduce((promises, key) => {
             delete $newError[key];
 
@@ -231,12 +234,21 @@ export function createHandler($this, owner) {
                 $isCancelAsyncValidate = true;
             };
 
-            Promise.all($validatePromises).then(() => {
-                if (!$isCancelAsyncValidate) {
-                    $setPending(false);
+            $validatePromises.push(
+                $setError({
+                    ...$newError,
+                    ...$validError
+                })
+            );
 
+            return Promise.all($validatePromises).then(() => {
+                if (!$isCancelAsyncValidate) {
                     $this.$shouldCancelPrevAsyncValidate = null;
+
+                    return $setPending(false, callback);
                 }
+
+                return utils.runCallback(callback, $this.$fieldutil);
             });
         } else if ($pending) {
             $setPending(false);

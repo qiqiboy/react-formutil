@@ -8,7 +8,7 @@ Happy to build the forms in React ^\_^
 
 > #### react-formutil 的优势
 >
-> 1.  一切都是状态，$value/$viewValue、$diry/$pristine、$touched/$untouched、$valid/$invalid、$error 等都是状态
+> 1.  一切都是状态，$value/$viewValue、$diry/$pristine、$touched/$untouched、$valid/$invalid、\$error 等都是状态
 > 2.  非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构
 > 3.  采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
 > 4.  同时支持高阶组件和函数式子组件（[render props](https://reactjs.org/docs/render-props.html)）式调用，更灵活（>=0.5.0 起支持[`Hooks`](#hooks)）
@@ -172,12 +172,12 @@ yarn add react-formutil@next
 
 `react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有几个基于此的高阶组件：
 
-*   [`<Field />`](#field-) 是一个抽象的组件，它维护了一个表示当前域的状态模型。
-*   [`<Form />`](#form-) 也是一个抽象的组件，它主要作为整个表单的控制器，用来和其组件树中的`Field`做状态模型的收集与同步。
-*   [`withField`](#withfieldcomponent) 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
-*   [`withForm`](#withformcomponent) 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
-*   [`<EasyField />`](#easyfield-) 是基于 `Field` 进行的组件封装，可以直接渲染出基于原生态浏览器的表单控件的表单项，方便直接使用。另外它也提供了一组抽象接口用于对接其他 react 组件库。
-*   [`connect`](#connectcomponent) 是个高阶组件，用来给被包装的组件传递 [`$formutil`](#formutil-1) 对象。
+-   [`<Field />`](#field-) 是一个抽象的组件，它维护了一个表示当前域的状态模型。
+-   [`<Form />`](#form-) 也是一个抽象的组件，它主要作为整个表单的控制器，用来和其组件树中的`Field`做状态模型的收集与同步。
+-   [`withField`](#withfieldcomponent) 是基于 `Field` 包装成高阶组件，方便习惯高阶方式的调用
+-   [`withForm`](#withformcomponent) 是基于 `Form` 包装成高阶组件，方便习惯高阶方式的调用
+-   [`<EasyField />`](#easyfield-) 是基于 `Field` 进行的组件封装，可以直接渲染出基于原生态浏览器的表单控件的表单项，方便直接使用。另外它也提供了一组抽象接口用于对接其他 react 组件库。
+-   [`connect`](#connectcomponent) 是个高阶组件，用来给被包装的组件传递 [`$formutil`](#formutil-1) 对象。
 
 `react-formutil` 不像很多你能看到的其它的 react 表单库，它是非侵入性的。即它并不要求、也并不会强制渲染某种固定的 dom 结构。它只需要提供 `name` 值以及绑定好 `$render` 用来更新输入值，然后一切就会自动同步、更新。
 
@@ -252,10 +252,10 @@ yarn add react-formutil@next
 
 该项必填，`name` 可以是一个简单的字符串，也可以是一个字符串表达式（该表达式执行没有 `scope`, 所以表达式中不能存在变量）
 
-*   `<Field name="username" />`
-*   `<Field name="list[0]" />`
-*   `<Field name="list[1].name" />`
-*   `<Field name="list[2]['test' + 124]" />`
+-   `<Field name="username" />`
+-   `<Field name="list[0]" />`
+-   `<Field name="list[1].name" />`
+-   `<Field name="list[2]['test' + 124]" />`
 
 以上都是合法的 `name` 值。对于多层级的 `name` 值，生成的表单参数对象，也会基于该对象层级创建。例如，上面的示例，将会生成以下格式的表单参数对象：
 
@@ -270,8 +270,8 @@ yarn add react-formutil@next
 
 该属性可以设置表单控件的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
 
-*   `<Field $defaultValue="username" />`
-*   `<Field $defaultValue={{name: 'dog'}} />`
+-   `<Field $defaultValue="username" />`
+-   `<Field $defaultValue={{name: 'dog'}} />`
 
 `$defaultValue` 可以是任意类型值。
 
@@ -300,14 +300,14 @@ yarn add react-formutil@next
 
 校验被调用，会传入三个值：value、attr、props
 
-*   `value` 为当前 Field 的值
-*   `attr` 为校验标识值
-*   `props` 为当前传给 Field 的所有 props，还包括以下三个特殊的值：
-    *   `props.$validError` 表示当前校验中，前面已经校验出的错误信息<small>（该属性为`0.5.0`新增）</small>
-    *   `props.$fieldutil` 当前 Field 的`$fieldutil`对象<small>（该属性为`0.5.0`新增）</small>。
-        *   <small>该值为上一次渲染的状态，可以通过`$fieldutil.$new()`尝试获取最新渲染状态</small>
-    *   `props.$formutil` 当前 Field 所属 Form 的`$formutil`对象。
-        *   <small>该值为上一次渲染的状态，可以通过`$formutil.$new()`尝试获取最新渲染状态</small>
+-   `value` 为当前 Field 的值
+-   `attr` 为校验标识值
+-   `props` 为当前传给 Field 的所有 props，还包括以下三个特殊的值：
+    -   `props.$validError` 表示当前校验中，前面已经校验出的错误信息<small>（该属性为`0.5.0`新增）</small>
+    -   `props.$fieldutil` 当前 Field 的`$fieldutil`对象<small>（该属性为`0.5.0`新增）</small>。
+        -   <small>该值为上一次渲染的状态，可以通过`$fieldutil.$new()`尝试获取最新渲染状态</small>
+    -   `props.$formutil` 当前 Field 所属 Form 的`$formutil`对象。
+        -   <small>该值为上一次渲染的状态，可以通过`$formutil.$new()`尝试获取最新渲染状态</small>
 
 ```javascript
 <Field
@@ -340,7 +340,7 @@ yarn add react-formutil@next
 </Field>
 ```
 
-在这个例子中，我们通过$validators 设置了 `required` 、 `maxLength` 以及 `disabledChar` 的校验规则。同时通过属性 `props` 表示了需要校验这三个字段。然后我们可以通过状态判断将错误信息展示出来。
+在这个例子中，我们通过\$validators 设置了 `required` 、 `maxLength` 以及 `disabledChar` 的校验规则。同时通过属性 `props` 表示了需要校验这三个字段。然后我们可以通过状态判断将错误信息展示出来。
 
 当然，也可以只在一个校验函数里校验多个规则，甚至混合异步校验：
 
@@ -476,9 +476,9 @@ yarn add react-formutil@next
 
 该对象会传递给子组件，子组件可以利用其中的方法来同步、修改表单域状态模型：
 
-*   用户输入时需要通过调用`$render`来更新新值到状态中
-*   渲染表单项时，应该使用受控组件，并且根据状态模型中的 `$viewValue` 来渲染值<small>（不建议使用`$value`来渲染视图，因为这样就无法使用`$parser` `$formatter`来对数据做二次过滤）</small>
-*   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error` 等来渲染
+-   用户输入时需要通过调用`$render`来更新新值到状态中
+-   渲染表单项时，应该使用受控组件，并且根据状态模型中的 `$viewValue` 来渲染值<small>（不建议使用`$value`来渲染视图，因为这样就无法使用`$parser` `$formatter`来对数据做二次过滤）</small>
+-   错误信息和校验状态可以通过 `$dirty` `$invalid` `$error` 等来渲染
 
 > **需要强调的是，Field 默认不同步`$touched`/`$untouched`、`$focused` 状态，只有`$dirty`/`$pristine`会自动同步（首次调用`$render`会自动同步`$dirty`状态）**
 > 如果你需要其它状态，需要自己去绑定相关事件来更新状态：
@@ -516,14 +516,14 @@ yarn add react-formutil@next
 
 当前表单域的其它状态：
 
-*   `$dirty` 控件被修改过
-*   `$pristine` 控件没有被修改过，与$dirty 互斥
-*   `$touched` 控件失去过焦点
-*   `$untouched` 控件没有失去过焦点
-*   `$focused` 焦点是否在当前控件
-*   `$valid` 表单所有控件均校验通过
-*   `$invalid` 表单中有至少一个控件校验不通过
-*   `$pending` 是否正在进行异步检查
+-   `$dirty` 控件被修改过
+-   `$pristine` 控件没有被修改过，与\$dirty 互斥
+-   `$touched` 控件失去过焦点
+-   `$untouched` 控件没有失去过焦点
+-   `$focused` 焦点是否在当前控件
+-   `$valid` 表单所有控件均校验通过
+-   `$invalid` 表单中有至少一个控件校验不通过
+-   `$pending` 是否正在进行异步检查
 
 ##### `$error`
 
@@ -547,6 +547,12 @@ yarn add react-formutil@next
 
 ##### `$reset()`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$reset($newState?: Partial<FieldState>, ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
+
 重置当前表单域名为初始状态，即所有的`$value` `$viewValue` `$dirty`等状态都会恢复为初始状态。
 
 ##### `$getComponent()`
@@ -554,6 +560,12 @@ yarn add react-formutil@next
 获取当前表单域的实例对象引用（虚拟 dom）
 
 ##### `$setState($newState)`
+
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setState($newState: Partial<FieldState>, ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
 
 设置新的`$state`，`$newState`会与当前`$state`合并
 
@@ -566,6 +578,12 @@ $setState({
 
 ##### `$render()`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$render($viewValue: any, ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
+
 更新表单域的视图值，并且该值会经过`$parser`处理后更新到表单域的状态模型中。
 
 另外如果该表单域模型状态中的`$dirty`为`false`，也会同时将`$dirty`设置为`true`（`$pristine`为`false`）。
@@ -574,11 +592,26 @@ $setState({
 
 ##### `$setValue()`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setValue($value: T, ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
+
 更新表单域的模型值，并且该值会经过`$formatter`后更新到视图上。
 
 ##### `$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`
 
-设置$dirty $touched $error 等状态
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setDirty($dirty: boolean, callback?:($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+$setTouched($dir$touchedty: boolean, callback?:($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+$setFocused($focused: boolean, callback?:($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+$setValidity(validKey: string, result: any, callback?:($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
+
+设置$dirty $touched \$error 等状态
 
 ```javascript
 $setDirty(true);
@@ -590,6 +623,12 @@ $setValidity('required', true); //表示校验通过
 
 ##### `$setError($error)`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setError($error: FieldError, callback?: ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
+
 直接替换当前表单域的`$error`。
 
 ```javascript
@@ -600,6 +639,12 @@ $setError({
 ```
 
 ##### `$validate()`
+
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$validate(callback?: ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
 
 重新校验当前 Field
 
@@ -713,17 +758,17 @@ class MyField extends Component {}
 
 当设置了 type 时，EasyField 将会尝试直接渲染浏览器表单元素。它支持以下类型：
 
-*   `input[type=text]`
-*   `input[type=number]`
-*   `input[type=search]`
-*   `input[type=password]`
-*   `input[type=checkbox]`
-*   `input[type=radio]`
-*   `input[...]`
-*   `select`
-*   `textarea`
-*   `group.radio`
-*   `group.checkbox`
+-   `input[type=text]`
+-   `input[type=number]`
+-   `input[type=search]`
+-   `input[type=password]`
+-   `input[type=checkbox]`
+-   `input[type=radio]`
+-   `input[...]`
+-   `select`
+-   `textarea`
+-   `group.radio`
+-   `group.checkbox`
 
 **EasyField 对亚洲语言（中文、韩文、日文）输入法在输入过程中的的字母合成做了处理**
 
@@ -901,14 +946,14 @@ import Select from 'react-select';
 
 但是请注意，**`EasyField`内置了一些常用的校验方法**，例如：
 
-*   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
-*   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
-*   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
-*   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
-*   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
-*   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
-*   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
-*   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
+-   `required` 必填，如果是 group.checkbox，则必需至少选中一项 `required`
+-   `maxLength` 。最大输入长度，支持 group.checkbox。有效输入时才会校验 `maxLength="100"`
+-   `minLength` 最小输入长度，支持 group.checkbox。有效输入时才会校验 `minLength="10"`
+-   `max` 最大输入数值，仅支持 Number 比较。有效输入时才会校验 `max="100"`
+-   `min` 最小输入数值，仅支持 Number 比较。有效输入时才会校验 `min="10"`
+-   `pattern` 正则匹配。有效输入时才会校验 `pattern={/^\d+$/}`
+-   `enum` 枚举值检测。有效输入时才会校验 `enum={[1,2,3]}`
+-   `checker` 自定义校验函数。`checker={value => value > 10 && value < 100 || '输入比如大于10小与100'}`
 
 > 注：校验属性的值为 `null` 时表示不进行该校验
 
@@ -1025,9 +1070,9 @@ function MyComponent({ current, onUpdate }) {
 
 所有传递给 `Form` 组件或者函数，会在其 `props`/`arguments` 中接收到一个[`$formutil`](#formutil-1)对象，它提供了多种状态集合以及对表单的一些操作方法。例如
 
-*   你可以通过`$formutil.$params` 拿到整个表单的输入值
-*   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
-*   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
+-   你可以通过`$formutil.$params` 拿到整个表单的输入值
+-   你可以通过`$formutil.$invalid` 或 `$formutil.$valid` 来判断表单是否有误
+-   你可以通过`$formutil.$errors` 来获取表单的错误输入信息
 
 `$formutil`的更多解释请参考：[`$formutil`](#formutil-1)
 
@@ -1091,7 +1136,7 @@ function MyComponent({ current, onUpdate }) {
 
 #### `$onFormChange`
 
-该属性可传入一个函数，当表单的值有变动时，会触发该回调，新的$formutil 对象和本次变动的新旧值的集合会依次以参数形式传递：
+该属性可传入一个函数，当表单的值有变动时，会触发该回调，新的\$formutil 对象和本次变动的新旧值的集合会依次以参数形式传递：
 
 > 注意：
 >
@@ -1137,11 +1182,11 @@ function MyComponent({ current, onUpdate }) {
 
 **与`Field`的`$validators`有以下区别：**
 
-*   `Form`的`$validator`仅当表单值有变动时才会调用，而`Field`的`$validators`则会每次更新`Field`的值时都会调用（即使前后两次值相同）。
-*   `Form`的`$validator`是在表单值稳定下来后才会调用（异步），而`Field`的`$validators`则是与更新值是同步调用。
-    *   **所以`$validator`非常适合用来校验那些互相依赖的字段，例如两次密码输入是否一致**
-*   `Form`的`$validator`校验结果应当以`{ [ Field name ]: 'error message' }`形式返回，或者包在`promise`对象中以 rejected 状态返回。
-    *   `{ username: 'error message', 'nestedObj.username': 'error message', nestedArray: [ 'error message' ] }`
+-   `Form`的`$validator`仅当表单值有变动时才会调用，而`Field`的`$validators`则会每次更新`Field`的值时都会调用（即使前后两次值相同）。
+-   `Form`的`$validator`是在表单值稳定下来后才会调用（异步），而`Field`的`$validators`则是与更新值是同步调用。
+    -   **所以`$validator`非常适合用来校验那些互相依赖的字段，例如两次密码输入是否一致**
+-   `Form`的`$validator`校验结果应当以`{ [ Field name ]: 'error message' }`形式返回，或者包在`promise`对象中以 rejected 状态返回。
+    -   `{ username: 'error message', 'nestedObj.username': 'error message', nestedArray: [ 'error message' ] }`
 
 例 1: 校验密码是否一致
 
@@ -1200,7 +1245,7 @@ function MyComponent({ current, onUpdate }) {
 
 `$processer` 可以用来对表单域项的`$state`做进一步的加工！**在这里对`$state`做的修改都将影响到最终的表单状态！所以请慎用！**
 
-在`Form`控制器提取每个表单项的状态模型，汇总到`$formutil`中时，会将每个域的状态模型以及其`name`值传递给`$processer`函数，该函数可以对$state 进行修改、加工!
+在`Form`控制器提取每个表单项的状态模型，汇总到`$formutil`中时，会将每个域的状态模型以及其`name`值传递给`$processer`函数，该函数可以对\$state 进行修改、加工!
 
 但是，请注意，这里对`$state`的修改，不会影响到表单项的实际的状态模型！
 
@@ -1302,6 +1347,11 @@ function $processer($state: FieldState<T>, name: string) {
 
 ##### `$getField(name)`
 
+```typescript
+// 其函数签名如下
+$getField(name: string): $Fieldutil;
+```
+
 获取对 name 对应的表单项的操作引用，可以获取到包含以下方法的对象：
 
 ```javascript
@@ -1318,17 +1368,41 @@ const {
 
 ##### `$validate(name)`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$validate(name: string, callback?: ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
+
 立即校验对应 name 的表单项
 
 ##### `$validates()`
+
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$validates(callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
 
 重新校验所有的表单项
 
 ##### `$render(callback)`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$render(callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
+
 强制重新渲染表单组件，可以通过该方法的回调，在当前的渲染完成后回调
 
 ##### `$setStates($stateTree)`
+
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setStates($stateTree: { [name: string]: FieldState }, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
 
 可以用来更新表单项的状态：
 
@@ -1353,6 +1427,12 @@ $formutil.$setStates({
 
 ##### `$setValues($valueTree)`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setValues($valueTree: { [name: string]: any }, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
+
 可以用来更新表单项的值：
 
 ```javascript
@@ -1369,6 +1449,12 @@ $formutil.$setValues({
 
 ##### `$setErrors($errorTree)`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setErrors($errorTree: { [name: string]: FieldError }, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
+
 可以用来设置表单的校验结果：
 
 ```javascript
@@ -1382,6 +1468,12 @@ $formutil.$setErrors({
 
 ##### `$reset($stateTree)`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$reset($stateTree: { [name: string]: FieldState }, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
+
 可以用来重置表单，会将表单重置为初始状态（不会改变组件设置的默认状态和默认值）。如过传递了$stateTree，则会重置为合并了$stateTree 后的状态
 
 ```javascript
@@ -1389,6 +1481,14 @@ $formutil.$reset();
 ```
 
 ##### `$setDirts($dirtyTree) | $setTouches($touchedTree) | $setFocuses($focusedTree)`
+
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$setDirts($dirtyTree?: { [name: string]: boolean }, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+$setTouches($touchedTree?: { [name: string]: boolean }, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+$setFocuses($focusedTree?: { [name: string]: boolean }, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
 
 可以用来更新表单控件的`$dirty`、`$touched`、`$focused`状态，类似`$setValues`
 
@@ -1406,6 +1506,15 @@ $formutil.$setFocuses({
 
 ##### `$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)`
 
+```typescript
+// 其函数签名如下
+// 0.5.0起，同时支持参数回调，以及Promise回调
+$batchState($newState: FieldState, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+$batchDirty($dirty: boolean, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+$batchTouched($touched: boolean, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+$batchFocused($focused: boolean, callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
+
 批量更改所有表单项的状态
 
 ```javascript
@@ -1418,6 +1527,11 @@ $formutil.$batchTouched(true);
 ```
 
 ##### `$getFirstError()`
+
+```typescript
+// 其函数签名如下
+$getFirstError(): undefined | string;
+```
 
 从表单的所有错误项中取出第一个错误描述
 
@@ -1557,9 +1671,9 @@ class MyField extends Component {}
 
 ### `connect(Component)`
 
-connect 是一个高阶组件，它可以增强当前组件，并获取其最近的父辈级中的 Form 组件的 $formutil 对象，并以 props 传递给当前组件。
+connect 是一个高阶组件，它可以增强当前组件，并获取其最近的父辈级中的 Form 组件的 \$formutil 对象，并以 props 传递给当前组件。
 
-在大表单拆分多个小组件的时候很有用，不用将$formutil 再传来传去：
+在大表单拆分多个小组件的时候很有用，不用将\$formutil 再传来传去：
 
 ```javascript
 import { connect } from 'react-formutil';
@@ -1730,40 +1844,40 @@ function UserInfoSubmitForm() {
 
 `react-formutil`旨在提供一个`非强侵入性` `高度抽象` `方便迁移` `简化接入`的表单工具。正是由于下面的几点思考，才有了与众不同的`rect-formutil`！
 
-*   一张表单只能有一个顶层 `<Form />` 或者 `withForm`。但是你可以通过将一个`<Form />`使用`<Field />`/`withField`包装后，使其变身为一个`Field`组件，来快捷复用以及嵌套表单使用！
+-   一张表单只能有一个顶层 `<Form />` 或者 `withForm`。但是你可以通过将一个`<Form />`使用`<Field />`/`withField`包装后，使其变身为一个`Field`组件，来快捷复用以及嵌套表单使用！
 
     <hr/>
 
-*   表单项`Field`应当是尽可能的做到`小粒度` `低耦合` `独立性`，保证其可复用性。例如表单校验，我们强烈建议通过`<Field />`的[`$validators`](#validators)来对每个`Field`配置校验规则，而不是统一在`Form`层面进行校验！！
+-   表单项`Field`应当是尽可能的做到`小粒度` `低耦合` `独立性`，保证其可复用性。例如表单校验，我们强烈建议通过`<Field />`的[`$validators`](#validators)来对每个`Field`配置校验规则，而不是统一在`Form`层面进行校验！！
 
-    *   `$validators`对象也是可以复用的，你可以将所有的校验规则都放到一个`$validators`对象中，然后传递给所有的`<Field />`。但是不用担心这些规则会对所有`<Field />`生效。因为校验规则的生效，还需要对`<Field />`传递对应的校验规则标识符才会启用！
-    *   我们知道其它很多表单库，或多或少，其文档、官方示例，甚至 API，都在推荐在`<Form />`层面对数据进行校验，但是我们认为这样会造成`Form`与`Field`的强耦合，不利于`Field`的组件复用！
-    *   我们也提供了`<Form />`的[`$validator`](#validator)属性来在`<Form />`层面做校验，但是请注意，仅建议用于那些校验时其字段相互耦合依赖的表单，例如两次密码输入确认场景
-
-    <hr/>
-
-*   `Field`应当尽量保证对外渲染的值与接口接受到的值保持一致（包括类型、格式），对于复杂的`Field`数据收集，很多情况下，组件层面我们拿到的是`array`/`object`，但是接口可能需要 json 字符串。
-
-    *   我们**不建议**在`submit`时再对数据进行转换，因为这导致视图与服务 server 的数据结构不一致，导致无论提交数据还是渲染 server 数据，都需要无穷无尽的数据转换。你可以通过以下办法对数据在表单层面进行加工转换
-    *   第一种办法，对于自己封装的`Field`，应当在通过`$fieldutil.render()`在传递数据值时对值做好数据转换
-    *   第二种办法，针对第三方封装的`Field`或者只是个别情况下，那么我们应当通过 [`$parser`](#parser)属性来指定`$viewValue`与`$modleValue`的转换（即视图数据到模型数据）
-    *   如果你对前两种方法较为陌生，那么至少你应当通过`Form`的[`$processer`](#processer)属性对数据进行转换。
+    -   `$validators`对象也是可以复用的，你可以将所有的校验规则都放到一个`$validators`对象中，然后传递给所有的`<Field />`。但是不用担心这些规则会对所有`<Field />`生效。因为校验规则的生效，还需要对`<Field />`传递对应的校验规则标识符才会启用！
+    -   我们知道其它很多表单库，或多或少，其文档、官方示例，甚至 API，都在推荐在`<Form />`层面对数据进行校验，但是我们认为这样会造成`Form`与`Field`的强耦合，不利于`Field`的组件复用！
+    -   我们也提供了`<Form />`的[`$validator`](#validator)属性来在`<Form />`层面做校验，但是请注意，仅建议用于那些校验时其字段相互耦合依赖的表单，例如两次密码输入确认场景
 
     <hr/>
 
-*   `<Field />`的[`name`](#name)属性是支持深层路径索引（nested 嵌套）的，所以你可以善于利用其这一特性，方便的将值收集到对象或者数组中。
+-   `Field`应当尽量保证对外渲染的值与接口接受到的值保持一致（包括类型、格式），对于复杂的`Field`数据收集，很多情况下，组件层面我们拿到的是`array`/`object`，但是接口可能需要 json 字符串。
+
+    -   我们**不建议**在`submit`时再对数据进行转换，因为这导致视图与服务 server 的数据结构不一致，导致无论提交数据还是渲染 server 数据，都需要无穷无尽的数据转换。你可以通过以下办法对数据在表单层面进行加工转换
+    -   第一种办法，对于自己封装的`Field`，应当在通过`$fieldutil.render()`在传递数据值时对值做好数据转换
+    -   第二种办法，针对第三方封装的`Field`或者只是个别情况下，那么我们应当通过 [`$parser`](#parser)属性来指定`$viewValue`与`$modleValue`的转换（即视图数据到模型数据）
+    -   如果你对前两种方法较为陌生，那么至少你应当通过`Form`的[`$processer`](#processer)属性对数据进行转换。
 
     <hr/>
 
-*   大表单请尽可能进行拆分处理，将其转换为可以复用的`表单片段（即只包含相关性、相似性的一组Field）`，然后通过组合这些表单片段来达到复用或者优化大表单单一组件过大的问题。
-
-    *   [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
+-   `<Field />`的[`name`](#name)属性是支持深层路径索引（nested 嵌套）的，所以你可以善于利用其这一特性，方便的将值收集到对象或者数组中。
 
     <hr/>
 
--   Typescript 开发中，对于`withField` `withForm` `connect`三个高阶组件调用，请使用`函数式调用`，避免`@decorator`装饰器语法，因为高阶组件会改变类签名，导致类型校验失败。
+-   大表单请尽可能进行拆分处理，将其转换为可以复用的`表单片段（即只包含相关性、相似性的一组Field）`，然后通过组合这些表单片段来达到复用或者优化大表单单一组件过大的问题。
 
-    *   通过`函数调用`方式使用提供的高阶组件，可以正确处理组件上挂在的`$fieldutil` `$formutil`类型声明，避免被当作必需属性。
+    -   [`对于有大量表单项的长页面有没有优化办法`](#对于有大量表单项的长页面有没有优化办法)
+
+    <hr/>
+
+*   Typescript 开发中，对于`withField` `withForm` `connect`三个高阶组件调用，请使用`函数式调用`，避免`@decorator`装饰器语法，因为高阶组件会改变类签名，导致类型校验失败。
+
+    -   通过`函数调用`方式使用提供的高阶组件，可以正确处理组件上挂在的`$fieldutil` `$formutil`类型声明，避免被当作必需属性。
 
     <hr/>
 
@@ -1779,8 +1893,8 @@ function UserInfoSubmitForm() {
 
 从`v0.5.0`起，Field 表单域中的状态模型中，新增了`$viewValue`。它与之前的`$value`的区别是：
 
-*   `$value`表示的是表单域状态模型值，用来向`Form`同步。`$formutil`中的`$params`即为从每个`Field`中收集的`$value`集合！
-*   `$viewValue`表示的是表单域的视图值，即视图中显示的值是根据该值显示的。它一般情况下都与`$value`相同，但是当我们自定义了`$parser` `$formatter`时，可能会导致两者不同。
+-   `$value`表示的是表单域状态模型值，用来向`Form`同步。`$formutil`中的`$params`即为从每个`Field`中收集的`$value`集合！
+-   `$viewValue`表示的是表单域的视图值，即视图中显示的值是根据该值显示的。它一般情况下都与`$value`相同，但是当我们自定义了`$parser` `$formatter`时，可能会导致两者不同。
 
 当渲染视图时，应当根据`$viewValue`来渲染，否则会导致`$parser` `$formatter`属性失效（因为这两个属性就是处理`$value`与`$viewValue`的转换的，如果不想使用默认支持的这两个数据处理钩子，使用`$value`当然也没什么问题～）！
 
@@ -1824,9 +1938,9 @@ function UserInfoSubmitForm() {
 
 答案当然是“有的”！
 
-*   如果你在使用`ant-design`、`Material-UI`或者`react-boostrap`等第三方的 UI 库，你可以参考：[`如何在 ant-design 或者 Material-UI 等项目中使用 react-formutil?`](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
-*   如果你对上面提到的`react-antd-formutil`、`react-material-formutil`等适配库的实现比较了解，你也可以参考其对你目前使用的 UI 组件库做适配！
-*   如果你在使用团队自己对组件库，或者是个新接触`react-formutil`的新手，想快速实现项目中应用，请往下看
+-   如果你在使用`ant-design`、`Material-UI`或者`react-boostrap`等第三方的 UI 库，你可以参考：[`如何在 ant-design 或者 Material-UI 等项目中使用 react-formutil?`](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
+-   如果你对上面提到的`react-antd-formutil`、`react-material-formutil`等适配库的实现比较了解，你也可以参考其对你目前使用的 UI 组件库做适配！
+-   如果你在使用团队自己对组件库，或者是个新接触`react-formutil`的新手，想快速实现项目中应用，请往下看
 
 对于在使用自己私有（团队内部）表单 UI 组件或者实现的项目，我们这里提供了一个示例，供参考如果基于`Field`快速对当前项目的表单使用做适配：
 
@@ -1976,8 +2090,9 @@ class FormField extends Component<FormFieldProps> {
                             type !== 'select' ? children : null}
 
                             {/*  当状态为$diry时，并且有错误时，显示错误信息 */
-                            $fieldutil.$dirty &&
-                                $fieldutil.$invalid && <div className="field-error">{$fieldutil.$getFirstError()}</div>}
+                            $fieldutil.$dirty && $fieldutil.$invalid && (
+                                <div className="field-error">{$fieldutil.$getFirstError()}</div>
+                            )}
                         </div>
                     );
                 }}
@@ -2103,9 +2218,9 @@ import { findDOMNode } from 'react-dom';
 
 比如同时要收集用户的个人信息和工作信息，我们可以将其拆分为三个模块：
 
-*   `Userinfo.js` 用户基本信心的字段
-*   `Workinfo.js` 用户工作信息的字段
-*   `Submit.js` 提交区域（因为只有在 Form 组件下级才能拿到$formutil 信息）
+-   `Userinfo.js` 用户基本信心的字段
+-   `Workinfo.js` 用户工作信息的字段
+-   `Submit.js` 提交区域（因为只有在 Form 组件下级才能拿到\$formutil 信息）
 
 注： Submit.js 和 Workinfo.js 合并到一起也是可以的。
 
@@ -2293,11 +2408,11 @@ class MyForm extends Component {
 
 为了更便捷的在各大流程组件库项目中使用`react-formutil`，我们也提供了针对各个组件库的优化封装组件：
 
-*   [`react-antd-formutil`](https://github.com/qiqiboy/react-antd-formutil) [![npm](https://img.shields.io/npm/v/react-antd-formutil.svg?style=flat)](https://npm.im/react-antd-formutil)
-*   [`react-material-formutil`](https://github.com/qiqiboy/react-material-formutil) [![npm](https://img.shields.io/npm/v/react-material-formutil.svg?style=flat)](https://npm.im/react-material-formutil)
-*   [`react-bootstrap-formutil`](https://github.com/qiqiboy/react-bootstrap-formutil) [![npm](https://img.shields.io/npm/v/react-bootstrap-formutil.svg?style=flat)](https://npm.im/react-bootstrap-formutil)
-*   [`react-md-formutil`](https://github.com/qiqiboy/react-md-formutil) [![npm](https://img.shields.io/npm/v/react-md-formutil.svg?style=flat)](https://npm.im/react-md-formutil)
-*   and more...
+-   [`react-antd-formutil`](https://github.com/qiqiboy/react-antd-formutil) [![npm](https://img.shields.io/npm/v/react-antd-formutil.svg?style=flat)](https://npm.im/react-antd-formutil)
+-   [`react-material-formutil`](https://github.com/qiqiboy/react-material-formutil) [![npm](https://img.shields.io/npm/v/react-material-formutil.svg?style=flat)](https://npm.im/react-material-formutil)
+-   [`react-bootstrap-formutil`](https://github.com/qiqiboy/react-bootstrap-formutil) [![npm](https://img.shields.io/npm/v/react-bootstrap-formutil.svg?style=flat)](https://npm.im/react-bootstrap-formutil)
+-   [`react-md-formutil`](https://github.com/qiqiboy/react-md-formutil) [![npm](https://img.shields.io/npm/v/react-md-formutil.svg?style=flat)](https://npm.im/react-md-formutil)
+-   and more...
 
 你可以点击上方链接来了解更多。
 
@@ -2307,14 +2422,14 @@ class MyForm extends Component {
 
 `react-formutil@0.3.0` 起提供了针对`typescript`的`DefinitionTypes`声明文件，在开发中可能会用到的主要是以下几个：
 
-*   `$Formutil<Field, Validators, WeakFields>` 整个表单的 `$formtutil` 类型声明
-*   `$Fieldutil<T, Validators, Fields, WeakFields>` 单个表单项的 `$fieldutil` 类型声明
-*   `Field<T, Validators, Fields, WeakFields>` Field 组件的类型声明
-*   `FieldProps<T, Validators, Fields, WeakFields>` `Field` 组件的 props 类型声明
-*   `EasyField<T, Validators, Fields, WeakFields>` `EasyField` 组件的类型声明
-*   `EasyFieldProps<T, Validators, Fields, WeakFields>` `EasyField` 组件的 props 类型声明
-*   `Form<Fields, Validators, WeakFields>` `Form` 组件的类型声明
-*   `FormProps<Fields, Validators, WeakFields>` `Form` 组件的 props 类型声明
+-   `$Formutil<Field, Validators, WeakFields>` 整个表单的 `$formtutil` 类型声明
+-   `$Fieldutil<T, Validators, Fields, WeakFields>` 单个表单项的 `$fieldutil` 类型声明
+-   `Field<T, Validators, Fields, WeakFields>` Field 组件的类型声明
+-   `FieldProps<T, Validators, Fields, WeakFields>` `Field` 组件的 props 类型声明
+-   `EasyField<T, Validators, Fields, WeakFields>` `EasyField` 组件的类型声明
+-   `EasyFieldProps<T, Validators, Fields, WeakFields>` `EasyField` 组件的 props 类型声明
+-   `Form<Fields, Validators, WeakFields>` `Form` 组件的类型声明
+-   `FormProps<Fields, Validators, WeakFields>` `Form` 组件的 props 类型声明
 
 除了以上列出的，还有很多其它的类型定义，可以自行查看类型声明文件。
 

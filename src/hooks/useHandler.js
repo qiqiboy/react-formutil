@@ -7,7 +7,7 @@ function useHandler(props) {
     const { fieldProps, childProps } = parseProps(props);
     const $fieldutil = useField(fieldProps);
 
-    return createHandler($fieldutil, props, childProps);
+    return createHandler($fieldutil, fieldProps, childProps);
 }
 
 export default useHandler;

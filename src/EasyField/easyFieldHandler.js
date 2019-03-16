@@ -54,8 +54,8 @@ export const defaultProps = {
     $parser: value => (typeof value === 'string' ? value.trim() : value)
 };
 
-export function createHandler($fieldutil, props, childProps) {
-    const { valuePropName, changePropName, focusPropName, blurPropName, onChange, onFocus, onBlur, passUtil } = props;
+export function createHandler($fieldutil, fieldProps, childProps) {
+    const { valuePropName, changePropName, focusPropName, blurPropName, passUtil } = fieldProps;
 
     const fetchValueFromEvent = function(ev) {
         return ev && ev.target ? ev.target[valuePropName] : ev;
@@ -75,25 +75,27 @@ export function createHandler($fieldutil, props, childProps) {
                 ev = [ev];
             }
 
-            const newValue = fetchValueFromEvent(value);
-
-            $fieldutil.$render(newValue);
-
+            const onChange = fieldProps[changePropName];
             onChange && onChange(...ev);
+
+            const newValue = fetchValueFromEvent(value);
+            $fieldutil.$render(newValue);
         },
         [focusPropName]: (...args) => {
-            $fieldutil.$setFocused(true);
-
+            const onFocus = fieldProps[focusPropName];
             onFocus && onFocus(...args);
+
+            $fieldutil.$setFocused(true);
         },
         [blurPropName]: (...args) => {
+            const onBlur = fieldProps[blurPropName];
+            onBlur && onBlur(...args);
+
             if ($fieldutil.$untouched) {
                 $fieldutil.$setTouched(true);
             }
 
             $fieldutil.$setFocused(false);
-
-            onBlur && onBlur(...args);
         }
     };
 
@@ -106,27 +108,27 @@ export function createHandler($fieldutil, props, childProps) {
 
 export function parseProps(props) {
     const {
-        defaultValue,
-
         children,
         component,
         render,
 
-        ...fieldProps // exclude props that will not pass to <Field />
+        ...fieldProps
     } = props;
 
     const {
-        // filter all the props that accept by Field & EasyField
+        // filter all the props that accept by EasyField
         name,
         type,
+        defaultValue,
         valuePropName,
         changePropName,
         focusPropName,
         blurPropName,
-        onChange,
-        onFocus,
-        onBlur,
+        validMessage,
+        __TYPE__,
+        passUtil,
 
+        // filter all the props that accept by Field
         $defaultValue,
         $defaultState,
         $onFieldChange,
@@ -135,11 +137,8 @@ export function parseProps(props) {
         $validateLazy,
         $parser,
         $formatter,
-        validMessage,
-        __TYPE__,
-        passUtil,
 
-        ...childProps // exclude props that will not pass to children
+        ...childProps
     } = fieldProps;
 
     const renderProps = {

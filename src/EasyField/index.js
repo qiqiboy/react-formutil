@@ -20,7 +20,7 @@ class EasyField extends Component {
         return (
             <Field
                 {...fieldProps}
-                children={$fieldutil => renderField(createHandler($fieldutil, this.props, childProps), renderProps)}
+                children={$fieldutil => renderField(createHandler($fieldutil, fieldProps, childProps), renderProps)}
             />
         );
     }

@@ -287,50 +287,48 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $getComponent(): React.ReactNode;
     $getFirstError(): string;
 
-    $reset(
+    $reset<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         newState?: Partial<FieldState<T, Validators>>,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $render(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $render<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         $viewValue: any,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setValue(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setValue<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         $modelValue: T,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setState(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setState<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         newState: Partial<FieldState<T, Validators>>,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setTouched(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setTouched<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         touched: boolean,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setDirty(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setDirty<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         dirty: boolean,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setFocused(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setFocused<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         focused: boolean,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setPending(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setPending<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         pending: boolean,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setValidity(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setValidity<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         errorKey: string,
         validResult: any,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $setError(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $setError<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         error: ArgFieldError<Validators>,
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
-    $validate(
-        callback?: ($fieldutil: $Fieldutil<T, Validators, Fields, WeakFields>) => void
-    ): Promise<$Fieldutil<T, Validators, Fields, WeakFields>>;
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $validate<S = $Fieldutil<T, Validators, Fields, WeakFields>>(callback?: ($fieldutil: S) => void): Promise<S>;
 }
 
 export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
@@ -367,74 +365,71 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
         name: T
     ): $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>;
     $getFirstError<T extends keyof WeakFields>(name?: T): any;
-    $render(
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $validate<T extends keyof WeakFields>(
+    $render<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
+    $validate<
+        T extends keyof WeakFields,
+        S = $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>
+    >(
         name: T,
-        callback?: (
-            $fieldutil: $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>
-        ) => void
-    ): Promise<$Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>>;
-    $validates(
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $reset(
+        callback?: ($fieldutil: S) => void
+    ): Promise<S>;
+    $validates<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
+    $reset<S = $Formutil<Fields, Validators, WeakFields>>(
         stateTree?: ArgFormStates<Fields, Validators>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $setStates(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $setStates<S = $Formutil<Fields, Validators, WeakFields>>(
         stateTree: ArgFormStates<Fields, Validators>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $setValues(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $setValues<S = $Formutil<Fields, Validators, WeakFields>>(
         valueTree: ArgFormParams<Fields>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $setFocuses(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $setFocuses<S = $Formutil<Fields, Validators, WeakFields>>(
         focusedTree: ArgFormFocuses<Fields>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $setDirts(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $setDirts<S = $Formutil<Fields, Validators, WeakFields>>(
         dirtyTree: ArgFormDirts<Fields>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $setTouches(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $setTouches<S = $Formutil<Fields, Validators, WeakFields>>(
         touchedTree: ArgFormTouches<Fields>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $setPendings(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $setPendings<S = $Formutil<Fields, Validators, WeakFields>>(
         pendingTree: ArgFormPendings<Fields>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $setErrors(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $setErrors<S = $Formutil<Fields, Validators, WeakFields>>(
         errorTree: ArgFormErrors<Fields, Validators>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $batchState(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $batchState<S = $Formutil<Fields, Validators, WeakFields>>(
         state: Partial<FieldState<any, Validators>>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $batchDirty(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $batchDirty<S = $Formutil<Fields, Validators, WeakFields>>(
         dirty: boolean,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $batchTouched(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $batchTouched<S = $Formutil<Fields, Validators, WeakFields>>(
         touched: boolean,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $batchFocused(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $batchFocused<S = $Formutil<Fields, Validators, WeakFields>>(
         focused: boolean,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $batchPending(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $batchPending<S = $Formutil<Fields, Validators, WeakFields>>(
         pending: boolean,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
-    $batchError(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $batchError<S = $Formutil<Fields, Validators, WeakFields>>(
         $error: ArgFieldError<Validators>,
-        callback?: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
-    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
 }
 
 export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {

@@ -173,94 +173,107 @@ export function createHandler($this, owner) {
     }
 
     function $validate(callback) {
-        const { props, $formContext } = $this;
-        const $validators = { ...props.$validators, ...props.$asyncValidators };
-        const {
-            $value,
-            $pending,
-            $error: { ...$newError }
-        } = $this.$state;
-        const { $formutil } = $formContext;
-        const $validError = {};
-        let $skipRestValidate = false;
-        let $isCancelAsyncValidate = false;
+        return new Promise(resolve => {
+            const { props, $formContext } = $this;
+            const $validators = { ...props.$validators, ...props.$asyncValidators };
+            const {
+                $value,
+                $pending,
+                $error: { ...$newError }
+            } = $this.$state;
+            const { $formutil } = $formContext;
+            const $validError = {};
+            let $skipRestValidate = false;
+            let $breakAsyncHandler;
+            let $shouldCancelPrevAsyncValidate;
+            let prevCallback;
+            let validation;
 
-        delete $newError[FORM_VALIDATE_RESULT];
+            delete $newError[FORM_VALIDATE_RESULT];
 
-        const $validatePromises = Object.keys($validators).reduce((promises, key) => {
-            delete $newError[key];
+            const $validatePromises = Object.keys($validators).reduce((promises, key) => {
+                delete $newError[key];
 
-            if (!$skipRestValidate && props[key] != null) {
-                const result = $validators[key]($value, props[key], {
-                    ...props,
-                    $formutil,
-                    $fieldutil: $this.$fieldutil,
-                    $validError
-                });
+                if (!$skipRestValidate && props[key] != null) {
+                    const result = $validators[key]($value, props[key], {
+                        ...props,
+                        $formutil,
+                        $fieldutil: $this.$fieldutil,
+                        $validError
+                    });
 
-                if (utils.isPromise(result)) {
-                    promises.push(
-                        // @ts-ignore
-                        result.catch(reason => {
-                            if (!$isCancelAsyncValidate) {
-                                $setValidity(key, reason || key);
-                            }
-                        })
-                    );
-                } else if (isError(result)) {
-                    $validError[key] = result || key;
+                    if (utils.isPromise(result)) {
+                        promises.push(
+                            // @ts-ignore
+                            result.catch(reason => {
+                                if (!$breakAsyncHandler) {
+                                    $setValidity(key, reason || key);
+                                }
+                            })
+                        );
+                    } else if (isError(result)) {
+                        $validError[key] = result || key;
 
-                    warningValidatorReturn(result, key, props.name);
+                        warningValidatorReturn(result, key, props.name);
 
-                    if (props.$validateLazy) {
-                        $skipRestValidate = true;
+                        if (props.$validateLazy) {
+                            $skipRestValidate = true;
+                        }
                     }
                 }
-            }
 
-            return promises;
-        }, []);
+                return promises;
+            }, []);
+            const execCallback = $fieldutil =>
+                resolve(utils.runCallback(callback, utils.runCallback(prevCallback, $fieldutil)));
 
-        if ($this.$shouldCancelPrevAsyncValidate) {
-            $this.$shouldCancelPrevAsyncValidate();
-        }
-
-        if ($validatePromises.length) {
-            if (!$pending) {
-                $setPending(true);
-            }
-
-            $this.$shouldCancelPrevAsyncValidate = () => {
-                $isCancelAsyncValidate = true;
-            };
-
-            $validatePromises.push(
-                $setError({
-                    ...$newError,
-                    ...$validError
-                })
-            );
-
-            return Promise.all($validatePromises).then(() => {
-                if (!$isCancelAsyncValidate) {
-                    $this.$shouldCancelPrevAsyncValidate = null;
-
-                    return $setPending(false, callback);
+            if ($validatePromises.length) {
+                if (!$pending) {
+                    $setPending(true);
                 }
 
-                return utils.runCallback(callback, $this.$fieldutil);
-            });
-        } else if ($pending) {
-            $setPending(false);
-        }
+                $shouldCancelPrevAsyncValidate = setCallback => ($breakAsyncHandler = setCallback(execCallback));
 
-        return $setError(
-            {
-                ...$newError,
-                ...$validError
-            },
-            callback
-        );
+                $validatePromises.push(
+                    $setError({
+                        ...$newError,
+                        ...$validError
+                    })
+                );
+
+                validation = Promise.all($validatePromises).then(() => {
+                    if ($breakAsyncHandler) {
+                        return $breakAsyncHandler;
+                    }
+
+                    $this.$shouldCancelPrevAsyncValidate = null;
+
+                    return $setPending(false, execCallback);
+                });
+            } else {
+                if ($pending) {
+                    $setPending(false);
+                }
+
+                validation = $setError(
+                    {
+                        ...$newError,
+                        ...$validError
+                    },
+                    execCallback
+                );
+            }
+
+            if ($this.$shouldCancelPrevAsyncValidate) {
+                $this.$shouldCancelPrevAsyncValidate(callback => {
+                    prevCallback = callback;
+
+                    return validation;
+                });
+            }
+
+            $this.$shouldCancelPrevAsyncValidate = $shouldCancelPrevAsyncValidate;
+        });
     }
 
     function $render($viewValue, callback) {

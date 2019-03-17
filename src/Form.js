@@ -32,6 +32,8 @@ class Form extends Component {
         $defaultStates: {}
     };
 
+    $$formPending;
+
     $$registers = {};
     $$deepRegisters = {};
 
@@ -182,50 +184,71 @@ class Form extends Component {
         }
     };
 
-    $$formValidate = callback => {
-        const { $validator } = this.props;
+    $$formValidate = callback =>
+        new Promise(resolve => {
+            const { $validator } = this.props;
 
-        let $isCancelAsyncValidate = false;
+            let $breakAsyncHandler;
+            let $shouldCancelPrevAsyncValidate;
+            let prevCallback;
+            let validation;
 
-        if (this.$shouldCancelPrevAsyncValidate) {
-            this.$shouldCancelPrevAsyncValidate();
-        }
+            const result = $validator(this.$formutil.$params, this.formtutil);
+            const execCallback = $formutil =>
+                resolve(utils.runCallback(callback, utils.runCallback(prevCallback, $formutil)));
 
-        const result = $validator(this.$formutil.$params, this.formtutil);
+            if (utils.isPromise(result)) {
+                if (!this.$$formPending) {
+                    this.$$formPending = true;
 
-        if (utils.isPromise(result)) {
-            if (!this.$$formPending) {
-                this.$$formPending = true;
+                    this.$render();
+                }
 
-                this.$render();
-            }
+                $shouldCancelPrevAsyncValidate = setCallback => ($breakAsyncHandler = setCallback(execCallback));
 
-            this.$shouldCancelPrevAsyncValidate = () => {
-                $isCancelAsyncValidate = true;
-            };
+                validation = result
+                    .then(() => void 0, reason => reason)
+                    .then(reason => {
+                        if ($breakAsyncHandler) {
+                            return $breakAsyncHandler;
+                        }
 
-            return result
-                .then(() => void 0, reason => reason)
-                .then(reason => {
-                    if (!$isCancelAsyncValidate) {
                         this.$shouldCancelPrevAsyncValidate = null;
 
                         this.$$formPending = false;
 
-                        return this.$$setFormErrors(reason, callback);
-                    }
+                        return this.$$setFormErrors(reason, execCallback);
+                    });
+            } else {
+                if (this.$$formPending) {
+                    this.$$formPending = false;
+                }
 
-                    return utils.runCallback(callback, this.$formutil);
+                validation = this.$$setFormErrors(result, execCallback);
+            }
+
+            if (this.$shouldCancelPrevAsyncValidate) {
+                this.$shouldCancelPrevAsyncValidate(callback => {
+                    prevCallback = callback;
+
+                    return validation;
                 });
-        } else if (this.$$formPending) {
-            this.$$formPending = false;
+            }
+
+            this.$shouldCancelPrevAsyncValidate = $shouldCancelPrevAsyncValidate;
+        });
+
+    $$setFormErrors = (validResults, callback) => {
+        if (validResults && (validResults instanceof Error || typeof validResults !== 'object')) {
+            warning(
+                false,
+                `The result of $validator in <Form /> should always return None(null,undefined) or an object contains error message of Field.`
+            );
+
+            return this.$render(callback);
         }
 
-        return this.$$setFormErrors(result, callback);
-    };
-
-    $$setFormErrors = (validResults, callback) =>
-        this.$$setStates(
+        return this.$$setStates(
             validResults || {},
             (result, handler) => {
                 const { $error = {} } = handler.$getState();
@@ -252,6 +275,7 @@ class Form extends Component {
             callback,
             true
         );
+    };
 
     $getField = name => {
         const field = this.$$getRegister(name);

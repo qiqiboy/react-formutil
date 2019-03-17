@@ -5,8 +5,8 @@ import hoistStatics from 'hoist-non-react-statics';
 
 function withForm(WrappedComponent, config = {}) {
     class FormEnhanced extends Component {
-        static displayName = 'React.Formutil.withForm.' +
-        (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+        static displayName =
+            'React.Formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
         render() {
             const { ...others } = this.props;

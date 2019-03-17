@@ -63,7 +63,7 @@ class EasyFieldGroupOption extends Component {
     };
 
     componentDidMount() {
-        warning('$value' in this.props, `You should pass a $value to <GroupOption />.`)
+        warning('$value' in this.props, `You should pass a $value to <GroupOption />.`);
     }
 
     render() {
@@ -85,27 +85,27 @@ class EasyFieldGroupOption extends Component {
                                   }
                               }
                             : type === 'checkbox'
-                                ? {
-                                      checked: $groupHander.value.indexOf($value) > -1,
-                                      onChange: ev => {
-                                          $groupHander.onChange(
-                                              ev.target.checked
-                                                  ? $groupHander.value.concat($value)
-                                                  : $groupHander.value.filter(value => value !== $value),
-                                              ev
-                                          );
+                            ? {
+                                  checked: $groupHander.value.indexOf($value) > -1,
+                                  onChange: ev => {
+                                      $groupHander.onChange(
+                                          ev.target.checked
+                                              ? $groupHander.value.concat($value)
+                                              : $groupHander.value.filter(value => value !== $value),
+                                          ev
+                                      );
 
-                                          onChange && onChange(ev);
-                                      }
+                                      onChange && onChange(ev);
                                   }
-                                : {
-                                      value: $groupHander.value,
-                                      onChange: ev => {
-                                          $groupHander.onChange(ev);
+                              }
+                            : {
+                                  value: $groupHander.value,
+                                  onChange: ev => {
+                                      $groupHander.onChange(ev);
 
-                                          onChange && onChange(ev);
-                                      }
-                                  };
+                                      onChange && onChange(ev);
+                                  }
+                              };
 
                     return (
                         <input

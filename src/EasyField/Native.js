@@ -25,16 +25,7 @@ class EasyFieldNative extends Component {
     };
 
     render() {
-        const {
-            $fieldutil,
-            value: htmlValue,
-            onChange,
-            onFocus,
-            onBlur,
-            checked,
-            unchecked,
-            ...others
-        } = this.props;
+        const { $fieldutil, value: htmlValue, onChange, onFocus, onBlur, checked, unchecked, ...others } = this.props;
         const htmlType = this.props.type;
 
         let htmlProps = {

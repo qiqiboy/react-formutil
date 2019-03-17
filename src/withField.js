@@ -5,14 +5,24 @@ import hoistStatics from 'hoist-non-react-statics';
 
 function withField(WrappedComponent, config = {}) {
     class FieldEnhanced extends Component {
-        static displayName = 'React.Formutil.withField.' +
-        (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+        static displayName =
+            'React.Formutil.withField.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
         render() {
             const { ...others } = this.props;
             const { component, ...fieldProps } = this.props;
 
-            ['$validators', '$asyncValidators', '$validateLazy', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', 'name']
+            [
+                '$validators',
+                '$asyncValidators',
+                '$validateLazy',
+                '$defaultValue',
+                '$defaultState',
+                '$onFieldChange',
+                '$parser',
+                '$formatter',
+                'name'
+            ]
                 .concat(
                     Object.keys({
                         ...config.$validators,

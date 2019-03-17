@@ -4,8 +4,8 @@ import hoistStatics from 'hoist-non-react-statics';
 
 function connect(WrappedComponent) {
     class Connect extends Component {
-        static displayName = 'React.Formutil.connect.' +
-        (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+        static displayName =
+            'React.Formutil.connect.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
         render() {
             return (

@@ -285,7 +285,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
     $picker(): Readonly<FieldState<T, Validators>>;
     $getState(): Readonly<FieldState<T, Validators>>;
     $getComponent(): React.ReactNode;
-    $getFirstError(): string;
+    $getFirstError(): any;
 
     $reset<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
         newState?: Partial<FieldState<T, Validators>>,
@@ -363,15 +363,16 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $new(): $Formutil<Fields, Validators, WeakFields>;
     $getField<T extends keyof WeakFields>(
         name: T
-    ): $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>;
+    ): undefined | $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>;
     $getFirstError<T extends keyof WeakFields>(name?: T): any;
     $render<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
-    $validate<
-        T extends keyof WeakFields,
-        S = $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>
-    >(
+    $validate<T extends keyof WeakFields, S = $Formutil<Fields, Validators, WeakFields>>(
         name: T,
-        callback?: ($fieldutil: S) => void
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $validates<T extends keyof WeakFields, S = $Formutil<Fields, Validators, WeakFields>>(
+        name: T | T[],
+        callback?: ($formutil: S) => void
     ): Promise<S>;
     $validates<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
     $reset<S = $Formutil<Fields, Validators, WeakFields>>(

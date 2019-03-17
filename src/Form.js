@@ -280,7 +280,8 @@ class Form extends Component {
     $getField = name => {
         const field = this.$$getRegister(name);
 
-        warning(field, `$getField('${name}'') fail to find the right Field. Maybe it has been removed.`);
+        warning(!name || field, `$getField('${name}') fail to find the matched Field. Maybe it has been unmounted.`);
+        warning(name, `You should pass a name of the mounted Field to $getField().`);
 
         if (field) {
             return field.$new();
@@ -346,18 +347,49 @@ class Form extends Component {
     $render = callback =>
         new Promise(resolve => this.forceUpdate(() => resolve(utils.runCallback(callback, this.$formutil))));
 
-    $validates = callback => {
+    $validates = (...args) => {
         const validPromises = [];
+        let callback;
 
-        utils.objectEach(this.$$registers, handler => validPromises.push(handler.$validate()));
+        if (utils.isFunction(args[args.length - 1])) {
+            callback = args.pop();
+        }
 
-        if (utils.isFunction(this.props.$validator)) {
-            validPromises.push(this.$$formValidate());
+        if (args.length) {
+            const flatter = names => {
+                names.forEach(name => {
+                    if (Array.isArray(name)) {
+                        flatter(name);
+                    } else {
+                        const handler = this.$getField(name);
+
+                        if (handler) {
+                            validPromises.push(handler.$validate());
+                        }
+                    }
+                });
+            };
+
+            flatter(args);
+        } else {
+            utils.objectEach(this.$$registers, handler => validPromises.push(handler.$validate()));
+
+            if (utils.isFunction(this.props.$validator)) {
+                validPromises.push(this.$$formValidate());
+            }
         }
 
         return Promise.all(validPromises).then(() => utils.runCallback(callback, this.$formutil));
     };
-    $validate = (name, callback) => this.$getField(name).$validate(callback);
+    $validate = (name, callback) => {
+        const handler = this.$getField(name);
+
+        if (handler) {
+            handler.$validate();
+        }
+
+        return this.$render(callback);
+    };
 
     $reset = ($stateTree, callback) => {
         this.$$defaultInitialize();

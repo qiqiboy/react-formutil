@@ -1371,7 +1371,7 @@ const {
 ```typescript
 // 其函数签名如下
 // 0.5.0起，同时支持参数回调，以及Promise回调
-$validate(name: string, callback?: ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+$validate(name: string, callback?: ($formutil: $Formutil) => void): Promise<$formutil>;
 ```
 
 立即校验对应 name 的表单项
@@ -1381,10 +1381,13 @@ $validate(name: string, callback?: ($fieldutil: $Fieldutil) => void): Promise<$F
 ```typescript
 // 其函数签名如下
 // 0.5.0起，同时支持参数回调，以及Promise回调
+// 校验name说对应的Field
+$validates(names: string | string[], callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+// 校验所有表单
 $validates(callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
 ```
 
-重新校验所有的表单项
+可以对单个表单域（`$valdiates('field')`，类似上面的`$validate()`）或者同时对多个表单域（`$validates(['field1', 'field2'])`），甚至整个表单所有 Field 进行校验（`$validates()`，不传 name 参数）.
 
 ##### `$render(callback)`
 

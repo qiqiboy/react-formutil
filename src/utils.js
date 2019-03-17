@@ -69,6 +69,9 @@ const executeWord = function(word) {
  */
 export const parsePath = (...args) => {
     const [target, path, value] = args;
+
+    warning(typeof path === 'string', `The second parameter(${JSON.stringify(path)}) of parsePath() must be a string.`);
+
     const pathSymbols = path.match(PATH_REGEXP) || [];
     const pathWords = path.split(PATH_REGEXP).filter(item => item !== '');
     let scope = target;

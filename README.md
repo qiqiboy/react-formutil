@@ -23,6 +23,7 @@ Happy to build the forms in React ^\_^
 * [安装 Installation](#安装-installation)
     - [`最新版`](#最新版)
     - [`0.4.x`](#04x)
+* [示例 Examples](#示例-examples)
 * [使用 Usage](#使用-usage)
     - [`<Field />`](#field-)
         + [`render` `component`](#render-component)
@@ -156,9 +157,7 @@ npm install react-formutil@0.4 --save
 yarn add react-formutil@0.4
 ```
 
-## 使用 Usage
-
-> [了解如何在 `ant-design`、`Material-UI`等流行 react 组件库项目中使用 react-formutil？](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
+## 示例 Examples
 
 先看一个简单的示例：
 
@@ -166,7 +165,22 @@ yarn add react-formutil@0.4
 
 如果上方地址无法访问或者较慢，也可以查看：[Demo on github pages](http://github.boy.im/react-formutil/demo/)
 
-上面的示例简单展示了 `react-formutil` 的基本用法。当然这只是很简单的示例，更复杂的状态渲染，例如`$dirty`、表单验证等后面会具体讲到。这里想简单说下 `react-formutil` 的设计思路：
+上面的示例简单展示了 `react-formutil` 的基本用法，你可以通过查看源代码（在`codeSandbox`或者查看[docs](https://github.com/qiqiboy/react-formutil/tree/master/docs)）。
+
+另外也准备了一些实例引导教程，教你一步步学习如何上手`react-formutil`! 你可以点击下方链接进入在线示例教程，跟着页面引导一步步学习如何由简到深的开发自己的表单组件！
+
+-   [The First Field](https://codesandbox.io/s/vqqk17ykr7)
+-   [Custom Field name](https://codesandbox.io/s/5kqp5p39yn)
+-   [Field validators](https://codesandbox.io/s/pk8xnzjwjj)
+-   [Controlled validators](https://codesandbox.io/s/xpoknx2nj4)
+-   [Asynchronous validate](https://codesandbox.io/s/9zzopyk6v4)
+-   [The Login Form](https://codesandbox.io/s/6jqk6roxzk)
+-   [The Signup Form](https://codesandbox.io/s/yw0w8zkl69)
+-   And more...
+
+## 使用 Usage
+
+> [了解如何在 `ant-design`、`Material-UI`等流行 react 组件库项目中使用 react-formutil？](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
 
 `react-formutil` 主要提供了一个 Field 组件和一个 Form 组件，另外还有几个基于此的高阶组件：
 

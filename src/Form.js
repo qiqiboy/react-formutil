@@ -385,10 +385,10 @@ class Form extends Component {
         const handler = this.$getField(name);
 
         if (handler) {
-            handler.$validate();
+            return handler.$validate(callback);
         }
 
-        return this.$render(callback);
+        return utils.runCallback(callback);
     };
 
     $reset = ($stateTree, callback) => {

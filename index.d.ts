@@ -131,7 +131,7 @@ export type ArgFormFocuses<Fields> = {
 export type ArgFormStates<Fields, Validators> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
-        Partial<FieldState<Fields[K], Validators>>,
+        Partial<FieldState<string, Validators>>,
         Fields[K] extends object
             ? ArgFormStates<Fields[K], Validators> | Partial<FieldState<Fields[K], Validators>>
             : Partial<FieldState<Fields[K], Validators>>
@@ -366,10 +366,10 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     ): undefined | $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>;
     $getFirstError<T extends keyof WeakFields>(name?: T): any;
     $render<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
-    $validate<T extends keyof WeakFields, S = $Formutil<Fields, Validators, WeakFields>>(
+    $validate<T extends keyof WeakFields, S = $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>>(
         name: T,
-        callback?: ($formutil: S) => void
-    ): Promise<S>;
+        callback?: ($fieldutil?: S) => void
+    ): undefined | Promise<S>;
     $validates<T extends keyof WeakFields, S = $Formutil<Fields, Validators, WeakFields>>(
         name: T | T[],
         callback?: ($formutil: S) => void

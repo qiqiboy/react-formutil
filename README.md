@@ -1349,32 +1349,24 @@ function $processer($state: FieldState<T>, name: string) {
 
 ```typescript
 // 其函数签名如下
-$getField(name: string): $Fieldutil;
+$getField(name: string): undefined | $Fieldutil;
 ```
 
-获取对 name 对应的表单项的操作引用，可以获取到包含以下方法的对象：
+获取对 name 对应的表单项的[`$fieldutil`](#fieldutil)对象。
 
-```javascript
-const {
-    $getState(){}, //返回当前$state
-    $validate(){}, //重新校验
-    $reset($state){}, //重置表单项状态
-    $getComponent(){}, //获取Field组件的引用
-    $setState,
-    $setValue,
-    $setDirty,$setTouched,$setValidity,$setError
-} = $formutil.$getField('list[0].name'); //name支持表达式字符串
-```
+**只能获取到已注册的Field，否则返回空**
 
 ##### `$validate(name)`
 
 ```typescript
 // 其函数签名如下
 // 0.5.0起，同时支持参数回调，以及Promise回调
-$validate(name: string, callback?: ($formutil: $Formutil) => void): Promise<$formutil>;
+$validate(name: string, callback?: ($formutil: $Formutil) => void): undefined | Promise<$formutil>;
 ```
 
-立即校验对应 name 的表单项
+立即校验对应 name 的表单项。
+
+**只能对已注册的Field发起校验，并且返回Promise回调。否则返回空**
 
 ##### `$validates()`
 

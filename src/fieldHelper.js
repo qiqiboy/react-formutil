@@ -98,6 +98,7 @@ export function createHandler($this, owner) {
         $$merge,
         $$detectChange,
         $$triggerChange,
+        $onValidate,
 
         $new() {
             return $this.$fieldutil;
@@ -125,6 +126,8 @@ export function createHandler($this, owner) {
         $setPending
     };
 
+    let $$validatePromise;
+
     function $$detectChange($newState) {
         if ('$value' in $newState || '$viewValue' in $newState) {
             $validate();
@@ -137,6 +140,12 @@ export function createHandler($this, owner) {
         if (utils.isFunction($onFieldChange)) {
             $onFieldChange($newValue, $prevValue, $this.$formContext.$formutil);
         }
+    }
+
+    function $onValidate(callback) {
+        $$validatePromise.then(callback);
+
+        return $$validatePromise;
     }
 
     function $$reset($newState) {
@@ -173,7 +182,7 @@ export function createHandler($this, owner) {
     }
 
     function $validate(callback) {
-        return new Promise(resolve => {
+        return ($$validatePromise = new Promise(resolve => {
             const { props, $formContext } = $this;
             const $validators = { ...props.$validators, ...props.$asyncValidators };
             const {
@@ -273,7 +282,7 @@ export function createHandler($this, owner) {
             }
 
             $this.$shouldCancelPrevAsyncValidate = $shouldCancelPrevAsyncValidate;
-        });
+        }));
     }
 
     function $render($viewValue, callback) {

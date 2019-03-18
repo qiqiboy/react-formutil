@@ -33,6 +33,7 @@ class Form extends Component {
     };
 
     $$formPending;
+    $$formValidatePromise;
 
     $$registers = {};
     $$deepRegisters = {};
@@ -159,9 +160,7 @@ class Form extends Component {
             if (hasFormChanged) {
                 if (utils.isFunction(this.props.$onFormChange)) {
                     // ??? this is a hack
-                    requestAnimationFrame(() =>
-                        this.props.$onFormChange(this.$formutil, $newValues, $prevValues)
-                    );
+                    requestAnimationFrame(() => this.props.$onFormChange(this.$formutil, $newValues, $prevValues));
                 }
 
                 if (utils.isFunction(this.props.$validator)) {
@@ -188,7 +187,7 @@ class Form extends Component {
     };
 
     $$formValidate = callback =>
-        new Promise(resolve => {
+        (this.$$formValidatePromise = new Promise(resolve => {
             const { $validator } = this.props;
 
             let $breakAsyncHandler;
@@ -239,7 +238,7 @@ class Form extends Component {
             }
 
             this.$shouldCancelPrevAsyncValidate = $shouldCancelPrevAsyncValidate;
-        });
+        }));
 
     $$setFormErrors = (validResults, callback) => {
         if (validResults && (validResults instanceof Error || typeof validResults !== 'object')) {
@@ -351,7 +350,6 @@ class Form extends Component {
         new Promise(resolve => this.forceUpdate(() => resolve(utils.runCallback(callback, this.$formutil))));
 
     $validates = (...args) => {
-        const validPromises = [];
         let callback;
 
         if (utils.isFunction(args[args.length - 1])) {
@@ -367,7 +365,7 @@ class Form extends Component {
                         const handler = this.$getField(name);
 
                         if (handler) {
-                            validPromises.push(handler.$validate());
+                            handler.$validate();
                         }
                     }
                 });
@@ -375,15 +373,24 @@ class Form extends Component {
 
             flatter(args);
         } else {
-            utils.objectEach(this.$$registers, handler => validPromises.push(handler.$validate()));
+            utils.objectEach(this.$$registers, handler => handler.$validate());
 
             if (utils.isFunction(this.props.$validator)) {
-                validPromises.push(this.$$formValidate());
+                this.$$formValidate();
             }
         }
 
-        return Promise.all(validPromises).then(() => utils.runCallback(callback, this.$formutil));
+        return this.$onValidates(callback);
     };
+
+    $onValidates = callback => {
+        const filedValidatePromises = Object.keys(this.$$registers).map(name => this.$$registers[name].$onValidate());
+
+        filedValidatePromises.push(this.$$formValidatePromise);
+
+        return Promise.all(filedValidatePromises).then(() => utils.runCallback(callback, this.$formutil));
+    };
+
     $validate = (name, callback) => {
         const handler = this.$getField(name);
 
@@ -572,6 +579,7 @@ class Form extends Component {
             $render: this.$render,
 
             $getField: this.$getField,
+            $onValidates: this.$onValidates,
 
             // get the newest $formutil
             $new: () => this.$formutil,

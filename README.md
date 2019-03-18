@@ -51,6 +51,7 @@ Happy to build the forms in React ^\_^
             * [`$setDirty($dirty) | $setTouched($touched) | $setFocused($focused) | $setValidity(errKey, result)`](#setdirtydirty--settouchedtouched--setfocusedfocused--setvalidityerrkey-result)
             * [`$setError($error)`](#seterrorerror)
             * [`$validate()`](#validate)
+            * [`$onValidate()`](#onvalidate)
             * [`$getFirstError()`](#getfirsterror)
             * [`$$formutil`](#formutil)
     - [`withField(Component)`](#withfieldcomponent)
@@ -89,6 +90,7 @@ Happy to build the forms in React ^\_^
             * [`$getField(name)`](#getfieldname)
             * [`$validate(name)`](#validatename)
             * [`$validates()`](#validates)
+            * [`$onValidates()`](#onvalidates)
             * [`$render(callback)`](#rendercallback)
             * [`$setStates($stateTree)`](#setstatesstatetree)
             * [`$setValues($valueTree)`](#setvaluesvaluetree)
@@ -147,7 +149,7 @@ yarn add react-formutil
 
 **不建议继续使用。仅限升级`0.5.x`遇到一些暂时没有条件兼容的问题（例如 TS 类型声明变动、Field 注册时机变动），或者进入维护期的项目修复 bug**
 
-`0.4.x`支持所有`v15` - `v16`版本的 react（不支持未来发布的`v17`版本，因为该版本使用旧版的`context API`；目前也不再更新新功能支持，只修复 Bug）；文档请参考：[react-formutil 稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.8)
+`0.4.x`支持所有`v15` - `v16`版本的 react（不支持未来发布的`v17`版本，因为该版本使用旧版的`context API`；目前也不再更新新功能支持，只修复 Bug）；文档请参考：[react-formutil 0.4.x](https://github.com/qiqiboy/react-formutil/tree/0.4.8)
 
 ```bash
 # npm
@@ -402,7 +404,7 @@ yarn add react-formutil@0.4
 
 #### `$onFieldChange`
 
-当Field的值随着最近一次重新渲染完成后触发该回调。
+当 Field 的值随着最近一次重新渲染完成后触发该回调。
 
 由于 react 的渲染是异步的，所以如果存在交叉验证，例如 A 控件依赖于 B 控件的值去校验自身，那么这种情况下，B 的值变更并不会导致 A 立即去应用新的值去校验。所以这种情况下，可以通过该属性设置回调，主动去触发校验 A 控件。
 
@@ -410,7 +412,7 @@ yarn add react-formutil@0.4
 >
 > 1.  该回调并不会在调用 `$render` `$setValues` 等更新表单值的方法后立即触发，它会随着最新的一次 react 渲染执行。也正因为此，所以才能拿到变更后的表单的值和状态。
 > 2.  仅当当前 `Field` 的值（状态里的`$value`）有变动时才会触发，其他状态例如`$diry` `$touched` 等变化不会触发。
-> 3.  如果需要访问 DOM Event，请使用 `onChange` 绑定DOM节点访问即可。
+> 3.  如果需要访问 DOM Event，请使用 `onChange` 绑定 DOM 节点访问即可。
 > 4.  不要在该回调里再次修改当前 Field 的值，否则会陷入死循环（修改该 Field 的其它状态或者修改其它 Field 的值是安全的）。
 
 ```javascript
@@ -665,6 +667,16 @@ $validate(callback?: ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
 该方法可以传递一个回调函数，或者通过其返回值 Promise 来监听校验完成。
 
 **请注意** 当你手动运行了校验函数时，如果其中包含异步校验，在校验完成前，Field 的值可能再次发生变化，那么会导致校验重新运行。此时，回调函数以及 Promise 回调都将延迟到最后一次校验完成后触发，并且会保持你的调用顺序！
+
+##### `$onValidate()`
+
+```typescript
+// 其函数签名如下
+// 0.5.1起，同时支持参数回调，以及Promise回调
+$onValidate(callback?: ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
+```
+
+确保当前 Field 校验结束后进行回调操作。因为如果 Field 有异步校验，在你更改了 Field 的值后，可能想在校验结束后，根据 Field 最新的状态来做一些操作，此时可以就使用该方法。
 
 ##### `$getFirstError()`
 
@@ -1400,6 +1412,21 @@ $validates(callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
 可以对单个表单域（`$valdiates('field')`，类似上面的`$validate()`）或者同时对多个表单域（`$validates(['field1', 'field2'])`），甚至整个表单所有 Field 进行校验（`$validates()`，不传 name 参数）。
 
 对全部表单域进行校验，会同时触发`Field`的校验，以及`Form`的`$validator`校验（如果有的话），并且回调方法以及 Promise 回调都将在所有校验完成后！
+
+##### `$onValidates()`
+
+```typescript
+// 其函数签名如下
+// 0.5.1起，同时支持参数回调，以及Promise回调
+$onValidates(callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
+```
+
+确保整个 Form 当前的校验已经完成，因为 Form 可能包含有异步校验，某些情况下，你可能需要在整个表单的校验完成后，再去执行一些操作，此时你可以通过该方法确认。
+
+```typescript
+// 例如，当绑定表单值变动事件时，如果需要确保本次变动导致的校验完成后，再进行操作，可以调用该方法
+<Form $onFormChange={$formutil => $formutil.$onValiates().then(() => console.log('form validate complete'))} />
+```
 
 ##### `$render(callback)`
 

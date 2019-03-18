@@ -21,8 +21,8 @@ Happy to build the forms in React ^\_^
 <!-- vim-markdown-toc GFM -->
 
 * [安装 Installation](#安装-installation)
-    - [`稳定版`](#稳定版)
-    - [`Beta版`](#beta版)
+    - [`最新版`](#最新版)
+    - [`0.4.x`](#04x)
 * [使用 Usage](#使用-usage)
     - [`<Field />`](#field-)
         + [`render` `component`](#render-component)
@@ -128,11 +128,11 @@ Happy to build the forms in React ^\_^
 
 ## 安装 Installation
 
-目前有两个版本可以选择，如果你是`react-formutil`的新用户，或者你在使用 react 的[`Strict Mode`](https://reactjs.org/docs/strict-mode.html)，请安装 Beta 版！
+目前最新版本是`0.5.x`，支持所有`v15+`的`react`版本！强烈推荐安装或者升级至该版本。
 
-### `稳定版`
+### `最新版`
 
-稳定版支持所有`v15` - `v16`版本的 react（不支持未来发布的`v17`版本，因为该版本使用旧版的`context API`；目前也不再更新新功能支持，只修复 Bug）。稳定版文档请参考：[react-formutil 稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.7)
+相比于上一版本`0.4.x`版本，新增或者改进了部分 API，并且支持`react@16.8`新增的[`Hooks`](#hooks)。完整更新说明请参考：[Release v0.5.0](https://github.com/qiqiboy/react-formutil/releases/tag/0.5.0)
 
 ```bash
 # npm
@@ -142,20 +142,18 @@ npm install react-formutil --save
 yarn add react-formutil
 ```
 
-### `Beta版`
+### `0.4.x`
 
-Beta 版本替换更新了`react@16.3`开始已经被标记为`deprecated`的老版 API，实现了对 v16 以及未来 v17 版本的支持!
+**不建议继续使用。仅限升级`0.5.x`遇到一些暂时没有条件兼容的问题（例如 TS 类型声明变动、Field 注册时机变动），或者进入维护期的项目修复 bug**
 
-虽然使用了较新的版本的 API，但是其对早前版本做了兼容处理。所以同样支持所有`v15.0` - `v16.3`的所有版本 react！
-
-另外 Beta 版本也对`16.8.0`新增加的[`Hooks`](#hooks)提供了支持，在`react-formutil/hooks`下新增加了`useField`和`useForm`的两个自定义 hook。你可以参考下方的[`Hooks`](#hooks)介绍，也选择使用这一最新的 react 组件开发方式！
+`0.4.x`支持所有`v15` - `v16`版本的 react（不支持未来发布的`v17`版本，因为该版本使用旧版的`context API`；目前也不再更新新功能支持，只修复 Bug）；文档请参考：[react-formutil 稳定版](https://github.com/qiqiboy/react-formutil/tree/0.4.8)
 
 ```bash
 # npm
-npm install react-formutil@next --save
+npm install react-formutil@0.4 --save
 
 # yarn
-yarn add react-formutil@next
+yarn add react-formutil@0.4
 ```
 
 ## 使用 Usage
@@ -382,7 +380,7 @@ yarn add react-formutil@next
 
 默认情况下，每次 Field 的值改变，在调用设置的校验方法时，会将所有的校验函数都执行一遍。
 
-通过该属性，可以设置调用校验函数时，启用`懒加载模式`：即是否遇到第一个错误后停止调用后续其它校验函数。校验顺序为`$validators`对象中的校验函数的声明顺序。所以如果你有异步校验，最好将其放到`$validators`声明的最后，以确保`$validateLazy`能有效节省不必要的校验。
+通过该属性，可以设置调用校验函数时，启用`懒校验模式`：即是否遇到第一个错误后停止调用后续其它校验函数。校验顺序为`$validators`对象中的校验函数的声明顺序。所以如果你有异步校验，最好将其放到`$validators`声明的最后，以确保`$validateLazy`能有效节省不必要的校验。
 
 > 如果你在考虑实现一组用于多数表单项的校验函数，那么建议将这些校验规则分开，然后通过传递对应到每个校验函数的标识符来在不同的 Field 上启用不同的校验，并且可以利用`$validateLazy`来使用懒校验，提升校验性能。
 >
@@ -646,7 +644,11 @@ $setError({
 $validate(callback?: ($fieldutil: $Fieldutil) => void): Promise<$Fieldutil>;
 ```
 
-重新校验当前 Field
+手动触发校验 Field。一般情况下，你无需这么做，当值改变时，会自动调用设定的校验函数。仅当你的校验函数依赖于其它值时，在其它值改变时，你可以通过该方法手动触发校验。
+
+该方法可以传递一个回调函数，或者通过其返回值 Promise 来监听校验完成。
+
+**请注意** 当你手动运行了校验函数时，如果其中包含异步校验，在校验完成前，Field 的值可能再次发生变化，那么会导致校验重新运行。此时，回调函数以及 Promise 回调都将延迟到最后一次校验完成后触发，并且会保持你的调用顺序！
 
 ##### `$getFirstError()`
 
@@ -1354,7 +1356,7 @@ $getField(name: string): undefined | $Fieldutil;
 
 获取对 name 对应的表单项的[`$fieldutil`](#fieldutil)对象。
 
-**只能获取到已注册的Field，否则返回空**
+**只能获取到已注册的 Field，否则返回空**
 
 ##### `$validate(name)`
 
@@ -1366,7 +1368,7 @@ $validate(name: string, callback?: ($formutil: $Formutil) => void): undefined | 
 
 立即校验对应 name 的表单项。
 
-**只能对已注册的Field发起校验，并且返回Promise回调。否则返回空**
+**只能对已注册的 Field 发起校验，并且返回 Promise 回调。否则返回空**
 
 ##### `$validates()`
 
@@ -1379,7 +1381,9 @@ $validates(names: string | string[], callback?: ($formutil: $Formutil) => void):
 $validates(callback?: ($formutil: $Formutil) => void): Promise<$Formutil>;
 ```
 
-可以对单个表单域（`$valdiates('field')`，类似上面的`$validate()`）或者同时对多个表单域（`$validates(['field1', 'field2'])`），甚至整个表单所有 Field 进行校验（`$validates()`，不传 name 参数）.
+可以对单个表单域（`$valdiates('field')`，类似上面的`$validate()`）或者同时对多个表单域（`$validates(['field1', 'field2'])`），甚至整个表单所有 Field 进行校验（`$validates()`，不传 name 参数）。
+
+对全部表单域进行校验，会同时触发`Field`的校验，以及`Form`的`$validator`校验（如果有的话），并且回调方法以及 Promise 回调都将在所有校验完成后！
 
 ##### `$render(callback)`
 

@@ -64,7 +64,7 @@ class Form extends Component {
             $registered = this.$$getRegister(prevName);
 
             if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
-                utils.objectClear(this.$$registers, prevName);
+                delete this.$$registers[prevName];
                 utils.objectClear(this.$$defaultValues, prevName);
 
                 this.$$fieldChangedQueue.push({
@@ -105,7 +105,7 @@ class Form extends Component {
             const $registered = this.$getField(name);
 
             if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
-                utils.objectClear(this.$$registers, name);
+                delete this.$$registers[name];
                 utils.objectClear(this.$$defaultValues, name);
 
                 this.$$fieldChangedQueue.push({

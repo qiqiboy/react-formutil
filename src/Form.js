@@ -158,7 +158,10 @@ class Form extends Component {
 
             if (hasFormChanged) {
                 if (utils.isFunction(this.props.$onFormChange)) {
-                    this.props.$onFormChange(this.$formutil, $newValues, $prevValues);
+                    // ??? this is a hack
+                    requestAnimationFrame(() =>
+                        this.props.$onFormChange(this.$formutil, $newValues, $prevValues)
+                    );
                 }
 
                 if (utils.isFunction(this.props.$validator)) {

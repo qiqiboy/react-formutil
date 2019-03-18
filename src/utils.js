@@ -96,11 +96,9 @@ export const parsePath = (...args) => {
             }
         } else {
             for (let index = 0, length = pathWords.length; index < length; index++) {
-                let word = pathWords[index];
+                const word = executeWord(pathWords[index]);
                 const nextWord = pathWords[index + 1];
                 const symbol = pathSymbols[index];
-
-                word = executeWord(word);
 
                 if (isUndefined(nextWord)) {
                     scope[word] = value;

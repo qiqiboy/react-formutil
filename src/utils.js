@@ -1,6 +1,6 @@
 import warning from 'warning';
 
-const PATH_REGEXP = /\]\.|\]\[|\.|\[|\]/g;
+const PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
 const Root = isUndefined(window) ? global : window;
 
 export function isUndefined(arg) {
@@ -72,17 +72,17 @@ export const parsePath = (...args) => {
 
     warning(typeof path === 'string', `The second parameter(${JSON.stringify(path)}) of parsePath() must be a string.`);
 
-    const pathSymbols = path.match(PATH_REGEXP) || [];
-    const pathWords = path.split(PATH_REGEXP).filter(item => item !== '');
+    const pathSymbols = (path.match(PATH_REGEXP) || []).map(s => s.replace(/\s/g, ''));
+    const pathWords = path
+        .split(PATH_REGEXP)
+        .map(s => s.trim())
+        .filter(item => item !== '');
     let scope = target;
 
     try {
         if (args.length < 3) {
             for (let index = 0, len = pathWords.length; index < len; index++) {
-                let word = pathWords[index];
-                const symbol = pathSymbols[index];
-
-                word = executeWord(word);
+                const word = executeWord(pathWords[index]);
 
                 if (index + 1 === len) {
                     return scope[word];
@@ -95,11 +95,17 @@ export const parsePath = (...args) => {
                 scope = scope[word];
             }
         } else {
-            pathWords.forEach((word, index) => {
+            for (let index = 0, length = pathWords.length; index < length; index++) {
+                let word = pathWords[index];
                 const nextWord = pathWords[index + 1];
                 const symbol = pathSymbols[index];
 
                 word = executeWord(word);
+
+                if (isUndefined(nextWord)) {
+                    scope[word] = value;
+                    break;
+                }
 
                 switch (symbol) {
                     case '].':
@@ -110,16 +116,17 @@ export const parsePath = (...args) => {
                     case '][':
                     case '[':
                         const nextVarWord = executeWord(nextWord);
+
                         scope = isUndefined(scope[word])
                             ? (scope[word] = typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {})
                             : scope[word];
                         break;
 
-                    case ']':
                     default:
                         scope[word] = value;
+                        break;
                 }
-            });
+            }
         }
     } catch (error) {
         warning(false, `The name '%s' of Field seems is not a legal expression.`, path);

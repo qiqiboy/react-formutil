@@ -34,6 +34,7 @@ Happy to build the forms in React ^\_^
         + [~~`$asyncValidators`~~](#asyncvalidators)
         + [`$validateLazy`](#validatelazy)
         + [`$onFieldChange`](#onfieldchange)
+        + [`$reserveOnUnmount`](#reserveonunmount)
         + [`$parser`](#parser)
         + [`$formatter`](#formatter)
         + [`$fieldutil`](#fieldutil)
@@ -420,6 +421,20 @@ yarn add react-formutil@0.4
 <Field name="B" $onFieldChange={(newValue, preValue) => $formutil.$getField('A').$validate()}>
     //...
 </Field>
+```
+
+#### `$reserveOnUnmount`
+
+> 该属性为 `v0.5.1` 新增。
+
+默认情况下，当一个`Field`被从组件树移除时（`componentWillUnmount`），会从`Form`控制器中取消注册，这将会导致该 Field 的状态从表单控制器状态集合中移除（例如，`$params` `$errors`等中不再有该 Field 的值、错误信息等）
+
+如果你希望 Field 移除时，在 Form 控制器中保留该 Field 的状态，那么可以传递`$reserveOnUnmount`属性为`true`即可。当该 Field 再次挂载到组件树中时，会**继承之前所有的状态，完全恢复！**
+
+```javascript
+<Field name="username" $reserveOnUnmount />
+// OR
+<Field name="username" $reserveOnUnmount={true} />
 ```
 
 #### `$parser`

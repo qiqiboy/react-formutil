@@ -189,6 +189,7 @@ export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
     $validateLazy?: boolean;
+    $reserveOnUnmount?: boolean;
     $parser?: (($viewValue: any, $setViewValue: ($newViewValue: any) => any) => T) | null;
     $formatter?: (($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any) | null;
     name?: string;

@@ -43,6 +43,7 @@ export const propTypes = {
     $validators: PropTypes.object,
     $asyncValidators: PropTypes.object,
     $validateLazy: PropTypes.bool,
+    $reserveOnUnmount: PropTypes.bool,
 
     $parser: PropTypes.func,
     $formatter: PropTypes.func,

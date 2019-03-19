@@ -244,7 +244,7 @@ class LoginForm extends Component {
                         )}
                     </Field>
                     {$params.autologin && (
-                        <Field name="remember" required $validators={this.$validators}>
+                        <Field name="remember" required $validators={this.$validators} $reserveOnUnmount>
                             {props => (
                                 <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                     <select

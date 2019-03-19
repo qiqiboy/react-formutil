@@ -78,18 +78,24 @@ class Form extends Component {
         if (name) {
             $registered = this.$$getRegister(name);
 
-            warning(
-                !$registered,
-                `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
-            );
+            if ($registered && $registered.$$reserved) {
+                $handler.$$reset($registered.$getState());
 
-            if (!$registered) {
-                this.$$registers[name] = $handler;
+                this.$$registers[name] = $registered = $handler;
+            } else {
+                warning(
+                    !$registered,
+                    `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
+                );
 
-                this.$$fieldChangedQueue.push({
-                    name,
-                    $newValue: $handler.$getState().$value
-                });
+                if (!$registered) {
+                    this.$$registers[name] = $handler;
+
+                    this.$$fieldChangedQueue.push({
+                        name,
+                        $newValue: $handler.$getState().$value
+                    });
+                }
             }
         }
 
@@ -101,21 +107,25 @@ class Form extends Component {
         return $registered || $handler;
     };
 
-    $$unregister = (name, $handler) => {
+    $$unregister = (name, $handler, $$reserved) => {
         if (name) {
-            const $registered = this.$getField(name);
+            const $registered = this.$$getRegister(name);
 
             if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
-                delete this.$$registers[name];
-                utils.objectClear(this.$$defaultValues, name);
+                if (!$$reserved) {
+                    delete this.$$registers[name];
+                    utils.objectClear(this.$$defaultValues, name);
 
-                this.$$fieldChangedQueue.push({
-                    name,
-                    $prevValue: $registered.$getState().$value
-                });
+                    this.$$fieldChangedQueue.push({
+                        name,
+                        $prevValue: $registered.$getState().$value
+                    });
 
-                this.creatDeepRegisters();
-                this.$render();
+                    this.creatDeepRegisters();
+                    this.$render();
+                } else {
+                    $registered.$$reserved = true;
+                }
             }
         }
     };

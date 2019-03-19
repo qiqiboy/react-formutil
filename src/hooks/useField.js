@@ -79,7 +79,7 @@ function useField(name, props = {}) {
 
         return () => {
             if ($formContext.$$unregister) {
-                $formContext.$$unregister($name, $this.$fieldHandler);
+                $formContext.$$unregister($name, $this.$fieldHandler, props.$reserveOnUnmount);
             }
 
             $this.isMounting = false;

@@ -16,6 +16,7 @@ function withField(WrappedComponent, config = {}) {
                 '$validators',
                 '$asyncValidators',
                 '$validateLazy',
+                '$reserveOnUnmount',
                 '$defaultValue',
                 '$defaultState',
                 '$onFieldChange',

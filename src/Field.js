@@ -39,7 +39,7 @@ class Field extends Component {
 
     componentWillUnmount() {
         if (this.$formContext.$$unregister) {
-            this.$formContext.$$unregister(this.props.name, this.$fieldHandler);
+            this.$formContext.$$unregister(this.props.name, this.$fieldHandler, this.props.$reserveOnUnmount);
         }
 
         this.isMounting = false;

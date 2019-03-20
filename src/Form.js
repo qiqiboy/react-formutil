@@ -6,6 +6,16 @@ import warning from 'warning';
 
 export const FORM_VALIDATE_RESULT = 'FORM_VALIDATE_RESULT';
 
+let requestFrame, cancelFrame;
+
+if (typeof requestAnimationFrame === 'function') {
+    requestFrame = requestAnimationFrame;
+    cancelFrame = cancelAnimationFrame;
+} else {
+    requestFrame = setTimeout;
+    cancelFrame = clearTimeout;
+}
+
 class Form extends Component {
     static displayName = 'React.Formutil.Form';
 
@@ -140,6 +150,7 @@ class Form extends Component {
         $$defaultValues: this.$$defaultValues
     });
 
+    $$triggerChangeTimer;
     $$fieldChangedQueue = [];
     $$triggerFormChange = () => {
         if (this.$$fieldChangedQueue.length) {
@@ -169,8 +180,7 @@ class Form extends Component {
 
             if (hasFormChanged) {
                 if (utils.isFunction(this.props.$onFormChange)) {
-                    // ??? this is a hack
-                    requestAnimationFrame(() => this.props.$onFormChange(this.$formutil, $newValues, $prevValues));
+                    this.props.$onFormChange(this.$formutil, $newValues, $prevValues);
                 }
 
                 if (utils.isFunction(this.props.$validator)) {
@@ -353,7 +363,12 @@ class Form extends Component {
     };
 
     componentDidUpdate() {
-        this.$$triggerFormChange();
+        cancelFrame(this.$$triggerChangeTimer);
+
+        // ensure this calls to access the newest $formutil
+        this.$$triggerChangeTimer = requestFrame(() => {
+            this.$$triggerFormChange();
+        });
     }
 
     $render = callback =>

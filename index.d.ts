@@ -14,9 +14,11 @@ export interface OtherKeys {
     [name: string]: any;
 }
 
-export type FieldValidatorProps<Validators> = { [K in keyof Validators]?: any };
+export type FieldValidatorProps<Validators> = {
+    [K in keyof Validators]?: null | ((() => any) extends Validators[K] ? any : Validators[K])
+};
 
-export type FieldError<Validators> = { [K in keyof Validators]: DetectAny<Validators[K], string, Validators[K]> };
+export type FieldError<Validators> = { [K in keyof Validators]: any };
 
 export interface FieldState<T = string, Validators = {}> {
     $value: T;
@@ -210,22 +212,21 @@ export interface FieldComponentProps<T = string, Validators = {}, Fields = {}, W
     children?: (($fieldutil: $Fieldutil<T, Validators>) => React.ReactNode) | React.ReactNode;
 }
 
-export interface EasyFieldDefaultValidators<T = string, Fields = {}, Validators = {}, WeakFields = {}> {
-    required?: boolean | null;
-    maxLength?: number | null;
-    minLength?: number | null;
-    max?: number | null;
-    min?: number | null;
-    enum?: any[] | null;
-    pattern?: RegExp | null;
-    checker?: Validate<T, Fields, Validators, WeakFields> | null;
+export interface EasyFieldDefaultValidators {
+    required: boolean;
+    maxLength: number;
+    minLength: number;
+    max: number;
+    min: number;
+    enum: any[];
+    pattern: RegExp;
 }
 
-export type ValidMessage<P> = { [K in keyof P]?: string };
+export type ValidMessage<P> = { [K in keyof P]?: any };
 
 export interface BaseEasyFieldComponentProps<T = string, Validators = {}, Fields = {}, WeakFields = Fields>
     extends BaseFieldComponentProps<T, Validators, Fields, WeakFields>,
-        EasyFieldDefaultValidators<T, Fields, Validators, WeakFields> {
+        FieldValidatorProps<EasyFieldDefaultValidators> {
     checked?: T;
     unchecked?: T;
     validMessage?: ValidMessage<EasyFieldDefaultValidators & Validators>;
@@ -234,6 +235,8 @@ export interface BaseEasyFieldComponentProps<T = string, Validators = {}, Fields
     changePropName?: string;
     focusPropName?: string;
     blurPropName?: string;
+
+    checker?: Validate<T, Fields, Validators, WeakFields>;
 }
 
 export type EasyFieldProps<T = string, Validators = {}, Fields = {}, WeakFields = Fields> = BaseEasyFieldComponentProps<

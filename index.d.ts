@@ -366,7 +366,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $getField<T extends keyof WeakFields>(
         name: T
     ): undefined | $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>;
-    $onValidates<S = $Formutil<Fields, Validators, WeakFields>>(callback: ($formutil: S) => void): Promise<S>;
+    $onValidates<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
     $getFirstError<T extends keyof WeakFields>(name?: T): any;
     $render<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
     $validate<

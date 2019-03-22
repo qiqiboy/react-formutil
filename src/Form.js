@@ -87,24 +87,28 @@ class Form extends Component {
             }
         }
 
-        if ($curRegistered !== $handler) {
-            if ($curRegistered && $curRegistered.$$reserved) {
-                $handler.$$reset($curRegistered.$getState());
-            } else {
-                warning(
-                    !$curRegistered,
-                    `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
-                );
+        if (name) {
+            if ($curRegistered) {
+                if ($curRegistered.$$reserved) {
+                    $handler.$$reset($curRegistered.$getState());
 
+                    delete $curRegistered.$$reserved;
+                } else {
+                    warning(
+                        $curRegistered === $handler,
+                        `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
+                    );
+                }
+            } else {
                 this.$$fieldChangedQueue.push({
                     name,
                     $newValue: $handler.$getState().$value
                 });
             }
-        }
 
-        if (!$curRegistered || $curRegistered.$name !== name) {
-            this.$$registers[name] = $handler;
+            if (!$curRegistered || $curRegistered === $handler) {
+                this.$$registers[name] = $handler;
+            }
         }
 
         $handler.$name = name;

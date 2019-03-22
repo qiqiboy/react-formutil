@@ -50,11 +50,7 @@ class Field extends Component {
 
         if ($name !== prevProps.name) {
             if (this.$formContext.$$register) {
-                if ($name) {
-                    this.$registered = this.$formContext.$$register($name, this.$fieldHandler, prevProps.name);
-                } else {
-                    this.$formContext.$$unregister(prevProps.name, this.$fieldHandler);
-                }
+                this.$registered = this.$formContext.$$register($name, this.$fieldHandler, prevProps.name);
             }
         }
 

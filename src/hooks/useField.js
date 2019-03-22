@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useRef } from 'react';
 import useFormContext from './useFormContext';
-import { isFunction, runCallback } from '../utils';
+import { runCallback } from '../utils';
 import { createHandler, GET_FIELD_UUID } from '../fieldHelper';
 import warning from 'warning';
 
@@ -88,11 +88,7 @@ function useField(name, props = {}) {
 
     useLayoutEffect(() => {
         if ($formContext.$$register) {
-            if ($name) {
-                $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
-            } else {
-                $formContext.$$unregister($name, $this.$fieldHandler);
-            }
+            $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
         }
 
         $this.$prevName = $name;

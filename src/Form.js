@@ -76,6 +76,7 @@ class Form extends Component {
         if ($prevRegistered === $handler) {
             prevName = $prevRegistered.$name;
             delete this.$$registers[prevName];
+            delete $prevRegistered.$name;
 
             if ($curRegistered !== $prevRegistered) {
                 utils.objectClear(this.$$defaultValues, prevName);
@@ -91,8 +92,6 @@ class Form extends Component {
             if ($curRegistered) {
                 if ($curRegistered.$$reserved) {
                     $handler.$$reset($curRegistered.$getState());
-
-                    delete $curRegistered.$$reserved;
                 } else {
                     warning(
                         $curRegistered === $handler,
@@ -106,17 +105,17 @@ class Form extends Component {
                 });
             }
 
-            if (!$curRegistered || $curRegistered === $handler) {
+            if (!$curRegistered || $curRegistered === $handler || $curRegistered.$$reserved) {
                 this.$$registers[name] = $handler;
             }
-        }
 
-        $handler.$name = name;
+            $handler.$name = name;
+        }
 
         this.creatDeepRegisters();
         this.$render();
 
-        return this.$$registers[name] || $handler;
+        return this.$$registers[name];
     };
 
     $$unregister = (name, $handler, $$reserved) => {
@@ -126,6 +125,7 @@ class Form extends Component {
             if (!$$reserved) {
                 name = $registered.$name;
                 delete this.$$registers[name];
+                delete $registered.$name;
                 utils.objectClear(this.$$defaultValues, name);
 
                 this.$$fieldChangedQueue.push({

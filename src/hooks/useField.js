@@ -38,7 +38,7 @@ function useField(name, props = {}) {
     $this.props = props;
     $this.$setState = $setState;
 
-    const $registered = $this.$registered || ($this.$fieldHandler = createHandler($this));
+    const $registered = $this.$registered || $this.$fieldHandler || ($this.$fieldHandler = createHandler($this));
     // we not directly use this $state, just from $this.$state
     const [, setState] = useState(() => {
         $this.$fieldHandler.$$FIELD_UUID = GET_FIELD_UUID();

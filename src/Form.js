@@ -24,6 +24,7 @@ class Form extends Component {
         component: PropTypes.func,
         children(props, ...args) {
             let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+
             if (!props.render && !props.component) {
                 pt = pt.isRequired;
             }
@@ -69,73 +70,69 @@ class Form extends Component {
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, prevName) => {
-        let $registered;
+        const $curRegistered = this.$$getRegister(name);
+        const $prevRegistered = this.$$getRegister(prevName);
 
-        if (prevName) {
-            $registered = this.$$getRegister(prevName);
+        if ($prevRegistered === $handler) {
+            prevName = $prevRegistered.$name;
+            delete this.$$registers[prevName];
 
-            if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
-                delete this.$$registers[prevName];
+            if ($curRegistered !== $prevRegistered) {
                 utils.objectClear(this.$$defaultValues, prevName);
 
                 this.$$fieldChangedQueue.push({
                     name: prevName,
-                    $prevValue: $registered.$getState().$value
+                    $prevValue: $prevRegistered.$getState().$value
                 });
             }
         }
 
-        if (name) {
-            $registered = this.$$getRegister(name);
-
-            if ($registered && $registered.$$reserved) {
-                $handler.$$reset($registered.$getState());
-
-                this.$$registers[name] = $registered = $handler;
+        if ($curRegistered !== $handler) {
+            if ($curRegistered && $curRegistered.$$reserved) {
+                $handler.$$reset($curRegistered.$getState());
             } else {
                 warning(
-                    !$registered,
+                    !$curRegistered,
                     `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
                 );
 
-                if (!$registered) {
-                    this.$$registers[name] = $handler;
-
-                    this.$$fieldChangedQueue.push({
-                        name,
-                        $newValue: $handler.$getState().$value
-                    });
-                }
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $newValue: $handler.$getState().$value
+                });
             }
         }
 
-        if (name || prevName) {
-            this.creatDeepRegisters();
-            this.$render();
+        if (!$curRegistered || $curRegistered.$name !== name) {
+            this.$$registers[name] = $handler;
         }
 
-        return $registered || $handler;
+        $handler.$name = name;
+
+        this.creatDeepRegisters();
+        this.$render();
+
+        return this.$$registers[name] || $handler;
     };
 
     $$unregister = (name, $handler, $$reserved) => {
-        if (name) {
-            const $registered = this.$$getRegister(name);
+        const $registered = this.$$getRegister(name);
 
-            if ($registered && $handler.$$FIELD_UUID === $registered.$$FIELD_UUID) {
-                if (!$$reserved) {
-                    delete this.$$registers[name];
-                    utils.objectClear(this.$$defaultValues, name);
+        if ($handler === $registered) {
+            if (!$$reserved) {
+                name = $registered.$name;
+                delete this.$$registers[name];
+                utils.objectClear(this.$$defaultValues, name);
 
-                    this.$$fieldChangedQueue.push({
-                        name,
-                        $prevValue: $registered.$getState().$value
-                    });
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $prevValue: $registered.$getState().$value
+                });
 
-                    this.creatDeepRegisters();
-                    this.$render();
-                } else {
-                    $registered.$$reserved = true;
-                }
+                this.creatDeepRegisters();
+                this.$render();
+            } else {
+                $registered.$$reserved = true;
             }
         }
     };
@@ -155,6 +152,7 @@ class Form extends Component {
     $$triggerFormChange = () => {
         if (this.$$fieldChangedQueue.length) {
             const $$fieldChangedQueue = [...this.$$fieldChangedQueue];
+
             this.$$fieldChangedQueue.length = 0;
 
             const $newValues = {};
@@ -444,6 +442,7 @@ class Form extends Component {
 
         return this.$$setStates($valueTree, $value => ({ $value }), callback);
     };
+
     $setFocuses = ($focusedTree, callback) => this.$$setStates($focusedTree, $focused => ({ $focused }), callback);
     $setDirts = ($dirtyTree, callback) => this.$$setStates($dirtyTree, $dirty => ({ $dirty }), callback);
     $setTouches = ($touchedTree, callback) => this.$$setStates($touchedTree, $touched => ({ $touched }), callback);
@@ -458,6 +457,7 @@ class Form extends Component {
             },
             callback
         );
+
     $batchTouched = ($touched, callback) =>
         this.$batchState(
             {
@@ -465,6 +465,7 @@ class Form extends Component {
             },
             callback
         );
+
     $batchFocused = ($focused, callback) =>
         this.$batchState(
             {
@@ -472,6 +473,7 @@ class Form extends Component {
             },
             callback
         );
+
     $batchPending = ($pending, callback) =>
         this.$batchState(
             {
@@ -479,6 +481,7 @@ class Form extends Component {
             },
             callback
         );
+
     $batchError = ($error, callback) =>
         this.$batchState(
             {

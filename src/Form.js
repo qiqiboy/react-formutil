@@ -92,11 +92,13 @@ class Form extends Component {
             if ($curRegistered) {
                 if ($curRegistered.$$reserved) {
                     $handler.$$reset($curRegistered.$getState());
-                } else {
+                } else if ($curRegistered !== $handler) {
                     warning(
-                        $curRegistered === $handler,
+                        false,
                         `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
                     );
+
+                    name = $curRegistered.$name;
                 }
             } else {
                 this.$$fieldChangedQueue.push({
@@ -106,10 +108,9 @@ class Form extends Component {
             }
 
             if (!$curRegistered || $curRegistered === $handler || $curRegistered.$$reserved) {
+                $handler.$name = name;
                 this.$$registers[name] = $handler;
             }
-
-            $handler.$name = name;
         }
 
         this.creatDeepRegisters();

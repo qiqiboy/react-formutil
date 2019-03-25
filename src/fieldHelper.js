@@ -149,12 +149,12 @@ export function createHandler($this, owner) {
         return $$validatePromise;
     }
 
-    function $$reset($newState, ignoreFormDefault) {
+    function $$reset($newState) {
         let $initialState;
 
         const { props, $formContext } = $this;
 
-        if (!ignoreFormDefault && $formContext.$$getDefault) {
+        if ($formContext.$$getDefault) {
             const $name = props.name;
             const { $$defaultStates, $$defaultValues } = $formContext.$$getDefault();
 

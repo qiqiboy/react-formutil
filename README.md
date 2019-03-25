@@ -2,14 +2,15 @@
 
 [![npm](https://img.shields.io/npm/v/react-formutil.svg?style=flat)](https://npm.im/react-formutil)
 [![npm](https://img.shields.io/npm/v/react-formutil/next.svg?color=yellow)](https://npm.im/react-formutil)
-[![peerDependencies](https://img.shields.io/npm/dependency-version/react-formutil/peer/react.svg?color=green)](https://reactjs.org)
+[![peerDependencies](https://img.shields.io/npm/dependency-version/react-formutil/peer/react.svg?color=yellowgreen)](https://reactjs.org)
+[![definitionTypes](https://img.shields.io/npm/types/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/blob/master/index.d.ts)
 [![gzip](https://img.shields.io/bundlephobia/minzip/react-formutil.svg)](https://npm.im/react-formutil)
 [![download](https://img.shields.io/npm/dm/react-formutil.svg)](https://npm.im/react-formutil)
 [![issues](https://img.shields.io/github/issues/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/issues)
 [![license](https://img.shields.io/github/license/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/blob/master/LICENSE)
 [![github](https://img.shields.io/github/last-commit/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil)
-[![github](https://img.shields.io/github/release-date/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil)
-[![github](https://img.shields.io/github/commit-activity/m/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil)
+[![github](https://img.shields.io/github/release-date/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/releases)
+[![github](https://img.shields.io/github/commit-activity/m/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/commits/master)
 [![github](https://img.shields.io/github/stars/qiqiboy/react-formutil.svg?style=social)](https://github.com/qiqiboy/react-formutil)
 
 [![react-formutil](https://nodei.co/npm/react-formutil.png?compact=true)](https://npm.im/react-formutil)
@@ -34,6 +35,7 @@ Happy to build the forms in React ^\_^
 
 * [安装 Installation](#安装-installation)
     - [`最新版`](#最新版)
+    - [`Next版`](#next版)
     - [`0.4.x`](#04x)
 * [示例 Examples](#示例-examples)
 * [使用 Usage](#使用-usage)
@@ -150,14 +152,30 @@ Happy to build the forms in React ^\_^
 
 ### `最新版`
 
+[![npm](https://img.shields.io/npm/v/react-formutil.svg?style=flat)](https://npm.im/react-formutil)
+
 相比于上一版本`0.4.x`版本，新增或者改进了部分 API，并且支持`react@16.8`新增的[`Hooks`](#hooks)。完整更新说明请参考：[Release v0.5.0](https://github.com/qiqiboy/react-formutil/releases/tag/0.5.0)
 
 ```bash
 # npm
-npm install react-formutil --save
+npm install react-formutil@latest --save
 
 # yarn
-yarn add react-formutil
+yarn add react-formutil@latest
+```
+
+### `Next版`
+
+[![npm](https://img.shields.io/npm/v/react-formutil/next.svg?color=yellow)](https://npm.im/react-formutil)
+
+`Next版`一般会领先于`最新版`，一般是包含一些小功能的添加、测试，或者一些`不那么重要的小bug`的 fix。
+
+```bash
+# npm
+npm install react-formutil@next --save
+
+# yarn
+yarn add react-formutil@next
 ```
 
 ### `0.4.x`

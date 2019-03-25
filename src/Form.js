@@ -441,7 +441,7 @@ class Form extends Component {
             $stateTree = {};
         }
 
-        return this.$$setStates($stateTree, ($state, handler) => handler.$$reset($state, true), callback, true);
+        return this.$$setStates($stateTree, ($state, handler) => handler.$$reset($state), callback, true);
     };
 
     $setStates = ($stateTree, callback) => this.$$setStates($stateTree, $state => $state, callback);

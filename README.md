@@ -1,6 +1,18 @@
 # react-formutil
 
 [![npm](https://img.shields.io/npm/v/react-formutil.svg?style=flat)](https://npm.im/react-formutil)
+[![npm](https://img.shields.io/npm/v/react-formutil/next.svg?color=yellow)](https://npm.im/react-formutil)
+[![peerDependencies](https://img.shields.io/npm/dependency-version/react-formutil/peer/react.svg?color=green)](https://reactjs.org)
+[![gzip](https://img.shields.io/bundlephobia/minzip/react-formutil.svg)](https://npm.im/react-formutil)
+[![download](https://img.shields.io/npm/dm/react-formutil.svg)](https://npm.im/react-formutil)
+[![issues](https://img.shields.io/github/issues/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/issues)
+[![license](https://img.shields.io/github/license/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/blob/master/LICENSE)
+[![github](https://img.shields.io/github/last-commit/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil)
+[![github](https://img.shields.io/github/release-date/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil)
+[![github](https://img.shields.io/github/commit-activity/m/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil)
+[![github](https://img.shields.io/github/stars/qiqiboy/react-formutil.svg?style=social)](https://github.com/qiqiboy/react-formutil)
+
+[![react-formutil](https://nodei.co/npm/react-formutil.png?compact=true)](https://npm.im/react-formutil)
 
 Happy to build the forms in React ^\_^
 
@@ -131,6 +143,8 @@ Happy to build the forms in React ^\_^
 <!-- vim-markdown-toc -->
 
 ## 安装 Installation
+
+[![react-formutil](https://nodei.co/npm/react-formutil.png?compact=true)](https://npm.im/react-formutil)
 
 目前最新版本是`0.5.x`，支持所有`v15+`的`react`版本！强烈推荐安装或者升级至该版本。
 
@@ -2001,7 +2015,7 @@ function UserInfoSubmitForm() {
 -   如果你对上面提到的`react-antd-formutil`、`react-material-formutil`等适配库的实现比较了解，你也可以参考其对你目前使用的 UI 组件库做适配！
 -   如果你在使用团队自己对组件库，或者是个新接触`react-formutil`的新手，想快速实现项目中应用，请往下看
 
-对于在使用自己私有（团队内部）表单 UI 组件或者实现的项目，我们这里提供了一个示例，通过封装一个`FormItem`来快速适配`bootstrap`框架提供的表单UI：
+对于在使用自己私有（团队内部）表单 UI 组件或者实现的项目，我们这里提供了一个示例，通过封装一个`FormItem`来快速适配`bootstrap`框架提供的表单 UI：
 
 **[Form Adaptor](https://codesandbox.io/s/14lr59rmlj)**
 

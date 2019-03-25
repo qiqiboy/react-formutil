@@ -73,44 +73,46 @@ class Form extends Component {
         const $curRegistered = this.$$getRegister(name);
         const $prevRegistered = this.$$getRegister(prevName);
 
-        if ($prevRegistered === $handler) {
-            prevName = $prevRegistered.$name;
-            delete this.$$registers[prevName];
-            delete $prevRegistered.$name;
+        if ($prevRegistered) {
+            if ($prevRegistered === $handler) {
+                prevName = $prevRegistered.$name;
+                delete this.$$registers[prevName];
+                delete $prevRegistered.$name;
+            }
 
             if ($curRegistered !== $prevRegistered) {
                 utils.objectClear(this.$$defaultValues, prevName);
 
                 this.$$fieldChangedQueue.push({
                     name: prevName,
-                    $prevValue: $prevRegistered.$getState().$value
+                    $prevValue: $handler.$getState().$value
                 });
             }
         }
 
         if (name) {
-            if ($curRegistered) {
-                if ($curRegistered.$$reserved) {
-                    $handler.$$reset($curRegistered.$getState());
-                } else if ($curRegistered !== $handler) {
-                    warning(
-                        false,
-                        `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
-                    );
-
-                    name = $curRegistered.$name;
-                }
-            } else {
+            if ($curRegistered && $curRegistered.$$reserved) {
+                $handler.$$reset($curRegistered.$getState());
+            } else if ($curRegistered !== $handler) {
                 this.$$fieldChangedQueue.push({
                     name,
                     $newValue: $handler.$getState().$value
                 });
+
+                if ($curRegistered) {
+                    this.$$fieldChangedQueue.push({
+                        name,
+                        $prevValue: $curRegistered.$getState().$value
+                    });
+                }
+
+                warning(
+                    !$curRegistered || $prevRegistered,
+                    `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
+                );
             }
 
-            if (!$curRegistered || $curRegistered === $handler || $curRegistered.$$reserved) {
-                $handler.$name = name;
-                this.$$registers[name] = $handler;
-            }
+            this.$$registers[($handler.$name = name)] = !$curRegistered || $prevRegistered ? $handler : $curRegistered;
         }
 
         this.creatDeepRegisters();

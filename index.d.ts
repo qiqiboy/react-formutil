@@ -35,7 +35,7 @@ export interface FieldState<T = string, Validators = {}> {
 }
 
 export type FormParams<Fields> = {
-    [K in keyof Fields]: DetectAny<Fields[K], string, Fields[K] extends object ? FormParams<Fields[K]> : Fields[K]>
+    [K in keyof Fields]: DetectAny<Fields[K], Fields[K], Fields[K] extends object ? FormParams<Fields[K]> : Fields[K]>
 };
 
 export type FormErrors<Fields, Validators> = {
@@ -48,7 +48,13 @@ export type FormErrors<Fields, Validators> = {
 
 // $validator on <Form />
 export type FormValiateResult<Fields> =
-    | { [K in keyof Fields]?: DetectAny<Fields[K], any, Fields[K] extends object ? FormValiateResult<Fields[K]> : any> }
+    | {
+          [K in keyof Fields]?: DetectAny<
+              Fields[K],
+              Fields[K],
+              Fields[K] extends object ? FormValiateResult<Fields[K]> : any
+          >
+      }
     | void
     | undefined;
 
@@ -71,7 +77,7 @@ export type FormPendings<Fields> = {
 export type FormStates<Fields, Validators> = {
     [K in keyof Fields]: DetectAny<
         Fields[K],
-        FieldState<string, Validators>,
+        FieldState<Fields[K], Validators>,
         Fields[K] extends object ? FormStates<Fields[K], Validators> : FieldState<Fields[K], Validators>
     >
 };
@@ -133,14 +139,14 @@ export type ArgFormFocuses<Fields> = {
 export type ArgFormStates<Fields, Validators> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
-        Partial<FieldState<string, Validators>>,
+        Partial<FieldState<Fields[K], Validators>>,
         Fields[K] extends object
             ? ArgFormStates<Fields[K], Validators> | Partial<FieldState<Fields[K], Validators>>
             : Partial<FieldState<Fields[K], Validators>>
     >
 };
 
-export type FormWeakParams<Fields> = { [K in keyof Fields]: DetectAny<Fields[K], string, Fields[K]> };
+export type FormWeakParams<Fields> = { [K in keyof Fields]: Fields[K] };
 
 export type FormWeakErrors<Fields, Validators> = { [K in keyof Fields]: FieldError<Validators> };
 
@@ -152,12 +158,10 @@ export type FormWeakFocuses<Fields> = { [K in keyof Fields]: boolean };
 
 export type FormWeakPendings<Fields> = { [K in keyof Fields]: boolean };
 
-export type FormWeakStates<Fields, Validators> = {
-    [K in keyof Fields]: FieldState<DetectAny<Fields[K], string, Fields[K]>, Validators>
-};
+export type FormWeakStates<Fields, Validators> = { [K in keyof Fields]: FieldState<Fields[K], Validators> };
 
 export type Registers<Fields, Validators, WeakFields = Fields> = {
-    [K in keyof WeakFields]: $Fieldutil<DetectAny<WeakFields[K], string, WeakFields[K]>, Validators, Fields, WeakFields>
+    [K in keyof WeakFields]: $Fieldutil<WeakFields[K], Validators, Fields, WeakFields>
 };
 
 export type DeepRegisters<Fields, Validators, WeakFields = Fields> = {
@@ -369,14 +373,11 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     $new(): $Formutil<Fields, Validators, WeakFields>;
     $getField<T extends keyof WeakFields>(
         name: T
-    ): undefined | $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>;
+    ): undefined | $Fieldutil<WeakFields[T], Validators, Fields, WeakFields>;
     $onValidates<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
     $getFirstError<T extends keyof WeakFields>(name?: T): any;
     $render<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
-    $validate<
-        T extends keyof WeakFields,
-        S = $Fieldutil<DetectAny<WeakFields[T], string, WeakFields[T]>, Validators, Fields, WeakFields>
-    >(
+    $validate<T extends keyof WeakFields, S = $Fieldutil<WeakFields[T], Validators, Fields, WeakFields>>(
         name: T,
         callback?: ($fieldutil?: S) => void
     ): undefined | Promise<S>;
@@ -455,10 +456,7 @@ export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields
         $params: FormParams<Fields>,
         $formutil: $Formutil<Fields, Validators, WeakFields>
     ) => FormValiateResult<Fields> | Promise<FormValiateResult<Fields>>;
-    $processer?: <K extends keyof WeakFields>(
-        $state: FieldState<DetectAny<WeakFields[K], string, WeakFields[K]>, Validators>,
-        name: K
-    ) => void;
+    $processer?: <K extends keyof WeakFields>($state: FieldState<WeakFields[K], Validators>, name: K) => void;
 }
 
 export type FormProps<Fields = {}, Validators = {}, WeakFields = Fields> = BaseFormComponentProps<

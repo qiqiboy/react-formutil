@@ -145,14 +145,22 @@ class Form extends Component {
     };
 
     $$defaultInitialize = () => {
-        this.$$defaultValues = JSON.parse(JSON.stringify(this.props.$defaultValues));
-        this.$$defaultStates = JSON.parse(JSON.stringify(this.props.$defaultStates));
+        this.$$defaultValues = this.$$deepParseObject(JSON.parse(JSON.stringify(this.props.$defaultValues)));
+        this.$$defaultStates = this.$$deepParseObject(JSON.parse(JSON.stringify(this.props.$defaultStates)));
     };
 
     $$getDefault = () => ({
         $$defaultStates: this.$$defaultStates,
         $$defaultValues: this.$$defaultValues
     });
+
+    $$deepParseObject(mayWeakObj) {
+        const deepObj = {};
+
+        utils.objectEach(mayWeakObj, (data, name) => utils.parsePath(deepObj, name, data));
+
+        return deepObj;
+    }
 
     $$triggerChangeTimer;
     $$fieldChangedQueue = [];
@@ -195,11 +203,7 @@ class Form extends Component {
         }
     };
 
-    creatDeepRegisters = () => {
-        this.$$deepRegisters = {};
-
-        utils.objectEach(this.$$registers, (handler, name) => utils.parsePath(this.$$deepRegisters, name, handler));
-    };
+    creatDeepRegisters = () => (this.$$deepRegisters = this.$$deepParseObject(this.$$registers));
 
     $$getRegister = name => {
         if (name) {
@@ -324,13 +328,11 @@ class Form extends Component {
         );
 
     $$setStates = ($stateTree = {}, processer, callback, force) => {
+        const $parsedTree = this.$$deepParseObject($stateTree);
         let hasStateChange = false;
-        const $parsedTree = { ...$stateTree };
-
-        utils.objectEach($stateTree, (data, name) => utils.parsePath($parsedTree, name, data));
 
         utils.objectEach(this.$$registers, (handler, name) => {
-            const data = $parsedTree[name] || utils.parsePath($parsedTree, name);
+            const data = $stateTree[name] || utils.parsePath($parsedTree, name);
 
             if (!utils.isUndefined(data) || force) {
                 const $newState = processer(data, handler);
@@ -445,7 +447,7 @@ class Form extends Component {
     $setStates = ($stateTree, callback) => this.$$setStates($stateTree, $state => $state, callback);
 
     $setValues = ($valueTree, callback) => {
-        Object.assign(this.$$defaultValues, JSON.parse(JSON.stringify($valueTree)));
+        Object.assign(this.$$defaultValues, this.$$deepParseObject($valueTree));
 
         return this.$$setStates($valueTree, $value => ({ $value }), callback);
     };
@@ -539,6 +541,11 @@ class Form extends Component {
             }
         });
 
+        const $pureParams = utils.toObject(
+            $stateArray,
+            ($params, { path, $state }) => path in $weakParams && utils.parsePath($params, path, $weakParams[path])
+        );
+
         const $invalid = $stateArray.some(({ $state }) => $state.$invalid);
         const $dirty = $stateArray.some(({ $state }) => $state.$dirty);
         const $touched = $stateArray.some(({ $state }) => $state.$touched);
@@ -549,13 +556,10 @@ class Form extends Component {
             $$registers: this.$$registers,
             $$deepRegisters: this.$$deepRegisters,
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
-            $params: utils.toObject(
-                $stateArray,
-                ($params, { path, $state }) => path in $weakParams && utils.parsePath($params, path, $weakParams[path]),
-                {
-                    ...this.$$defaultValues
-                }
-            ),
+            $params: {
+                ...this.$$defaultValues,
+                ...$pureParams
+            },
             $errors: utils.toObject($stateArray, ($errors, { path, $state }) => {
                 if ($state.$invalid) {
                     utils.parsePath($errors, path, $state.$error);

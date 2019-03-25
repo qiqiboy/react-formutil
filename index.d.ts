@@ -339,6 +339,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
 export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
     readonly $states: Readonly<FormStates<Fields, Validators>>;
     readonly $params: Readonly<FormParams<Fields>>;
+    readonly $pureParams: Readonly<FormParams<Fields>>;
     readonly $errors: Readonly<FormErrors<Fields, Validators>>;
     readonly $touches: Readonly<FormTouches<Fields>>;
     readonly $dirts: Readonly<FormDirts<Fields>>;

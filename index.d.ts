@@ -90,9 +90,13 @@ export type ArgFormParams<Fields> = {
     >
 };
 
-export type ArgFieldError<Validators> = {
-    [K in keyof Validators]?: DetectAny<Validators[K], string | true, Validators[K] | true>
-};
+export type ArgFieldError<Validators> = { [K in keyof Validators]?: any };
+
+export type ArgFieldState<T, Validators> = Partial<
+    Omit<FieldState<T, Validators>, '$error'> & {
+        $error: ArgFieldError<Validators>;
+    }
+>;
 
 export type ArgFormErrors<Fields, Validators> = {
     [K in keyof Fields]?: DetectAny<
@@ -139,10 +143,10 @@ export type ArgFormFocuses<Fields> = {
 export type ArgFormStates<Fields, Validators> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
-        Partial<FieldState<Fields[K], Validators>>,
+        ArgFieldState<Fields[K], Validators>,
         Fields[K] extends object
-            ? ArgFormStates<Fields[K], Validators> | Partial<FieldState<Fields[K], Validators>>
-            : Partial<FieldState<Fields[K], Validators>>
+            ? ArgFormStates<Fields[K], Validators> | ArgFieldState<Fields[K], Validators>
+            : ArgFieldState<Fields[K], Validators>
     >
 };
 
@@ -190,7 +194,7 @@ export type Validators<T = string, Fields = {}, P = {}, WeakFields = Fields> = {
 
 export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields> {
     $defaultValue?: T;
-    $defaultState?: Partial<FieldState<T, P>>;
+    $defaultState?: ArgFieldState<T, P>;
     $onFieldChange?: (newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void;
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
@@ -297,7 +301,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
 
     $onValidate<S = $Fieldutil<T, Validators, Fields, WeakFields>>(callback?: ($fieldutil: S) => void): Promise<S>;
     $reset<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
-        newState?: Partial<FieldState<T, Validators>>,
+        newState?: ArgFieldState<T, Validators>,
         callback?: ($fieldutil: S) => void
     ): Promise<S>;
     $render<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
@@ -309,7 +313,7 @@ export interface $Fieldutil<T = string, Validators = {}, Fields = {}, WeakFields
         callback?: ($fieldutil: S) => void
     ): Promise<S>;
     $setState<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
-        newState: Partial<FieldState<T, Validators>>,
+        newState: ArgFieldState<T, Validators>,
         callback?: ($fieldutil: S) => void
     ): Promise<S>;
     $setTouched<S = $Fieldutil<T, Validators, Fields, WeakFields>>(
@@ -419,7 +423,7 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $batchState<S = $Formutil<Fields, Validators, WeakFields>>(
-        state: Partial<FieldState<any, Validators>>,
+        state: ArgFieldState<any, Validators>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $batchDirty<S = $Formutil<Fields, Validators, WeakFields>>(

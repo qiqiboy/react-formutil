@@ -154,9 +154,7 @@ class Form extends Component {
         $$defaultValues: this.$$defaultValues
     });
 
-    $$deepParseObject(mayWeakObj) {
-        const deepObj = {};
-
+    $$deepParseObject(mayWeakObj, deepObj = {}) {
         utils.objectEach(mayWeakObj, (data, name) => utils.parsePath(deepObj, name, data));
 
         return deepObj;
@@ -332,7 +330,7 @@ class Form extends Component {
         let hasStateChange = false;
 
         utils.objectEach(this.$$registers, (handler, name) => {
-            const data = $stateTree[name] || utils.parsePath($parsedTree, name);
+            const data = name in $stateTree ? $stateTree[name] : utils.parsePath($parsedTree, name);
 
             if (!utils.isUndefined(data) || force) {
                 const $newState = processer(data, handler);
@@ -447,7 +445,7 @@ class Form extends Component {
     $setStates = ($stateTree, callback) => this.$$setStates($stateTree, $state => $state, callback);
 
     $setValues = ($valueTree, callback) => {
-        Object.assign(this.$$defaultValues, this.$$deepParseObject($valueTree));
+        this.$$deepParseObject($valueTree, this.$$defaultValues);
 
         return this.$$setStates($valueTree, $value => ({ $value }), callback);
     };

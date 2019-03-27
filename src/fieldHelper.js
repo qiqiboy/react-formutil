@@ -38,7 +38,7 @@ export const propTypes = {
     name: PropTypes.string,
 
     $defaultValue: PropTypes.any,
-    $defaultState: PropTypes.object,
+    $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
     $onFieldChange: PropTypes.func,
     $validators: PropTypes.object,
     $asyncValidators: PropTypes.object,
@@ -169,10 +169,16 @@ export function createHandler($this, owner) {
             }
         }
 
+        const { $defaultValue, $defaultState } = props;
+
         return $$merge({
             ...$baseState, // the base state
-            ...props.$defaultState, // self default state
-            $value: '$defaultValue' in props ? props.$defaultValue : '',
+            ...(utils.isFunction($defaultState) ? $defaultState(props) : $defaultState), // self default state
+            $value: utils.isFunction($defaultValue)
+                ? $defaultValue(props)
+                : '$defaultValue' in props
+                ? $defaultValue
+                : '',
             ...$initialState, // the default state from Form
             ...$newState
         });

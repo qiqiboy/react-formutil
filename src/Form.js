@@ -31,8 +31,8 @@ class Form extends Component {
 
             return pt(props, ...args);
         },
-        $defaultValues: PropTypes.object,
-        $defaultStates: PropTypes.object,
+        $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+        $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
         $onFormChange: PropTypes.func,
         $validator: PropTypes.func,
         $processer: PropTypes.func
@@ -145,8 +145,18 @@ class Form extends Component {
     };
 
     $$defaultInitialize = () => {
-        this.$$defaultValues = this.$$deepParseObject(JSON.parse(JSON.stringify(this.props.$defaultValues)));
-        this.$$defaultStates = this.$$deepParseObject(JSON.parse(JSON.stringify(this.props.$defaultStates)));
+        const { $defaultValues, $defaultStates } = this.props;
+
+        this.$$defaultValues = this.$$deepParseObject(
+            JSON.parse(
+                JSON.stringify(utils.isFunction($defaultValues) ? $defaultValues(this.props) || {} : $defaultValues)
+            )
+        );
+        this.$$defaultStates = this.$$deepParseObject(
+            JSON.parse(
+                JSON.stringify(utils.isFunction($defaultStates) ? $defaultStates(this.props) || {} : $defaultStates)
+            )
+        );
     };
 
     $$getDefault = () => ({

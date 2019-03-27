@@ -193,8 +193,8 @@ export type Validators<T = string, Fields = {}, P = {}, WeakFields = Fields> = {
 };
 
 export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFields = Fields> {
-    $defaultValue?: T;
-    $defaultState?: ArgFieldState<T, P>;
+    $defaultValue?: T | ((props: any) => T);
+    $defaultState?: ArgFieldState<T, P> | ((props: any) => ArgFieldState<T, P>);
     $onFieldChange?: (newValue: T, preValue: T, $formutil: $Formutil<Fields, P, WeakFields>) => void;
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
@@ -449,8 +449,8 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
 }
 
 export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {
-    $defaultValues?: ArgFormParams<Fields>;
-    $defaultStates?: ArgFormStates<Fields, Validators>;
+    $defaultValues?: ArgFormParams<Fields> | ((props: any) => ArgFormParams<Fields>);
+    $defaultStates?: ArgFormStates<Fields, Validators> | ((props: any) => ArgFormStates<Fields, Validators>);
     $onFormChange?: (
         $formutil: $Formutil<Fields, Validators, WeakFields>,
         newValues: Readonly<FormParams<Fields>>,

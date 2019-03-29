@@ -355,6 +355,10 @@ class Form extends Component {
                         const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
 
                         if (findItem) {
+                            if (!('$prevValue' in findItem)) {
+                                findItem.$prevValue = findItem.$newValue;
+                            }
+
                             findItem.$newValue = $newValue;
                         } else {
                             this.$$fieldChangedQueue.push({

@@ -317,7 +317,9 @@ yarn add react-formutil@0.4
 
 #### `$defaultValue`
 
-该属性可以设置表单控件的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
+> `0.5.4`起，`$defaultValue`也可以传递一个函数，该函数接收所有传递给 Field 的 props，然后返回的要设置的默认值。类似`react-redux`中的`mapPropsToState`用法。
+
+`$defaultValue` 可以通过传递一个值，或者一个返回初始值的函数，来将其作为 Field 的默认值/初始值。如过不传递该参数，则默认值都为空字符串。通过该属性，你可以指定某个表单控件的默认值或初始值。
 
 -   `<Field $defaultValue="username" />`
 -   `<Field $defaultValue={{name: 'dog'}} />`
@@ -326,7 +328,9 @@ yarn add react-formutil@0.4
 
 #### `$defaultState`
 
-该属性可以覆盖表单控件的的默认状态，类型必需是`key: value`简单对象：
+> `0.5.4`起，`$defaultState`也可以传递一个函数，该函数接收所有传递给 Field 的 props，然后返回的要设置的初始状态。类似`react-redux`中的`mapPropsToState`用法。
+
+`$defaultState` 可以覆盖表单控件的的默认状态，通过传递一个`{ [key]: value }`对象，或者一个返回`{ [key]: value }`对象的函数，来将其作为 Field 的初始状态。
 
 ```javascript
 <Field $defaultState={{ $value: 'username' }} />
@@ -1175,7 +1179,11 @@ function MyComponent({ current, onUpdate }) {
 
 #### `$defaultValues`
 
-`$defaultValues` 可以通过这里批量设置表单的默认值，格式为 `{ name: value }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
+> `0.5.4`起，`$defaultValues`也可以传递一个函数，该函数接收所有传递给 Form 的 props，然后返回的`{ [name]: defaultValue }`对象。类似`react-redux`中的`mapPropsToState`用法。
+
+`$defaultValues` 可以通过传递一个 `{ [name]: defaultValue }`对象，或者传递一个返回 `{ [name]: defaultValue }`对象的函数，来将其作为表单的初始化值。
+
+**`$defaultValues` 的优先级高于 Field 自身的 `$defaultValue` 设置。**
 
 ```javascript
 <Form
@@ -1189,12 +1197,25 @@ function MyComponent({ current, onUpdate }) {
             <Field name="password">{props => <input />}</Field>
         </div>
     )}
-</Form>
+</Form>;
+
+// 或者使用withForm
+withForm(MyForm, {
+    $defaultValues(props) {
+        return {
+            username: props.username
+        };
+    }
+});
 ```
 
 #### `$defaultStates`
 
-`$defaultStates` 可以通过这里批量设置表单的默认状态，格式为 `{ name: $state }`（如果设置对应的值，会覆盖 Field 中的 defautlValue 设置）
+> `0.5.4`起，`$defaultStates`也可以传递一个函数，该函数接收所有传递给 Form 的 props，然后返回的`{ [name]: defaultState }`对象。类似`react-redux`中的`mapPropsToState`用法。
+
+`$defaultStates` 可以通过传递一个 `{ [name]: defaultState }`对象，或者传递一个返回 `{ [name]: defaultState }`对象的函数，来将其作为表单的初始化状态
+
+**`$defaultStates` 的优先级高于 Field 自身的 `$defaultState` 设置。**
 
 ```javascript
 <Form
@@ -1210,7 +1231,16 @@ function MyComponent({ current, onUpdate }) {
             <Field name="password">{props => <input />}</Field>
         </div>
     )}
-</Form>
+</Form>;
+
+// 或者使用withForm
+withForm(MyForm, {
+    $defaultStates(props) {
+        return {
+            username: props.usernameState
+        };
+    }
+});
 ```
 
 #### `$onFormChange`

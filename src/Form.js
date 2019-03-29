@@ -31,8 +31,8 @@ class Form extends Component {
 
             return pt(props, ...args);
         },
-        $defaultValues: PropTypes.object,
-        $defaultStates: PropTypes.object,
+        $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+        $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
         $onFormChange: PropTypes.func,
         $validator: PropTypes.func,
         $processer: PropTypes.func
@@ -145,8 +145,18 @@ class Form extends Component {
     };
 
     $$defaultInitialize = () => {
-        this.$$defaultValues = this.$$deepParseObject(JSON.parse(JSON.stringify(this.props.$defaultValues)));
-        this.$$defaultStates = this.$$deepParseObject(JSON.parse(JSON.stringify(this.props.$defaultStates)));
+        const { $defaultValues, $defaultStates } = this.props;
+
+        this.$$defaultValues = this.$$deepParseObject(
+            JSON.parse(
+                JSON.stringify(utils.isFunction($defaultValues) ? $defaultValues(this.props) || {} : $defaultValues)
+            )
+        );
+        this.$$defaultStates = this.$$deepParseObject(
+            JSON.parse(
+                JSON.stringify(utils.isFunction($defaultStates) ? $defaultStates(this.props) || {} : $defaultStates)
+            )
+        );
     };
 
     $$getDefault = () => ({
@@ -154,9 +164,7 @@ class Form extends Component {
         $$defaultValues: this.$$defaultValues
     });
 
-    $$deepParseObject(mayWeakObj) {
-        const deepObj = {};
-
+    $$deepParseObject(mayWeakObj, deepObj = {}) {
         utils.objectEach(mayWeakObj, (data, name) => utils.parsePath(deepObj, name, data));
 
         return deepObj;
@@ -332,7 +340,7 @@ class Form extends Component {
         let hasStateChange = false;
 
         utils.objectEach(this.$$registers, (handler, name) => {
-            const data = $stateTree[name] || utils.parsePath($parsedTree, name);
+            const data = name in $stateTree ? $stateTree[name] : utils.parsePath($parsedTree, name);
 
             if (!utils.isUndefined(data) || force) {
                 const $newState = processer(data, handler);
@@ -447,7 +455,7 @@ class Form extends Component {
     $setStates = ($stateTree, callback) => this.$$setStates($stateTree, $state => $state, callback);
 
     $setValues = ($valueTree, callback) => {
-        Object.assign(this.$$defaultValues, this.$$deepParseObject($valueTree));
+        this.$$deepParseObject($valueTree, this.$$defaultValues);
 
         return this.$$setStates($valueTree, $value => ({ $value }), callback);
     };

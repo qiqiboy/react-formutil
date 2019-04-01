@@ -37,18 +37,19 @@ function useField(name, props = {}) {
     $this.$formContext = $formContext;
     $this.props = props;
     $this.$setState = $setState;
-
-    const $registered = $this.$registered || $this.$fieldHandler || ($this.$fieldHandler = createHandler($this));
     // we not directly use this $state, just from $this.$state
     const [, setState] = useState(() => {
-        $this.$fieldHandler.$$FIELD_UUID = GET_FIELD_UUID();
+        $this.$$FIELD_UUID = GET_FIELD_UUID();
+        $this.$fieldHandler = createHandler($this);
 
-        const $state = $registered.$$reset();
+        const $state = $this.$fieldHandler.$$reset();
 
-        $registered.$validate();
+        $this.$fieldHandler.$validate();
 
         return $state;
     });
+
+    const $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
 
     useLayoutEffect(() => {
         const { $state } = $this;

@@ -61,9 +61,9 @@ const executeWord = function(word) {
 /**
  * @desc 解析表达式中赋值深路径对象
  *
- * @param {Object} target 要赋值的对象
- * @param {String} path 赋值路径，eg：list[0].title
- * @param {Any} [value] 要赋过去的值，如过不传，则返回解析路径后的值
+ * @param {object} target 要赋值的对象
+ * @param {string} path 赋值路径，eg：list[0].title
+ * @param {any} [value] 要赋过去的值，如过不传，则返回解析路径后的值
  *
  * 使用示例：parsePath({}, 'list[0].authors[1].name', 'Lucy');
  */
@@ -158,27 +158,26 @@ export const toObject = (arr, handler, obj = {}) =>
         return args[0];
     }, obj);
 
-const TODO_DELETE = '__REACT_FORMUTIL_TODO_DELETE__' + +new Date();
+const TODO_DELETE = undefined;
 const CLEAR = (obj, pkey, pobj) => {
     objectEach(obj, (value, key) => {
         if (value === TODO_DELETE) {
-            if (Array.isArray(obj)) {
-                obj.splice(key, 1);
-            } else {
-                delete obj[key];
-            }
+            delete obj[key];
         } else if (value && typeof value === 'object') {
             CLEAR(value, key, obj);
         }
     });
 
-    if (pobj && Object.keys(obj).length === 0) {
+    if (pobj && Object.keys(obj).every(key => obj[key] === TODO_DELETE)) {
         pobj[pkey] = TODO_DELETE;
         CLEAR(pobj);
     }
 };
-export const objectClear = (obj, name) => {
-    if (typeof parsePath(obj, name) !== 'undefined') {
-        CLEAR(parsePath(obj, name, TODO_DELETE));
+export const preObjectClear = (obj, name) => {
+    if (!isUndefined(parsePath(obj, name))) {
+        parsePath(obj, name, TODO_DELETE);
     }
+};
+export const objectClear = obj => {
+    CLEAR(obj);
 };

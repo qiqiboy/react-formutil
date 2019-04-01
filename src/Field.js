@@ -31,7 +31,7 @@ class Field extends Component {
         warning($name, `You should assign a name to <Field />, otherwise it will be isolated!`);
 
         if ($formContext.$$register) {
-            this.$registered = $formContext.$$register($name, this.$fieldHandler);
+            $formContext.$$register($name, this.$fieldHandler);
         }
 
         this.$prevValue = this.$state.$value;
@@ -50,7 +50,7 @@ class Field extends Component {
 
         if ($name !== prevProps.name) {
             if (this.$formContext.$$register) {
-                this.$registered = this.$formContext.$$register($name, this.$fieldHandler, prevProps.name);
+                this.$formContext.$$register($name, this.$fieldHandler, prevProps.name);
             }
         }
 
@@ -111,13 +111,11 @@ class Field extends Component {
                         this.$fieldHandler = createHandler(this, this);
                     }
 
-                    if (!this.$registered) {
-                        this.$registered = this.$fieldHandler;
-                    }
+                    this.$registered = (context.$$registers || {})[this.$fieldHandler.$name] || this.$fieldHandler;
 
                     if (shouldInitial) {
-                        this.$registered.$$reset();
-                        this.$registered.$validate();
+                        this.$fieldHandler.$$reset();
+                        this.$fieldHandler.$validate();
                     }
 
                     return this._render();

@@ -79,6 +79,8 @@ Happy to build the forms in React ^\_^
             * [`checkbox/radio group`](#checkboxradio-group)
         + [`渲染自定义组件`](#渲染自定义组件)
             * [`原生表单控件`](#原生表单控件)
+            * [`列表数组`](#列表数组)
+                - [`$listutil`](#listutil)
             * [`第三方组件`](#第三方组件)
         + [`name`](#name-1)
         + [`$defaultValue`](#defaultvalue-1)
@@ -961,6 +963,103 @@ class MyField extends Component {}
     )}
 </EasyField>
 ```
+
+##### `列表数组`
+
+从`0.5.5`起，`EasyField`新增支持`type="list"`，可以用来方便的实现列表数组表单，即将一组表单以数组形式组合渲染：
+
+```javascript
+[
+    {
+        username: 'xx',
+        age: 18
+    },
+    {
+        username: 'xx',
+        age: 22
+    }
+    // ...
+];
+```
+
+在该模式下，你需要传递一个`render props`形式的`children`，该函数中所渲染的表单将会被作为数组的值：
+
+```typescript
+<EasyField name="relationships">
+    {($listutil: $Listutil) => {
+        return (
+            <>
+                <div className="relationship-item">
+                    <EasyField name="relation">
+                        <option value="">select</option>
+                        <option value="0">Father</option>
+                        <option value="1">Mother</option>
+                    </EasyField>
+                    <EasyField name="name" placeholder="The name" />
+                    <button onClick={() => $listutil.$remove($listutil.$index)}>Delete</button>
+                </div>
+                {$listutil.$isLast() && (
+                    <div className="relationship-toolbar">
+                        <button onClick={() => $listutil.$push()}>Add new</button>
+                    </div>
+                )}
+            </>
+        );
+    }}
+</EasyField>
+```
+
+如上示例，你将会得到一个可以自由增删的列表形式表单，它将会渲染下面结构的`$params`：
+
+```javascript
+// $params =
+{
+    relationships: [
+        {
+            relation: '0',
+            name: 'John'
+        },
+        {
+            relation: '1',
+            name: 'Clare'
+        }
+    ];
+}
+```
+
+###### `$listutil`
+
+当你传递一个`render props`函数时，它将会接受两个参数：
+
+-   `$listutil` 为每个数组子表单的`$formutil`对象，另外扩展了一些其它用于列表渲染的方法
+-   `$formutil` 为整个数组表单的`$formutil`对象
+
+```javascript
+// $listutil =
+{
+    ...$formutil, // 包含当前数组表单项的$formutil
+
+    $length, // 数组表单项数量
+    $index, // 当前表单的次序
+    $insert(pos?: number), // 在pos位置新增，如果pos不指定，则为在当前列表末尾新增
+    $remove(pos?: number), // 删除pos位置项，如果pos不指定，则为删除当前列表最后一项
+    $push(), // 在列表尾部新增
+    $pop(), // 删除列表最后一项
+    $shift(), // 删除列表第一项
+    $unshift() // 在列表前面增加
+
+    $isLast(), // 是否最后一项
+    $isFirst(), // 是否第一项
+
+    onFocus(), // $fieldHandler的onFocus回调，可以传递给渲染的Field组件，用来同步`$focused` `$touched`等状态
+    onBlur()  // $fieldHandler的onBlur回调，可以传递给渲染的Field组件，用来同步`$focused` `$touched`等状态
+}
+```
+
+你可以使用`$listutil`提供的方法，来渲染一些控制按钮，以控制列表项。但是需要注意以下几点：
+
+* 列表数组无法删除为`0`，如果你尝试删除最后一项，那么会删除后自动创建一个新的项。
+* `children`方法会随着列表数组的数量渲染`n`次，你可以通过`$isFirst()` `$isLast()`方法判断是否是`第一项` `末项`，来控制一些不希望被多次重复渲染的内容：比如新增按钮
 
 ##### `第三方组件`
 

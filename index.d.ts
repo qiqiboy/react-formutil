@@ -262,7 +262,7 @@ export interface EasyFieldComponentProps<T = string, Validators = {}, Fields = {
     groupNode?: string | React.ComponentType<EasyFieldGroupOptionComponentProps<T> & OtherKeys>;
     component?: React.ComponentType<$FieldHandler<T> & OtherKeys>;
     render?: ($fieldHandler: $FieldHandler<T>) => React.ReactNode;
-    children?: (($fieldHandler: $FieldHandler<T>) => React.ReactNode) | React.ReactNode;
+    children?: any;
 }
 
 export interface EasyFieldGroupOptionComponentProps<T = string> {
@@ -446,6 +446,39 @@ export interface $Formutil<Fields = {}, Validators = {}, WeakFields = Fields> {
         $error: ArgFieldError<Validators>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
+}
+
+export interface $Listutil<Fields = {}, Validators = {}, WeakFields = Fields>
+    extends $Formutil<Fields, Validators, WeakFields> {
+    $length: number;
+    $index: number;
+    onFocus: FieldHanderCallback;
+    onBlur: FieldHanderCallback;
+
+    $swap<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        p1: number,
+        p2: number,
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        position?: number,
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $remove<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        position?: number,
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $push<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(callback?: ($formutil: S) => void): Promise<S>;
+    $pop<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(callback?: ($formutil: S) => void): Promise<S>;
+    $shift<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $unshift<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+
+    $isFisrt(): boolean;
+    $isLatst(): boolean;
 }
 
 export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {

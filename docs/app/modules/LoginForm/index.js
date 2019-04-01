@@ -451,6 +451,88 @@ class LoginForm extends Component {
                     </div>
 
                     <div className="form-group">
+                        <label className="control-label">列表组</label>
+                        <EasyField
+                            type="list"
+                            name="EasyField.list"
+                            required
+                            $defaultValue={[{ A: '0', B: '14000000897' }, { A: '1', B: '010-66666888' }]}
+                            validMessage={{ required: '请选择' }}>
+                            {$listutil => (
+                                <div className="row">
+                                    <div className="form-group form-group-sm col-sm-5">
+                                        <EasyField type="select" className="form-control" name="A" required>
+                                            <option value="" disabled>
+                                                选择类型
+                                            </option>
+                                            <option value="0">个人</option>
+                                            <option value="1">办公</option>
+                                        </EasyField>
+                                    </div>
+                                    <div className="form-group form-group-sm col-sm-5">
+                                        <EasyField className="form-control" name="B" placeholer="电话号码" />
+                                    </div>
+                                    <div className="col-sm-2">
+                                        <button
+                                            disabled={$listutil.$length === 1}
+                                            type="button"
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => $listutil.$remove($listutil.$index)}>
+                                            删除
+                                        </button>
+                                    </div>
+                                    {$listutil.$isLast() && (
+                                        <div className="col-sm-12 btn-toolbar">
+                                            <button
+                                                type="button"
+                                                disabled={$listutil.$length >= 5}
+                                                className="btn btn-primary"
+                                                onClick={() => $listutil.$unshift()}>
+                                                前面增加一项
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger"
+                                                disabled={$listutil.$length === 1}
+                                                onClick={() => $listutil.$shift()}>
+                                                前面删除一项
+                                            </button>
+                                            <button
+                                                type="button"
+                                                disabled={$listutil.$length >= 5}
+                                                className="btn btn-primary"
+                                                onClick={() => $listutil.$push()}>
+                                                后面增加一项
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger"
+                                                disabled={$listutil.$length === 1}
+                                                onClick={() => $listutil.$pop()}>
+                                                后面删除一项
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger"
+                                                disabled={$listutil.$length < 2}
+                                                onClick={() => $listutil.$swap(0, 1)}>
+                                                交换前两项
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </EasyField>
+                        {$errors.EasyField &&
+                            $errors.EasyField.list &&
+                            $dirts.EasyField.list && (
+                                <span className="help-block  bg-danger">
+                                    {Object.values($errors.EasyField.list)[0]}
+                                </span>
+                            )}
+                    </div>
+
+                    <div className="form-group">
                         <label className="control-label">
                             工作城市（多级联动）{' '}
                             <small>

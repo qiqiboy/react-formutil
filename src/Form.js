@@ -55,6 +55,14 @@ class Form extends Component {
         this.$$defaultInitialize();
     }
 
+    componentDidMount() {
+        this.$isMount = true;
+    }
+
+    componentWillUnmount() {
+        this.$isMount = false;
+    }
+
     getFormContext() {
         return {
             $$registers: this.$$registers,
@@ -66,81 +74,100 @@ class Form extends Component {
         };
     }
 
+    $$registerTimer;
+    $$TODORegisters = {};
+    $$TODOUnRegisters = {};
+
+    $$batchRegister = () => {
+        const { $$TODORegisters, $$TODOUnRegisters } = this;
+
+        utils.objectEach($$TODOUnRegisters, ({ $handler, $$reserved }, name) => {
+            if ($$reserved) {
+                $handler.$$reserved = true;
+            } else {
+                delete this.$$registers[name];
+
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $prevValue: $handler.$getState().$value
+                });
+            }
+
+            delete $$TODOUnRegisters[name];
+        });
+
+        this.createDeepRegisters();
+
+        utils.objectEach($$TODORegisters, ({ $handler }, name) => {
+            const $curRegistered = this.$$getRegister(name);
+
+            if ($curRegistered !== $handler) {
+                if ($curRegistered) {
+                    $handler.$$reset($curRegistered.$getState());
+
+                    warning($curRegistered.$$reserved, `The Field with a name '${name}' has been registered!`);
+                }
+
+                if (!$curRegistered || !$curRegistered.$$reserved) {
+                    this.$$fieldChangedQueue.push({
+                        name,
+                        $newValue: $handler.$getState().$value
+                    });
+
+                    utils.preObjectClear(this.$$defaultValues, name);
+                }
+            }
+
+            this.$$registers[name] = $handler;
+
+            delete $$TODORegisters[name];
+        });
+
+        utils.objectClear(this.$$defaultValues);
+        this.createDeepRegisters();
+        this.$render();
+    };
+
     /**
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, prevName) => {
-        const $curRegistered = this.$$getRegister(name);
-        const $prevRegistered = this.$$getRegister(prevName);
-
-        if ($prevRegistered) {
-            if ($prevRegistered === $handler) {
-                prevName = $prevRegistered.$name;
-                delete this.$$registers[prevName];
-                delete $prevRegistered.$name;
-            }
-
-            if ($curRegistered !== $prevRegistered) {
-                utils.objectClear(this.$$defaultValues, prevName);
-
-                this.$$fieldChangedQueue.push({
-                    name: prevName,
-                    $prevValue: $handler.$getState().$value
-                });
-            }
-        }
+        cancelFrame(this.$$registerTimer);
 
         if (name) {
-            if ($curRegistered && $curRegistered.$$reserved) {
-                $handler.$$reset($curRegistered.$getState());
-            } else if ($curRegistered !== $handler) {
-                this.$$fieldChangedQueue.push({
-                    name,
-                    $newValue: $handler.$getState().$value
-                });
-
-                if ($curRegistered) {
-                    this.$$fieldChangedQueue.push({
-                        name,
-                        $prevValue: $curRegistered.$getState().$value
-                    });
-                }
-
-                warning(
-                    !$curRegistered || $prevRegistered,
-                    `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
-                );
-            }
-
-            this.$$registers[($handler.$name = name)] = !$curRegistered || $prevRegistered ? $handler : $curRegistered;
+            $handler.$name = name;
+            this.$$TODORegisters[name] = {
+                $handler
+            };
         }
 
-        this.creatDeepRegisters();
-        this.$render();
+        if (prevName) {
+            this.$$TODOUnRegisters[prevName] = {
+                $handler
+            };
+        }
 
-        return this.$$registers[name];
+        if (this.$isMount) {
+            this.$$registerTimer = requestFrame(this.$$batchRegister);
+        } else {
+            this.$$batchRegister();
+        }
     };
 
     $$unregister = (name, $handler, $$reserved) => {
-        const $registered = this.$$getRegister(name);
+        cancelFrame(this.$$registerTimer);
 
-        if ($handler === $registered) {
-            if (!$$reserved) {
-                name = $registered.$name;
-                delete this.$$registers[name];
-                delete $registered.$name;
-                utils.objectClear(this.$$defaultValues, name);
+        if (name) {
+            this.$$TODOUnRegisters[name] = {
+                $handler,
+                $$reserved
+            };
+        }
 
-                this.$$fieldChangedQueue.push({
-                    name,
-                    $prevValue: $registered.$getState().$value
-                });
-
-                this.creatDeepRegisters();
-                this.$render();
-            } else {
-                $registered.$$reserved = true;
-            }
+        if (this.$isMount) {
+            this.$$registerTimer = requestFrame(this.$$batchRegister);
+        } else {
+            this.$$batchRegister();
         }
     };
 
@@ -180,15 +207,22 @@ class Form extends Component {
 
             const $newValues = {};
             const $prevValues = {};
+            const { $weakParams } = this.$formutil;
             let hasFormChanged = false;
 
             $$fieldChangedQueue.forEach(item => {
+                if (item.name in $weakParams) {
+                    item.$newValue = $weakParams[item.name];
+                } else {
+                    delete item.$newValue;
+                }
+
                 if (item.$newValue !== item.$prevValue) {
                     if ('$newValue' in item && '$prevValue' in item) {
-                        const $handler = this.$getField(item.name);
+                        const $handler = this.$$getRegister(item.name);
 
                         if ($handler) {
-                            this.$getField(item.name).$$triggerChange(item);
+                            $handler.$$triggerChange(item);
                         }
                     }
 
@@ -211,7 +245,7 @@ class Form extends Component {
         }
     };
 
-    creatDeepRegisters = () => (this.$$deepRegisters = this.$$deepParseObject(this.$$registers));
+    createDeepRegisters = () => (this.$$deepRegisters = this.$$deepParseObject(this.$$registers));
 
     $$getRegister = name => {
         if (name) {

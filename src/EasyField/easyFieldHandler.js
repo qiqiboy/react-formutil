@@ -2,6 +2,7 @@ import { Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import Native from './Native';
 import Group from './Group';
+import List from './List';
 import { isEmpty, isUndefined, isFunction, isValidProp } from '../utils';
 
 export const TYPE = '__TYPE__';
@@ -167,7 +168,7 @@ export function parseProps(props) {
     if (isNative) {
         const [htmlType = 'text', groupType] = (type || '').split('.');
 
-        renderProps.component = htmlType === 'group' ? Group : Native;
+        renderProps.component = htmlType === 'group' ? Group : htmlType === 'list' ? List : Native;
 
         // Native or Group need to pass 'name' | 'type' | 'children'
         if (name) {
@@ -201,6 +202,10 @@ export function parseProps(props) {
             case 'checkbox':
             case 'radio':
                 fieldProps[TYPE] = 'checked';
+                break;
+
+            case 'list':
+                fieldProps[TYPE] = 'array';
                 break;
 
             default:

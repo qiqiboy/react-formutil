@@ -55,7 +55,7 @@ class Field extends Component {
         }
 
         if (this.$state.$value !== this.$prevValue) {
-            if (!$name || !this.$formContext.$$register) {
+            if (!($name in (this.$formContext.$$registers || {}))) {
                 this.$registered.$$triggerChange({
                     $newValue: this.$state.$value,
                     $prevValue: this.$prevValue
@@ -73,7 +73,7 @@ class Field extends Component {
             if (this.isMounting) {
                 const $name = this.props.name;
 
-                if ($name && this.$formContext.$$onChange) {
+                if ($name in (this.$formContext.$$registers || {})) {
                     this.$formContext.$$onChange($name, $newState, execute);
                 } else {
                     this.$registered.$$merge($newState);

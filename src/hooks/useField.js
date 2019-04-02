@@ -55,7 +55,7 @@ function useField(name, props = {}) {
         const { $state } = $this;
 
         if ($this.isMounting) {
-            if (!$name || !$formContext.$$register) {
+            if (!($name in ($formContext.$$registers || {}))) {
                 const { $prevValue } = $this;
 
                 $registered.$$triggerChange({
@@ -112,7 +112,7 @@ function useField(name, props = {}) {
             const execute = () => resolve(runCallback(callback, $this.$fieldutil));
 
             if ($this.isMounting) {
-                if ($name && $formContext.$$onChange) {
+                if ($name in ($formContext.$$registers || {})) {
                     $formContext.$$onChange($name, $newState, execute);
                 } else {
                     setState($registered.$$merge($newState));

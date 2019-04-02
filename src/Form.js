@@ -84,7 +84,7 @@ class Form extends Component {
         utils.objectEach($$TODOUnRegisters, ({ $handler, $$reserved }, name) => {
             if ($$reserved) {
                 $handler.$$reserved = true;
-            } else {
+            } else if (name in this.$$registers) {
                 delete this.$$registers[name];
 
                 this.$$fieldChangedQueue.push({

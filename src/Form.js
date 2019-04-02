@@ -91,6 +91,8 @@ class Form extends Component {
                     name,
                     $prevValue: $handler.$getState().$value
                 });
+
+                utils.preObjectClear(this.$$defaultValues, name);
             }
 
             delete $$TODOUnRegisters[name];

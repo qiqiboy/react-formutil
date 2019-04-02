@@ -106,9 +106,7 @@ class Form extends Component {
                     $handler.$$reset($curRegistered.$getState());
 
                     warning($curRegistered.$$reserved, `The Field with a name '${name}' has been registered!`);
-                }
-
-                if (!$curRegistered || !$curRegistered.$$reserved) {
+                } else {
                     this.$$fieldChangedQueue.push({
                         name,
                         $newValue: $handler.$getState().$value

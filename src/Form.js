@@ -205,13 +205,11 @@ class Form extends Component {
 
             const $newValues = {};
             const $prevValues = {};
-            const { $weakParams } = this.$formutil;
+            const $$registers = this.$$registers;
             let hasFormChanged = false;
 
             $$fieldChangedQueue.forEach(item => {
-                if (item.name in $weakParams) {
-                    item.$newValue = $weakParams[item.name];
-                } else {
+                if (!(item.name in $$registers)) {
                     delete item.$newValue;
                 }
 

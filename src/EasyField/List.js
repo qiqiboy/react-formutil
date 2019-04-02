@@ -156,10 +156,12 @@ class EasyFieldList extends Component {
                                                 const { $invalid, $params } = $formutil;
 
                                                 if ($invalid) {
-                                                    if ($fieldutil.$value !== null) {
+                                                    if ($fieldutil.$viewValue !== null) {
                                                         $fieldutil.$render(null);
                                                     }
-                                                } else {
+                                                } else if (
+                                                    JSON.stringify($fieldutil.$viewValue) !== JSON.stringify($params)
+                                                ) {
                                                     $fieldutil.$render($params);
                                                 }
                                             })

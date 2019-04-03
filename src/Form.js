@@ -55,14 +55,6 @@ class Form extends Component {
         this.$$defaultInitialize();
     }
 
-    componentDidMount() {
-        this.$isMount = true;
-    }
-
-    componentWillUnmount() {
-        this.$isMount = false;
-    }
-
     getFormContext() {
         return {
             $$registers: this.$$registers,
@@ -74,100 +66,84 @@ class Form extends Component {
         };
     }
 
-    $$registerTimer;
-    $$TODORegisters = {};
-    $$TODOUnRegisters = {};
+    $$regDuplications = {};
+    $$duplicateTimer;
+    $$checkDuplication = () => {
+        const { $$regDuplications } = this;
+        let hasDup;
 
-    $$batchRegister = () => {
-        const { $$TODORegisters, $$TODOUnRegisters } = this;
+        utils.objectEach($$regDuplications, ([$curRegistered, $handler], name) => {
+            warning($curRegistered.$$reserved, `The Field with a name '${name}' has been registered!`);
 
-        utils.objectEach($$TODOUnRegisters, ({ $handler, $$reserved }, name) => {
-            if ($$reserved) {
-                $handler.$$reserved = true;
-            } else if (name in this.$$registers) {
-                delete this.$$registers[name];
+            $handler.$$reset($curRegistered.$getState());
 
-                this.$$fieldChangedQueue.push({
-                    name,
-                    $prevValue: $handler.$getState().$value
-                });
-
-                utils.preObjectClear(this.$$defaultValues, name);
-            }
-
-            delete $$TODOUnRegisters[name];
+            hasDup = delete $$regDuplications[name];
         });
 
-        this.createDeepRegisters();
-
-        utils.objectEach($$TODORegisters, ({ $handler }, name) => {
-            const $curRegistered = this.$$getRegister(name);
-
-            if ($curRegistered !== $handler) {
-                if ($curRegistered) {
-                    $handler.$$reset($curRegistered.$getState());
-
-                    warning($curRegistered.$$reserved, `The Field with a name '${name}' has been registered!`);
-                } else {
-                    this.$$fieldChangedQueue.push({
-                        name,
-                        $newValue: $handler.$getState().$value
-                    });
-
-                    utils.preObjectClear(this.$$defaultValues, name);
-                }
-            }
-
-            this.$$registers[name] = $handler;
-
-            delete $$TODORegisters[name];
-        });
-
-        utils.objectClear(this.$$defaultValues);
-        this.createDeepRegisters();
-        this.$render();
+        if (hasDup) {
+            this.$render();
+        }
     };
 
-    /**
+    /*
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, prevName) => {
-        cancelFrame(this.$$registerTimer);
-
         if (name) {
-            $handler.$name = name;
-            this.$$TODORegisters[name] = {
-                $handler
-            };
+            const $curRegistered = this.$$getRegister(name);
+
+            if ($curRegistered) {
+                cancelFrame(this.$$duplicateTimer);
+
+                this.$$regDuplications[name] = [$curRegistered, $handler];
+                this.$$duplicateTimer = requestFrame(this.$$checkDuplication);
+            } else {
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $newValue: $handler.$getState().$value
+                });
+
+                utils.objectClear(this.$$defaultValues, name);
+            }
+
+            this.$$registers[($handler.$name = name)] = $handler;
+
+            this.createDeepRegisters();
+            this.$render();
         }
 
-        if (prevName) {
-            this.$$TODOUnRegisters[prevName] = {
-                $handler
-            };
-        }
-
-        if (this.$isMount) {
-            this.$$registerTimer = requestFrame(this.$$batchRegister);
-        } else {
-            this.$$batchRegister();
-        }
+        this.$$unregister(prevName, $handler);
     };
 
     $$unregister = (name, $handler, $$reserved) => {
-        cancelFrame(this.$$registerTimer);
-
         if (name) {
-            this.$$TODOUnRegisters[name] = {
-                $handler,
-                $$reserved
-            };
-        }
+            if (name in this.$$regDuplications) {
+                const [$curRegistered, $handler] = this.$$regDuplications[name];
 
-        if (this.$isMount) {
-            this.$$registerTimer = requestFrame(this.$$batchRegister);
-        } else {
-            this.$$batchRegister();
+                this.$$fieldChangedQueue.push({
+                    name,
+                    $newValue: $handler.$getState().$value,
+                    $prevValue: $curRegistered.$getState().$value
+                });
+
+                delete this.$$regDuplications[name];
+            } else if (this.$$registers[name] === $handler) {
+                if ($$reserved) {
+                    $handler.$$reserved = true;
+                } else {
+                    delete this.$$registers[name];
+
+                    this.$$fieldChangedQueue.push({
+                        name,
+                        $prevValue: $handler.$getState().$value
+                    });
+
+                    utils.objectClear(this.$$defaultValues, name);
+                }
+            }
+
+            this.createDeepRegisters();
+            this.$render();
         }
     };
 
@@ -597,7 +573,7 @@ class Form extends Component {
         const $pending = this.$$formPending || $stateArray.some(({ $state }) => $state.$pending);
 
         const $formutil = (this.$formutil = {
-            $$registers: this.$$registers,
+            $$registers: { ...this.$$registers },
             $$deepRegisters: this.$$deepRegisters,
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
             $params: {

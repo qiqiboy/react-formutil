@@ -173,11 +173,10 @@ const CLEAR = (obj, pkey, pobj) => {
         CLEAR(pobj);
     }
 };
-export const preObjectClear = (obj, name) => {
+export const objectClear = (obj, name) => {
     if (!isUndefined(parsePath(obj, name))) {
         parsePath(obj, name, TODO_DELETE);
+
+        CLEAR(obj);
     }
-};
-export const objectClear = obj => {
-    CLEAR(obj);
 };

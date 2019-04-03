@@ -461,11 +461,17 @@ export interface $Listutil<Fields = {}, Validators = {}, WeakFields = Fields>
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
-        position?: number,
+        position: number,
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $remove<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
-        position?: number,
+        position: number,
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $remove<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $push<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(callback?: ($formutil: S) => void): Promise<S>;
@@ -477,8 +483,8 @@ export interface $Listutil<Fields = {}, Validators = {}, WeakFields = Fields>
         callback?: ($formutil: S) => void
     ): Promise<S>;
 
-    $isFisrt(): boolean;
-    $isLatst(): boolean;
+    $isFirst(): boolean;
+    $isLast(): boolean;
 }
 
 export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields = Fields> {

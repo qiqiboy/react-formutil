@@ -66,81 +66,84 @@ class Form extends Component {
         };
     }
 
-    /**
+    $$regDuplications = {};
+    $$duplicateTimer;
+    $$checkDuplication = () => {
+        const { $$regDuplications } = this;
+        let hasDup;
+
+        utils.objectEach($$regDuplications, ([$curRegistered, $handler], name) => {
+            warning($curRegistered.$$reserved, `The Field with a name '${name}' has been registered!`);
+
+            $handler.$$reset($curRegistered.$getState());
+
+            hasDup = delete $$regDuplications[name];
+        });
+
+        if (hasDup) {
+            this.$render();
+        }
+    };
+
+    /*
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, prevName) => {
-        const $curRegistered = this.$$getRegister(name);
-        const $prevRegistered = this.$$getRegister(prevName);
-
-        if ($prevRegistered) {
-            if ($prevRegistered === $handler) {
-                prevName = $prevRegistered.$name;
-                delete this.$$registers[prevName];
-                delete $prevRegistered.$name;
-            }
-
-            if ($curRegistered !== $prevRegistered) {
-                utils.objectClear(this.$$defaultValues, prevName);
-
-                this.$$fieldChangedQueue.push({
-                    name: prevName,
-                    $prevValue: $handler.$getState().$value
-                });
-            }
-        }
+        this.$$unregister(prevName, $handler);
 
         if (name) {
-            if ($curRegistered && $curRegistered.$$reserved) {
-                $handler.$$reset($curRegistered.$getState());
-            } else if ($curRegistered !== $handler) {
+            const $curRegistered = this.$$getRegister(name);
+
+            if ($curRegistered) {
+                cancelFrame(this.$$duplicateTimer);
+
+                this.$$regDuplications[name] = [$curRegistered, $handler];
+                this.$$duplicateTimer = requestFrame(this.$$checkDuplication);
+            } else {
                 this.$$fieldChangedQueue.push({
                     name,
                     $newValue: $handler.$getState().$value
                 });
 
-                if ($curRegistered) {
-                    this.$$fieldChangedQueue.push({
-                        name,
-                        $prevValue: $curRegistered.$getState().$value
-                    });
-                }
-
-                warning(
-                    !$curRegistered || $prevRegistered,
-                    `The Field with a name '${name}' has been registered. You will get a copy of it's $fieldutil!`
-                );
+                utils.objectClear(this.$$defaultValues, name);
             }
 
-            this.$$registers[($handler.$name = name)] = !$curRegistered || $prevRegistered ? $handler : $curRegistered;
+            this.$$registers[($handler.$name = name)] = $handler;
+
+            this.createDeepRegisters();
+            this.$render();
         }
-
-        this.creatDeepRegisters();
-        this.$render();
-
-        return this.$$registers[name];
     };
 
     $$unregister = (name, $handler, $$reserved) => {
-        const $registered = this.$$getRegister(name);
-
-        if ($handler === $registered) {
-            if (!$$reserved) {
-                name = $registered.$name;
-                delete this.$$registers[name];
-                delete $registered.$name;
-                utils.objectClear(this.$$defaultValues, name);
+        if (name) {
+            if (name in this.$$regDuplications) {
+                const [$curRegistered, $handler] = this.$$regDuplications[name];
 
                 this.$$fieldChangedQueue.push({
                     name,
-                    $prevValue: $registered.$getState().$value
+                    $newValue: $handler.$getState().$value,
+                    $prevValue: $curRegistered.$getState().$value
                 });
 
-                this.creatDeepRegisters();
-                this.$render();
-            } else {
-                $registered.$$reserved = true;
+                delete this.$$regDuplications[name];
+            } else if (this.$$registers[name] === $handler) {
+                if ($$reserved) {
+                    $handler.$$reserved = true;
+                } else {
+                    delete this.$$registers[name];
+
+                    this.$$fieldChangedQueue.push({
+                        name,
+                        $prevValue: $handler.$getState().$value
+                    });
+
+                    utils.objectClear(this.$$defaultValues, name);
+                }
             }
+
+            this.createDeepRegisters();
+            this.$render();
         }
     };
 
@@ -180,15 +183,20 @@ class Form extends Component {
 
             const $newValues = {};
             const $prevValues = {};
+            const $$registers = this.$$registers;
             let hasFormChanged = false;
 
             $$fieldChangedQueue.forEach(item => {
+                if (!(item.name in $$registers)) {
+                    delete item.$newValue;
+                }
+
                 if (item.$newValue !== item.$prevValue) {
                     if ('$newValue' in item && '$prevValue' in item) {
-                        const $handler = this.$getField(item.name);
+                        const $handler = this.$$getRegister(item.name);
 
                         if ($handler) {
-                            this.$getField(item.name).$$triggerChange(item);
+                            $handler.$$triggerChange(item);
                         }
                     }
 
@@ -211,7 +219,7 @@ class Form extends Component {
         }
     };
 
-    creatDeepRegisters = () => (this.$$deepRegisters = this.$$deepParseObject(this.$$registers));
+    createDeepRegisters = () => (this.$$deepRegisters = this.$$deepParseObject(this.$$registers));
 
     $$getRegister = name => {
         if (name) {
@@ -355,6 +363,10 @@ class Form extends Component {
                         const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
 
                         if (findItem) {
+                            if (!('$prevValue' in findItem)) {
+                                findItem.$prevValue = findItem.$newValue;
+                            }
+
                             findItem.$newValue = $newValue;
                         } else {
                             this.$$fieldChangedQueue.push({
@@ -561,7 +573,7 @@ class Form extends Component {
         const $pending = this.$$formPending || $stateArray.some(({ $state }) => $state.$pending);
 
         const $formutil = (this.$formutil = {
-            $$registers: this.$$registers,
+            $$registers: { ...this.$$registers },
             $$deepRegisters: this.$$deepRegisters,
             $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
             $params: {

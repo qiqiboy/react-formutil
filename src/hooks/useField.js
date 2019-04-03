@@ -37,24 +37,25 @@ function useField(name, props = {}) {
     $this.$formContext = $formContext;
     $this.props = props;
     $this.$setState = $setState;
-
-    const $registered = $this.$registered || $this.$fieldHandler || ($this.$fieldHandler = createHandler($this));
     // we not directly use this $state, just from $this.$state
     const [, setState] = useState(() => {
-        $this.$fieldHandler.$$FIELD_UUID = GET_FIELD_UUID();
+        $this.$$FIELD_UUID = GET_FIELD_UUID();
+        $this.$fieldHandler = createHandler($this);
 
-        const $state = $registered.$$reset();
+        const $state = $this.$fieldHandler.$$reset();
 
-        $registered.$validate();
+        $this.$fieldHandler.$validate();
 
         return $state;
     });
+
+    const $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
 
     useLayoutEffect(() => {
         const { $state } = $this;
 
         if ($this.isMounting) {
-            if (!$name || !$formContext.$$register) {
+            if (!($name in ($formContext.$$registers || {}))) {
                 const { $prevValue } = $this;
 
                 $registered.$$triggerChange({
@@ -111,7 +112,7 @@ function useField(name, props = {}) {
             const execute = () => resolve(runCallback(callback, $this.$fieldutil));
 
             if ($this.isMounting) {
-                if ($name && $formContext.$$onChange) {
+                if ($name in ($formContext.$$registers || {})) {
                     $formContext.$$onChange($name, $newState, execute);
                 } else {
                     setState($registered.$$merge($newState));

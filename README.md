@@ -214,6 +214,7 @@ yarn add react-formutil@0.4
 -   [The Login Form](https://codesandbox.io/s/6jqk6roxzk)
 -   [The Signup Form](https://codesandbox.io/s/yw0w8zkl69)
 -   [Nexted/Complex Form](https://codesandbox.io/s/oxxq7wnkw9)
+-   [The Field List/Array](https://codesandbox.io/s/3yzr3r9qkq)
 -   [Form Adaptor](https://codesandbox.io/s/14lr59rmlj)
 -   And more...
 
@@ -984,13 +985,15 @@ class MyField extends Component {}
 
 在该模式下，你需要传递一个`render props`形式的`children`，该函数中所渲染的表单将会被作为数组的值：
 
+> **[查看在线示例](https://codesandbox.io/s/3yzr3r9qkq)**
+
 ```typescript
 <EasyField name="relationships" type="list">
     {($listutil: $Listutil) => {
         return (
             <>
                 <div className="relationship-item">
-                    <EasyField name="relation">
+                    <EasyField name="relation" type="select">
                         <option value="">select</option>
                         <option value="0">Father</option>
                         <option value="1">Mother</option>

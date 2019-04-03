@@ -108,7 +108,11 @@ class EasyFieldList extends Component {
     };
 
     $setState = (updater, callback) =>
-        new Promise(resolve => this.setState(updater, () => resolve(runCallback(callback, this.$formutil))));
+        new Promise(resolve =>
+            this.setState(updater, () =>
+                this.$formutil.$onValidates($formutil => resolve(runCallback(callback, $formutil)))
+            )
+        );
 
     render() {
         const { children, onFocus, onBlur, value } = this.props;
@@ -122,10 +126,10 @@ class EasyFieldList extends Component {
             $insert: this.insert,
             $remove: this.remove,
             $swap: this.swap,
-            $push: () => this.insert(),
-            $pop: () => this.remove(),
-            $shift: () => this.remove(0),
-            $unshift: () => this.insert(0),
+            $push: callback => this.insert(callback),
+            $pop: callback => this.remove(callback),
+            $shift: callback => this.remove(0, callback),
+            $unshift: callback => this.insert(0, callback),
             onFocus,
             onBlur
         };

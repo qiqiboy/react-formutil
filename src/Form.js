@@ -89,6 +89,8 @@ class Form extends Component {
      * @desc 注册或者替换(preName)Field
      */
     $$register = (name, $handler, prevName) => {
+        this.$$unregister(prevName, $handler);
+
         if (name) {
             const $curRegistered = this.$$getRegister(name);
 
@@ -111,8 +113,6 @@ class Form extends Component {
             this.createDeepRegisters();
             this.$render();
         }
-
-        this.$$unregister(prevName, $handler);
     };
 
     $$unregister = (name, $handler, $$reserved) => {

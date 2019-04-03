@@ -985,7 +985,7 @@ class MyField extends Component {}
 在该模式下，你需要传递一个`render props`形式的`children`，该函数中所渲染的表单将会被作为数组的值：
 
 ```typescript
-<EasyField name="relationships">
+<EasyField name="relationships" type="list">
     {($listutil: $Listutil) => {
         return (
             <>
@@ -995,7 +995,9 @@ class MyField extends Component {}
                         <option value="0">Father</option>
                         <option value="1">Mother</option>
                     </EasyField>
+
                     <EasyField name="name" placeholder="The name" />
+
                     <button onClick={() => $listutil.$remove($listutil.$index)}>Delete</button>
                 </div>
                 {$listutil.$isLast() && (
@@ -1058,8 +1060,8 @@ class MyField extends Component {}
 
 你可以使用`$listutil`提供的方法，来渲染一些控制按钮，以控制列表项。但是需要注意以下几点：
 
-* 列表数组无法删除为`0`，如果你尝试删除最后一项，那么会删除后自动创建一个新的项。
-* `children`方法会随着列表数组的数量渲染`n`次，你可以通过`$isFirst()` `$isLast()`方法判断是否是`第一项` `末项`，来控制一些不希望被多次重复渲染的内容：比如新增按钮
+-   列表数组无法删除为`0`，如果你尝试删除最后一项，那么会删除后自动创建一个新的项。
+-   `children`方法会随着列表数组的数量渲染`n`次，你可以通过`$isFirst()` `$isLast()`方法判断是否是`第一项` `末项`，来控制一些不希望被多次重复渲染的内容：比如新增按钮
 
 ##### `第三方组件`
 

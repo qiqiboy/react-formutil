@@ -72,8 +72,8 @@ class EasyFieldList extends Component {
         }, callback);
 
     insert = (m, callback) => {
-        if (isUndefined(m)) {
-            callback = m;
+        if (isFunction(m)) {
+            [m, callback] = [callback, m];
         }
 
         return this.$setState(({ items }) => {
@@ -88,8 +88,8 @@ class EasyFieldList extends Component {
     };
 
     remove = (m, callback) => {
-        if (isUndefined(m)) {
-            callback = m;
+        if (isFunction(m)) {
+            [m, callback] = [callback, m];
         }
 
         return this.$setState(({ items }) => {

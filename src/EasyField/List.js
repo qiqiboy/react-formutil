@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import isEqual from 'react-fast-compare';
 import Form from '../Form';
 import Field from '../Field';
-import PropTypes from 'prop-types';
 import { isUndefined, isFunction, runCallback } from '../utils';
 
 class EasyFieldList extends Component {
@@ -58,7 +59,7 @@ class EasyFieldList extends Component {
                 if (this.props.value.length) {
                     this.props.onChange((this.latestValue = []));
                 }
-            } else if (JSON.stringify(this.props.value) !== JSON.stringify($params.list)) {
+            } else if (!isEqual(this.props.value, $params.list)) {
                 this.props.onChange((this.latestValue = $params.list));
             }
         });
@@ -163,9 +164,7 @@ class EasyFieldList extends Component {
                                                     if ($fieldutil.$viewValue !== null) {
                                                         $fieldutil.$render(null);
                                                     }
-                                                } else if (
-                                                    JSON.stringify($fieldutil.$viewValue) !== JSON.stringify($params)
-                                                ) {
+                                                } else if (!isEqual($fieldutil.$viewValue, $params)) {
                                                     $fieldutil.$render($params);
                                                 }
                                             })

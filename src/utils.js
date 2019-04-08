@@ -1,4 +1,5 @@
 import warning from 'warning';
+import isPlainObj from 'is-plain-object';
 
 const PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
 const Root = isUndefined(window) ? global : window;
@@ -17,6 +18,31 @@ export function isEmpty(arg) {
 
 export function isPromise(promise) {
     return !!promise && isFunction(promise.then);
+}
+
+// quick clone deeply
+export function deepClone(obj) {
+    if (obj && typeof obj === 'object') {
+        if (Array.isArray(obj)) {
+            const newObj = [];
+
+            for (let i = 0, j = obj.length; i < j; i++) {
+                newObj[i] = deepClone(obj[i]);
+            }
+
+            return newObj;
+        } else if (isPlainObj(obj)) {
+            const newObj = {};
+
+            for (let i in obj) {
+                newObj[i] = deepClone(obj[i]);
+            }
+
+            return newObj;
+        }
+    }
+
+    return obj;
 }
 
 export const runCallback = function(callback, ...args) {

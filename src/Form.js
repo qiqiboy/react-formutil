@@ -151,14 +151,10 @@ class Form extends Component {
         const { $defaultValues, $defaultStates } = this.props;
 
         this.$$defaultValues = this.$$deepParseObject(
-            JSON.parse(
-                JSON.stringify(utils.isFunction($defaultValues) ? $defaultValues(this.props) || {} : $defaultValues)
-            )
+            utils.deepClone(utils.isFunction($defaultValues) ? $defaultValues(this.props) || {} : $defaultValues)
         );
         this.$$defaultStates = this.$$deepParseObject(
-            JSON.parse(
-                JSON.stringify(utils.isFunction($defaultStates) ? $defaultStates(this.props) || {} : $defaultStates)
-            )
+            utils.deepClone(utils.isFunction($defaultStates) ? $defaultStates(this.props) || {} : $defaultStates)
         );
     };
 
@@ -467,7 +463,7 @@ class Form extends Component {
     $setStates = ($stateTree, callback) => this.$$setStates($stateTree, $state => $state, callback);
 
     $setValues = ($valueTree, callback) => {
-        this.$$deepParseObject($valueTree, this.$$defaultValues);
+        this.$$deepParseObject(utils.deepClone($valueTree), this.$$defaultValues);
 
         return this.$$setStates($valueTree, $value => ({ $value }), callback);
     };

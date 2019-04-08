@@ -52,6 +52,8 @@
   "dependencies": {
     "create-react-context": "^0.2.3",
     "hoist-non-react-statics": "^3.2.1",
+    "is-plain-object": "^2.0.4",
+    "react-fast-compare": "^2.0.4",
     "warning": "^4.0.2"
   }
 }

@@ -462,6 +462,11 @@ export interface $Listutil<Fields = {}, Validators = {}, WeakFields = Fields>
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
         position: number,
+        values: ArgFormParams<Field>,
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        posOrValues: number | ArgFormParams<Field>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
@@ -474,9 +479,17 @@ export interface $Listutil<Fields = {}, Validators = {}, WeakFields = Fields>
     $remove<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
         callback?: ($formutil: S) => void
     ): Promise<S>;
+    $push<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        values: ArgFormParams<Fields>,
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
     $push<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(callback?: ($formutil: S) => void): Promise<S>;
     $pop<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(callback?: ($formutil: S) => void): Promise<S>;
     $shift<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        callback?: ($formutil: S) => void
+    ): Promise<S>;
+    $unshift<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
+        values: ArgFormParams<Fields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $unshift<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(

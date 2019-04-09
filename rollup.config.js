@@ -13,7 +13,7 @@ function createConfig(env, module) {
 
     return {
         input: 'src/index.js',
-        external: module === 'umd' ? ['react', 'prop-types'] : id => !id.startsWith('.') && !path.isAbsolute(id),
+        external: module === 'umd' ? ['react', 'prop-types'] : id => !id.startsWith('.') && !id.startsWith('@babel/runtime') && !path.isAbsolute(id),
         output: {
             file: `dist/react-formutil.${module}.${env}.js`,
             format: module,
@@ -63,8 +63,7 @@ function createConfig(env, module) {
                             helpers: true,
                             corejs: false,
                             useESModules: true,
-                            regenerator: true,
-                            absoluteRuntime: true
+                            regenerator: true
                         }
                     ],
                     isProd && [

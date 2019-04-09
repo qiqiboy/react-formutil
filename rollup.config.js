@@ -6,6 +6,8 @@ const babel = require('rollup-plugin-babel');
 const sourceMaps = require('rollup-plugin-sourcemaps');
 const { terser } = require('rollup-plugin-terser');
 
+process.env.NODE_ENV = 'production';
+
 function createConfig(env, module) {
     const isProd = env === 'production';
 
@@ -43,8 +45,9 @@ function createConfig(env, module) {
                     sourcemap: true,
                     output: { comments: false },
                     compress: {
-                        keep_infinity: true,
-                        pure_getters: true
+                        warnings: false,
+                        comparisons: false,
+                        keep_infinity: true
                     },
                     warnings: false,
                     ecma: 5,

@@ -1,6 +1,6 @@
 import warning from 'warning';
-import isPlainObj from 'is-plain-object';
 
+const OBJECT_PROTO = Object.getPrototypeOf({});
 const PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
 const Root = isUndefined(window) ? global : window;
 
@@ -18,6 +18,18 @@ export function isEmpty(arg) {
 
 export function isPromise(promise) {
     return !!promise && isFunction(promise.then);
+}
+
+export function isObject(obj) {
+    return Object.prototype.toString.call(obj) === '[object Object]';
+}
+
+export function isPlainObj(obj) {
+    if (!isObject(obj)) return false;
+    if (null === Object.getPrototypeOf(obj)) return true;
+    if (!isFunction(obj.constructor)) return false;
+
+    return obj.constructor.prototype === OBJECT_PROTO;
 }
 
 // quick clone deeply

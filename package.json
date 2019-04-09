@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "0.5.6-beta.1",
+  "version": "0.5.6-beta.3",
   "description": "Happy to build the forms in React ^_^",
   "main": "lib/index.js",
   "directories": {
@@ -17,7 +17,9 @@
     "react",
     "react-components",
     "react-form",
-    "react-formutil"
+    "react-formutil",
+    "forms",
+    "create-form"
   ],
   "author": "qiqiboy",
   "license": "ISC",
@@ -52,7 +54,6 @@
   "dependencies": {
     "create-react-context": "^0.2.3",
     "hoist-non-react-statics": "^3.2.1",
-    "is-plain-object": "^2.0.4",
     "react-fast-compare": "^2.0.4",
     "warning": "^4.0.2"
   }

@@ -462,11 +462,11 @@ export interface $Listutil<Fields = {}, Validators = {}, WeakFields = Fields>
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
         position: number,
-        values: ArgFormParams<Field>,
+        values: ArgFormParams<Fields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
-        posOrValues: number | ArgFormParams<Field>,
+        posOrValues: number | ArgFormParams<Fields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(

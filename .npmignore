@@ -1,6 +1,5 @@
 docs/
 src/
 *.un~
-jsconfig.json
-tsconfig.json
-index.js
+/jsconfig.json
+/tsconfig.json

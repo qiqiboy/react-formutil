@@ -3,3 +3,4 @@ src/
 *.un~
 jsconfig.json
 tsconfig.json
+index.js

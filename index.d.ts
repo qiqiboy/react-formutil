@@ -585,3 +585,25 @@ export function connect<SelfProps = {}, Fields = {}, Validators = {}, WeakFields
         }
     >
 ): React.ComponentClass<Omit<SelfProps, '$formutil'>>;
+
+
+// hooks
+export function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
+    name?: string,
+    props?: Omit<FieldProps<T, Validators, Fields, WeakFields>, 'name'>
+): $Fieldutil<T, Validators, Fields, WeakFields>;
+
+export function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
+    props?: FieldProps<T, Validators, Fields, WeakFields>
+): $Fieldutil<T, Validators, Fields, WeakFields>;
+
+export function useForm<Fields = {}, Validators = {}, WeakFields = Fields>(): $Formutil<Fields, Validators, WeakFields>;
+
+export function useHandler<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
+    name: string,
+    props?: Omit<EasyFieldProps<T, Validators, Fields, WeakFields>, 'name'>
+): $FieldHandler<T>;
+
+export function useHandler<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(
+    props: EasyFieldProps<T, Validators, Fields, WeakFields>
+): $FieldHandler<T> & OtherKeys;

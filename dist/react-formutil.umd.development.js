@@ -806,9 +806,12 @@
       _classCallCheck(this, Form);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Form).call(this, props));
+      _this.$$formPending = void 0;
+      _this.$$formValidatePromise = void 0;
       _this.$$registers = {};
       _this.$$deepRegisters = {};
       _this.$$regDuplications = {};
+      _this.$$duplicateTimer = void 0;
 
       _this.$$checkDuplication = function () {
         var _assertThisInitialize = _assertThisInitialized(_this),
@@ -907,6 +910,7 @@
         };
       };
 
+      _this.$$triggerChangeTimer = void 0;
       _this.$$fieldChangedQueue = [];
 
       _this.$$triggerFormChange = function () {
@@ -1530,6 +1534,28 @@
   }(React.Component);
 
   Form.displayName = 'React.Formutil.Form';
+  Form.propTypes = {
+    render: PropTypes.func,
+    component: PropTypes.func,
+    children: function children(props) {
+      var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+
+      if (!props.render && !props.component) {
+        pt = pt.isRequired;
+      }
+
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
+      return pt.apply(void 0, [props].concat(args));
+    },
+    $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $onFormChange: PropTypes.func,
+    $validator: PropTypes.func,
+    $processer: PropTypes.func
+  };
   Form.defaultProps = {
     $defaultValues: {},
     $defaultStates: {}
@@ -1567,24 +1593,6 @@
     }
 
     return target;
-  }
-
-  function _extends() {
-    _extends = Object.assign || function (target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-
-        for (var key in source) {
-          if (Object.prototype.hasOwnProperty.call(source, key)) {
-            target[key] = source[key];
-          }
-        }
-      }
-
-      return target;
-    };
-
-    return _extends.apply(this, arguments);
   }
 
   var reactIs_development = createCommonjsModule(function (module, exports) {
@@ -1962,7 +1970,7 @@
       _createClass(FormEnhanced, [{
         key: "render",
         value: function render() {
-          var others = _extends({}, this.props);
+          var others = Object.assign({}, this.props);
 
           var _this$props = this.props,
               component = _this$props.component,
@@ -2175,8 +2183,7 @@
         var _$this$$state = $this.$state,
             $value = _$this$$state.$value,
             $pending = _$this$$state.$pending,
-            $newError = _extends({}, _$this$$state.$error);
-
+            $newError = Object.assign({}, _$this$$state.$error);
         var $formutil = $formContext.$formutil;
         var $validError = {};
         var $skipRestValidate = false;
@@ -2296,8 +2303,7 @@
     function $setValidity(key) {
       var result = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       var callback = arguments.length > 2 ? arguments[2] : undefined;
-
-      var $newError = _extends({}, $this.$state.$error);
+      var $newError = Object.assign({}, $this.$state.$error);
 
       if (isError(result)) {
         $newError[key] = result || key;
@@ -2325,7 +2331,7 @@
     }
 
     function $$merge(_ref2) {
-      var $newState = _extends({}, _ref2);
+      var $newState = Object.assign({}, _ref2);
 
       if ('$error' in $newState) {
         if (!$newState.$error) {
@@ -2400,6 +2406,8 @@
 
       _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Field)).call.apply(_getPrototypeOf2, [this].concat(args)));
       _this.$$FIELD_UUID = GET_FIELD_UUID();
+      _this.$formContext = void 0;
+      _this.$state = void 0;
 
       _this.$setState = function ($newState, callback) {
         return new Promise(function (resolve) {
@@ -2517,6 +2525,7 @@
   }(React.Component);
 
   Field.displayName = displayName;
+  Field.propTypes = propTypes;
 
   function withField(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -2535,7 +2544,7 @@
       _createClass(FieldEnhanced, [{
         key: "render",
         value: function render() {
-          var others = _extends({}, this.props);
+          var others = Object.assign({}, this.props);
 
           var _this$props = this.props,
               component = _this$props.component,
@@ -2669,6 +2678,16 @@
   }(React.Component);
 
   EasyFieldNative.displayName = 'React.Formutil.EasyField.Native';
+  EasyFieldNative.propTypes = {
+    onChange: PropTypes.func,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    value: PropTypes.any,
+    name: PropTypes.string,
+    type: PropTypes.string,
+    checked: PropTypes.any,
+    unchekced: PropTypes.any
+  };
   EasyFieldNative.defaultProps = {
     value: '',
     type: 'text',
@@ -2734,6 +2753,16 @@
   }(React.Component);
 
   EasyFieldGroup.displayName = 'React.Formutil.EasyField.Group';
+  EasyFieldGroup.propTypes = {
+    onChange: PropTypes.func,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    value: PropTypes.any,
+    name: PropTypes.string,
+    type: PropTypes.string.isRequired,
+    groupNode: PropTypes.any,
+    children: PropTypes.oneOfType([PropTypes.func, PropTypes.element]).isRequired
+  };
   EasyFieldGroup.defaultProps = {
     type: 'checkbox',
     groupNode: 'div'
@@ -2810,6 +2839,9 @@
   }(React.Component);
 
   EasyFieldGroupOption.displayName = 'React.Formutil.EasyField.Group.Option';
+  EasyFieldGroupOption.propTypes = {
+    $value: PropTypes.any.isRequired
+  };
 
   var DeprecatedEasyFieldGroupOption =
   /*#__PURE__*/
@@ -2945,6 +2977,7 @@
       _this = _possibleConstructorReturn(this, _getPrototypeOf(EasyFieldList).call(this, props));
       _this.id = 0;
       _this.latestValue = _this.props.value;
+      _this.$formutil = void 0;
       _this.FieldValidators = {
         required: function required(value) {
           return value !== null;
@@ -3175,6 +3208,13 @@
   }(React.Component);
 
   EasyFieldList.displayName = 'React.Formutil.EasyField.List';
+  EasyFieldList.propTypes = {
+    onChange: PropTypes.func,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    value: PropTypes.array,
+    children: PropTypes.func.isRequired
+  };
 
   var TYPE = '__TYPE__';
   var defaultValidators = [['required', function ($value, check, _ref) {
@@ -3479,6 +3519,7 @@
   }(React.Component);
 
   EasyField.displayName = displayName$1;
+  EasyField.propTypes = propTypes$1;
   EasyField.defaultProps = defaultProps;
 
   function connect(WrappedComponent) {

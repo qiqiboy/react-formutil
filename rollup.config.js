@@ -35,9 +35,46 @@ function createConfig(env, module) {
             }),
             babel({
                 exclude: /node_modules/,
-                externalHelpers: false,
                 runtimeHelpers: true,
-                presets: ['react-app']
+                presets: [
+                    [
+                        '@babel/preset-env',
+                        {
+                            modules: false,
+                            useBuiltIns: 'entry',
+                            exclude: ['transform-typeof-symbol']
+                        }
+                    ],
+                    [
+                        '@babel/preset-react',
+                        {
+                            development: false,
+                            useBuiltIns: true
+                        }
+                    ]
+                ],
+                plugins: [
+                    'babel-plugin-macros',
+                    ['@babel/plugin-proposal-class-properties', { loose: true }],
+                    ['@babel/plugin-proposal-object-rest-spread', { useBuiltIns: true }],
+                    [
+                        '@babel/plugin-transform-runtime',
+                        {
+                            helpers: true,
+                            corejs: false,
+                            useESModules: true,
+                            regenerator: true,
+                            absoluteRuntime: true
+                        }
+                    ],
+                    isProd && [
+                        // Remove PropTypes from production build
+                        require('babel-plugin-transform-react-remove-prop-types').default,
+                        {
+                            removeImport: false
+                        }
+                    ]
+                ].filter(Boolean)
             }),
             sourceMaps(),
             isProd &&

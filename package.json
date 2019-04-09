@@ -8,7 +8,6 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "BABEL_ENV=production ./node_modules/.bin/babel src -d lib",
     "pack": "NODE_ENV=development rollup -c && cd npm && ../node_modules/.bin/copy *.js ../dist"
   },
   "repository": {
@@ -21,27 +20,13 @@
     "react-form",
     "react-formutil",
     "forms",
-    "create-form"
+    "create-form",
+    "umd"
   ],
   "author": "qiqiboy",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/qiqiboy/react-formutil/issues"
-  },
-  "babel": {
-    "presets": [
-      [
-        "react-app",
-        {
-          "helpers": false
-        }
-      ]
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
   },
   "homepage": "https://github.com/qiqiboy/react-formutil#readme",
   "peerDependencies": {

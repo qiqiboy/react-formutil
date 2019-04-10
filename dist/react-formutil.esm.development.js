@@ -2137,6 +2137,8 @@ function (_Component3) {
 
 DeprecatedEasyFieldGroupOption.displayName = 'React.Formutil.EasyField.Group.Option.Deprecated';
 
+var Wrapper = React.Frament || 'div';
+
 var EasyFieldList =
 /*#__PURE__*/
 function (_Component) {
@@ -2331,7 +2333,7 @@ function (_Component) {
         $onFormChange: this.$onFormChange,
         children: function children($formutil) {
           _this3.$formutil = $formutil;
-          return _this3.state.items.map(function (_ref5, index) {
+          return React.createElement(Wrapper, null, _this3.state.items.map(function (_ref5, index) {
             var id = _ref5.id,
                 values = _ref5.values;
             return React.createElement(Field, {
@@ -2371,7 +2373,7 @@ function (_Component) {
                 });
               }
             });
-          });
+          }));
         }
       });
     }

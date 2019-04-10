@@ -37,6 +37,7 @@ Happy to build the forms in React ^\_^
     - [`最新版`](#最新版)
     - [`Next版`](#next版)
     - [`0.4.x`](#04x)
+    - [`UMD包`](#umd包)
 * [示例 Examples](#示例-examples)
 * [使用 Usage](#使用-usage)
     - [`<Field />`](#field-)
@@ -193,6 +194,10 @@ npm install react-formutil@0.4 --save
 # yarn
 yarn add react-formutil@0.4
 ```
+
+### `UMD包`
+
+[https://unpkg.com/react-formutil@latest/dist/react-formutil.umd.production.js](https://unpkg.com/react-formutil@latest/dist/react-formutil.umd.production.js)
 
 ## 示例 Examples
 

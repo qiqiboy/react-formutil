@@ -34,32 +34,35 @@ function warningValidatorReturn(result, key, name) {
     );
 }
 
-export const propTypes = {
-    name: PropTypes.string,
+export const propTypes =
+    process.env.NODE_ENV !== 'production'
+        ? {
+              name: PropTypes.string,
 
-    $defaultValue: PropTypes.any,
-    $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $onFieldChange: PropTypes.func,
-    $validators: PropTypes.object,
-    $asyncValidators: PropTypes.object,
-    $validateLazy: PropTypes.bool,
-    $reserveOnUnmount: PropTypes.bool,
+              $defaultValue: PropTypes.any,
+              $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+              $onFieldChange: PropTypes.func,
+              $validators: PropTypes.object,
+              $asyncValidators: PropTypes.object,
+              $validateLazy: PropTypes.bool,
+              $reserveOnUnmount: PropTypes.bool,
 
-    $parser: PropTypes.func,
-    $formatter: PropTypes.func,
+              $parser: PropTypes.func,
+              $formatter: PropTypes.func,
 
-    render: PropTypes.func,
-    component: PropTypes.func,
-    children(props, ...args) {
-        let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+              render: PropTypes.func,
+              component: PropTypes.func,
+              children(props, ...args) {
+                  let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
 
-        if (!props.render && !props.component && props.children !== null) {
-            pt = pt.isRequired;
-        }
+                  if (!props.render && !props.component && props.children !== null) {
+                      pt = pt.isRequired;
+                  }
 
-        return pt(props, ...args);
-    }
-};
+                  return pt(props, ...args);
+              }
+          }
+        : undefined;
 
 export const displayName = 'React.Formutil.Field';
 

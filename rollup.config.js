@@ -25,6 +25,9 @@ function createConfig(env, module) {
                 'prop-types': 'PropTypes'
             }
         },
+        treeshake: {
+            pureExternalModules: true
+        },
         plugins: [
             replace({
                 'process.env.NODE_ENV': JSON.stringify(env)
@@ -71,7 +74,7 @@ function createConfig(env, module) {
                         // Remove PropTypes from production build
                         require('babel-plugin-transform-react-remove-prop-types').default,
                         {
-                            removeImport: false
+                            removeImport: true
                         }
                     ]
                 ].filter(Boolean)

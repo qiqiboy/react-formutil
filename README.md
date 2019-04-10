@@ -1939,9 +1939,9 @@ export default connect(Submit);
 
 **如果你要开始使用`Hooks`，请确保你已经安装了最新的`react-formutil@>0.5.0`以及`react@>16.8.0` `react-dom@>16.8.0`。**
 
-全新的`Hooks`方法，位于`react-formutil/hooks`下（如果要使用新增的`useField` `useForm` hooks，必须从这里导出获取）。
+~~全新的`Hooks`方法，位于`react-formutil/hooks`下（如果要使用新增的`useField` `useForm` hooks，必须从这里导出获取）。~~
 
-你可以直接将项目中的，所有的从`react-formutil`的导出，全部改为从`react-formutil/hooks`导出（是的，所有你需要的组件、HOC、TS 类型定义等都可以从这里导出）。当然，这是一个建议，如果你这么做了，理论上可以减少一点构建体积`^_^`。如果没用到 hooks 的地方，依然保持目前的导出方式，依然没有问题！
+**`v0.5.6`起，你可以直接从主包中导出hooks相关方法了**
 
 #### `useField`
 

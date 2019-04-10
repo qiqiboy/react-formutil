@@ -19,6 +19,7 @@ analysis(files.images, true);
 
 function analysis(files, noLines) {
     var readFiles = [];
+
     files.forEach(function(file) {
         var data = fs.readFileSync(file, 'utf8');
         var stat = fs.statSync(file);

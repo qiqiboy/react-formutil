@@ -7,8 +7,8 @@ import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 import LoginForm from 'modules/LoginForm';
 
-const source1 = require('raw-loader!source/LoginForm1');
-const source2 = require('raw-loader!source/LoginForm2');
+const source1 = require('!!raw-loader!source/LoginForm1');
+const source2 = require('!!raw-loader!source/LoginForm2');
 
 render(
     <HashRouter>

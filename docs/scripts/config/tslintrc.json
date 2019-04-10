@@ -1,0 +1,21 @@
+{
+  "rules": {
+    "trailing-comma": false,
+    "quotemark": false,
+    "no-console": false,
+    "semicolon": false,
+    "no-namespace": [true, "allow-declarations"],
+    "max-classes-per-file": false,
+    "ordered-imports": false,
+    "member-ordering": false,
+    "object-literal-sort-keys": false,
+    "member-access": false,
+    "arrow-parens": [true, "ban-single-arg-parens"],
+    "variable-name": false,
+    "prefer-const": false,
+    "jsx-boolean-value": false,
+    "only-arrow-functions": false,
+    "jsx-no-lambda": false,
+    "interface-name": false
+  }
+}

@@ -51,7 +51,7 @@ class FieldCity extends Component {
         loading: true
     };
 
-    //模拟异步获取省份信息
+    // 模拟异步获取省份信息
     getProvinceData = () => {
         this.setState({
             loading: true
@@ -62,14 +62,14 @@ class FieldCity extends Component {
                 loading: false
             });
 
-            //获取到省份信息后，如果有已经选择了省份，需要再去获取下城市列表
+            // 获取到省份信息后，如果有已经选择了省份，需要再去获取下城市列表
             if (this.props.$formutil.$params.province) {
                 this.getCityData(this.props.$formutil.$params.province);
             }
         }, 1500);
     };
 
-    //模拟异步获取城市信息
+    // 模拟异步获取城市信息
     getCityData = id => {
         if (id) {
             this.setState({
@@ -174,6 +174,7 @@ class FieldCity extends Component {
         );
     }
 }
+
 // 这里先包装了withForm，方便可以获取到用户填写信息，再包装withField，是因为我们对外暴漏为一个Field
 export default withField(withForm(FieldCity), {
     $defaultValue: null

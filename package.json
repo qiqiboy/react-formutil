@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Happy to build the forms in React ^_^",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -8,7 +8,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "pack": "NODE_ENV=development rollup -c && cd npm && ../node_modules/.bin/copy *.js ../dist"
+    "pack": "rollup -c && cd npm && ../node_modules/.bin/copy *.js ../dist"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,11 @@
   "bugs": {
     "url": "https://github.com/qiqiboy/react-formutil/issues"
   },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
   "homepage": "https://github.com/qiqiboy/react-formutil#readme",
   "peerDependencies": {
     "react": ">15.0.0",
@@ -36,6 +41,9 @@
   "types": "./index.d.ts",
   "devDependencies": {
     "@babel/cli": "^7.4.3",
+    "@types/node": "^11.13.2",
+    "@types/react": "^16.8.13",
+    "@types/react-dom": "^16.8.3",
     "babel-preset-react-app": "^7.0.2",
     "copy": "^0.3.2",
     "rollup": "^1.9.0",

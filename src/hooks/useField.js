@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef } from 'react';
+import React from 'react';
 import useFormContext from './useFormContext';
 import { runCallback } from '../utils';
 import { createHandler, GET_FIELD_UUID } from '../fieldHelper';
@@ -14,6 +14,12 @@ import warning from 'warning';
  * @return {object} $Fieldutil
  */
 function useField(name, props = {}) {
+    if (!React.useState) {
+        throw new Error(`Hooks api need react@>=16.8, Please upgrade your reactjs.`);
+    }
+
+    const { useState, useLayoutEffect, useRef } = React;
+
     let $name;
 
     if (name) {
@@ -34,13 +40,15 @@ function useField(name, props = {}) {
     /** @type {React.MutableRefObject<any[]>} */
     const callbackRef = useRef([]);
 
+    let $registered;
+
     $this.$formContext = $formContext;
     $this.props = props;
     $this.$setState = $setState;
     // we not directly use this $state, just from $this.$state
     const [, setState] = useState(() => {
         $this.$$FIELD_UUID = GET_FIELD_UUID();
-        $this.$fieldHandler = createHandler($this);
+        $this.$fieldHandler = $registered = createHandler($this);
 
         const $state = $this.$fieldHandler.$$reset();
 
@@ -49,7 +57,9 @@ function useField(name, props = {}) {
         return $state;
     });
 
-    const $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
+    if (!$registered) {
+        $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
+    }
 
     useLayoutEffect(() => {
         const { $state } = $this;
@@ -89,7 +99,7 @@ function useField(name, props = {}) {
 
     useLayoutEffect(() => {
         if ($formContext.$$register) {
-            $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+            $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
         }
 
         $this.$prevName = $name;

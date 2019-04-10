@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import isEqual from 'react-fast-compare';
 import Form from '../Form';
 import Field from '../Field';
-import PropTypes from 'prop-types';
 import { isUndefined, isFunction, runCallback } from '../utils';
 
 class EasyFieldList extends Component {
@@ -40,8 +41,11 @@ class EasyFieldList extends Component {
         }
     }
 
-    getId() {
-        return this.id++;
+    getId(values) {
+        return {
+            id: this.id++,
+            values
+        };
     }
 
     FieldValidators = {
@@ -58,7 +62,7 @@ class EasyFieldList extends Component {
                 if (this.props.value.length) {
                     this.props.onChange((this.latestValue = []));
                 }
-            } else if (JSON.stringify(this.props.value) !== JSON.stringify($params.list)) {
+            } else if (!isEqual(this.props.value, $params.list)) {
                 this.props.onChange((this.latestValue = $params.list));
             }
         });
@@ -71,26 +75,40 @@ class EasyFieldList extends Component {
             return items;
         }, callback);
 
-    insert = (m, callback) => {
-        if (isFunction(m)) {
-            [m, callback] = [callback, m];
-        }
+    insert = (...args) => {
+        let m, values, callback;
+
+        args.forEach(arg => {
+            if (isFunction(arg)) {
+                callback = arg;
+            } else if (typeof arg === 'number') {
+                m = arg;
+            } else if (typeof arg === 'object') {
+                values = arg;
+            }
+        });
 
         return this.$setState(({ items }) => {
             if (isUndefined(m)) {
-                items.push(this.getId());
+                items.push(this.getId(values));
             } else {
-                items.splice(m, 0, this.getId());
+                items.splice(m, 0, this.getId(values));
             }
 
             return { items };
         }, callback);
     };
 
-    remove = (m, callback) => {
-        if (isFunction(m)) {
-            [m, callback] = [callback, m];
-        }
+    remove = (...args) => {
+        let m, callback;
+
+        args.forEach(arg => {
+            if (isFunction(arg)) {
+                callback = arg;
+            } else if (typeof arg === 'number') {
+                m = arg;
+            }
+        });
 
         return this.$setState(({ items }) => {
             if (isUndefined(m)) {
@@ -126,10 +144,10 @@ class EasyFieldList extends Component {
             $insert: this.insert,
             $remove: this.remove,
             $swap: this.swap,
-            $push: callback => this.insert(callback),
+            $push: (values, callback) => this.insert(values, callback),
             $pop: callback => this.remove(callback),
             $shift: callback => this.remove(0, callback),
-            $unshift: callback => this.insert(0, callback),
+            $unshift: (values, callback) => this.insert(0, values, callback),
             onFocus,
             onBlur
         };
@@ -144,11 +162,11 @@ class EasyFieldList extends Component {
                 children={$formutil => {
                     this.$formutil = $formutil;
 
-                    return this.state.items.map((id, index) => (
+                    return this.state.items.map(({ id, values }, index) => (
                         <Field
                             key={id}
                             required
-                            $defaultValue={null}
+                            $defaultValue={values || null}
                             $validators={this.FieldValidators}
                             name={`list[${index}]`}
                             children={$fieldutil => {
@@ -163,9 +181,7 @@ class EasyFieldList extends Component {
                                                     if ($fieldutil.$viewValue !== null) {
                                                         $fieldutil.$render(null);
                                                     }
-                                                } else if (
-                                                    JSON.stringify($fieldutil.$viewValue) !== JSON.stringify($params)
-                                                ) {
+                                                } else if (!isEqual($fieldutil.$viewValue, $params)) {
                                                     $fieldutil.$render($params);
                                                 }
                                             })

@@ -1,5 +1,7 @@
 docs/
 src/
+npm/
 *.un~
-jsconfig.json
-tsconfig.json
+/jsconfig.json
+/tsconfig.json
+/rollup.*

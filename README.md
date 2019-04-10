@@ -37,6 +37,7 @@ Happy to build the forms in React ^\_^
     - [`最新版`](#最新版)
     - [`Next版`](#next版)
     - [`0.4.x`](#04x)
+    - [`UMD包`](#umd包)
 * [示例 Examples](#示例-examples)
 * [使用 Usage](#使用-usage)
     - [`<Field />`](#field-)
@@ -193,6 +194,10 @@ npm install react-formutil@0.4 --save
 # yarn
 yarn add react-formutil@0.4
 ```
+
+### `UMD包`
+
+[https://unpkg.com/react-formutil@latest/dist/react-formutil.umd.production.js](https://unpkg.com/react-formutil@latest/dist/react-formutil.umd.production.js)
 
 ## 示例 Examples
 
@@ -1046,12 +1051,12 @@ class MyField extends Component {}
 
     $length, // 数组表单项数量
     $index, // 当前表单的次序
-    $insert(pos?: number), // 在pos位置新增，如果pos不指定，则为在当前列表末尾新增
-    $remove(pos?: number), // 删除pos位置项，如果pos不指定，则为删除当前列表最后一项
-    $push(), // 在列表尾部新增
-    $pop(), // 删除列表最后一项
-    $shift(), // 删除列表第一项
-    $unshift() // 在列表前面增加
+    $insert(pos?: number, values?: object, callback?: Function), // 在pos位置新增，如果pos不指定，则为在当前列表末尾新增。如果指定values，则作为新增项的默认值
+    $remove(pos?: number, callback?: Function), // 删除pos位置项，如果pos不指定，则为删除当前列表最后一项
+    $push(values?: object, callback?: Function), // 在列表尾部新增。如果指定values，则作为新增项的默认值
+    $pop(callback?: Function), // 删除列表最后一项
+    $shift(callback?: Function), // 删除列表第一项
+    $unshift(values?: object, callback?: Function) // 在列表前面增加。如果指定values，则作为新增项的默认值
 
     $isLast(), // 是否最后一项
     $isFirst(), // 是否第一项

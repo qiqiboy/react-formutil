@@ -5,6 +5,8 @@ import Form from '../Form';
 import Field from '../Field';
 import { isUndefined, isFunction, runCallback } from '../utils';
 
+const Wrapper = React.Frament || 'div';
+
 class EasyFieldList extends Component {
     static displayName = 'React.Formutil.EasyField.List';
 
@@ -162,47 +164,51 @@ class EasyFieldList extends Component {
                 children={$formutil => {
                     this.$formutil = $formutil;
 
-                    return this.state.items.map(({ id, values }, index) => (
-                        <Field
-                            key={id}
-                            required
-                            $defaultValue={values || null}
-                            $validators={this.FieldValidators}
-                            name={`list[${index}]`}
-                            children={$fieldutil => {
-                                return (
-                                    <Form
-                                        $defaultValues={$fieldutil.$value || {}}
-                                        $onFormChange={$formutil =>
-                                            $formutil.$onValidates($formutil => {
-                                                const { $invalid, $params } = $formutil;
+                    return (
+                        <Wrapper>
+                            {this.state.items.map(({ id, values }, index) => (
+                                <Field
+                                    key={id}
+                                    required
+                                    $defaultValue={values || null}
+                                    $validators={this.FieldValidators}
+                                    name={`list[${index}]`}
+                                    children={$fieldutil => {
+                                        return (
+                                            <Form
+                                                $defaultValues={$fieldutil.$value || {}}
+                                                $onFormChange={$formutil =>
+                                                    $formutil.$onValidates($formutil => {
+                                                        const { $invalid, $params } = $formutil;
 
-                                                if ($invalid) {
-                                                    if ($fieldutil.$viewValue !== null) {
-                                                        $fieldutil.$render(null);
-                                                    }
-                                                } else if (!isEqual($fieldutil.$viewValue, $params)) {
-                                                    $fieldutil.$render($params);
+                                                        if ($invalid) {
+                                                            if ($fieldutil.$viewValue !== null) {
+                                                                $fieldutil.$render(null);
+                                                            }
+                                                        } else if (!isEqual($fieldutil.$viewValue, $params)) {
+                                                            $fieldutil.$render($params);
+                                                        }
+                                                    })
                                                 }
-                                            })
-                                        }
-                                        children={$innerFormutil =>
-                                            children(
-                                                {
-                                                    ...$baseutil,
-                                                    ...$innerFormutil,
-                                                    $index: index,
-                                                    $isLast: () => index === this.state.items.length - 1,
-                                                    $isFirst: () => index === 0
-                                                },
-                                                $formutil
-                                            )
-                                        }
-                                    />
-                                );
-                            }}
-                        />
-                    ));
+                                                children={$innerFormutil =>
+                                                    children(
+                                                        {
+                                                            ...$baseutil,
+                                                            ...$innerFormutil,
+                                                            $index: index,
+                                                            $isLast: () => index === this.state.items.length - 1,
+                                                            $isFirst: () => index === 0
+                                                        },
+                                                        $formutil
+                                                    )
+                                                }
+                                            />
+                                        );
+                                    }}
+                                />
+                            ))}
+                        </Wrapper>
+                    );
                 }}
             />
         );

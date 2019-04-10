@@ -3555,7 +3555,12 @@
   }
 
   function useFormContext() {
-    var $formContext = React.useContext(FormContext);
+    if (!React__default.useState) {
+      throw new Error("Hooks api need react@>=16.8, Please upgrade your reactjs.");
+    }
+
+    var useContext = React__default.useContext;
+    var $formContext = useContext(FormContext);
     return $formContext;
   }
 
@@ -3571,6 +3576,14 @@
 
   function useField(name) {
     var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    if (!React__default.useState) {
+      throw new Error("Hooks api need react@>=16.8, Please upgrade your reactjs.");
+    }
+
+    var useState = React__default.useState,
+        useLayoutEffect = React__default.useLayoutEffect,
+        useRef = React__default.useRef;
     var $name;
 
     if (name) {
@@ -3586,17 +3599,18 @@
     var $formContext = useFormContext();
     /** @type {any} */
 
-    var $this = React.useRef({}).current;
+    var $this = useRef({}).current;
     /** @type {React.MutableRefObject<any[]>} */
 
-    var callbackRef = React.useRef([]);
+    var callbackRef = useRef([]);
+    var $registered;
     $this.$formContext = $formContext;
     $this.props = props;
     $this.$setState = $setState; // we not directly use this $state, just from $this.$state
 
-    var _useState = React.useState(function () {
+    var _useState = useState(function () {
       $this.$$FIELD_UUID = GET_FIELD_UUID();
-      $this.$fieldHandler = createHandler($this);
+      $this.$fieldHandler = $registered = createHandler($this);
       var $state = $this.$fieldHandler.$$reset();
       $this.$fieldHandler.$validate();
       return $state;
@@ -3604,8 +3618,11 @@
         _useState2 = _slicedToArray(_useState, 2),
         setState = _useState2[1];
 
-    var $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
-    React.useLayoutEffect(function () {
+    if (!$registered) {
+      $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
+    }
+
+    useLayoutEffect(function () {
       var $state = $this.$state;
 
       if ($this.isMounting) {
@@ -3620,7 +3637,7 @@
 
       $this.$prevValue = $state.$value;
     }, [$this.$state.$value]);
-    React.useLayoutEffect(function () {
+    useLayoutEffect(function () {
       $this.isMounting = true;
       warning_1$1(!$name || $formContext.$formutil, "You should enusre that the useField() with the name '".concat($name, "' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."));
       warning_1$1($name, "You should pass a name argument to useField(), otherwise it will be isolated!");
@@ -3632,14 +3649,14 @@
         $this.isMounting = false;
       };
     }, []);
-    React.useLayoutEffect(function () {
+    useLayoutEffect(function () {
       if ($formContext.$$register) {
-        $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+        $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
       }
 
       $this.$prevName = $name;
     }, [$name]);
-    React.useLayoutEffect(function () {
+    useLayoutEffect(function () {
       if (callbackRef.current.length > 0) {
         var callbackQueue = _toConsumableArray(callbackRef.current);
 

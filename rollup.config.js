@@ -36,6 +36,7 @@ function createConfig(env, module) {
             babel({
                 exclude: /node_modules/,
                 runtimeHelpers: true,
+                babelrc: false,
                 presets: [
                     [
                         '@babel/preset-env',

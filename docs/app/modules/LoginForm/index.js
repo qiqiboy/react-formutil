@@ -16,9 +16,9 @@ class LoginForm extends Component {
 
         const { $invalid, $batchDirty, $weakErrors } = this.props.$formutil;
 
-        //如果表单有错误，我们可以将所有表单项设置为$dirty，以将所有错误显示出来
+        // 如果表单有错误，我们可以将所有表单项设置为$dirty，以将所有错误显示出来
         if ($invalid) {
-            //通过$batchDirty设置所有表单项
+            // 通过$batchDirty设置所有表单项
             $batchDirty(true);
             alert('共有 ' + Object.keys($weakErrors).length + ' 错误需要处理');
         } else {
@@ -27,16 +27,16 @@ class LoginForm extends Component {
     };
 
     autoInput = () => {
-        //可以通过$setValues来更改表单的值
+        // 可以通过$setValues来更改表单的值
         this.props.$formutil.$setValues({
             username: 'qiqiboy',
             password: '123456',
             confirm_password: '123456',
             mutiple: ['b', 'c'],
             autologin: false,
-            'EasyField.checkbox': '1', //可以是表达式字符串
+            'EasyField.checkbox': '1', // 可以是表达式字符串
             EasyField: {
-                number: 5, //也支持深层对象结构
+                number: 5, // 也支持深层对象结构
                 select: 'a'
             }
         });
@@ -44,7 +44,7 @@ class LoginForm extends Component {
 
     resetForm = () => this.props.$formutil.$reset();
 
-    //定义校验规则
+    // 定义校验规则
     $validators = {
         required: value => (value ? true : '该项必填'),
         minLength: (value, len) => value.length >= parseInt(len) || `最少输入字符长度：${len}`,
@@ -54,19 +54,19 @@ class LoginForm extends Component {
             value === this.props.$formutil.$params[name] ||
             '两次输入不一致',
 
-        //也可以一个校验函数里校验多个规则，甚至混合异步校验
+        // 也可以一个校验函数里校验多个规则，甚至混合异步校验
         multiCheck(value) {
-            //校验非空
+            // 校验非空
             if (!value) {
                 return '该项必填';
             }
 
-            //校验输入长度
+            // 校验输入长度
             if (value.length < 5) {
                 return '最小输入五个字符';
             }
 
-            //异步校验
+            // 异步校验
             return new Promise((resolve, reject) => setTimeout(() => reject('435454'), 2000));
         },
 
@@ -81,10 +81,10 @@ class LoginForm extends Component {
         }
     };
 
-    //密码记住时间的配置项
+    // 密码记住时间的配置项
     pwdRemeberDays = [['1day', '一天'], ['3day', '三天'], ['1week', '一周'], ['1month', '一月']];
 
-    //多选项的候选配置
+    // 多选项的候选配置
     targets = [
         {
             id: 'a',
@@ -101,7 +101,7 @@ class LoginForm extends Component {
     ];
 
     render() {
-        //可以从$formutil中拿到$params $error $invalid等状态
+        // 可以从$formutil中拿到$params $error $invalid等状态
         const { $params, $errors, $dirts } = this.props.$formutil;
 
         return (
@@ -135,8 +135,9 @@ class LoginForm extends Component {
                                     value={props.$viewValue}
                                     onChange={ev => props.$render(ev.target.value)}
                                 />
-                                {props.$dirty &&
-                                    props.$invalid && <span className="help-block">{props.$getFirstError()}</span>}
+                                {props.$dirty && props.$invalid && (
+                                    <span className="help-block">{props.$getFirstError()}</span>
+                                )}
 
                                 {props.$pending && <span className="help-block">正在异步校验</span>}
                             </div>
@@ -160,10 +161,9 @@ class LoginForm extends Component {
                                     value={props.$value}
                                     onChange={ev => props.$render(ev.target.value)}
                                 />
-                                {props.$dirty &&
-                                    props.$invalid && (
-                                        <span className="help-block">{Object.values(props.$error)[0]}</span>
-                                    )}
+                                {props.$dirty && props.$invalid && (
+                                    <span className="help-block">{Object.values(props.$error)[0]}</span>
+                                )}
                             </div>
                         )}
                     </Field>
@@ -187,10 +187,9 @@ class LoginForm extends Component {
                                         props.$render(ev.target.value)
                                     }
                                 />
-                                {props.$dirty &&
-                                    props.$invalid && (
-                                        <span className="help-block">{Object.values(props.$error)[0]}</span>
-                                    )}
+                                {props.$dirty && props.$invalid && (
+                                    <span className="help-block">{Object.values(props.$error)[0]}</span>
+                                )}
                             </div>
                         )}
                     </Field>
@@ -222,10 +221,9 @@ class LoginForm extends Component {
                                         </label>
                                     ))}
                                 </div>
-                                {props.$dirty &&
-                                    props.$invalid && (
-                                        <span className="help-block">{Object.values(props.$error)[0]}</span>
-                                    )}
+                                {props.$dirty && props.$invalid && (
+                                    <span className="help-block">{Object.values(props.$error)[0]}</span>
+                                )}
                             </div>
                         )}
                     </Field>
@@ -258,10 +256,9 @@ class LoginForm extends Component {
                                             </option>
                                         ))}
                                     </select>
-                                    {props.$dirty &&
-                                        props.$invalid && (
-                                            <span className="help-block">{Object.values(props.$error)[0]}</span>
-                                        )}
+                                    {props.$dirty && props.$invalid && (
+                                        <span className="help-block">{Object.values(props.$error)[0]}</span>
+                                    )}
                                 </div>
                             )}
                         </Field>
@@ -277,7 +274,9 @@ class LoginForm extends Component {
                     <h4>使用EasyField组件</h4>
                     <p>
                         这里是使用 EasyField 组件的演示，相比默认的 Field
-                        ，它对常用的浏览器表单控件进行了封装，方便直接调用。<br />你可以查看下方的源代码来了解其使用。
+                        ，它对常用的浏览器表单控件进行了封装，方便直接调用。
+                        <br />
+                        你可以查看下方的源代码来了解其使用。
                     </p>
                     <div className="form-group">
                         <EasyField
@@ -289,13 +288,9 @@ class LoginForm extends Component {
                             required
                             max="10"
                         />
-                        {$errors.EasyField &&
-                            $errors.EasyField.number &&
-                            $dirts.EasyField.number && (
-                                <span className="help-block bg-danger">
-                                    {Object.values($errors.EasyField.number)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.number && $dirts.EasyField.number && (
+                            <span className="help-block bg-danger">{Object.values($errors.EasyField.number)[0]}</span>
+                        )}
                     </div>
                     <div className="form-group">
                         <EasyField
@@ -315,13 +310,9 @@ class LoginForm extends Component {
                                 source on github
                             </a>
                         </small>
-                        {$errors.EasyField &&
-                            $errors.EasyField.checkbox &&
-                            $dirts.EasyField.checkbox && (
-                                <span className="help-block bg-danger">
-                                    {Object.values($errors.EasyField.checkbox)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.checkbox && $dirts.EasyField.checkbox && (
+                            <span className="help-block bg-danger">{Object.values($errors.EasyField.checkbox)[0]}</span>
+                        )}
                     </div>
                     <div className="form-group">
                         <label>多选</label>{' '}
@@ -345,13 +336,11 @@ class LoginForm extends Component {
                                 ))
                             }
                         </EasyField>
-                        {$errors.EasyField &&
-                            $errors.EasyField.checkbox_group &&
-                            $dirts.EasyField.checkbox_group && (
-                                <span className="help-block bg-danger">
-                                    {Object.values($errors.EasyField.checkbox_group)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.checkbox_group && $dirts.EasyField.checkbox_group && (
+                            <span className="help-block bg-danger">
+                                {Object.values($errors.EasyField.checkbox_group)[0]}
+                            </span>
+                        )}
                     </div>
                     <div className="form-group">
                         <EasyField
@@ -370,13 +359,9 @@ class LoginForm extends Component {
                                 source on github
                             </a>
                         </small>
-                        {$errors.EasyField &&
-                            $errors.EasyField.radio &&
-                            $dirts.EasyField.radio && (
-                                <span className="help-block bg-danger">
-                                    {Object.values($errors.EasyField.radio)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.radio && $dirts.EasyField.radio && (
+                            <span className="help-block bg-danger">{Object.values($errors.EasyField.radio)[0]}</span>
+                        )}
                     </div>
                     <div className="form-group">
                         <label>单选</label>{' '}
@@ -403,13 +388,11 @@ class LoginForm extends Component {
                                 ))
                             }
                         </EasyField>
-                        {$errors.EasyField &&
-                            $errors.EasyField.radio_group &&
-                            $dirts.EasyField.radio_group && (
-                                <span className="help-block bg-danger">
-                                    {Object.values($errors.EasyField.radio_group)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.radio_group && $dirts.EasyField.radio_group && (
+                            <span className="help-block bg-danger">
+                                {Object.values($errors.EasyField.radio_group)[0]}
+                            </span>
+                        )}
                     </div>
                     <div className="form-group">
                         <EasyField
@@ -421,13 +404,9 @@ class LoginForm extends Component {
                             validMessage={{ required: '必需填写', minLength: '至少输入十个字符' }}
                             placeholder="至少输入十个字"
                         />
-                        {$errors.EasyField &&
-                            $errors.EasyField.textarea &&
-                            $dirts.EasyField.textarea && (
-                                <span className="help-block bg-danger">
-                                    {Object.values($errors.EasyField.textarea)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.textarea && $dirts.EasyField.textarea && (
+                            <span className="help-block bg-danger">{Object.values($errors.EasyField.textarea)[0]}</span>
+                        )}
                     </div>
                     <div className="form-group">
                         <EasyField
@@ -441,13 +420,9 @@ class LoginForm extends Component {
                             <option value="a">a</option>
                             <option value="b">b</option>
                         </EasyField>
-                        {$errors.EasyField &&
-                            $errors.EasyField.select &&
-                            $dirts.EasyField.select && (
-                                <span className="help-block  bg-danger">
-                                    {Object.values($errors.EasyField.select)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.select && $dirts.EasyField.select && (
+                            <span className="help-block  bg-danger">{Object.values($errors.EasyField.select)[0]}</span>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -470,7 +445,7 @@ class LoginForm extends Component {
                                         </EasyField>
                                     </div>
                                     <div className="form-group form-group-sm col-sm-5">
-                                        <EasyField className="form-control" name="B" placeholer="电话号码" />
+                                        <EasyField className="form-control" name="B" placeholder="电话号码" />
                                     </div>
                                     <div className="col-sm-2">
                                         <button
@@ -523,13 +498,9 @@ class LoginForm extends Component {
                                 </div>
                             )}
                         </EasyField>
-                        {$errors.EasyField &&
-                            $errors.EasyField.list &&
-                            $dirts.EasyField.list && (
-                                <span className="help-block  bg-danger">
-                                    {Object.values($errors.EasyField.list)[0]}
-                                </span>
-                            )}
+                        {$errors.EasyField && $errors.EasyField.list && $dirts.EasyField.list && (
+                            <span className="help-block  bg-danger">{Object.values($errors.EasyField.list)[0]}</span>
+                        )}
                     </div>
 
                     <div className="form-group">
@@ -554,10 +525,9 @@ class LoginForm extends Component {
                                 city: 'shenzhen'
                             }}
                         />
-                        {$errors.address &&
-                            $dirts.address && (
-                                <span className="help-block bg-danger">{Object.values($errors.address)[0]}</span>
-                            )}
+                        {$errors.address && $dirts.address && (
+                            <span className="help-block bg-danger">{Object.values($errors.address)[0]}</span>
+                        )}
                     </div>
                 </div>
 
@@ -577,5 +547,5 @@ class LoginForm extends Component {
     }
 }
 
-//可以通过高阶组件直接设置表单默认值
+// 可以通过高阶组件直接设置表单默认值
 export default LoginForm;

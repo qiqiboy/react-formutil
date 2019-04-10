@@ -1,44 +1,53 @@
-var path = require('path');
-var fs = require('fs');
-var glob = require('glob');
-var execSync = require('child_process').execSync;
+const path = require('path');
+const fs = require('fs');
+const glob = require('glob');
+const execSync = require('child_process').execSync;
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebookincubator/create-react-app/issues/637
-var appDirectory = fs.realpathSync(process.cwd());
+const appDirectory = fs.realpathSync(process.cwd());
 
 function resolveApp(relativePath) {
     return path.resolve(appDirectory, relativePath);
 }
 
-var nodePaths = (process.env.NODE_PATH || '')
-    .split(process.platform === 'win32' ? ';' : ':')
+const nodePaths = (process.env.NODE_PATH || '')
+    .split(path.delimiter)
     .filter(Boolean)
     .map(resolveApp);
 
-var entries = {};
+const entries = {};
 
-glob.sync(resolveApp('app/!(_)*.js?(x)')).forEach(function(file) {
-    var basename = path.basename(file).replace(/\.jsx?$/, '');
+glob.sync(resolveApp('app/!(_)*.{j,t}s?(x)')).forEach(function(file) {
+    const basename = path.basename(file).replace(/\.[jt]sx?$/, '');
+
     entries[basename] = file;
 });
 
-var alias = {
+const alias = {
     components: resolveApp('app/components'),
     modules: resolveApp('app/modules'),
-    utils: resolveApp('app/utils')
+    utils: resolveApp('app/utils'),
+    stores: resolveApp('app/stores'),
+    types: resolveApp('app/types'),
+    hooks: resolveApp('app/hooks')
 };
 
 // config after eject: we're in ./config/
 module.exports = {
+    dotenv: resolveApp('.env'),
     root: resolveApp(''),
     appBuild: resolveApp('demo'),
+    appBuildDev: resolveApp('buildDev'),
     appPublic: resolveApp('public'),
     appHtml: resolveApp('public/index.html'),
-    appIndexJs: resolveApp('app/index.js'),
+    appIndexJs: Object.values(entries)[0] || resolveApp('app/index.js'),
     appPackageJson: resolveApp('package.json'),
     appSrc: [resolveApp('app'), resolveApp('../src')],
+    appTsConfig: resolveApp('tsconfig.json'),
     staticSrc: resolveApp('static'),
+    locals: resolveApp('locals'),
+    proxySetup: resolveApp('setupProxy.js'),
     appNodeModules: resolveApp('node_modules'),
     ownNodeModules: resolveApp('node_modules'),
     nodePaths: nodePaths,
@@ -47,7 +56,8 @@ module.exports = {
     pageEntries: glob.sync(resolveApp('public/!(_)*.html')).map(function(file) {
         return path.basename(file, '.html');
     }),
-    //一些命令检测
+    moduleFileExtensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx'],
+    // 一些命令检测
     serve: hasInstall('serve'),
     cnpm: hasInstall('cnpm'),
     yarn: hasInstall('yarn')

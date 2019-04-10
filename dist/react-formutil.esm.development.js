@@ -1,4 +1,4 @@
-import React, { createElement, Children, cloneElement, Component, useContext, useRef, useState, useLayoutEffect } from 'react';
+import React, { createElement, Children, cloneElement, Component } from 'react';
 import PropTypes from 'prop-types';
 import createContext from 'create-react-context';
 import warning from 'warning';
@@ -2728,6 +2728,11 @@ function connect(WrappedComponent) {
 }
 
 function useFormContext() {
+  if (!React.useState) {
+    throw new Error("Hooks api need react@>=16.8, Please upgrade your reactjs.");
+  }
+
+  var useContext = React.useContext;
   var $formContext = useContext(FormContext);
   return $formContext;
 }
@@ -2744,6 +2749,14 @@ function useFormContext() {
 
 function useField(name) {
   var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  if (!React.useState) {
+    throw new Error("Hooks api need react@>=16.8, Please upgrade your reactjs.");
+  }
+
+  var useState = React.useState,
+      useLayoutEffect = React.useLayoutEffect,
+      useRef = React.useRef;
   var $name;
 
   if (name) {
@@ -2763,13 +2776,14 @@ function useField(name) {
   /** @type {React.MutableRefObject<any[]>} */
 
   var callbackRef = useRef([]);
+  var $registered;
   $this.$formContext = $formContext;
   $this.props = props;
   $this.$setState = $setState; // we not directly use this $state, just from $this.$state
 
   var _useState = useState(function () {
     $this.$$FIELD_UUID = GET_FIELD_UUID();
-    $this.$fieldHandler = createHandler($this);
+    $this.$fieldHandler = $registered = createHandler($this);
     var $state = $this.$fieldHandler.$$reset();
     $this.$fieldHandler.$validate();
     return $state;
@@ -2777,7 +2791,10 @@ function useField(name) {
       _useState2 = _slicedToArray(_useState, 2),
       setState = _useState2[1];
 
-  var $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
+  if (!$registered) {
+    $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
+  }
+
   useLayoutEffect(function () {
     var $state = $this.$state;
 
@@ -2807,7 +2824,7 @@ function useField(name) {
   }, []);
   useLayoutEffect(function () {
     if ($formContext.$$register) {
-      $this.$registered = $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+      $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
     }
 
     $this.$prevName = $name;

@@ -27,6 +27,7 @@ function getStaticConfig(path) {
 
 function removeFileNameHash(fileName) {
     var pipes = fileName.split('.');
+
     pipes.splice(-2, 1);
     return pipes.join('.');
 }
@@ -37,7 +38,7 @@ function runCDN() {
     spinner = ora('开始上传').start();
 
     var exitsNum = 0;
-    var allFiles = glob.sync(path.join(paths.appBuild, 'static/**/*'));
+    var allFiles = glob.sync(path.join(paths.appBuild, 'static/**/!(*.map)'));
     var allSyncPromises = allFiles
         .filter(function(file) {
             var relative = path.relative(paths.appBuild, file);
@@ -84,9 +85,11 @@ function runCDN() {
             console.log(chalk.blue('配置文件已经更新: ' + staticConfigFile));
             console.log();
             console.log(chalk.green('项目已经成功编译，运行以下命令可即时预览：'));
+
             if (!paths.serve) {
                 console.log(chalk.cyan('npm') + ' install -g serve');
             }
+
             console.log(chalk.cyan('serve') + ' -s ' + path.relative('.', paths.appBuild));
         } else {
             console.log(chalk.red('文件未全部上传，请单独运行') + chalk.green(' npm run cdn ') + chalk.red('命令!'));

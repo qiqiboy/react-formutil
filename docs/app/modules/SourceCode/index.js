@@ -4,12 +4,12 @@ import './style.scss';
 
 class SrouceCode extends Component {
     async componentDidMount() {
-        const [Editor] = await Promise.all([
-            import('codemirror'), //异步载入编辑器代码
+        const [{ default: Editor }] = await Promise.all([
+            import('codemirror'), // 异步载入编辑器代码
             import('codemirror/mode/javascript/javascript'),
             import('codemirror/mode/css/css'),
-            import('codemirror/lib/codemirror.css'), //载入编辑器样式
-            import('codemirror/theme/solarized.css') //载入编辑器主题
+            import('codemirror/lib/codemirror.css'), // 载入编辑器样式
+            import('codemirror/theme/solarized.css') // 载入编辑器主题
         ]);
 
         this.jsEditor = new Editor(this.editorNode, {

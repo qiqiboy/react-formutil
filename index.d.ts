@@ -237,7 +237,7 @@ export interface BaseEasyFieldComponentProps<T = string, Validators = {}, Fields
         FieldValidatorProps<EasyFieldDefaultValidators> {
     checked?: T;
     unchecked?: T;
-    validMessage?: ValidMessage<EasyFieldDefaultValidators & Validators>;
+    validMessage?: ValidMessage<EasyFieldDefaultValidators & { checker } & Validators>;
     passUtil?: string | boolean;
     valuePropName?: string;
     changePropName?: string;
@@ -585,7 +585,6 @@ export function connect<SelfProps = {}, Fields = {}, Validators = {}, WeakFields
         }
     >
 ): React.ComponentClass<Omit<SelfProps, '$formutil'>>;
-
 
 // hooks
 export function useField<T = string, Validators = {}, Fields = {}, WeakFields = Fields>(

@@ -4,6 +4,9 @@ const replace = require('rollup-plugin-replace');
 const nodeResolve = require('rollup-plugin-node-resolve');
 const babel = require('rollup-plugin-babel');
 const sourceMaps = require('rollup-plugin-sourcemaps');
+const filesize = require('rollup-plugin-filesize');
+const clear = require('rollup-plugin-clear');
+const copy = require('rollup-plugin-copy');
 const { terser } = require('rollup-plugin-terser');
 
 process.env.NODE_ENV = 'production';
@@ -13,7 +16,10 @@ function createConfig(env, module) {
 
     return {
         input: 'src/index.js',
-        external: module === 'umd' ? ['react', 'prop-types'] : id => !id.startsWith('.') && !id.startsWith('@babel/runtime') && !path.isAbsolute(id),
+        external:
+            module === 'umd'
+                ? ['react', 'prop-types']
+                : id => !id.startsWith('.') && !id.startsWith('@babel/runtime') && !path.isAbsolute(id),
         output: {
             file: `dist/react-formutil.${module}.${env}.js`,
             format: module,
@@ -25,7 +31,13 @@ function createConfig(env, module) {
                 'prop-types': 'PropTypes'
             }
         },
+        treeshake: {
+            pureExternalModules: true
+        },
         plugins: [
+            clear({
+                targets: ['dist']
+            }),
             replace({
                 'process.env.NODE_ENV': JSON.stringify(env)
             }),
@@ -71,7 +83,7 @@ function createConfig(env, module) {
                         // Remove PropTypes from production build
                         require('babel-plugin-transform-react-remove-prop-types').default,
                         {
-                            removeImport: false
+                            removeImport: true
                         }
                     ]
                 ].filter(Boolean)
@@ -81,16 +93,24 @@ function createConfig(env, module) {
                 terser({
                     sourcemap: true,
                     output: { comments: false },
-                    compress: {
-                        warnings: false,
-                        comparisons: false,
-                        keep_infinity: true
-                    },
+                    compress:
+                        module === 'umd'
+                            ? {
+                                  warnings: false,
+                                  comparisons: false,
+                                  keep_infinity: true
+                              }
+                            : false,
                     warnings: false,
                     ecma: 5,
                     ie8: false,
-                    toplevel: false
-                })
+                    toplevel: module !== 'umd'
+                }),
+            filesize(),
+            copy({
+                targets: [`npm/index.${module}.js`],
+                verbose: true
+            })
         ].filter(Boolean)
     };
 }

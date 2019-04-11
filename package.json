@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Happy to build the forms in React ^_^",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -8,7 +8,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "pack": "rollup -c && cd npm && ../node_modules/.bin/copy *.js ../dist"
+    "pack": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -45,10 +45,12 @@
     "@types/react": "^16.8.13",
     "@types/react-dom": "^16.8.3",
     "babel-preset-react-app": "^7.0.2",
-    "copy": "^0.3.2",
     "rollup": "^1.9.0",
     "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-clear": "^2.0.7",
     "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-copy": "^1.1.0",
+    "rollup-plugin-filesize": "^6.0.1",
     "rollup-plugin-node-resolve": "^4.2.1",
     "rollup-plugin-replace": "^2.1.1",
     "rollup-plugin-sourcemaps": "^0.4.2",

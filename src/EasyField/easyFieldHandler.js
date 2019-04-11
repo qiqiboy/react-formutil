@@ -27,22 +27,25 @@ export const defaultValidators = [
     return $validators;
 }, {});
 
-export const propTypes = {
-    type: PropTypes.string,
-    children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
-    component: PropTypes.func,
-    render: PropTypes.func,
+export const propTypes =
+    process.env.NODE_ENV !== 'production'
+        ? {
+              type: PropTypes.string,
+              children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
+              component: PropTypes.func,
+              render: PropTypes.func,
 
-    defaultValue: PropTypes.any,
-    validMessage: PropTypes.object,
+              defaultValue: PropTypes.any,
+              validMessage: PropTypes.object,
 
-    valuePropName: PropTypes.string,
-    changePropName: PropTypes.string,
-    focusPropName: PropTypes.string,
-    blurPropName: PropTypes.string,
+              valuePropName: PropTypes.string,
+              changePropName: PropTypes.string,
+              focusPropName: PropTypes.string,
+              blurPropName: PropTypes.string,
 
-    passUtil: PropTypes.string
-};
+              passUtil: PropTypes.string
+          }
+        : undefined;
 
 export const displayName = 'React.Formutil.EasyField';
 

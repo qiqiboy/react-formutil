@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/v/react-formutil/next.svg?color=yellow)](https://npm.im/react-formutil)
 [![peerDependencies](https://img.shields.io/npm/dependency-version/react-formutil/peer/react.svg?color=yellowgreen)](https://reactjs.org)
 [![definitionTypes](https://img.shields.io/npm/types/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/blob/master/index.d.ts)
-[![gzip](https://img.shields.io/bundlephobia/minzip/react-formutil.svg)](https://npm.im/react-formutil)
+[![gzip](http://img.badgesize.io/https://unpkg.com/react-formutil/dist/react-formutil.umd.production.js?compression=gzip&color=green)](https://npm.im/react-formutil)
 [![download](https://img.shields.io/npm/dm/react-formutil.svg)](https://npm.im/react-formutil)
 [![issues](https://img.shields.io/github/issues/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/issues)
 [![license](https://img.shields.io/github/license/qiqiboy/react-formutil.svg)](https://github.com/qiqiboy/react-formutil/blob/master/LICENSE)
@@ -197,7 +197,15 @@ yarn add react-formutil@0.4
 
 ### `UMD包`
 
-[https://unpkg.com/react-formutil@latest/dist/react-formutil.umd.production.js](https://unpkg.com/react-formutil@latest/dist/react-formutil.umd.production.js)
+`UMD`格式包既适用于`webpack` `rollup`等模块打包工具，也可以直接用于浏览器`script`标签引入（当然，前面需要先引入`react`的代码包）。我们也提供了两个版本的包供选择：
+
+**生产环境Production** 压缩后的代码包，体积比较小：
+
+[`https://unpkg.com/react-formutil/dist/react-formutil.umd.production.js`](https://unpkg.com/react-formutil/dist/react-formutil.umd.production.js)
+
+**开发环境Development** 未压缩代码，方便调试查错：
+
+[`https://unpkg.com/react-formutil/dist/react-formutil.umd.development.js`](https://unpkg.com/react-formutil/dist/react-formutil.umd.development.js)
 
 ## 示例 Examples
 

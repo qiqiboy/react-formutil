@@ -70,15 +70,6 @@ function createConfig(env, module) {
                     'babel-plugin-macros',
                     ['@babel/plugin-proposal-class-properties', { loose: true }],
                     ['@babel/plugin-proposal-object-rest-spread', { useBuiltIns: true }],
-                    [
-                        '@babel/plugin-transform-runtime',
-                        {
-                            helpers: true,
-                            corejs: false,
-                            useESModules: true,
-                            regenerator: true
-                        }
-                    ],
                     isProd && [
                         // Remove PropTypes from production build
                         require('babel-plugin-transform-react-remove-prop-types').default,

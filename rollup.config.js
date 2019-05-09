@@ -91,11 +91,7 @@ function createConfig(env, module) {
                                   comparisons: false,
                                   keep_infinity: true
                               }
-                    : false,
-                    mangle: {
-                        keep_classnames: true,
-                        keep_fnames: true
-                    },
+                            : false,
                     warnings: false,
                     ecma: 5,
                     ie8: false,

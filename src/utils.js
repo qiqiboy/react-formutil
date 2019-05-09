@@ -105,7 +105,7 @@ const executeWord = function(word) {
  *
  * 使用示例：parsePath({}, 'list[0].authors[1].name', 'Lucy');
  */
-export const parsePath = (...args) => {
+export function parsePath(...args) {
     const [target, path, value] = args;
 
     warning(typeof path === 'string', `The second parameter(${JSON.stringify(path)}) of parsePath() must be a string.`);
@@ -197,7 +197,7 @@ export const toObject = (arr, handler, obj = {}) =>
     }, obj);
 
 const TODO_DELETE = undefined;
-const CLEAR = (obj, pkey, pobj) => {
+function CLEAR(obj, pkey, pobj) {
     objectEach(obj, (value, key) => {
         if (value === TODO_DELETE) {
             delete obj[key];

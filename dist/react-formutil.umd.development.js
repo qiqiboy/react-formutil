@@ -679,7 +679,7 @@
    */
 
 
-  var parsePath = function parsePath() {
+  function parsePath() {
     for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
     }
@@ -750,7 +750,7 @@
     if (args.length > 2) {
       return target;
     }
-  };
+  }
   var arrayFind = function arrayFind(array, process) {
     for (var i = 0, j = array.length; i < j; i++) {
       if (process(array[i]) === true) {
@@ -778,7 +778,7 @@
   };
   var TODO_DELETE = undefined;
 
-  var CLEAR = function CLEAR(obj, pkey, pobj) {
+  function CLEAR(obj, pkey, pobj) {
     objectEach(obj, function (value, key) {
       if (value === TODO_DELETE) {
         delete obj[key];
@@ -793,8 +793,7 @@
       pobj[pkey] = TODO_DELETE;
       CLEAR(pobj);
     }
-  };
-
+  }
   var objectClear = function objectClear(obj, name) {
     if (!isUndefined(parsePath(obj, name))) {
       parsePath(obj, name, TODO_DELETE);

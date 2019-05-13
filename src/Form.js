@@ -407,7 +407,7 @@ class Form extends Component {
     }
 
     componentWillUnmount() {
-        utils.createRef(this.props.$ref, undefined);
+        utils.createRef(this.props.$ref, null);
     }
 
     $render = callback =>
@@ -557,7 +557,7 @@ class Form extends Component {
     }
 
     render() {
-        const { $processer, $ref } = this.props;
+        const { $processer } = this.props;
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
             $state: this.$$registers[path].$getState()
@@ -680,10 +680,6 @@ class Form extends Component {
             $focused,
             $pending
         });
-
-        if ($ref && 'current' in $ref) {
-            $ref.current = $formutil;
-        }
 
         return <FormContext.Provider value={this.getFormContext()}>{this._render()}</FormContext.Provider>;
     }

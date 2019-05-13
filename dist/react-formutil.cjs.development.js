@@ -999,7 +999,7 @@ function (_Component) {
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
-      createRef(this.props.$ref, undefined);
+      createRef(this.props.$ref, null);
     }
   }, {
     key: "_render",
@@ -1035,9 +1035,7 @@ function (_Component) {
     value: function render() {
       var _this3 = this;
 
-      var _this$props3 = this.props,
-          $processer = _this$props3.$processer,
-          $ref = _this$props3.$ref;
+      var $processer = this.props.$processer;
       var $stateArray = Object.keys(this.$$registers).map(function (path) {
         return {
           path: path,
@@ -1195,11 +1193,6 @@ function (_Component) {
         $focused: $focused,
         $pending: $pending
       };
-
-      if ($ref && 'current' in $ref) {
-        $ref.current = $formutil;
-      }
-
       return React__default.createElement(FormContext.Provider, {
         value: this.getFormContext()
       }, this._render());
@@ -1752,7 +1745,7 @@ function (_Component) {
       }
 
       this.isMounting = false;
-      createRef(this.props.$ref, undefined);
+      createRef(this.props.$ref, null);
     }
   }, {
     key: "componentDidUpdate",
@@ -2847,7 +2840,7 @@ function useField(name) {
     warning($name, "You should pass a name argument to useField(), otherwise it will be isolated!");
     return function () {
       $this.isMounting = false;
-      createRef(props.$ref, undefined);
+      createRef(props.$ref, null);
     };
   }, []);
   useLayoutEffect(function () {

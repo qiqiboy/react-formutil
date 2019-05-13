@@ -91,7 +91,7 @@ function useField(name, props = {}) {
         return () => {
             $this.isMounting = false;
 
-            createRef(props.$ref, undefined);
+            createRef(props.$ref, null);
         };
     }, []);
 

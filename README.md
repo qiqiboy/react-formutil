@@ -52,6 +52,7 @@ Happy to build the forms in React ^\_^
         + [`$reserveOnUnmount`](#reserveonunmount)
         + [`$parser`](#parser)
         + [`$formatter`](#formatter)
+        + [`$ref`](#ref)
         + [`$fieldutil`](#fieldutil)
             * [`$value`](#value)
             * [`$viewValue`](#viewvalue)
@@ -103,6 +104,7 @@ Happy to build the forms in React ^\_^
         + [`$onFormChange`](#onformchange)
         + [`$validator`](#validator)
         + [`$processer`](#processer)
+        + [`$ref`](#ref-1)
         + [`$formutil`](#formutil-1)
             * [`$new()`](#new-1)
             * [`$getField(name)`](#getfieldname)
@@ -199,11 +201,11 @@ yarn add react-formutil@0.4
 
 `UMD`格式包既适用于`webpack` `rollup`等模块打包工具，也可以直接用于浏览器`script`标签引入（当然，前面需要先引入`react`的代码包）。我们也提供了两个版本的包供选择：
 
-**生产环境Production** 压缩后的代码包，体积比较小：
+**生产环境 Production** 压缩后的代码包，体积比较小：
 
 [`https://unpkg.com/react-formutil/dist/react-formutil.umd.production.js`](https://unpkg.com/react-formutil/dist/react-formutil.umd.production.js)
 
-**开发环境Development** 未压缩代码，方便调试查错：
+**开发环境 Development** 未压缩代码，方便调试查错：
 
 [`https://unpkg.com/react-formutil/dist/react-formutil.umd.development.js`](https://unpkg.com/react-formutil/dist/react-formutil.umd.development.js)
 
@@ -523,6 +525,23 @@ yarn add react-formutil@0.4
 ```
 
 `$formatter`同样有一个回调方法`$setModelValue`，它可以用来在处理模型值时再次对其进行修改。
+
+#### `$ref`
+
+> 该属性为 `v0.5.11` 新增。
+
+可以通过该属性传递一个回调函数或者一个[`RefObject`](https://reactjs.org/docs/react-api.html#reactcreateref)对象，用来获取该 Field 的`$fieldutil`对象，以在其 context 外部访问：
+
+```javascript
+let curFieldutil;
+<Field name="username" $ref={$fieldutil => (curFieldutil = $fieldutil)} />;
+
+const ref = React.createRef();
+<Field name="username" $ref={ref} />;
+```
+
+其用法类似与 React 组件本身的 ref 属性用法，但是与`ref={Function}`不同的时，由于`$fieldutil`是一个每次 render 都会重新生成的`Immutable`对象，所以传递给`$ref`的回调函数也会随着每次 render 被调用。
+所以，**不要在回调函数里做任何有副作用的操作！**
 
 #### `$fieldutil`
 
@@ -1515,6 +1534,27 @@ function $processer($state: FieldState<T>, name: string) {
 }} />
 ```
 
+#### `$ref`
+
+> 该属性为 `v0.5.11` 新增。
+
+可以通过该属性传递一个回调函数或者一个[`RefObject`](https://reactjs.org/docs/react-api.html#reactcreateref)对象，用来获取该 Field 的`$formutil`对象，以在其 context 外部访问：
+
+```javascript
+let $formutil;
+<Form $ref={$formutil => ($formutil = $formutil)}>
+    { /* ...*/ }
+</Form>;
+
+const $formutilRef = React.createRef();
+<Form $ref={$formutilRef}>
+    { /* ...*/ }
+</Form>;
+```
+
+其用法类似与 React 组件本身的 ref 属性用法，但是与`ref={Function}`不同的时，由于`$formutil`是一个每次 render 都会重新生成的`Immutable`对象，所以传递给`$ref`的回调函数也会随着每次 render 被调用。
+所以，**不要在回调函数里做任何有副作用的操作！**
+
 #### `$formutil`
 
 `$formutil` 前面我们提到了，它是`Form`组件基于其组件树下的所有`Field`的状态模型，经过收集整理后返回的关于整个表单的状态模型集合。另外它也包含了一组用于操作整个表单的方法。
@@ -1949,7 +1989,7 @@ export default connect(Submit);
 
 ~~全新的`Hooks`方法，位于`react-formutil/hooks`下（如果要使用新增的`useField` `useForm` hooks，必须从这里导出获取）。~~
 
-**`v0.5.6`起，你可以直接从主包中导出hooks相关方法了**
+**`v0.5.6`起，你可以直接从主包中导出 hooks 相关方法了**
 
 #### `useField`
 

@@ -46,7 +46,7 @@ class Field extends Component {
 
         this.isMounting = false;
 
-        createRef(this.props.$ref, undefined);
+        createRef(this.props.$ref, null);
     }
 
     componentDidUpdate(prevProps) {

@@ -35,7 +35,13 @@ class Form extends Component {
         $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
         $onFormChange: PropTypes.func,
         $validator: PropTypes.func,
-        $processer: PropTypes.func
+        $processer: PropTypes.func,
+        $ref: PropTypes.oneOfType([
+            PropTypes.func,
+            PropTypes.shape({
+                current: PropTypes.any
+            })
+        ])
     };
 
     static defaultProps = {
@@ -385,13 +391,23 @@ class Form extends Component {
         return Promise.resolve(utils.runCallback(callback, this.$formutil));
     };
 
-    componentDidUpdate() {
+    componentDidMount() {
+        utils.createRef(this.props.$ref, this.$formutil);
+    }
+
+    componentDidUpdate(prevProps) {
+        utils.createRef(this.props.$ref, this.$formutil);
+
         cancelFrame(this.$$triggerChangeTimer);
 
         // ensure this calls to access the newest $formutil
         this.$$triggerChangeTimer = requestFrame(() => {
             this.$$triggerFormChange();
         });
+    }
+
+    componentWillUnmount() {
+        utils.createRef(this.props.$ref, undefined);
     }
 
     $render = callback =>
@@ -541,7 +557,7 @@ class Form extends Component {
     }
 
     render() {
-        const { $processer } = this.props;
+        const { $processer, $ref } = this.props;
         const $stateArray = Object.keys(this.$$registers).map(path => ({
             path,
             $state: this.$$registers[path].$getState()
@@ -664,6 +680,10 @@ class Form extends Component {
             $focused,
             $pending
         });
+
+        if ($ref && 'current' in $ref) {
+            $ref.current = $formutil;
+        }
 
         return <FormContext.Provider value={this.getFormContext()}>{this._render()}</FormContext.Provider>;
     }

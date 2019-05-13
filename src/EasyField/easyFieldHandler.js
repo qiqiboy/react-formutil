@@ -142,6 +142,7 @@ export function parseProps(props) {
         $reserveOnUnmount,
         $parser,
         $formatter,
+        $ref,
 
         ...childProps
     } = fieldProps;

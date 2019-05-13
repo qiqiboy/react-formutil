@@ -1,6 +1,6 @@
 import React from 'react';
 import useFormContext from './useFormContext';
-import { runCallback } from '../utils';
+import { runCallback, createRef } from '../utils';
 import { createHandler, GET_FIELD_UUID } from '../fieldHelper';
 import warning from 'warning';
 
@@ -89,21 +89,28 @@ function useField(name, props = {}) {
         warning($name, `You should pass a name argument to useField(), otherwise it will be isolated!`);
 
         return () => {
-            if ($formContext.$$unregister) {
-                $formContext.$$unregister($name, $this.$fieldHandler, props.$reserveOnUnmount);
-            }
-
             $this.isMounting = false;
+
+            createRef(props.$ref, undefined);
         };
     }, []);
 
     useLayoutEffect(() => {
         if ($formContext.$$register) {
-            $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+            $formContext.$$register($name, $this.$fieldHandler);
         }
 
-        $this.$prevName = $name;
+        return () => {
+            if ($formContext.$$unregister) {
+                $formContext.$$unregister($name, $this.$fieldHandler, !$this.isMounting && props.$reserveOnUnmount);
+            }
+        };
     }, [$name]);
+
+    // trigger ref callback
+    useLayoutEffect(() => {
+        createRef(props.$ref, $this.$fieldutil);
+    });
 
     useLayoutEffect(() => {
         if (callbackRef.current.length > 0) {

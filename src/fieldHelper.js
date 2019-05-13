@@ -46,7 +46,12 @@ export const propTypes =
               $asyncValidators: PropTypes.object,
               $validateLazy: PropTypes.bool,
               $reserveOnUnmount: PropTypes.bool,
-
+              $ref: PropTypes.oneOfType([
+                  PropTypes.func,
+                  PropTypes.shape({
+                      current: PropTypes.any
+                  })
+              ]),
               $parser: PropTypes.func,
               $formatter: PropTypes.func,
 

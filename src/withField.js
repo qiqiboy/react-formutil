@@ -22,6 +22,7 @@ function withField(WrappedComponent, config = {}) {
                 '$onFieldChange',
                 '$parser',
                 '$formatter',
+                '$ref',
                 'name'
             ]
                 .concat(

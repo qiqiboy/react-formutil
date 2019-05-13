@@ -382,6 +382,15 @@ function parsePath() {
     return target;
   }
 }
+function createRef(ref, value) {
+  if (ref) {
+    if (isFunction(ref)) {
+      ref(value);
+    } else if ('current' in ref) {
+      ref.current = value;
+    }
+  }
+}
 var arrayFind = function arrayFind(array, process) {
   for (var i = 0, j = array.length; i < j; i++) {
     if (process(array[i]) === true) {
@@ -425,6 +434,7 @@ function CLEAR(obj, pkey, pobj) {
     CLEAR(pobj);
   }
 }
+
 var objectClear = function objectClear(obj, name) {
   if (!isUndefined(parsePath(obj, name))) {
     parsePath(obj, name, TODO_DELETE);
@@ -970,15 +980,26 @@ function (_Component) {
       return deepObj;
     }
   }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      createRef(this.props.$ref, this.$formutil);
+    }
+  }, {
     key: "componentDidUpdate",
-    value: function componentDidUpdate() {
+    value: function componentDidUpdate(prevProps) {
       var _this2 = this;
 
+      createRef(this.props.$ref, this.$formutil);
       cancelFrame(this.$$triggerChangeTimer); // ensure this calls to access the newest $formutil
 
       this.$$triggerChangeTimer = requestFrame(function () {
         _this2.$$triggerFormChange();
       });
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      createRef(this.props.$ref, undefined);
     }
   }, {
     key: "_render",
@@ -1014,7 +1035,9 @@ function (_Component) {
     value: function render() {
       var _this3 = this;
 
-      var $processer = this.props.$processer;
+      var _this$props3 = this.props,
+          $processer = _this$props3.$processer,
+          $ref = _this$props3.$ref;
       var $stateArray = Object.keys(this.$$registers).map(function (path) {
         return {
           path: path,
@@ -1172,6 +1195,11 @@ function (_Component) {
         $focused: $focused,
         $pending: $pending
       };
+
+      if ($ref && 'current' in $ref) {
+        $ref.current = $formutil;
+      }
+
       return React__default.createElement(FormContext.Provider, {
         value: this.getFormContext()
       }, this._render());
@@ -1202,7 +1230,10 @@ Form.propTypes = {
   $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   $onFormChange: PropTypes.func,
   $validator: PropTypes.func,
-  $processer: PropTypes.func
+  $processer: PropTypes.func,
+  $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
+    current: PropTypes.any
+  })])
 };
 Form.defaultProps = {
   $defaultValues: {},
@@ -1232,7 +1263,7 @@ function withForm(WrappedComponent) {
             component = _this$props.component,
             formProps = _objectWithoutProperties(_this$props, ["component"]);
 
-        ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer'].forEach(function (prop) {
+        ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer', '$ref'].forEach(function (prop) {
           if (prop in others) {
             if (prop === '$defaultStates' || prop === '$defaultValues') {
               formProps[prop] = _objectSpread({}, config[prop], others[prop]);
@@ -1293,6 +1324,9 @@ var propTypes = {
   $asyncValidators: PropTypes.object,
   $validateLazy: PropTypes.bool,
   $reserveOnUnmount: PropTypes.bool,
+  $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
+    current: PropTypes.any
+  })]),
   $parser: PropTypes.func,
   $formatter: PropTypes.func,
   render: PropTypes.func,
@@ -1708,6 +1742,7 @@ function (_Component) {
       }
 
       this.$prevValue = this.$state.$value;
+      createRef(this.props.$ref, this.$fieldutil);
     }
   }, {
     key: "componentWillUnmount",
@@ -1717,6 +1752,7 @@ function (_Component) {
       }
 
       this.isMounting = false;
+      createRef(this.props.$ref, undefined);
     }
   }, {
     key: "componentDidUpdate",
@@ -1728,6 +1764,8 @@ function (_Component) {
           this.$formContext.$$register($name, this.$fieldHandler, prevProps.name);
         }
       }
+
+      createRef(this.props.$ref, this.$fieldutil);
 
       if (this.$state.$value !== this.$prevValue) {
         if (!($name in (this.$formContext.$$registers || {}))) {
@@ -1806,7 +1844,7 @@ function withField(WrappedComponent) {
             component = _this$props.component,
             fieldProps = _objectWithoutProperties(_this$props, ["component"]);
 
-        ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', 'name'].concat(Object.keys(_objectSpread({}, config.$validators, config.$asyncValidators, others.$validators, others.$asyncValidators))).forEach(function (prop) {
+        ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread({}, config.$validators, config.$asyncValidators, others.$validators, others.$asyncValidators))).forEach(function (prop) {
           if (prop in others) {
             if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
               fieldProps[prop] = _objectSpread({}, config[prop], others[prop]);
@@ -2515,7 +2553,8 @@ function parseProps(props) {
       $reserveOnUnmount = fieldProps.$reserveOnUnmount,
       $parser = fieldProps.$parser,
       $formatter = fieldProps.$formatter,
-      childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "validMessage", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$reserveOnUnmount", "$parser", "$formatter"]);
+      $ref = fieldProps.$ref,
+      childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "validMessage", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
 
   var renderProps = {
     children: children,
@@ -2807,20 +2846,25 @@ function useField(name) {
     warning(!$name || $formContext.$formutil, "You should enusre that the useField() with the name '".concat($name, "' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."));
     warning($name, "You should pass a name argument to useField(), otherwise it will be isolated!");
     return function () {
-      if ($formContext.$$unregister) {
-        $formContext.$$unregister($name, $this.$fieldHandler, props.$reserveOnUnmount);
-      }
-
       $this.isMounting = false;
+      createRef(props.$ref, undefined);
     };
   }, []);
   useLayoutEffect(function () {
     if ($formContext.$$register) {
-      $formContext.$$register($name, $this.$fieldHandler, $this.$prevName);
+      $formContext.$$register($name, $this.$fieldHandler);
     }
 
-    $this.$prevName = $name;
-  }, [$name]);
+    return function () {
+      if ($formContext.$$unregister) {
+        $formContext.$$unregister($name, $this.$fieldHandler, !$this.isMounting && props.$reserveOnUnmount);
+      }
+    };
+  }, [$name]); // trigger ref callback
+
+  useLayoutEffect(function () {
+    createRef(props.$ref, $this.$fieldutil);
+  });
   useLayoutEffect(function () {
     if (callbackRef.current.length > 0) {
       var callbackQueue = _toConsumableArray(callbackRef.current);

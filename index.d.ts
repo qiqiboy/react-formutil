@@ -202,6 +202,11 @@ export interface BaseFieldComponentProps<T = string, P = {}, Fields = {}, WeakFi
     $reserveOnUnmount?: boolean;
     $parser?: (($viewValue: any, $setViewValue: ($newViewValue: any) => any) => T) | null;
     $formatter?: (($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any) | null;
+    $ref?:
+        | (($fieldutil?: $Fieldutil<T, P, Fields, WeakFields>) => void)
+        | {
+              readonly current?: $Fieldutil<T, P, Fields, WeakFields>;
+          };
     name?: string;
 }
 
@@ -513,6 +518,11 @@ export interface BaseFormComponentProps<Fields = {}, Validators = {}, WeakFields
         $formutil: $Formutil<Fields, Validators, WeakFields>
     ) => FormValiateResult<Fields> | Promise<FormValiateResult<Fields>>;
     $processer?: <K extends keyof WeakFields>($state: FieldState<WeakFields[K], Validators>, name: K) => void;
+    $ref?:
+        | (($formutil?: $Formutil<Fields, Validators, WeakFields>) => void)
+        | {
+              readonly current?: $Formutil<Fields, Validators, WeakFields>;
+          };
 }
 
 export type FormProps<Fields = {}, Validators = {}, WeakFields = Fields> = BaseFormComponentProps<

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { createHandler, GET_FIELD_UUID, propTypes, displayName, renderField } from './fieldHelper';
 import FormContext from './context';
 import warning from 'warning';
-import { runCallback } from './utils';
+import { runCallback, createRef } from './utils';
 
 class Field extends Component {
     static displayName = displayName;
@@ -35,6 +35,8 @@ class Field extends Component {
         }
 
         this.$prevValue = this.$state.$value;
+
+        createRef(this.props.$ref, this.$fieldutil);
     }
 
     componentWillUnmount() {
@@ -43,6 +45,8 @@ class Field extends Component {
         }
 
         this.isMounting = false;
+
+        createRef(this.props.$ref, undefined);
     }
 
     componentDidUpdate(prevProps) {
@@ -53,6 +57,8 @@ class Field extends Component {
                 this.$formContext.$$register($name, this.$fieldHandler, prevProps.name);
             }
         }
+
+        createRef(this.props.$ref, this.$fieldutil);
 
         if (this.$state.$value !== this.$prevValue) {
             if (!($name in (this.$formContext.$$registers || {}))) {

@@ -171,7 +171,17 @@ export function parsePath(...args) {
     if (args.length > 2) {
         return target;
     }
-};
+}
+
+export function createRef(ref, value) {
+    if (ref) {
+        if (isFunction(ref)) {
+            ref(value);
+        } else if ('current' in ref) {
+            ref.current = value;
+        }
+    }
+}
 
 export const arrayFind = (array, process) => {
     for (let i = 0, j = array.length; i < j; i++) {
@@ -210,7 +220,7 @@ function CLEAR(obj, pkey, pobj) {
         pobj[pkey] = TODO_DELETE;
         CLEAR(pobj);
     }
-};
+}
 export const objectClear = (obj, name) => {
     if (!isUndefined(parsePath(obj, name))) {
         parsePath(obj, name, TODO_DELETE);

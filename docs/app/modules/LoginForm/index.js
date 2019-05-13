@@ -242,7 +242,12 @@ class LoginForm extends Component {
                         )}
                     </Field>
                     {$params.autologin && (
-                        <Field name="remember" required $validators={this.$validators} $reserveOnUnmount>
+                        <Field
+                            name="remember"
+                            required
+                            $validators={this.$validators}
+                            $reserveOnUnmount
+                            $ref={a => console.log(a)}>
                             {props => (
                                 <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                     <select

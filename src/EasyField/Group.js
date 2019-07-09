@@ -1,6 +1,5 @@
-import React, { Component, Children, cloneElement } from 'react';
+import React, { Component, Children, cloneElement, createContext } from 'react';
 import PropTypes from 'prop-types';
-import createContext from 'create-react-context';
 import { isFunction } from '../utils';
 import warning from 'warning';
 

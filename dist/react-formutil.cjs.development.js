@@ -7,7 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React = require('react');
 var React__default = _interopDefault(React);
 var PropTypes = _interopDefault(require('prop-types'));
-var createContext = _interopDefault(require('create-react-context'));
 var warning = _interopDefault(require('warning'));
 var hoistStatics = _interopDefault(require('hoist-non-react-statics'));
 var isEqual = _interopDefault(require('react-fast-compare'));
@@ -209,7 +208,7 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance");
 }
 
-var FormContext = createContext({});
+var FormContext = React.createContext({});
 
 var OBJECT_PROTO = Object.getPrototypeOf({});
 var PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
@@ -1984,7 +1983,7 @@ EasyFieldNative.defaultProps = {
 
 /** @type {any} */
 
-var _createContext = createContext({}),
+var _createContext = React.createContext({}),
     Provider = _createContext.Provider,
     Consumer = _createContext.Consumer;
 

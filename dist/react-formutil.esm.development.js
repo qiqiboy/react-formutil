@@ -1,6 +1,5 @@
-import React, { createElement, Children, cloneElement, Component } from 'react';
+import React, { createContext, createElement, Children, cloneElement, Component } from 'react';
 import PropTypes from 'prop-types';
-import createContext from 'create-react-context';
 import warning from 'warning';
 import hoistStatics from 'hoist-non-react-statics';
 import isEqual from 'react-fast-compare';

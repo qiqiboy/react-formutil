@@ -207,7 +207,7 @@ export const toObject = (arr, handler, obj = {}) =>
     }, obj);
 
 const TODO_DELETE = undefined;
-function CLEAR(obj, pkey, pobj) {
+export function CLEAR(obj, pkey, pobj) {
     objectEach(obj, (value, key) => {
         if (value === TODO_DELETE) {
             delete obj[key];

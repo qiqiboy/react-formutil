@@ -464,7 +464,6 @@
     }, obj);
   };
   var TODO_DELETE = undefined;
-
   function CLEAR(obj, pkey, pobj) {
     objectEach(obj, function (value, key) {
       if (value === TODO_DELETE) {
@@ -481,7 +480,6 @@
       CLEAR(pobj);
     }
   }
-
   var objectClear = function objectClear(obj, name) {
     if (!isUndefined(parsePath(obj, name))) {
       parsePath(obj, name, TODO_DELETE);
@@ -780,7 +778,6 @@
 
         var $parsedTree = _this.$$deepParseObject($stateTree);
 
-        var hasStateChange = false;
         objectEach(_this.$$registers, function (handler, name) {
           var data = name in $stateTree ? $stateTree[name] : parsePath($parsedTree, name);
 
@@ -814,17 +811,10 @@
                   });
                 }
               }
-
-              hasStateChange = true;
             }
           }
         });
-
-        if (hasStateChange) {
-          return _this.$render(callback);
-        }
-
-        return Promise.resolve(runCallback(callback, _this.$formutil));
+        return _this.$render(callback);
       };
 
       _this.$render = function (callback) {
@@ -917,6 +907,7 @@
       _this.$setValues = function ($valueTree, callback) {
         _this.$$deepParseObject(deepClone($valueTree), _this.$$defaultValues);
 
+        CLEAR(_this.$$defaultValues);
         return _this.$$setStates($valueTree, function ($value) {
           return {
             $value: $value

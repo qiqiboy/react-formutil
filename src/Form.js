@@ -347,7 +347,6 @@ class Form extends Component {
 
     $$setStates = ($stateTree = {}, processer, callback, force) => {
         const $parsedTree = this.$$deepParseObject($stateTree);
-        let hasStateChange = false;
 
         utils.objectEach(this.$$registers, (handler, name) => {
             const data = name in $stateTree ? $stateTree[name] : utils.parsePath($parsedTree, name);
@@ -378,17 +377,11 @@ class Form extends Component {
                             });
                         }
                     }
-
-                    hasStateChange = true;
                 }
             }
         });
 
-        if (hasStateChange) {
-            return this.$render(callback);
-        }
-
-        return Promise.resolve(utils.runCallback(callback, this.$formutil));
+        return this.$render(callback);
     };
 
     componentDidMount() {
@@ -480,6 +473,8 @@ class Form extends Component {
 
     $setValues = ($valueTree, callback) => {
         this.$$deepParseObject(utils.deepClone($valueTree), this.$$defaultValues);
+
+        utils.CLEAR(this.$$defaultValues);
 
         return this.$$setStates($valueTree, $value => ({ $value }), callback);
     };

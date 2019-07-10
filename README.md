@@ -36,6 +36,7 @@ Happy to build the forms in React ^\_^
 * [安装 Installation](#安装-installation)
     - [`最新版`](#最新版)
     - [`Next版`](#next版)
+    - [`0.5.x`](#05x)
     - [`0.4.x`](#04x)
     - [`UMD包`](#umd包)
 * [示例 Examples](#示例-examples)
@@ -153,7 +154,9 @@ Happy to build the forms in React ^\_^
 
 [![react-formutil](https://nodei.co/npm/react-formutil.png?compact=true)](https://npm.im/react-formutil)
 
-目前最新版本是`0.5.x`，支持所有`v15+`的`react`版本！强烈推荐安装或者升级至该版本。
+目前最新版本是`0.6.x`，支持所有`v16.3+`的`react`版本！强烈推荐安装或者升级至该版本。
+
+如果你在使用`v16.3`以前的react版本，请安装[`0.5.x`](#05x)。
 
 ### `最新版`
 
@@ -182,6 +185,13 @@ npm install react-formutil@next --save
 # yarn
 yarn add react-formutil@next
 ```
+
+### `0.5.x`
+
+`0.5.x` 包含了一些对`v16.3`以前版本的react的一些`polyfills`处理，所以可以用于小于`16.3`的react版本。如果你还在使用早期版本的react，可以使用该版本。
+
+**所有的`react@16`早期版本的react，都可以升级到最新的react，所以建议将项目中的react都进行升级，并使用最新的`0.6.x`版本的`react-formutil`.**
+
 
 ### `0.4.x`
 

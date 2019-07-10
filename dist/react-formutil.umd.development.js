@@ -1648,49 +1648,30 @@
 
   function withForm(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var FormEnhanced = React.forwardRef(function (props, ref) {
+      var others = Object.assign({}, props);
 
-    var FormEnhanced =
-    /*#__PURE__*/
-    function (_Component) {
-      _inherits(FormEnhanced, _Component);
+      var component = props.component,
+          formProps = _objectWithoutProperties(props, ["component"]);
 
-      function FormEnhanced() {
-        _classCallCheck(this, FormEnhanced);
+      ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer', '$ref'].forEach(function (prop) {
+        if (prop in others) {
+          if (prop === '$defaultStates' || prop === '$defaultValues') {
+            formProps[prop] = _objectSpread({}, config[prop], others[prop]);
+          }
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(FormEnhanced).apply(this, arguments));
-      }
-
-      _createClass(FormEnhanced, [{
-        key: "render",
-        value: function render() {
-          var others = Object.assign({}, this.props);
-
-          var _this$props = this.props,
-              component = _this$props.component,
-              formProps = _objectWithoutProperties(_this$props, ["component"]);
-
-          ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer', '$ref'].forEach(function (prop) {
-            if (prop in others) {
-              if (prop === '$defaultStates' || prop === '$defaultValues') {
-                formProps[prop] = _objectSpread({}, config[prop], others[prop]);
-              }
-
-              delete others[prop];
-            }
-          });
-          return React__default.createElement(Form, Object.assign({}, config, formProps, {
-            render: function render($formutil) {
-              return React__default.createElement(WrappedComponent, Object.assign({}, others, {
-                $formutil: $formutil
-              }));
-            }
+          delete others[prop];
+        }
+      });
+      return React__default.createElement(Form, Object.assign({}, config, formProps, {
+        render: function render($formutil) {
+          return React__default.createElement(WrappedComponent, Object.assign({}, others, {
+            $formutil: $formutil,
+            ref: ref
           }));
         }
-      }]);
-
-      return FormEnhanced;
-    }(React.Component);
-
+      }));
+    });
     FormEnhanced.displayName = 'React.Formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
     return hoistNonReactStatics_cjs(FormEnhanced, WrappedComponent);
   }
@@ -2229,49 +2210,30 @@
 
   function withField(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var FieldEnhanced = React.forwardRef(function (props, ref) {
+      var others = Object.assign({}, props);
 
-    var FieldEnhanced =
-    /*#__PURE__*/
-    function (_Component) {
-      _inherits(FieldEnhanced, _Component);
+      var component = props.component,
+          fieldProps = _objectWithoutProperties(props, ["component"]);
 
-      function FieldEnhanced() {
-        _classCallCheck(this, FieldEnhanced);
+      ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread({}, config.$validators, config.$asyncValidators, others.$validators, others.$asyncValidators))).forEach(function (prop) {
+        if (prop in others) {
+          if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
+            fieldProps[prop] = _objectSpread({}, config[prop], others[prop]);
+          }
 
-        return _possibleConstructorReturn(this, _getPrototypeOf(FieldEnhanced).apply(this, arguments));
-      }
-
-      _createClass(FieldEnhanced, [{
-        key: "render",
-        value: function render() {
-          var others = Object.assign({}, this.props);
-
-          var _this$props = this.props,
-              component = _this$props.component,
-              fieldProps = _objectWithoutProperties(_this$props, ["component"]);
-
-          ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread({}, config.$validators, config.$asyncValidators, others.$validators, others.$asyncValidators))).forEach(function (prop) {
-            if (prop in others) {
-              if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
-                fieldProps[prop] = _objectSpread({}, config[prop], others[prop]);
-              }
-
-              delete others[prop];
-            }
-          });
-          return React__default.createElement(Field, Object.assign({}, config, fieldProps, {
-            render: function render($fieldutil) {
-              return React__default.createElement(WrappedComponent, Object.assign({}, others, {
-                $fieldutil: $fieldutil
-              }));
-            }
+          delete others[prop];
+        }
+      });
+      return React__default.createElement(Field, Object.assign({}, config, fieldProps, {
+        render: function render($fieldutil) {
+          return React__default.createElement(WrappedComponent, Object.assign({}, others, {
+            $fieldutil: $fieldutil,
+            ref: ref
           }));
         }
-      }]);
-
-      return FieldEnhanced;
-    }(React.Component);
-
+      }));
+    });
     FieldEnhanced.displayName = 'React.Formutil.withField.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
     return hoistNonReactStatics_cjs(FieldEnhanced, WrappedComponent);
   }
@@ -3226,33 +3188,14 @@
   EasyField.defaultProps = defaultProps;
 
   function connect(WrappedComponent) {
-    var Connect =
-    /*#__PURE__*/
-    function (_Component) {
-      _inherits(Connect, _Component);
-
-      function Connect() {
-        _classCallCheck(this, Connect);
-
-        return _possibleConstructorReturn(this, _getPrototypeOf(Connect).apply(this, arguments));
-      }
-
-      _createClass(Connect, [{
-        key: "render",
-        value: function render() {
-          var _this = this;
-
-          return React__default.createElement(FormContext.Consumer, null, function (context) {
-            return React__default.createElement(WrappedComponent, Object.assign({}, _this.props, {
-              $formutil: context.$formutil
-            }));
-          });
-        }
-      }]);
-
-      return Connect;
-    }(React.Component);
-
+    var Connect = React.forwardRef(function (props, ref) {
+      return React__default.createElement(FormContext.Consumer, null, function (context) {
+        return React__default.createElement(WrappedComponent, Object.assign({}, props, {
+          $formutil: context.$formutil,
+          ref: ref
+        }));
+      });
+    });
     Connect.displayName = 'React.Formutil.connect.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
     return hoistNonReactStatics_cjs(Connect, WrappedComponent);
   }

@@ -1,20 +1,18 @@
-import React, { Component } from 'react';
+import React, { forwardRef } from 'react';
 import FormContext from './context';
 import hoistStatics from 'hoist-non-react-statics';
 
 function connect(WrappedComponent) {
-    class Connect extends Component {
-        static displayName =
-            'React.Formutil.connect.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+    const Connect = forwardRef((props, ref) => {
+        return (
+            <FormContext.Consumer>
+                {context => <WrappedComponent {...props} $formutil={context.$formutil} ref={ref} />}
+            </FormContext.Consumer>
+        );
+    });
 
-        render() {
-            return (
-                <FormContext.Consumer>
-                    {context => <WrappedComponent {...this.props} $formutil={context.$formutil} />}
-                </FormContext.Consumer>
-            );
-        }
-    }
+    Connect.displayName =
+        'React.Formutil.connect.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
     return hoistStatics(Connect, WrappedComponent);
 }

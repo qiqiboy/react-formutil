@@ -7,6 +7,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React = require('react');
 var React__default = _interopDefault(React);
 var PropTypes = _interopDefault(require('prop-types'));
+var ReactIs = require('react-is');
 var warning = _interopDefault(require('warning'));
 var hoistStatics = _interopDefault(require('hoist-non-react-statics'));
 var isEqual = _interopDefault(require('react-fast-compare'));
@@ -233,6 +234,9 @@ function isPlainObj(obj) {
   if (null === Object.getPrototypeOf(obj)) return true;
   if (!isFunction(obj.constructor)) return false;
   return obj.constructor.prototype === OBJECT_PROTO;
+}
+function isComponent(obj) {
+  return ReactIs.isValidElementType(obj) && typeof obj !== 'string';
 } // quick clone deeply
 
 function deepClone(obj) {
@@ -275,7 +279,7 @@ function createHOC(withHOC) {
       args[_key2] = arguments[_key2];
     }
 
-    if (isFunction(args[0])) {
+    if (ReactIs.isValidElementType(args[0])) {
       return withHOC.apply(void 0, args);
     }
 
@@ -1015,7 +1019,7 @@ function (_Component) {
       }
 
       return React.Children.map(children, function (child) {
-        return child && isFunction(child.type) ? React.cloneElement(child, {
+        return child && isComponent(child.type) ? React.cloneElement(child, {
           $formutil: $formutil
         }) : child;
       });
@@ -1333,7 +1337,7 @@ function renderField($fieldutil, props) {
   }
 
   return React.Children.map(children, function (child) {
-    return child && isFunction(child.type) ? React.cloneElement(child, {
+    return child && isComponent(child.type) ? React.cloneElement(child, {
       $fieldutil: $fieldutil
     }) : child;
   });

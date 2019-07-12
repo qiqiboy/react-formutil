@@ -91,7 +91,7 @@ export function renderField($fieldutil, props) {
     }
 
     return Children.map(children, child =>
-        child && utils.isFunction(child.type)
+        child && utils.isComponent(child.type)
             ? cloneElement(child, {
                   $fieldutil
               })

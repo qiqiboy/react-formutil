@@ -543,7 +543,7 @@ class Form extends Component {
         }
 
         return Children.map(children, child =>
-            child && utils.isFunction(child.type)
+            child && utils.isComponent(child.type)
                 ? cloneElement(child, {
                       $formutil
                   })

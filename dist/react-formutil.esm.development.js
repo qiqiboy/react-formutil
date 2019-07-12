@@ -1,5 +1,6 @@
 import React, { createContext, createElement, Children, cloneElement, Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
+import { isValidElementType } from 'react-is';
 import warning from 'warning';
 import hoistStatics from 'hoist-non-react-statics';
 import isEqual from 'react-fast-compare';
@@ -226,6 +227,9 @@ function isPlainObj(obj) {
   if (null === Object.getPrototypeOf(obj)) return true;
   if (!isFunction(obj.constructor)) return false;
   return obj.constructor.prototype === OBJECT_PROTO;
+}
+function isComponent(obj) {
+  return isValidElementType(obj) && typeof obj !== 'string';
 } // quick clone deeply
 
 function deepClone(obj) {
@@ -268,7 +272,7 @@ function createHOC(withHOC) {
       args[_key2] = arguments[_key2];
     }
 
-    if (isFunction(args[0])) {
+    if (isValidElementType(args[0])) {
       return withHOC.apply(void 0, args);
     }
 
@@ -1008,7 +1012,7 @@ function (_Component) {
       }
 
       return Children.map(children, function (child) {
-        return child && isFunction(child.type) ? cloneElement(child, {
+        return child && isComponent(child.type) ? cloneElement(child, {
           $formutil: $formutil
         }) : child;
       });
@@ -1326,7 +1330,7 @@ function renderField($fieldutil, props) {
   }
 
   return Children.map(children, function (child) {
-    return child && isFunction(child.type) ? cloneElement(child, {
+    return child && isComponent(child.type) ? cloneElement(child, {
       $fieldutil: $fieldutil
     }) : child;
   });

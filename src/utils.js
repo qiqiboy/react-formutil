@@ -1,3 +1,4 @@
+import * as ReactIs from 'react-is';
 import warning from 'warning';
 
 const OBJECT_PROTO = Object.getPrototypeOf({});
@@ -30,6 +31,10 @@ export function isPlainObj(obj) {
     if (!isFunction(obj.constructor)) return false;
 
     return obj.constructor.prototype === OBJECT_PROTO;
+}
+
+export function isComponent(obj) {
+    return ReactIs.isValidElementType(obj) && typeof obj !== 'string';
 }
 
 // quick clone deeply
@@ -67,7 +72,7 @@ export const runCallback = function(callback, ...args) {
 
 export function createHOC(withHOC) {
     return function(...args) {
-        if (isFunction(args[0])) {
+        if (ReactIs.isValidElementType(args[0])) {
             return withHOC(...args);
         }
 

@@ -1,4 +1,4 @@
-import * as ReactIs from 'react-is';
+import { isValidElementType } from 'react-is';
 import warning from 'warning';
 
 const OBJECT_PROTO = Object.getPrototypeOf({});
@@ -34,7 +34,15 @@ export function isPlainObj(obj) {
 }
 
 export function isComponent(obj) {
-    return ReactIs.isValidElementType(obj) && typeof obj !== 'string';
+    return isValidElementType(obj) && typeof obj !== 'string';
+}
+
+export function checkComponentPropType(props, propName, componentName) {
+    if (props[propName] && !isComponent(props[propName])) {
+        return new Error(
+            `Invalid prop 'component' supplied to '${componentName}': the prop is not a valid React component`
+        );
+    }
 }
 
 // quick clone deeply
@@ -72,7 +80,7 @@ export const runCallback = function(callback, ...args) {
 
 export function createHOC(withHOC) {
     return function(...args) {
-        if (ReactIs.isValidElementType(args[0])) {
+        if (isComponent(args[0])) {
             return withHOC(...args);
         }
 

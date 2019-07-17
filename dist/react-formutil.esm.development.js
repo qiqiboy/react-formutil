@@ -230,6 +230,11 @@ function isPlainObj(obj) {
 }
 function isComponent(obj) {
   return isValidElementType(obj) && typeof obj !== 'string';
+}
+function checkComponentPropType(props, propName, componentName) {
+  if (props[propName] && !isComponent(props[propName])) {
+    return new Error("Invalid prop 'component' supplied to '".concat(componentName, "': the prop is not a valid React component"));
+  }
 } // quick clone deeply
 
 function deepClone(obj) {
@@ -272,7 +277,7 @@ function createHOC(withHOC) {
       args[_key2] = arguments[_key2];
     }
 
-    if (isValidElementType(args[0])) {
+    if (isComponent(args[0])) {
       return withHOC.apply(void 0, args);
     }
 
@@ -1192,7 +1197,7 @@ function (_Component) {
 Form.displayName = 'React.Formutil.Form';
 Form.propTypes = {
   render: PropTypes.func,
-  component: PropTypes.func,
+  component: checkComponentPropType,
   children: function children(props) {
     var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
 
@@ -1276,7 +1281,7 @@ function warningValidatorReturn(result, key, name) {
   warning(!isUndefined(result), "You should return a string or Error when the validation('".concat(name && name + ': ').concat(key, "') failed, otherwise return true."));
 }
 
-var propTypes = {
+var propTypes =  {
   name: PropTypes.string,
   $defaultValue: PropTypes.any,
   $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
@@ -1291,7 +1296,7 @@ var propTypes = {
   $parser: PropTypes.func,
   $formatter: PropTypes.func,
   render: PropTypes.func,
-  component: PropTypes.func,
+  component: checkComponentPropType,
   children: function children(props) {
     var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
 
@@ -1305,7 +1310,7 @@ var propTypes = {
 
     return pt.apply(void 0, [props].concat(args));
   }
-};
+} ;
 var displayName = 'React.Formutil.Field';
 function GET_FIELD_UUID() {
   return FIELD_UUID++;
@@ -1455,7 +1460,7 @@ function createHandler($this, owner) {
 
           if (isPromise(result)) {
             promises.push( // @ts-ignore
-            result.catch(function (reason) {
+            result["catch"](function (reason) {
               if (!$breakAsyncHandler) {
                 $setValidity(key, reason || key);
               }
@@ -2394,10 +2399,10 @@ var defaultValidators = [['required', function ($value, check, _ref) {
 
   return $validators;
 }, {});
-var propTypes$1 = {
+var propTypes$1 =  {
   type: PropTypes.string,
   children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
-  component: PropTypes.func,
+  component: checkComponentPropType,
   render: PropTypes.func,
   defaultValue: PropTypes.any,
   validMessage: PropTypes.object,
@@ -2406,7 +2411,7 @@ var propTypes$1 = {
   focusPropName: PropTypes.string,
   blurPropName: PropTypes.string,
   passUtil: PropTypes.string
-};
+} ;
 var displayName$1 = 'React.Formutil.EasyField';
 var defaultProps = {
   validMessage: {},

@@ -463,17 +463,13 @@
   var reactIs_development_27 = reactIs_development.isStrictMode;
   var reactIs_development_28 = reactIs_development.isSuspense;
 
-  var _reactIs_16_8_6_reactIs = createCommonjsModule(function (module) {
+  var reactIs = createCommonjsModule(function (module) {
 
   {
     module.exports = reactIs_development;
   }
   });
-
-  var ReactIs = /*#__PURE__*/Object.freeze({
-    default: _reactIs_16_8_6_reactIs,
-    __moduleExports: _reactIs_16_8_6_reactIs
-  });
+  var reactIs_1 = reactIs.isValidElementType;
 
   /**
    * Copyright (c) 2014-present, Facebook, Inc.
@@ -552,7 +548,12 @@
     return obj.constructor.prototype === OBJECT_PROTO;
   }
   function isComponent(obj) {
-    return undefined(obj) && typeof obj !== 'string';
+    return reactIs_1(obj) && typeof obj !== 'string';
+  }
+  function checkComponentPropType(props, propName, componentName) {
+    if (props[propName] && !isComponent(props[propName])) {
+      return new Error("Invalid prop 'component' supplied to '".concat(componentName, "': the prop is not a valid React component"));
+    }
   } // quick clone deeply
 
   function deepClone(obj) {
@@ -595,7 +596,7 @@
         args[_key2] = arguments[_key2];
       }
 
-      if (undefined(args[0])) {
+      if (isComponent(args[0])) {
         return withHOC.apply(void 0, args);
       }
 
@@ -1515,7 +1516,7 @@
   Form.displayName = 'React.Formutil.Form';
   Form.propTypes = {
     render: PropTypes.func,
-    component: PropTypes.func,
+    component: checkComponentPropType,
     children: function children(props) {
       var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
 
@@ -1590,10 +1591,10 @@
   };
 
   var TYPE_STATICS = {};
-  TYPE_STATICS[_reactIs_16_8_6_reactIs.ForwardRef] = FORWARD_REF_STATICS;
+  TYPE_STATICS[reactIs.ForwardRef] = FORWARD_REF_STATICS;
 
   function getStatics(component) {
-      if (_reactIs_16_8_6_reactIs.isMemo(component)) {
+      if (reactIs.isMemo(component)) {
           return MEMO_STATICS;
       }
       return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
@@ -1701,7 +1702,7 @@
     warning_1(!isUndefined(result), "You should return a string or Error when the validation('".concat(name && name + ': ').concat(key, "') failed, otherwise return true."));
   }
 
-  var propTypes = {
+  var propTypes =  {
     name: PropTypes.string,
     $defaultValue: PropTypes.any,
     $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
@@ -1716,7 +1717,7 @@
     $parser: PropTypes.func,
     $formatter: PropTypes.func,
     render: PropTypes.func,
-    component: PropTypes.func,
+    component: checkComponentPropType,
     children: function children(props) {
       var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
 
@@ -1730,7 +1731,7 @@
 
       return pt.apply(void 0, [props].concat(args));
     }
-  };
+  } ;
   var displayName = 'React.Formutil.Field';
   function GET_FIELD_UUID() {
     return FIELD_UUID++;
@@ -1880,7 +1881,7 @@
 
             if (isPromise(result)) {
               promises.push( // @ts-ignore
-              result.catch(function (reason) {
+              result["catch"](function (reason) {
                 if (!$breakAsyncHandler) {
                   $setValidity(key, reason || key);
                 }
@@ -2607,7 +2608,7 @@
   }
   // end fast-deep-equal
 
-  var _reactFastCompare_2_0_4_reactFastCompare = function exportedEqual(a, b) {
+  var reactFastCompare = function exportedEqual(a, b) {
     try {
       return equal(a, b);
     } catch (error) {
@@ -2656,7 +2657,7 @@
             if (_this.props.value.length) {
               _this.props.onChange(_this.latestValue = []);
             }
-          } else if (!_reactFastCompare_2_0_4_reactFastCompare(_this.props.value, $params.list)) {
+          } else if (!reactFastCompare(_this.props.value, $params.list)) {
             _this.props.onChange(_this.latestValue = $params.list);
           }
         });
@@ -2842,7 +2843,7 @@
                           if ($fieldutil.$viewValue !== null) {
                             $fieldutil.$render(null);
                           }
-                        } else if (!_reactFastCompare_2_0_4_reactFastCompare($fieldutil.$viewValue, $params)) {
+                        } else if (!reactFastCompare($fieldutil.$viewValue, $params)) {
                           $fieldutil.$render($params);
                         }
                       });
@@ -2912,10 +2913,10 @@
 
     return $validators;
   }, {});
-  var propTypes$1 = {
+  var propTypes$1 =  {
     type: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
-    component: PropTypes.func,
+    component: checkComponentPropType,
     render: PropTypes.func,
     defaultValue: PropTypes.any,
     validMessage: PropTypes.object,
@@ -2924,7 +2925,7 @@
     focusPropName: PropTypes.string,
     blurPropName: PropTypes.string,
     passUtil: PropTypes.string
-  };
+  } ;
   var displayName$1 = 'React.Formutil.EasyField';
   var defaultProps = {
     validMessage: {},

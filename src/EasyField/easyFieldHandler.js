@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Native from './Native';
 import Group from './Group';
 import List from './List';
-import { isEmpty, isUndefined, isFunction, isValidProp } from '../utils';
+import { isEmpty, isUndefined, isFunction, isValidProp, checkComponentPropType } from '../utils';
 
 export const TYPE = '__TYPE__';
 export const defaultValidators = [
@@ -32,7 +32,7 @@ export const propTypes =
         ? {
               type: PropTypes.string,
               children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
-              component: PropTypes.func,
+              component: checkComponentPropType,
               render: PropTypes.func,
 
               defaultValue: PropTypes.any,

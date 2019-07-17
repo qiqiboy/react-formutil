@@ -56,7 +56,7 @@ export const propTypes =
               $formatter: PropTypes.func,
 
               render: PropTypes.func,
-              component: PropTypes.func,
+              component: utils.checkComponentPropType,
               children(props, ...args) {
                   let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
 

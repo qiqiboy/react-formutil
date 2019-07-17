@@ -43,7 +43,11 @@ function createConfig(env, module) {
             }),
             nodeResolve(),
             commonjs({
-                include: /node_modules/
+                include: /node_modules/,
+                namedExports: {
+                    'node_modules/_react-is@16.8.6@react-is/index.js': ['isValidElementType'],
+                    'node_modules/react-is/index.js': ['isValidElementType']
+                }
             }),
             babel({
                 exclude: /node_modules/,
@@ -54,6 +58,7 @@ function createConfig(env, module) {
                         '@babel/preset-env',
                         {
                             modules: false,
+                            corejs: 3,
                             useBuiltIns: 'entry',
                             exclude: ['transform-typeof-symbol']
                         }

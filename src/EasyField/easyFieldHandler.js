@@ -129,6 +129,8 @@ export function parseProps(props) {
         focusPropName,
         blurPropName,
         validMessage,
+        checked,
+        unchecked,
         __TYPE__,
         passUtil,
 

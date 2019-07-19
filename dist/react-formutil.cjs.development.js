@@ -2496,6 +2496,8 @@ function parseProps(props) {
       focusPropName = fieldProps.focusPropName,
       blurPropName = fieldProps.blurPropName,
       validMessage = fieldProps.validMessage,
+      checked = fieldProps.checked,
+      unchecked = fieldProps.unchecked,
       __TYPE__ = fieldProps.__TYPE__,
       passUtil = fieldProps.passUtil,
       $defaultValue = fieldProps.$defaultValue,
@@ -2508,7 +2510,7 @@ function parseProps(props) {
       $parser = fieldProps.$parser,
       $formatter = fieldProps.$formatter,
       $ref = fieldProps.$ref,
-      childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "validMessage", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
+      childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "validMessage", "checked", "unchecked", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
 
   var renderProps = {
     children: children,
@@ -2586,8 +2588,9 @@ function parseProps(props) {
     switch (fieldProps[TYPE]) {
       case 'checked':
         var _fieldProps$unchecked = fieldProps.unchecked,
-            unchecked = _fieldProps$unchecked === void 0 ? false : _fieldProps$unchecked;
-        _defaultValue = unchecked;
+            _unchecked = _fieldProps$unchecked === void 0 ? false : _fieldProps$unchecked;
+
+        _defaultValue = _unchecked;
         break;
 
       case 'array':

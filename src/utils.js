@@ -193,15 +193,17 @@ export function pathExist(scope, path) {
     for (let index = 0, len = pathWords.length; index < len; index++) {
         const word = executeWord(pathWords[index]);
 
-        if (word in scope) {
-            if (index + 1 === len) {
-                return {
-                    data: scope[word]
-                };
-            }
-
-            scope = scope[word];
+        if (!(word in scope)) {
+            break;
         }
+
+        if (index + 1 === len) {
+            return {
+                data: scope[word]
+            };
+        }
+
+        scope = scope[word];
     }
 }
 

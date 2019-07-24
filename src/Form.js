@@ -349,10 +349,10 @@ class Form extends Component {
         const $parsedTree = this.$$deepParseObject($stateTree);
 
         utils.objectEach(this.$$registers, (handler, name) => {
-            const data = name in $stateTree ? $stateTree[name] : utils.parsePath($parsedTree, name);
+            let pathData;
 
-            if (!utils.isUndefined(data) || force) {
-                const $newState = processer(data, handler);
+            if (force || (pathData = utils.pathExist($parsedTree, name))) {
+                const $newState = processer(pathData && pathData.data, handler);
 
                 if ($newState) {
                     const $prevValue = this.$formutil.$weakParams[name];

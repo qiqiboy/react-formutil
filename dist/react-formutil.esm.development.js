@@ -381,6 +381,27 @@ function parsePath() {
     return target;
   }
 }
+function pathExist(scope, path) {
+  var pathWords = path.split(PATH_REGEXP).map(function (s) {
+    return s.trim();
+  }).filter(function (item) {
+    return item !== '';
+  });
+
+  for (var index = 0, len = pathWords.length; index < len; index++) {
+    var word = executeWord(pathWords[index]);
+
+    if (word in scope) {
+      if (index + 1 === len) {
+        return {
+          data: scope[word]
+        };
+      }
+
+      scope = scope[word];
+    }
+  }
+}
 function createRef(ref, value) {
   if (ref) {
     if (isFunction(ref)) {
@@ -731,10 +752,10 @@ function (_Component) {
       var $parsedTree = _this.$$deepParseObject($stateTree);
 
       objectEach(_this.$$registers, function (handler, name) {
-        var data = name in $stateTree ? $stateTree[name] : parsePath($parsedTree, name);
+        var pathData;
 
-        if (!isUndefined(data) || force) {
-          var $newState = processer(data, handler);
+        if (force || (pathData = pathExist($parsedTree, name))) {
+          var $newState = processer(pathData && pathData.data, handler);
 
           if ($newState) {
             var $prevValue = _this.$formutil.$weakParams[name];

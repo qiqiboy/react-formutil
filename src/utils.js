@@ -184,6 +184,27 @@ export function parsePath(...args) {
     }
 }
 
+export function pathExist(scope, path) {
+    const pathWords = path
+        .split(PATH_REGEXP)
+        .map(s => s.trim())
+        .filter(item => item !== '');
+
+    for (let index = 0, len = pathWords.length; index < len; index++) {
+        const word = executeWord(pathWords[index]);
+
+        if (word in scope) {
+            if (index + 1 === len) {
+                return {
+                    data: scope[word]
+                };
+            }
+
+            scope = scope[word];
+        }
+    }
+}
+
 export function createRef(ref, value) {
     if (ref) {
         if (isFunction(ref)) {

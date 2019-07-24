@@ -47,24 +47,22 @@ export function checkComponentPropType(props, propName, componentName) {
 
 // quick clone deeply
 export function deepClone(obj) {
-    if (obj && typeof obj === 'object') {
-        if (Array.isArray(obj)) {
-            const newObj = [];
+    if (Array.isArray(obj)) {
+        const newObj = [];
 
-            for (let i = 0, j = obj.length; i < j; i++) {
-                newObj[i] = deepClone(obj[i]);
-            }
-
-            return newObj;
-        } else if (isPlainObj(obj)) {
-            const newObj = {};
-
-            for (let i in obj) {
-                newObj[i] = deepClone(obj[i]);
-            }
-
-            return newObj;
+        for (let i = 0, j = obj.length; i < j; i++) {
+            newObj[i] = deepClone(obj[i]);
         }
+
+        return newObj;
+    } else if (isPlainObj(obj)) {
+        const newObj = {};
+
+        for (let i in obj) {
+            newObj[i] = deepClone(obj[i]);
+        }
+
+        return newObj;
     }
 
     return obj;
@@ -224,7 +222,7 @@ export function CLEAR(obj, pkey, pobj) {
     objectEach(obj, (value, key) => {
         if (value === TODO_DELETE) {
             delete obj[key];
-        } else if (value && typeof value === 'object') {
+        } else if (isPlainObj(value) || Array.isArray(value)) {
             CLEAR(value, key, obj);
         }
     });

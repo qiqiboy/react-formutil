@@ -557,24 +557,22 @@
   } // quick clone deeply
 
   function deepClone(obj) {
-    if (obj && typeof obj === 'object') {
-      if (Array.isArray(obj)) {
-        var newObj = [];
+    if (Array.isArray(obj)) {
+      var newObj = [];
 
-        for (var i = 0, j = obj.length; i < j; i++) {
-          newObj[i] = deepClone(obj[i]);
-        }
-
-        return newObj;
-      } else if (isPlainObj(obj)) {
-        var _newObj = {};
-
-        for (var _i in obj) {
-          _newObj[_i] = deepClone(obj[_i]);
-        }
-
-        return _newObj;
+      for (var i = 0, j = obj.length; i < j; i++) {
+        newObj[i] = deepClone(obj[i]);
       }
+
+      return newObj;
+    } else if (isPlainObj(obj)) {
+      var _newObj = {};
+
+      for (var _i in obj) {
+        _newObj[_i] = deepClone(obj[_i]);
+      }
+
+      return _newObj;
     }
 
     return obj;
@@ -741,7 +739,7 @@
     objectEach(obj, function (value, key) {
       if (value === TODO_DELETE) {
         delete obj[key];
-      } else if (value && typeof value === 'object') {
+      } else if (isPlainObj(value) || Array.isArray(value)) {
         CLEAR(value, key, obj);
       }
     });

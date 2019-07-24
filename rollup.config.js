@@ -32,7 +32,7 @@ function createConfig(env, module) {
             }
         },
         treeshake: {
-            pureExternalModules: true
+            moduleSideEffects: false
         },
         plugins: [
             clear({

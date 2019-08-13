@@ -44,20 +44,35 @@
     return obj;
   }
 
-  function _objectSpread(target) {
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i] != null ? arguments[i] : {};
-      var ownKeys = Object.keys(source);
 
-      if (typeof Object.getOwnPropertySymbols === 'function') {
-        ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-          return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-        }));
+      if (i % 2) {
+        ownKeys(source, true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(source).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
       }
-
-      ownKeys.forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
     }
 
     return target;
@@ -234,17 +249,22 @@
   var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
   var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
   var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace;
+  // TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
+  // (unstable) APIs that have been removed. Can we remove the symbols?
   var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for('react.async_mode') : 0xeacf;
   var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
   var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
   var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
+  var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
   var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
   var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
+  var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
+  var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
 
   function isValidElementType(type) {
     return typeof type === 'string' || typeof type === 'function' ||
     // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-    type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE);
+    type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE);
   }
 
   /**
@@ -463,13 +483,13 @@
   var reactIs_development_27 = reactIs_development.isStrictMode;
   var reactIs_development_28 = reactIs_development.isSuspense;
 
-  var reactIs = createCommonjsModule(function (module) {
+  var _reactIs_16_9_0_reactIs = createCommonjsModule(function (module) {
 
   {
     module.exports = reactIs_development;
   }
   });
-  var reactIs_1 = reactIs.isValidElementType;
+  var _reactIs_16_9_0_reactIs_1 = _reactIs_16_9_0_reactIs.isValidElementType;
 
   /**
    * Copyright (c) 2014-present, Facebook, Inc.
@@ -548,7 +568,7 @@
     return obj.constructor.prototype === OBJECT_PROTO;
   }
   function isComponent(obj) {
-    return reactIs_1(obj) && typeof obj !== 'string';
+    return _reactIs_16_9_0_reactIs_1(obj) && typeof obj !== 'string';
   }
   function checkComponentPropType(props, propName, componentName) {
     if (props[propName] && !isComponent(props[propName])) {
@@ -710,15 +730,17 @@
     for (var index = 0, len = pathWords.length; index < len; index++) {
       var word = executeWord(pathWords[index]);
 
-      if (word in scope) {
-        if (index + 1 === len) {
-          return {
-            data: scope[word]
-          };
-        }
-
-        scope = scope[word];
+      if (!(word in scope)) {
+        break;
       }
+
+      if (index + 1 === len) {
+        return {
+          data: scope[word]
+        };
+      }
+
+      scope = scope[word];
     }
   }
   function createRef(ref, value) {
@@ -1032,7 +1054,7 @@
 
           if (result) {
             return {
-              $error: _objectSpread({}, $error, _defineProperty({}, FORM_VALIDATE_RESULT, result))
+              $error: _objectSpread2({}, $error, _defineProperty({}, FORM_VALIDATE_RESULT, result))
             };
           }
 
@@ -1410,14 +1432,14 @@
           return $state.$pending;
         });
         var $formutil = this.$formutil = {
-          $$registers: _objectSpread({}, this.$$registers),
+          $$registers: _objectSpread2({}, this.$$registers),
           $$deepRegisters: this.$$deepRegisters,
           $states: toObject($stateArray, function ($states, _ref10) {
             var path = _ref10.path,
                 $state = _ref10.$state;
             return parsePath($states, path, $state);
           }),
-          $params: _objectSpread({}, this.$$defaultValues, $pureParams),
+          $params: _objectSpread2({}, this.$$defaultValues, {}, $pureParams),
           $errors: toObject($stateArray, function ($errors, _ref11) {
             var path = _ref11.path,
                 $state = _ref11.$state;
@@ -1610,10 +1632,10 @@
   };
 
   var TYPE_STATICS = {};
-  TYPE_STATICS[reactIs.ForwardRef] = FORWARD_REF_STATICS;
+  TYPE_STATICS[_reactIs_16_9_0_reactIs.ForwardRef] = FORWARD_REF_STATICS;
 
   function getStatics(component) {
-      if (reactIs.isMemo(component)) {
+      if (_reactIs_16_9_0_reactIs.isMemo(component)) {
           return MEMO_STATICS;
       }
       return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
@@ -1676,7 +1698,7 @@
       ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer', '$ref'].forEach(function (prop) {
         if (prop in others) {
           if (prop === '$defaultStates' || prop === '$defaultValues') {
-            formProps[prop] = _objectSpread({}, config[prop], others[prop]);
+            formProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
           }
 
           delete others[prop];
@@ -1859,14 +1881,14 @@
 
       var $defaultValue = props.$defaultValue,
           $defaultState = props.$defaultState;
-      return $$merge(_objectSpread({}, $baseState, isFunction($defaultState) ? $defaultState(props) : $defaultState, {
+      return $$merge(_objectSpread2({}, $baseState, {}, isFunction($defaultState) ? $defaultState(props) : $defaultState, {
         // self default state
         $value: isFunction($defaultValue) ? $defaultValue(props) : '$defaultValue' in props ? $defaultValue : ''
-      }, $initialState, $newState));
+      }, $initialState, {}, $newState));
     }
 
     function $getState() {
-      return _objectSpread({}, $this.$state);
+      return _objectSpread2({}, $this.$state);
     }
 
     function $validate(callback) {
@@ -1874,7 +1896,7 @@
         var props = $this.props,
             $formContext = $this.$formContext;
 
-        var $validators = _objectSpread({}, props.$validators, props.$asyncValidators);
+        var $validators = _objectSpread2({}, props.$validators, {}, props.$asyncValidators);
 
         var _$this$$state = $this.$state,
             $value = _$this$$state.$value,
@@ -1892,7 +1914,7 @@
           delete $newError[key];
 
           if (!$skipRestValidate && props[key] != null) {
-            var result = $validators[key]($value, props[key], _objectSpread({}, props, {
+            var result = $validators[key]($value, props[key], _objectSpread2({}, props, {
               $formutil: $formutil,
               $fieldutil: $this.$fieldutil,
               $validError: $validError
@@ -1931,7 +1953,7 @@
             return $breakAsyncHandler = setCallback(execCallback);
           };
 
-          $validatePromises.push($setError(_objectSpread({}, $newError, $validError)));
+          $validatePromises.push($setError(_objectSpread2({}, $newError, {}, $validError)));
           validation = Promise.all($validatePromises).then(function () {
             if ($breakAsyncHandler) {
               return $breakAsyncHandler;
@@ -1945,7 +1967,7 @@
             $setPending(false);
           }
 
-          validation = $setError(_objectSpread({}, $newError, $validError), execCallback);
+          validation = $setError(_objectSpread2({}, $newError, {}, $validError), execCallback);
         }
 
         if ($this.$shouldCancelPrevAsyncValidate) {
@@ -2077,7 +2099,7 @@
         $newState.$touched = !$newState.$untouched;
       }
 
-      $this.$state = _objectSpread({}, $this.$state, $newState);
+      $this.$state = _objectSpread2({}, $this.$state, {}, $newState);
       return $getState();
     }
 
@@ -2187,9 +2209,9 @@
     }, {
       key: "_render",
       value: function _render() {
-        var $fieldutil = this.$fieldutil = _objectSpread({
+        var $fieldutil = this.$fieldutil = _objectSpread2({
           $name: this.props.name
-        }, this.$registered.$getState(), this.$registered, {
+        }, this.$registered.$getState(), {}, this.$registered, {
           $$formutil: this.$formContext.$formutil
         });
 
@@ -2235,10 +2257,10 @@
       var component = props.component,
           fieldProps = _objectWithoutProperties(props, ["component"]);
 
-      ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread({}, config.$validators, config.$asyncValidators, others.$validators, others.$asyncValidators))).forEach(function (prop) {
+      ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
         if (prop in others) {
           if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
-            fieldProps[prop] = _objectSpread({}, config[prop], others[prop]);
+            fieldProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
           }
 
           delete others[prop];
@@ -2627,7 +2649,7 @@
   }
   // end fast-deep-equal
 
-  var reactFastCompare = function exportedEqual(a, b) {
+  var _reactFastCompare_2_0_4_reactFastCompare = function exportedEqual(a, b) {
     try {
       return equal(a, b);
     } catch (error) {
@@ -2676,7 +2698,7 @@
             if (_this.props.value.length) {
               _this.props.onChange(_this.latestValue = []);
             }
-          } else if (!reactFastCompare(_this.props.value, $params.list)) {
+          } else if (!_reactFastCompare_2_0_4_reactFastCompare(_this.props.value, $params.list)) {
             _this.props.onChange(_this.latestValue = $params.list);
           }
         });
@@ -2862,13 +2884,13 @@
                           if ($fieldutil.$viewValue !== null) {
                             $fieldutil.$render(null);
                           }
-                        } else if (!reactFastCompare($fieldutil.$viewValue, $params)) {
+                        } else if (!_reactFastCompare_2_0_4_reactFastCompare($fieldutil.$viewValue, $params)) {
                           $fieldutil.$render($params);
                         }
                       });
                     },
                     children: function children($innerFormutil) {
-                      return _children(_objectSpread({}, $baseutil, $innerFormutil, {
+                      return _children(_objectSpread2({}, $baseutil, {}, $innerFormutil, {
                         $index: index,
                         $isLast: function $isLast() {
                           return index === _this3.state.items.length - 1;
@@ -2957,7 +2979,7 @@
     }
   };
   function createHandler$1($fieldutil, fieldProps, childProps) {
-    var _objectSpread2;
+    var _objectSpread2$1;
 
     var valuePropName = fieldProps.valuePropName,
         changePropName = fieldProps.changePropName,
@@ -2969,7 +2991,7 @@
       return ev && ev.target ? ev.target[valuePropName] : ev;
     };
 
-    var $handleProps = _objectSpread({}, childProps, (_objectSpread2 = {}, _defineProperty(_objectSpread2, valuePropName, $fieldutil.$viewValue), _defineProperty(_objectSpread2, changePropName, function () {
+    var $handleProps = _objectSpread2({}, childProps, (_objectSpread2$1 = {}, _defineProperty(_objectSpread2$1, valuePropName, $fieldutil.$viewValue), _defineProperty(_objectSpread2$1, changePropName, function () {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
@@ -2987,11 +3009,11 @@
       onChange && onChange.apply(void 0, _toConsumableArray(ev));
       var newValue = fetchValueFromEvent(value);
       $fieldutil.$render(newValue);
-    }), _defineProperty(_objectSpread2, focusPropName, function () {
+    }), _defineProperty(_objectSpread2$1, focusPropName, function () {
       var onFocus = fieldProps[focusPropName];
       onFocus && onFocus.apply(void 0, arguments);
       $fieldutil.$setFocused(true);
-    }), _defineProperty(_objectSpread2, blurPropName, function () {
+    }), _defineProperty(_objectSpread2$1, blurPropName, function () {
       var onBlur = fieldProps[blurPropName];
       onBlur && onBlur.apply(void 0, arguments);
 
@@ -3000,7 +3022,7 @@
       }
 
       $fieldutil.$setFocused(false);
-    }), _objectSpread2));
+    }), _objectSpread2$1));
 
     if (passUtil) {
       $handleProps[passUtil === true ? '$fieldutil' : passUtil] = $fieldutil;
@@ -3044,7 +3066,7 @@
       render: render
     };
     var isNative = !isUndefined(type) || isUndefined(children) && isUndefined(component) && isUndefined(render);
-    Object.keys(_objectSpread({}, fieldProps.$validators = _objectSpread({}, defaultValidators, fieldProps.$validators), fieldProps.$asyncValidators)).forEach(function (prop) {
+    Object.keys(_objectSpread2({}, fieldProps.$validators = _objectSpread2({}, defaultValidators, {}, fieldProps.$validators), {}, fieldProps.$asyncValidators)).forEach(function (prop) {
       if (prop in childProps) {
         if (!isNative || !isValidProp(prop)) {
           delete childProps[prop];
@@ -3362,9 +3384,9 @@
       });
     }
 
-    return $this.$fieldutil = _objectSpread({
+    return $this.$fieldutil = _objectSpread2({
       $name: $name
-    }, $registered.$getState(), $registered, {
+    }, $registered.$getState(), {}, $registered, {
       $$formutil: $formContext.$formutil
     });
   }
@@ -3377,7 +3399,7 @@
   }
 
   function useHandler(props) {
-    props = _objectSpread({}, defaultProps, props, {
+    props = _objectSpread2({}, defaultProps, {}, props, {
       children: null
     });
 

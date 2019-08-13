@@ -49,20 +49,35 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function _objectSpread(target) {
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i] != null ? arguments[i] : {};
-    var ownKeys = Object.keys(source);
 
-    if (typeof Object.getOwnPropertySymbols === 'function') {
-      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-      }));
+    if (i % 2) {
+      ownKeys(source, true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(source).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
     }
-
-    ownKeys.forEach(function (key) {
-      _defineProperty(target, key, source[key]);
-    });
   }
 
   return target;
@@ -398,15 +413,17 @@ function pathExist(scope, path) {
   for (var index = 0, len = pathWords.length; index < len; index++) {
     var word = executeWord(pathWords[index]);
 
-    if (word in scope) {
-      if (index + 1 === len) {
-        return {
-          data: scope[word]
-        };
-      }
-
-      scope = scope[word];
+    if (!(word in scope)) {
+      break;
     }
+
+    if (index + 1 === len) {
+      return {
+        data: scope[word]
+      };
+    }
+
+    scope = scope[word];
   }
 }
 function createRef(ref, value) {
@@ -720,7 +737,7 @@ function (_Component) {
 
         if (result) {
           return {
-            $error: _objectSpread({}, $error, _defineProperty({}, FORM_VALIDATE_RESULT, result))
+            $error: _objectSpread2({}, $error, _defineProperty({}, FORM_VALIDATE_RESULT, result))
           };
         }
 
@@ -1098,14 +1115,14 @@ function (_Component) {
         return $state.$pending;
       });
       var $formutil = this.$formutil = {
-        $$registers: _objectSpread({}, this.$$registers),
+        $$registers: _objectSpread2({}, this.$$registers),
         $$deepRegisters: this.$$deepRegisters,
         $states: toObject($stateArray, function ($states, _ref10) {
           var path = _ref10.path,
               $state = _ref10.$state;
           return parsePath($states, path, $state);
         }),
-        $params: _objectSpread({}, this.$$defaultValues, $pureParams),
+        $params: _objectSpread2({}, this.$$defaultValues, {}, $pureParams),
         $errors: toObject($stateArray, function ($errors, _ref11) {
           var path = _ref11.path,
               $state = _ref11.$state;
@@ -1262,7 +1279,7 @@ function withForm(WrappedComponent) {
     ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer', '$ref'].forEach(function (prop) {
       if (prop in others) {
         if (prop === '$defaultStates' || prop === '$defaultValues') {
-          formProps[prop] = _objectSpread({}, config[prop], others[prop]);
+          formProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
         }
 
         delete others[prop];
@@ -1445,14 +1462,14 @@ function createHandler($this, owner) {
 
     var $defaultValue = props.$defaultValue,
         $defaultState = props.$defaultState;
-    return $$merge(_objectSpread({}, $baseState, isFunction($defaultState) ? $defaultState(props) : $defaultState, {
+    return $$merge(_objectSpread2({}, $baseState, {}, isFunction($defaultState) ? $defaultState(props) : $defaultState, {
       // self default state
       $value: isFunction($defaultValue) ? $defaultValue(props) : '$defaultValue' in props ? $defaultValue : ''
-    }, $initialState, $newState));
+    }, $initialState, {}, $newState));
   }
 
   function $getState() {
-    return _objectSpread({}, $this.$state);
+    return _objectSpread2({}, $this.$state);
   }
 
   function $validate(callback) {
@@ -1460,7 +1477,7 @@ function createHandler($this, owner) {
       var props = $this.props,
           $formContext = $this.$formContext;
 
-      var $validators = _objectSpread({}, props.$validators, props.$asyncValidators);
+      var $validators = _objectSpread2({}, props.$validators, {}, props.$asyncValidators);
 
       var _$this$$state = $this.$state,
           $value = _$this$$state.$value,
@@ -1478,7 +1495,7 @@ function createHandler($this, owner) {
         delete $newError[key];
 
         if (!$skipRestValidate && props[key] != null) {
-          var result = $validators[key]($value, props[key], _objectSpread({}, props, {
+          var result = $validators[key]($value, props[key], _objectSpread2({}, props, {
             $formutil: $formutil,
             $fieldutil: $this.$fieldutil,
             $validError: $validError
@@ -1517,7 +1534,7 @@ function createHandler($this, owner) {
           return $breakAsyncHandler = setCallback(execCallback);
         };
 
-        $validatePromises.push($setError(_objectSpread({}, $newError, $validError)));
+        $validatePromises.push($setError(_objectSpread2({}, $newError, {}, $validError)));
         validation = Promise.all($validatePromises).then(function () {
           if ($breakAsyncHandler) {
             return $breakAsyncHandler;
@@ -1531,7 +1548,7 @@ function createHandler($this, owner) {
           $setPending(false);
         }
 
-        validation = $setError(_objectSpread({}, $newError, $validError), execCallback);
+        validation = $setError(_objectSpread2({}, $newError, {}, $validError), execCallback);
       }
 
       if ($this.$shouldCancelPrevAsyncValidate) {
@@ -1663,7 +1680,7 @@ function createHandler($this, owner) {
       $newState.$touched = !$newState.$untouched;
     }
 
-    $this.$state = _objectSpread({}, $this.$state, $newState);
+    $this.$state = _objectSpread2({}, $this.$state, {}, $newState);
     return $getState();
   }
 
@@ -1773,9 +1790,9 @@ function (_Component) {
   }, {
     key: "_render",
     value: function _render() {
-      var $fieldutil = this.$fieldutil = _objectSpread({
+      var $fieldutil = this.$fieldutil = _objectSpread2({
         $name: this.props.name
-      }, this.$registered.$getState(), this.$registered, {
+      }, this.$registered.$getState(), {}, this.$registered, {
         $$formutil: this.$formContext.$formutil
       });
 
@@ -1821,10 +1838,10 @@ function withField(WrappedComponent) {
     var component = props.component,
         fieldProps = _objectWithoutProperties(props, ["component"]);
 
-    ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread({}, config.$validators, config.$asyncValidators, others.$validators, others.$asyncValidators))).forEach(function (prop) {
+    ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
       if (prop in others) {
         if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
-          fieldProps[prop] = _objectSpread({}, config[prop], others[prop]);
+          fieldProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
         }
 
         delete others[prop];
@@ -2361,7 +2378,7 @@ function (_Component) {
                     });
                   },
                   children: function children($innerFormutil) {
-                    return _children(_objectSpread({}, $baseutil, $innerFormutil, {
+                    return _children(_objectSpread2({}, $baseutil, {}, $innerFormutil, {
                       $index: index,
                       $isLast: function $isLast() {
                         return index === _this3.state.items.length - 1;
@@ -2450,7 +2467,7 @@ var defaultProps = {
   }
 };
 function createHandler$1($fieldutil, fieldProps, childProps) {
-  var _objectSpread2;
+  var _objectSpread2$1;
 
   var valuePropName = fieldProps.valuePropName,
       changePropName = fieldProps.changePropName,
@@ -2462,7 +2479,7 @@ function createHandler$1($fieldutil, fieldProps, childProps) {
     return ev && ev.target ? ev.target[valuePropName] : ev;
   };
 
-  var $handleProps = _objectSpread({}, childProps, (_objectSpread2 = {}, _defineProperty(_objectSpread2, valuePropName, $fieldutil.$viewValue), _defineProperty(_objectSpread2, changePropName, function () {
+  var $handleProps = _objectSpread2({}, childProps, (_objectSpread2$1 = {}, _defineProperty(_objectSpread2$1, valuePropName, $fieldutil.$viewValue), _defineProperty(_objectSpread2$1, changePropName, function () {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
@@ -2480,11 +2497,11 @@ function createHandler$1($fieldutil, fieldProps, childProps) {
     onChange && onChange.apply(void 0, _toConsumableArray(ev));
     var newValue = fetchValueFromEvent(value);
     $fieldutil.$render(newValue);
-  }), _defineProperty(_objectSpread2, focusPropName, function () {
+  }), _defineProperty(_objectSpread2$1, focusPropName, function () {
     var onFocus = fieldProps[focusPropName];
     onFocus && onFocus.apply(void 0, arguments);
     $fieldutil.$setFocused(true);
-  }), _defineProperty(_objectSpread2, blurPropName, function () {
+  }), _defineProperty(_objectSpread2$1, blurPropName, function () {
     var onBlur = fieldProps[blurPropName];
     onBlur && onBlur.apply(void 0, arguments);
 
@@ -2493,7 +2510,7 @@ function createHandler$1($fieldutil, fieldProps, childProps) {
     }
 
     $fieldutil.$setFocused(false);
-  }), _objectSpread2));
+  }), _objectSpread2$1));
 
   if (passUtil) {
     $handleProps[passUtil === true ? '$fieldutil' : passUtil] = $fieldutil;
@@ -2537,7 +2554,7 @@ function parseProps(props) {
     render: render
   };
   var isNative = !isUndefined(type) || isUndefined(children) && isUndefined(component) && isUndefined(render);
-  Object.keys(_objectSpread({}, fieldProps.$validators = _objectSpread({}, defaultValidators, fieldProps.$validators), fieldProps.$asyncValidators)).forEach(function (prop) {
+  Object.keys(_objectSpread2({}, fieldProps.$validators = _objectSpread2({}, defaultValidators, {}, fieldProps.$validators), {}, fieldProps.$asyncValidators)).forEach(function (prop) {
     if (prop in childProps) {
       if (!isNative || !isValidProp(prop)) {
         delete childProps[prop];
@@ -2855,9 +2872,9 @@ function useField(name) {
     });
   }
 
-  return $this.$fieldutil = _objectSpread({
+  return $this.$fieldutil = _objectSpread2({
     $name: $name
-  }, $registered.$getState(), $registered, {
+  }, $registered.$getState(), {}, $registered, {
     $$formutil: $formContext.$formutil
   });
 }
@@ -2870,7 +2887,7 @@ function useForm() {
 }
 
 function useHandler(props) {
-  props = _objectSpread({}, defaultProps, props, {
+  props = _objectSpread2({}, defaultProps, {}, props, {
     children: null
   });
 

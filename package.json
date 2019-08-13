@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "0.6.7-beta.0",
+  "version": "0.6.8",
   "description": "Happy to build the forms in React ^_^",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -40,13 +40,11 @@
   },
   "types": "./index.d.ts",
   "devDependencies": {
-    "@babel/cli": "^7.5.0",
-    "@babel/preset-env": "^7.5.4",
-    "@babel/preset-react": "^7.0.0",
     "@types/node": "^11.13.2",
     "@types/react": "^16.8.13",
     "@types/react-dom": "^16.8.3",
     "@types/react-is": "16.7.1",
+    "babel-preset-react-app": "^9.0.1",
     "prop-types": "15.7.2",
     "react": "16.8.6",
     "react-dom": "16.8.6",

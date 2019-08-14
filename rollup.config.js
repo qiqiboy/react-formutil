@@ -19,7 +19,7 @@ function createConfig(env, module) {
         external:
             module === 'umd'
                 ? ['react', 'prop-types']
-                : id => !id.startsWith('.') && !id.startsWith('@babel/runtime') && !path.isAbsolute(id),
+                : id => !id.startsWith('.') && !path.isAbsolute(id),
         output: {
             file: `dist/react-formutil.${module}.${env}.js`,
             format: module,
@@ -50,7 +50,8 @@ function createConfig(env, module) {
                 }
             }),
             babel({
-                exclude: /node_modules/,
+                exclude: 'node_modules/**',
+                extensions: ['.js', '.jsx', '.ts', '.tsx'],
                 runtimeHelpers: true,
                 babelrc: false,
                 presets: [
@@ -105,16 +106,6 @@ function createConfig(env, module) {
                         '@babel/plugin-proposal-object-rest-spread',
                         {
                             useBuiltIns: true
-                        }
-                    ],
-                    [
-                        '@babel/plugin-transform-runtime',
-                        {
-                            corejs: false,
-                            helpers: false,
-                            regenerator: true,
-                            useESModules: true,
-                            absoluteRuntime: false
                         }
                     ],
                     isProd && [

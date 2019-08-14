@@ -57,9 +57,9 @@ function createConfig(env, module) {
                     [
                         '@babel/preset-env',
                         {
-                            modules: false,
-                            corejs: 3,
                             useBuiltIns: 'entry',
+                            corejs: 3,
+                            modules: false,
                             exclude: ['transform-typeof-symbol']
                         }
                     ],
@@ -69,15 +69,57 @@ function createConfig(env, module) {
                             development: false,
                             useBuiltIns: true
                         }
-                    ]
+                    ],
+                    ['@babel/preset-typescript']
                 ],
                 plugins: [
                     'babel-plugin-macros',
-                    ['@babel/plugin-proposal-class-properties', { loose: true }],
-                    ['@babel/plugin-proposal-object-rest-spread', { useBuiltIns: true }],
+                    [
+                        '@babel/plugin-transform-destructuring',
+                        {
+                            // https://github.com/facebook/create-react-app/issues/5602
+                            loose: false,
+                            useBuiltIns: true,
+                            selectiveLoose: [
+                                'useState',
+                                'useEffect',
+                                'useContext',
+                                'useReducer',
+                                'useCallback',
+                                'useMemo',
+                                'useRef',
+                                'useImperativeHandle',
+                                'useLayoutEffect',
+                                'useDebugValue'
+                            ]
+                        }
+                    ],
+                    ['@babel/plugin-proposal-decorators', { legacy: true }],
+                    [
+                        '@babel/plugin-proposal-class-properties',
+                        {
+                            loose: true
+                        }
+                    ],
+                    [
+                        '@babel/plugin-proposal-object-rest-spread',
+                        {
+                            useBuiltIns: true
+                        }
+                    ],
+                    [
+                        '@babel/plugin-transform-runtime',
+                        {
+                            corejs: false,
+                            helpers: false,
+                            regenerator: true,
+                            useESModules: true,
+                            absoluteRuntime: false
+                        }
+                    ],
                     isProd && [
                         // Remove PropTypes from production build
-                        require('babel-plugin-transform-react-remove-prop-types').default,
+                        'babel-plugin-transform-react-remove-prop-types',
                         {
                             removeImport: true
                         }
@@ -114,8 +156,8 @@ function createConfig(env, module) {
 module.exports = [
     createConfig('development', 'cjs'),
     createConfig('production', 'cjs'),
-    createConfig('development', 'umd'),
-    createConfig('production', 'umd'),
     createConfig('development', 'esm'),
-    createConfig('production', 'esm')
+    createConfig('production', 'esm'),
+    createConfig('development', 'umd'),
+    createConfig('production', 'umd')
 ];

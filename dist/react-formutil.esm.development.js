@@ -2576,6 +2576,9 @@ function parseProps(props) {
       childProps.children = children;
     }
 
+    childProps.checked = checked;
+    childProps.unchecked = unchecked;
+
     switch (htmlType) {
       case 'select':
       case 'textarea':

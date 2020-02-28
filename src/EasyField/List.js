@@ -136,13 +136,13 @@ class EasyFieldList extends Component {
 
     render() {
         const { children, onFocus, onBlur, value } = this.props;
+        const $self = this;
 
         if (!isFunction(children)) {
             return null;
         }
 
         const $baseutil = {
-            $length: this.state.items.length,
             $insert: this.insert,
             $remove: this.remove,
             $swap: this.swap,
@@ -193,11 +193,14 @@ class EasyFieldList extends Component {
                                                 children={$innerFormutil =>
                                                     children(
                                                         {
-                                                            ...$baseutil,
-                                                            ...$innerFormutil,
+                                                            get $length() {
+                                                                return $self.state.items.length;
+                                                            },
                                                             $index: index,
                                                             $isLast: () => index === this.state.items.length - 1,
-                                                            $isFirst: () => index === 0
+                                                            $isFirst: () => index === 0,
+                                                            ...$baseutil,
+                                                            ...$innerFormutil
                                                         },
                                                         $formutil
                                                     )

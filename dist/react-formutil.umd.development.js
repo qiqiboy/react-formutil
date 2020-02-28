@@ -2830,13 +2830,13 @@
             onFocus = _this$props.onFocus,
             onBlur = _this$props.onBlur,
             value = _this$props.value;
+        var $self = this;
 
         if (!isFunction(_children)) {
           return null;
         }
 
         var $baseutil = {
-          $length: this.state.items.length,
           $insert: this.insert,
           $remove: this.remove,
           $swap: this.swap,
@@ -2890,7 +2890,11 @@
                       });
                     },
                     children: function children($innerFormutil) {
-                      return _children(_objectSpread2({}, $baseutil, {}, $innerFormutil, {
+                      return _children(_objectSpread2({
+                        get $length() {
+                          return $self.state.items.length;
+                        },
+
                         $index: index,
                         $isLast: function $isLast() {
                           return index === _this3.state.items.length - 1;
@@ -2898,7 +2902,7 @@
                         $isFirst: function $isFirst() {
                           return index === 0;
                         }
-                      }), $formutil);
+                      }, $baseutil, {}, $innerFormutil), $formutil);
                     }
                   });
                 }

@@ -70,27 +70,27 @@ class EasyFieldGroupOption extends Component {
 
         return (
             <Consumer>
-                {$groupHander => {
-                    const { type, name } = $groupHander;
+                {$groupHandler => {
+                    const { type, name } = $groupHandler;
 
                     const elemProps =
                         type === 'radio'
                             ? {
-                                  checked: $groupHander.value === $value,
+                                  checked: $groupHandler.value === $value,
                                   onChange: ev => {
-                                      $groupHander.onChange($value, ev);
+                                      $groupHandler.onChange($value, ev);
 
                                       onChange && onChange(ev);
                                   }
                               }
                             : type === 'checkbox'
                             ? {
-                                  checked: $groupHander.value.indexOf($value) > -1,
+                                  checked: $groupHandler.value.indexOf($value) > -1,
                                   onChange: ev => {
-                                      $groupHander.onChange(
+                                      $groupHandler.onChange(
                                           ev.target.checked
-                                              ? $groupHander.value.concat($value)
-                                              : $groupHander.value.filter(value => value !== $value),
+                                              ? $groupHandler.value.concat($value)
+                                              : $groupHandler.value.filter(value => value !== $value),
                                           ev
                                       );
 
@@ -98,9 +98,9 @@ class EasyFieldGroupOption extends Component {
                                   }
                               }
                             : {
-                                  value: $groupHander.value,
+                                  value: $groupHandler.value,
                                   onChange: ev => {
-                                      $groupHander.onChange(ev);
+                                      $groupHandler.onChange(ev);
 
                                       onChange && onChange(ev);
                                   }
@@ -113,11 +113,11 @@ class EasyFieldGroupOption extends Component {
                             {...elemProps}
                             type={type}
                             onFocus={ev => {
-                                $groupHander.onFocus(ev);
+                                $groupHandler.onFocus(ev);
                                 onFocus && onFocus(ev);
                             }}
                             onBlur={ev => {
-                                $groupHander.onBlur(ev);
+                                $groupHandler.onBlur(ev);
                                 onBlur && onBlur(ev);
                             }}
                         />

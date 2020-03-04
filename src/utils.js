@@ -59,7 +59,7 @@ export function deepClone(obj) {
         const newObj = {};
 
         for (let i in obj) {
-            newObj[i] = deepClone(obj[i]);
+            if (obj.hasOwnProperty(i)) newObj[i] = deepClone(obj[i]);
         }
 
         return newObj;

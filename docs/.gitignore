@@ -8,3 +8,6 @@ bower_components
 /npm-debug.log
 /dump.rdb
 Thumbs.db
+
+# git pre-commit tsc lint
+.git-tsconfig.json

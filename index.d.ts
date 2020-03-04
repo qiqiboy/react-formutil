@@ -246,6 +246,7 @@ export interface BaseEasyFieldComponentProps<T = string, Validators = any, Field
         EasyFieldDefaultValidators & { checker } & Omit<Validators, keyof EasyFieldDefaultValidators & { checker }>
     >;
     passUtil?: string | boolean;
+    getValueFromEvent?: (...args: any[]) => T;
     valuePropName?: string;
     changePropName?: string;
     focusPropName?: string;

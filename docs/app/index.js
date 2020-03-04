@@ -7,8 +7,15 @@ import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 import LoginForm from 'modules/LoginForm';
 
-const source1 = require('!!raw-loader!source/LoginForm1');
-const source2 = require('!!raw-loader!source/LoginForm2');
+const source1 = require('!!raw-loader!source/LoginForm1').default;
+const source2 = require('!!raw-loader!source/LoginForm2').default;
+const $error = {};
+
+for (let name in $error) {
+    if ($error.hasOwenProperty(name)) {
+        console.log(name);
+    }
+}
 
 render(
     <HashRouter>
@@ -27,6 +34,7 @@ render(
                         href=""
                         onClick={ev => {
                             ev.preventDefault();
+
                             document.querySelector('#source-code').scrollIntoView({
                                 behavior: 'smooth',
                                 block: 'start'

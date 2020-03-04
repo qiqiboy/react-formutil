@@ -1,11 +1,15 @@
+/* eslint @typescript-eslint/no-var-requires: 0 */
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const glob = require('glob');
 const execSync = require('child_process').execSync;
+const isDev = process.env.NODE_ENV === 'development';
+const lodash = require('lodash');
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebookincubator/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd());
+const pkg = require(resolveApp('package.json'));
 
 function resolveApp(relativePath) {
     return path.resolve(appDirectory, relativePath);
@@ -24,26 +28,35 @@ glob.sync(resolveApp('app/!(_)*.{j,t}s?(x)')).forEach(function(file) {
     entries[basename] = file;
 });
 
-const alias = {
-    components: resolveApp('app/components'),
-    modules: resolveApp('app/modules'),
-    utils: resolveApp('app/utils'),
-    stores: resolveApp('app/stores'),
-    types: resolveApp('app/types'),
-    hooks: resolveApp('app/hooks')
-};
+const alias = Object.assign(
+    {
+        components: resolveApp('app/components'),
+        modules: resolveApp('app/modules'),
+        utils: resolveApp('app/utils'),
+        stores: resolveApp('app/stores'),
+        types: resolveApp('app/types'),
+        hooks: resolveApp('app/hooks')
+    },
+    lodash.mapValues(pkg.alias, function(relativePath) {
+        if (fs.pathExistsSync(resolveApp(relativePath))) {
+            return resolveApp(relativePath);
+        }
+
+        return relativePath;
+    })
+);
 
 // config after eject: we're in ./config/
 module.exports = {
     dotenv: resolveApp('.env'),
     root: resolveApp(''),
-    appBuild: resolveApp('demo'),
-    appBuildDev: resolveApp('buildDev'),
+    appBuild: resolveApp(process.env.BUILD_DIR || 'demo'),
     appPublic: resolveApp('public'),
     appHtml: resolveApp('public/index.html'),
     appIndexJs: Object.values(entries)[0] || resolveApp('app/index.js'),
     appPackageJson: resolveApp('package.json'),
-    appSrc: [resolveApp('app'), resolveApp('../src')],
+    appSrc: resolveApp('app'),
+    formutilSrc: resolveApp('app/../../src'),
     appTsConfig: resolveApp('tsconfig.json'),
     staticSrc: resolveApp('static'),
     locals: resolveApp('locals'),
@@ -59,8 +72,7 @@ module.exports = {
     moduleFileExtensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx'],
     // 一些命令检测
     serve: hasInstall('serve'),
-    cnpm: hasInstall('cnpm'),
-    yarn: hasInstall('yarn')
+    npmCommander: ['tnpm', 'cnpm', 'npm'].find(hasInstall)
 };
 
 function hasInstall(command) {
@@ -68,6 +80,7 @@ function hasInstall(command) {
         execSync(command + ' --version', {
             stdio: 'ignore'
         });
+
         return true;
     } catch (e) {
         return false;

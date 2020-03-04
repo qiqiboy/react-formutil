@@ -256,7 +256,10 @@ class Form extends Component {
                 $shouldCancelPrevAsyncValidate = setCallback => ($breakAsyncHandler = setCallback(execCallback));
 
                 validation = result
-                    .then(() => void 0, reason => reason)
+                    .then(
+                        () => void 0,
+                        reason => reason
+                    )
                     .then(reason => {
                         if ($breakAsyncHandler) {
                             return $breakAsyncHandler;
@@ -485,7 +488,11 @@ class Form extends Component {
     $setPendings = ($pendingTree, callback) => this.$$setStates($pendingTree, $pending => ({ $pending }), callback);
     $setErrors = ($errorTree, callback) => this.$$setStates($errorTree, $error => ({ $error }), callback);
 
-    $batchState = ($state, callback) => this.$setStates(utils.objectMap(this.$$registers, () => $state), callback);
+    $batchState = ($state, callback) =>
+        this.$setStates(
+            utils.objectMap(this.$$registers, () => $state),
+            callback
+        );
     $batchDirty = ($dirty, callback) =>
         this.$batchState(
             {
@@ -634,10 +641,14 @@ class Form extends Component {
                 }
 
                 for (let name in $formutil.$weakErrors) {
-                    const $fieldError = $formutil.$weakErrors[name];
+                    if ($formutil.$weakErrors.hasOwnProperty(name)) {
+                        const $fieldError = $formutil.$weakErrors[name];
 
-                    for (let key in $fieldError) {
-                        return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
+                        for (let key in $fieldError) {
+                            if ($fieldError.hasOwnProperty(key)) {
+                                return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
+                            }
+                        }
                     }
                 }
             },

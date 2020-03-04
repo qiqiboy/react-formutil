@@ -97,6 +97,7 @@ Happy to build the forms in React ^\_^
         + [`validMessage`](#validmessage)
         + [`checked / unchecked`](#checked--unchecked)
         + [`valuePropName` `changePropName` `focusPropName` `blurPropName`](#valuepropname-changepropname-focuspropname-blurpropname)
+        + [`getValueFromEvent()`](#getvaluefromevent)
         + [`passUtil`](#passutil)
     - [`<Form />`](#form-)
         + [`render` | `component`](#render--component)
@@ -156,7 +157,7 @@ Happy to build the forms in React ^\_^
 
 目前最新版本是`0.6.x`，支持所有`v16.3+`的`react`版本！强烈推荐安装或者升级至该版本。
 
-如果你在使用`v16.3`以前的react版本，请安装[`0.5.x`](#05x)。
+如果你在使用`v16.3`以前的 react 版本，请安装[`0.5.x`](#05x)。
 
 ### `最新版`
 
@@ -188,10 +189,9 @@ yarn add react-formutil@next
 
 ### `0.5.x`
 
-`0.5.x` 包含了一些对`v16.3`以前版本的react的一些`polyfills`处理，所以可以用于小于`16.3`的react版本。如果你还在使用早期版本的react，可以使用该版本。
+`0.5.x` 包含了一些对`v16.3`以前版本的 react 的一些`polyfills`处理，所以可以用于小于`16.3`的 react 版本。如果你还在使用早期版本的 react，可以使用该版本。
 
-**所有的`react@16`早期版本的react，都可以升级到最新的react，所以建议将项目中的react都进行升级，并使用最新的`0.6.x`版本的`react-formutil`.**
-
+**所有的`react@16`早期版本的 react，都可以升级到最新的 react，所以建议将项目中的 react 都进行升级，并使用最新的`0.6.x`版本的`react-formutil`.**
 
 ### `0.4.x`
 
@@ -1277,6 +1277,24 @@ function MyComponent({ current, onUpdate }) {
 </label>;
 ```
 
+#### `getValueFromEvent()`
+
+> 该属性从`v0.6.11`开始支持
+
+某些情况下，一些特殊的自定义组件，其`onChange`或者`changePropName`所对应的值改变时的回调方法，会传入非标准的 value 参数。我们可能需要特殊的处理从这些回调参数中获取我们需要的 value 值（这种情况下`valuePropName`无法满足所需）。
+
+此时，可以通过`getValueFromEvent`来处理这种复杂情况。`getValueFromEvent`所接受的参数与底层组件的`onChange`所传递的参数一致。
+
+```javascript
+// 例如，我们有一个组件，其onChange回调方法会接受两个参数，而第二个参数才是真正的值
+<ComplexDataInOnChange /* onChange={(arg1, theRealValue) => {}} */ />
+
+// 当与EasyField共同使用时
+<EasyField name="amount" getValueFromEvent={(arg1, theRealValue) => theRealValue}>
+    <ComplexDataInOnChange />
+</EasyField>
+```
+
 #### `passUtil`
 
 默认情况下，`EasyField`给自定义组件传递的属性中，不包括当前表单项组件的`$fieldutil`对象。
@@ -1552,14 +1570,10 @@ function $processer($state: FieldState<T>, name: string) {
 
 ```javascript
 let $formutil;
-<Form $ref={$formutil => ($formutil = $formutil)}>
-    { /* ...*/ }
-</Form>;
+<Form $ref={$formutil => ($formutil = $formutil)}>{/* ...*/}</Form>;
 
 const $formutilRef = React.createRef();
-<Form $ref={$formutilRef}>
-    { /* ...*/ }
-</Form>;
+<Form $ref={$formutilRef}>{/* ...*/}</Form>;
 ```
 
 其用法类似与 React 组件本身的 ref 属性用法，但是与`ref={Function}`不同的时，由于`$formutil`是一个每次 render 都会重新生成的`Immutable`对象，所以传递给`$ref`的回调函数也会随着每次 render 被调用。

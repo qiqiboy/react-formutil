@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-var-requires: 0 */
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -15,18 +16,19 @@ const DirectoryNamedWebpackPlugin = require('directory-named-webpack-plugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin-alt');
+const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const pkg = require(paths.appPackageJson);
 
-const relativeRoot = pkg.noRewrite ? '.' : '';
-const cdnUrl = pkg.cdn ? pkg.cdn.host + pkg.cdn.path : relativeRoot;
+const relativeRoot = path.join(pkg.noRewrite ? '.' : process.env.BASE_NAME || '/');
+const cdnUrl = process.env.SKIP_CDN !== 'true' && pkg.cdn ? pkg.cdn.host + pkg.cdn.path : relativeRoot;
 const publicPath = ensureSlash(cdnUrl, true);
 const publicUrl = ensureSlash(cdnUrl, false);
 const env = getClientEnvironment(publicUrl);
 
-const shouldUseRelativeAssetPaths = !pkg.cdn;
+const shouldUseRelativeAssetPaths = process.env.SKIP_CDN === 'true' || !pkg.cdn;
 const shouldUseSourceMap = false;
 const shouldInlineRuntimeChunk = true;
 const shouldUseSW = !!pkg.pwa;
@@ -46,7 +48,7 @@ const babelOption = {
     compact: false,
     presets: [[require.resolve('babel-preset-react-app/dependencies'), { helpers: true }]],
     cacheDirectory: true,
-    cacheCompression: true,
+    cacheCompression: false,
     sourceMaps: false
 };
 
@@ -105,11 +107,13 @@ module.exports = {
         publicPath: publicPath,
         crossOriginLoading: 'anonymous',
         devtoolModuleFilenameTemplate: info =>
-            path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/')
+            path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/'),
+        globalObject: 'this'
     },
     optimization: {
         minimizer: [
             new TerserPlugin({
+                extractComments: false,
                 terserOptions: {
                     parse: {
                         ecma: 8
@@ -125,7 +129,7 @@ module.exports = {
                     },
                     output: {
                         ecma: 5,
-                        comments: false,
+                        comments: /@(license|author)/i,
                         ascii_only: true
                     }
                 },
@@ -142,6 +146,9 @@ module.exports = {
                               annotation: true
                           }
                         : false
+                },
+                cssProcessorPluginOptions: {
+                    preset: ['default', { minifyFontValues: { removeQuotes: false } }]
                 }
             })
         ],
@@ -152,8 +159,13 @@ module.exports = {
                 vendors: {
                     chunks: 'all',
                     test: '_vendor_',
-                    name: 'vendor',
-                    reuseExistingChunk: true
+                    name: 'vendor'
+                },
+                i18n: {
+                    chunks: 'all',
+                    test: /utils\/i18n|locals\/\w+\.json/,
+                    enforce: true,
+                    name: 'i18n'
                 }
             }
         },
@@ -182,18 +194,20 @@ module.exports = {
             { parser: { requireEnsure: false } },
 
             {
-                test: /\.(js|mjs|jsx)$/,
+                test: /\.(js|mjs|jsx|ts|tsx)$/,
                 enforce: 'pre',
                 use: [
                     {
                         options: {
+                            cache: true,
                             formatter: require.resolve('react-dev-utils/eslintFormatter'),
-                            eslintPath: require.resolve('eslint')
+                            eslintPath: require.resolve('eslint'),
+                            resolvePluginsRelativeTo: __dirname
                         },
                         loader: require.resolve('eslint-loader')
                     }
                 ],
-                include: paths.appSrc
+                include: [paths.formutilSrc, paths.appSrc]
             },
             {
                 oneOf: [
@@ -208,7 +222,9 @@ module.exports = {
                                 loader: require.resolve('html-loader'),
                                 options: {
                                     url(url) {
-                                        return !/\.(webp|png|jpeg|jpg|gif|svg|mp3|wmv|mp4|ogg|webm)$/.test(url);
+                                        return !/\.(webp|png|jpeg|jpg|gif|svg|mp3|wmv|mp4|ogg|webm|s[ac]ss|css|less|m?[tj]sx?)$/.test(
+                                            url
+                                        );
                                     },
                                     import: true
                                 }
@@ -217,32 +233,27 @@ module.exports = {
                     },
                     {
                         test: /\.(js|mjs|jsx|ts|tsx)$/,
-                        include: paths.appSrc,
+                        include: [paths.formutilSrc, paths.appSrc],
                         loader: require.resolve('babel-loader'),
                         options: {
                             customize: require.resolve('babel-preset-react-app/webpack-overrides'),
-                            presets: ['react-app'],
                             plugins: [
+                                ['react-hot-loader/babel', false], // ensure react-hot-loader is disabled
                                 [
                                     require.resolve('babel-plugin-named-asset-import'),
                                     {
                                         loaderMap: {
                                             svg: {
-                                                ReactComponent: '@svgr/webpack?-prettier,-svgo![path]'
+                                                ReactComponent: '@svgr/webpack?-svgo,+titleProp,+ref![path]'
                                             }
                                         }
-                                    }
-                                ],
-                                [
-                                    '@babel/plugin-proposal-decorators',
-                                    {
-                                        legacy: true
                                     }
                                 ]
                             ],
                             cacheDirectory: true,
-                            cacheCompression: true,
-                            compact: true
+                            cacheCompression: false,
+                            compact: true,
+                            rootMode: 'upward'
                         }
                     },
                     {
@@ -255,8 +266,7 @@ module.exports = {
                         test: /\.css$/,
                         exclude: /\.module\.css$/,
                         loader: getStyleLoaders({
-                            importLoaders: 1,
-                            sourceMap: shouldUseSourceMap
+                            importLoaders: 1
                         }),
                         sideEffects: true
                     },
@@ -264,9 +274,9 @@ module.exports = {
                         test: /\.module\.css$/,
                         loader: getStyleLoaders({
                             importLoaders: 1,
-                            sourceMap: shouldUseSourceMap,
-                            modules: true,
-                            getLocalIdent: getCSSModuleLocalIdent
+                            modules: {
+                                getLocalIdent: getCSSModuleLocalIdent
+                            }
                         })
                     },
                     {
@@ -274,8 +284,7 @@ module.exports = {
                         exclude: /\.module\.s[ac]ss$/,
                         loader: getStyleLoaders(
                             {
-                                importLoaders: 2,
-                                sourceMap: shouldUseSourceMap
+                                importLoaders: 2
                             },
                             'sass-loader'
                         ),
@@ -286,9 +295,9 @@ module.exports = {
                         loader: getStyleLoaders(
                             {
                                 importLoaders: 2,
-                                sourceMap: shouldUseSourceMap,
-                                modules: true,
-                                getLocalIdent: getCSSModuleLocalIdent
+                                modules: {
+                                    getLocalIdent: getCSSModuleLocalIdent
+                                }
                             },
                             'sass-loader'
                         )
@@ -298,8 +307,7 @@ module.exports = {
                         exclude: /\.module\.less$/,
                         loader: getStyleLoaders(
                             {
-                                importLoaders: 2,
-                                sourceMap: shouldUseSourceMap
+                                importLoaders: 2
                             },
                             'less-loader'
                         ),
@@ -310,9 +318,9 @@ module.exports = {
                         loader: getStyleLoaders(
                             {
                                 importLoaders: 2,
-                                sourceMap: shouldUseSourceMap,
-                                modules: true,
-                                getLocalIdent: getCSSModuleLocalIdent
+                                modules: {
+                                    getLocalIdent: getCSSModuleLocalIdent
+                                }
                             },
                             'less-loader'
                         )
@@ -324,7 +332,7 @@ module.exports = {
                     {
                         test: /\.(mp4|webm|wav|mp3|m4a|aac|oga)$/,
                         loader: require.resolve('file-loader'),
-                        query: {
+                        options: {
                             name: 'static/media/[name].[hash:8].[ext]'
                         }
                     },
@@ -346,15 +354,21 @@ module.exports = {
             new ModuleNotFoundPlugin(paths.root),
             new webpack.EnvironmentPlugin(env.raw),
             new ImageminPlugin({
+                cacheFolder: path.resolve(paths.appNodeModules, '.cache/imagemin'),
                 pngquant: {
                     // quality: '95-100'
                 }
             }),
             new MiniCssExtractPlugin({
-                filename: 'static/css/[name].[contenthash:8].css'
+                filename: 'static/css/[name].[contenthash:8].css',
+                ignoreOrder: !!pkg.ignoreCssOrderWarnings || process.env.IGNORE_CSS_ORDER_WARNINGS === 'true'
             }),
             new webpack.HashedModuleIdsPlugin(),
-            new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+            new webpack.IgnorePlugin({
+                resourceRegExp: /^\.\/locale$/,
+                contextRegExp: /moment$/
+            }),
+            new BundleAnalyzerPlugin(),
             shouldUseSW &&
                 new SWPrecacheWebpackPlugin({
                     cacheId: pkg.name,
@@ -381,7 +395,7 @@ module.exports = {
                     stripPrefix: 'build/',
 
                     // For unknown URLs, fallback to the index page
-                    navigateFallback: relativeRoot + path.join(pkg.basename || '', '/index.html'),
+                    navigateFallback: path.join(relativeRoot, '/index.html'),
                     // Ignores URLs starting from /__ (useful for Firebase):
                     // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219
                     navigateFallbackWhitelist: [/^(?!\/__).*/],
@@ -394,8 +408,8 @@ module.exports = {
                 typescript: resolve.sync('typescript', {
                     basedir: paths.appNodeModules
                 }),
-                tslint: true,
                 async: false,
+                useTypescriptIncrementalApi: true,
                 checkSyntacticErrors: true,
                 tsconfig: paths.appTsConfig,
                 compilerOptions: {
@@ -403,11 +417,13 @@ module.exports = {
                     checkJs: false
                 },
                 reportFiles: ['**/*.(ts|tsx)', '!**/__tests__/**', '!**/?(*.)(spec|test).*'],
-                watch: paths.appSrc,
                 silent: true,
                 formatter: typescriptFormatter
             }),
-            new webpack.BannerPlugin('@author ' + pkg.author)
+            new webpack.BannerPlugin({
+                banner: '@author ' + pkg.author,
+                entryOnly: true
+            })
         ])
         .filter(Boolean),
     node: {
@@ -424,11 +440,21 @@ function getStyleLoaders(cssOptions, preProcessor) {
     const loaders = [
         {
             loader: MiniCssExtractPlugin.loader,
-            options: Object.assign({}, shouldUseRelativeAssetPaths ? { publicPath: '../../' } : undefined)
+            options: Object.assign(
+                {
+                    esModule: true
+                },
+                shouldUseRelativeAssetPaths ? { publicPath: '../../' } : undefined
+            )
         },
         {
             loader: require.resolve('css-loader'),
-            options: cssOptions
+            options: Object.assign(
+                {
+                    sourceMap: shouldUseSourceMap
+                },
+                cssOptions
+            )
         },
         {
             loader: require.resolve('postcss-loader'),
@@ -451,10 +477,17 @@ function getStyleLoaders(cssOptions, preProcessor) {
     if (preProcessor) {
         loaders.push({
             loader: require.resolve(preProcessor),
-            options: {
-                sourceMap: shouldUseSourceMap,
-                javascriptEnabled: true
-            }
+            options: Object.assign(
+                {},
+                { sourceMap: shouldUseSourceMap },
+                preProcessor === 'less-loader'
+                    ? {
+                          javascriptEnabled: true
+                      }
+                    : {
+                          implementation: require('sass')
+                      }
+            )
         });
     }
 

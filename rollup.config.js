@@ -1,59 +1,90 @@
+process.env.NODE_ENV = 'production';
+
 const path = require('path');
+const fs = require('fs');
 const commonjs = require('rollup-plugin-commonjs');
-const replace = require('rollup-plugin-replace');
-const nodeResolve = require('rollup-plugin-node-resolve');
+const replace = require('@rollup/plugin-replace');
+const nodeResolve = require('@rollup/plugin-node-resolve');
 const babel = require('rollup-plugin-babel');
 const sourceMaps = require('rollup-plugin-sourcemaps');
 const filesize = require('rollup-plugin-filesize');
-const clear = require('rollup-plugin-clear');
 const copy = require('rollup-plugin-copy');
+const sass = require('rollup-plugin-sass');
 const { terser } = require('rollup-plugin-terser');
+const pkg = require('./package.json');
 
-process.env.NODE_ENV = 'production';
+/**
+ * 如果希望将某些模块代码直接构建进输出文件，可以再这里指定这些模块名称
+ */
+const externalExclude = [
+    /*'@babel/runtime', 'regenerator-runtime'*/
+];
+
+const exportName = 'react-formutil';
+/**
+ * 如果你希望编译后的代码里依然自动包含进去编译后的css，那么这里可以设置为 true
+ */
+const shouldPreserveCss = false;
 
 function createConfig(env, module) {
     const isProd = env === 'production';
+    // for umd globals
+    const globals = {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        'prop-types': 'PropTypes'
+    };
 
     return {
+        /**
+         * 入口文件位置，如果你更改了entryFile，别忘了同时修改 npm/index.cjs.js 和 npm/index.esm.js 里的文件引用名称
+         */
         input: 'src/index.js',
         external:
             module === 'umd'
-                ? ['react', 'prop-types']
-                : id => !id.startsWith('.') && !path.isAbsolute(id),
+                ? Object.keys(globals)
+                : id =>
+                      !externalExclude.some(name => id.startsWith(name)) && !id.startsWith('.') && !path.isAbsolute(id),
         output: {
-            file: `dist/react-formutil.${module}.${env}.js`,
-            format: module,
             name: 'ReactFormutil',
+            file: `dist/${exportName}.${module}.${env}.js`,
+            format: module,
             exports: 'named',
-            sourcemap: !isProd,
-            globals: {
-                react: 'React',
-                'prop-types': 'PropTypes'
-            }
+            sourcemap: false,
+            intro:
+                module !== 'umd' && shouldPreserveCss
+                    ? module === 'cjs'
+                        ? `require('./${exportName}.css');`
+                        : `import('./${exportName}.css');`
+                    : undefined,
+            globals
         },
         treeshake: {
-            moduleSideEffects: false
+            /**
+             * 如果你有引入一些有副作用的代码模块，或者构建后的代码运行异常，可以尝试将该项设置为 true
+             */
+            moduleSideEffects: true
         },
         plugins: [
-            clear({
-                targets: ['dist']
-            }),
             replace({
                 'process.env.NODE_ENV': JSON.stringify(env)
             }),
-            nodeResolve(),
+            nodeResolve({
+                extensions: ['.js', '.jsx', '.ts', '.tsx']
+            }),
             commonjs({
-                include: /node_modules/,
                 namedExports: {
-                    'node_modules/_react-is@16.8.6@react-is/index.js': ['isValidElementType'],
+                    'node_modules/_react-is@16.13.0@react-is/index.js': ['isValidElementType'],
                     'node_modules/react-is/index.js': ['isValidElementType']
-                }
+                },
+                include: /node_modules/
             }),
             babel({
                 exclude: 'node_modules/**',
                 extensions: ['.js', '.jsx', '.ts', '.tsx'],
                 runtimeHelpers: true,
                 babelrc: false,
+                configFile: false,
                 presets: [
                     [
                         '@babel/preset-env',
@@ -75,26 +106,6 @@ function createConfig(env, module) {
                 ],
                 plugins: [
                     'babel-plugin-macros',
-                    [
-                        '@babel/plugin-transform-destructuring',
-                        {
-                            // https://github.com/facebook/create-react-app/issues/5602
-                            loose: false,
-                            useBuiltIns: true,
-                            selectiveLoose: [
-                                'useState',
-                                'useEffect',
-                                'useContext',
-                                'useReducer',
-                                'useCallback',
-                                'useMemo',
-                                'useRef',
-                                'useImperativeHandle',
-                                'useLayoutEffect',
-                                'useDebugValue'
-                            ]
-                        }
-                    ],
                     ['@babel/plugin-proposal-decorators', { legacy: true }],
                     [
                         '@babel/plugin-proposal-class-properties',
@@ -103,9 +114,14 @@ function createConfig(env, module) {
                         }
                     ],
                     [
-                        '@babel/plugin-proposal-object-rest-spread',
+                        '@babel/plugin-transform-runtime',
                         {
-                            useBuiltIns: true
+                            version: require('@babel/helpers/package.json').version,
+                            corejs: false,
+                            helpers: true,
+                            regenerator: true,
+                            useESModules: true,
+                            absoluteRuntime: false
                         }
                     ],
                     isProd && [
@@ -114,26 +130,25 @@ function createConfig(env, module) {
                         {
                             removeImport: true
                         }
-                    ]
+                    ],
+                    // Adds Numeric Separators
+                    require('@babel/plugin-proposal-numeric-separator').default
                 ].filter(Boolean)
             }),
+            module !== 'umd' &&
+                sass({
+                    output: `dist/${exportName}.css`
+                }),
             sourceMaps(),
             isProd &&
                 terser({
                     sourcemap: true,
                     output: { comments: false },
-                    compress:
-                        module === 'umd'
-                            ? {
-                                  warnings: false,
-                                  comparisons: false,
-                                  keep_infinity: true
-                              }
-                            : false,
+                    compress: false,
                     warnings: false,
                     ecma: 5,
                     ie8: false,
-                    toplevel: module !== 'umd'
+                    toplevel: true
                 }),
             filesize(),
             copy({
@@ -144,11 +159,8 @@ function createConfig(env, module) {
     };
 }
 
-module.exports = [
-    createConfig('development', 'cjs'),
-    createConfig('production', 'cjs'),
-    createConfig('development', 'esm'),
-    createConfig('production', 'esm'),
-    createConfig('development', 'umd'),
-    createConfig('production', 'umd')
-];
+module.exports = ['cjs', 'esm', 'umd'].reduce((configQueue, module) => {
+    return fs.existsSync(`./npm/index.${module}.js`)
+        ? configQueue.concat(createConfig('development', module), createConfig('production', module))
+        : configQueue;
+}, []);

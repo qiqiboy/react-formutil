@@ -1,6 +1,8 @@
+/* eslint @typescript-eslint/no-var-requires: 0 */
 const fs = require('fs');
 const path = require('path');
 const paths = require('./paths');
+const pkg = require(paths.appPackageJson);
 
 delete require.cache[require.resolve('./paths')];
 
@@ -31,11 +33,16 @@ process.env.NODE_PATH = (process.env.NODE_PATH || '')
     .map(folder => path.resolve(appDirectory, folder))
     .join(path.delimiter);
 
-const REACT_APP = /^REACT_APP_|TIGER_/i;
+if (!('BASE_NAME' in process.env) && 'basename' in pkg) {
+    process.env.BASE_NAME = pkg.basename;
+}
+
+const REACT_APP = /^(REACT_APP_|TIGER_)/i;
+const whitelists = ['BASE_NAME'];
 
 function getClientEnvironment(publicUrl) {
     const raw = Object.keys(process.env)
-        .filter(key => REACT_APP.test(key))
+        .filter(key => REACT_APP.test(key) || whitelists.includes(key))
         .reduce(
             (env, key) => {
                 env[key] = process.env[key];

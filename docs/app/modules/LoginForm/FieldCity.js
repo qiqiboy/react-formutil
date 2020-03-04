@@ -56,6 +56,7 @@ class FieldCity extends Component {
         this.setState({
             loading: true
         });
+
         setTimeout(() => {
             this.setState({
                 provinceData,
@@ -75,6 +76,7 @@ class FieldCity extends Component {
             this.setState({
                 loading: true
             });
+
             setTimeout(
                 () =>
                     this.setState({

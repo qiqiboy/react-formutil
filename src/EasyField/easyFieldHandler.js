@@ -42,8 +42,9 @@ export const propTypes =
               changePropName: PropTypes.string,
               focusPropName: PropTypes.string,
               blurPropName: PropTypes.string,
+              getValueFromEvent: PropTypes.func,
 
-              passUtil: PropTypes.string
+              passUtil: PropTypes.oneOfType([PropTypes.string, PropTypes.bool])
           }
         : undefined;
 
@@ -59,7 +60,7 @@ export const defaultProps = {
 };
 
 export function createHandler($fieldutil, fieldProps, childProps) {
-    const { valuePropName, changePropName, focusPropName, blurPropName, passUtil } = fieldProps;
+    const { valuePropName, changePropName, focusPropName, blurPropName, getValueFromEvent, passUtil } = fieldProps;
 
     const fetchValueFromEvent = function(ev) {
         return ev && ev.target ? ev.target[valuePropName] : ev;
@@ -69,20 +70,17 @@ export function createHandler($fieldutil, fieldProps, childProps) {
         ...childProps,
 
         [valuePropName]: $fieldutil.$viewValue,
-        [changePropName]: (...args) => {
-            let value = args[0];
-            let ev = args[args.length - 1];
-
-            if (!ev || !ev.target) {
-                ev = args;
+        [changePropName]: (value, ...events) => {
+            if (events[0]?.nativeEvent instanceof Event) {
+                events.push(value);
             } else {
-                ev = [ev];
+                events.unshift(value);
             }
 
             const onChange = fieldProps[changePropName];
-            onChange && onChange(...ev);
+            onChange && onChange(...events);
 
-            const newValue = fetchValueFromEvent(value);
+            const newValue = getValueFromEvent ? getValueFromEvent(...events) : fetchValueFromEvent(value);
             $fieldutil.$render(newValue);
         },
         [focusPropName]: (...args) => {
@@ -104,7 +102,7 @@ export function createHandler($fieldutil, fieldProps, childProps) {
     };
 
     if (passUtil) {
-        $handleProps[passUtil === true ? '$fieldutil' : passUtil] = $fieldutil;
+        $handleProps[passUtil === true ? '$fieldutil' : String(passUtil)] = $fieldutil;
     }
 
     return $handleProps;
@@ -128,6 +126,7 @@ export function parseProps(props) {
         changePropName,
         focusPropName,
         blurPropName,
+        getValueFromEvent,
         validMessage,
         checked,
         unchecked,

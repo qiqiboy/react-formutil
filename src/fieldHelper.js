@@ -384,7 +384,9 @@ export function createHandler($this, owner) {
         const { $error = {} } = $this.$state;
 
         for (let name in $error) {
-            return $error[name] instanceof Error ? $error[name].message : $error[name];
+            if ($error.hasOwnProperty(name)) {
+                return $error[name] instanceof Error ? $error[name].message : $error[name];
+            }
         }
     }
 

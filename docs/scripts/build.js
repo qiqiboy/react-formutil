@@ -1,5 +1,11 @@
-process.env.BABEL_ENV = 'production';
-process.env.NODE_ENV = 'production';
+/* eslint @typescript-eslint/no-var-requires: 0 */
+
+const useDevConfig = process.argv[2] === '--dev';
+
+process.env.BABEL_ENV = useDevConfig ? 'development' : 'production';
+process.env.NODE_ENV = useDevConfig ? 'development' : 'production';
+
+process.env.WEBPACK_BUILDING = 'true';
 
 process.on('unhandledRejection', err => {
     throw err;
@@ -7,12 +13,11 @@ process.on('unhandledRejection', err => {
 
 require('./config/env');
 
-const userDevConfig = process.argv[2] === '--dev';
 const chalk = require('chalk');
 const fs = require('fs-extra');
 const path = require('path');
 const webpack = require('webpack');
-const config = require(userDevConfig ? './config/webpack.config.dev' : './config/webpack.config.prod');
+const config = require(useDevConfig ? './config/webpack.config.dev' : './config/webpack.config.prod');
 const paths = require('./config/paths');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
@@ -23,7 +28,6 @@ const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild;
 const checkMissDependencies = require('./config/checkMissDependencies');
 const { ensureLocals } = require('./i18n');
 const ora = require('ora');
-const pkg = require(paths.appPackageJson);
 
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
     console.log();
@@ -31,13 +35,6 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
 }
 
 ensureLocals();
-
-if (userDevConfig) {
-    process.env.NODE_ENV = 'development';
-    process.env.BABEL_ENV = 'development';
-    config.output.path = paths.appBuild = paths.appBuildDev;
-    config.output.publicPath = pkg.noRewrite ? './' : path.join(pkg.basename || '', '/');
-}
 
 const spinner = ora('webpack启动中...').start();
 // These sizes are pretty large. We'll warn for bundles exceeding them.
@@ -64,17 +61,15 @@ checkMissDependencies(spinner)
             console.log();
             // Teach some ESLint tricks.
             console.log('\n搜索相关' + chalk.underline(chalk.yellow('关键词')) + '以了解更多关于警告产生的原因.');
+
             console.log(
-                '如果要忽略警告, 可以将 ' +
-                    chalk.cyan('// eslint-disable-next-line') +
-                    ' 或 ' +
-                    chalk.cyan('// tslint:disable-next-line') +
-                    ' 添加到产生警告的代码行上方\n'
+                '如果要忽略警告, 可以将 ' + chalk.cyan('// eslint-disable-next-line') + ' 添加到产生警告的代码行上方\n'
             );
+
             console.log();
             console.log();
 
-            if (!userDevConfig) {
+            if (!useDevConfig) {
                 spinner.fail(chalk.red('请处理所有的错误和警告后再build代码！'));
 
                 console.log();
@@ -88,6 +83,7 @@ checkMissDependencies(spinner)
 
         spinner.succeed('gzip后的文件大小:');
         console.log();
+
         printFileSizesAfterBuild(
             stats,
             previousFileSizes,
@@ -95,6 +91,7 @@ checkMissDependencies(spinner)
             WARN_AFTER_BUNDLE_GZIP_SIZE,
             WARN_AFTER_CHUNK_GZIP_SIZE
         );
+
         console.log();
 
         if (/^http/.test(config.output.publicPath) === false) {
@@ -128,7 +125,7 @@ checkMissDependencies(spinner)
 
 // Create the production build and print the deployment instructions.
 function build(previousFileSizes) {
-    let packText = userDevConfig ? '启动测试环境打包编译...' : '启动生产环境打包压缩...';
+    let packText = useDevConfig ? '启动测试环境打包编译...' : '启动生产环境打包压缩...';
     let startTime = Date.now();
     let timer;
     let logProgress = function(stop) {
@@ -192,9 +189,9 @@ function copyPublicFolder() {
     fs.copySync(paths.appPublic, paths.appBuild, {
         dereference: true,
         filter: file => {
-            var relative = path.relative(paths.appPublic, file);
-            var basename = path.basename(file);
-            var isDirectory = fs.statSync(file).isDirectory();
+            const relative = path.relative(paths.appPublic, file);
+            const basename = path.basename(file);
+            const isDirectory = fs.statSync(file).isDirectory();
 
             return isDirectory
                 ? basename !== 'layout' // layout目录不复制

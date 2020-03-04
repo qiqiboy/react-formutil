@@ -76,6 +76,7 @@ function useField(name, props = {}) {
         }
 
         $this.$prevValue = $state.$value;
+        // eslint-disable-next-line
     }, [$this.$state.$value]);
 
     useLayoutEffect(() => {
@@ -93,6 +94,7 @@ function useField(name, props = {}) {
 
             createRef(props.$ref, null);
         };
+        // eslint-disable-next-line
     }, []);
 
     useLayoutEffect(() => {
@@ -105,6 +107,7 @@ function useField(name, props = {}) {
                 $formContext.$$unregister($name, $this.$fieldHandler, !$this.isMounting && props.$reserveOnUnmount);
             }
         };
+        // eslint-disable-next-line
     }, [$name]);
 
     // trigger ref callback

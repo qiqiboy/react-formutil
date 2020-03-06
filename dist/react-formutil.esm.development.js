@@ -1597,8 +1597,8 @@ var Field = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this2 = this;
 
-      var shouldInitial = !this.$formContext;
       return React.createElement(FormContext.Consumer, null, function (context) {
+        var shouldInitial = !_this2.$formContext;
         _this2.$formContext = context;
 
         if (!_this2.$fieldHandler) {
@@ -2680,4 +2680,4 @@ function useHandler(props) {
   return createHandler$1($fieldutil, fieldProps, childProps);
 }
 
-export { EasyField, Field, Form, connect, useField, useForm, useHandler, withField$1 as withField, withForm$1 as withForm };
+export { EasyField, Field, Form, connect, FormContext as formContext, useField, useForm, useHandler, withField$1 as withField, withForm$1 as withForm };

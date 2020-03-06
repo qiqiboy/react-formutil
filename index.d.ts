@@ -624,3 +624,21 @@ export function useHandler<T = string, Validators = any, Fields = any, WeakField
 export function useHandler<T = string, Validators = any, Fields = any, WeakFields = Fields>(
     props: EasyFieldProps<T, Validators, Fields, WeakFields>
 ): $FieldHandler<T> & OtherKeys;
+
+export interface FormContext<T = any, Fields = any, Validators = any, WeakFields = Fields> {
+    $$registers: Registers<Fields, Validators, WeakFields>;
+    $$register(name: string, $handler: $Fieldutil<T, Validators, Fields, WeakFields>, prevName?: string): void;
+    $$unregister(name: string, $handler: $Fieldutil<T, Validators, Fields, WeakFields>, $$reserved?: boolean): void;
+    $$onChange(
+        name: string,
+        $state: ArgFieldState<T, Validators>,
+        callback: ($formutil: $Formutil<Fields, Validators, WeakFields>) => void
+    ): Promise<$Formutil<Fields, Validators, WeakFields>>;
+    $$getDefault(): {
+        $$defaultStates: ArgFormStates<Fields, Validators>;
+        $$defaultValues: ArgFormParams<Fields>;
+    };
+    $formutil: $Formutil<Fields, Validators, WeakFields>;
+}
+
+export const formContext: React.Context<FormContext>;

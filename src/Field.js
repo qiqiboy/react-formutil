@@ -106,11 +106,11 @@ class Field extends Component {
     }
 
     render() {
-        const shouldInitial = !this.$formContext;
-
         return (
             <FormContext.Consumer>
                 {context => {
+                    const shouldInitial = !this.$formContext;
+
                     this.$formContext = context;
 
                     if (!this.$fieldHandler) {

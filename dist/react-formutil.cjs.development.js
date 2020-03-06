@@ -1604,8 +1604,8 @@ var Field = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this2 = this;
 
-      var shouldInitial = !this.$formContext;
       return React__default.createElement(FormContext.Consumer, null, function (context) {
+        var shouldInitial = !_this2.$formContext;
         _this2.$formContext = context;
 
         if (!_this2.$fieldHandler) {
@@ -2691,6 +2691,7 @@ exports.EasyField = EasyField;
 exports.Field = Field;
 exports.Form = Form;
 exports.connect = connect;
+exports.formContext = FormContext;
 exports.useField = useField;
 exports.useForm = useForm;
 exports.useHandler = useHandler;

@@ -53,6 +53,7 @@
     "@types/react-is": "16.7.1",
     "@typescript-eslint/eslint-plugin": "2.22.0",
     "@typescript-eslint/parser": "2.22.0",
+    "babel-eslint": "10.1.0",
     "babel-preset-react-app": "9.1.1",
     "eslint": "6.8.0",
     "eslint-config-react-app": "5.2.0",

@@ -140,6 +140,7 @@ export function parseProps(props) {
         $validators,
         $asyncValidators,
         $validateLazy,
+        $renderLazy,
         $reserveOnUnmount,
         $parser,
         $formatter,
@@ -262,8 +263,8 @@ export function parseProps(props) {
     };
 }
 
-export function renderField($handleProps, props) {
-    let { component, render, children } = props;
+export function renderField($handleProps, renderprops) {
+    let { component, render, children } = renderprops;
 
     if (component) {
         return createElement(component, $handleProps);

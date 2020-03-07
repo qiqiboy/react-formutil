@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { Component, forwardRef } from 'react';
 import Form, { propTypes } from './Form';
 import { createHOC } from './utils';
 import hoistStatics from 'hoist-non-react-statics';
@@ -6,33 +6,40 @@ import hoistStatics from 'hoist-non-react-statics';
 const filterProps = Object.keys(propTypes);
 
 function withForm(WrappedComponent, config = {}) {
-    const FormEnhanced = forwardRef((props, ref) => {
-        const { ...others } = props;
-        // component优先级最高，这里排除掉, 避免和render属性冲突
-        const { component, ...formProps } = props;
+    class WithForm extends Component {
+        static displayName =
+            'React.Formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
 
-        filterProps.forEach(prop => {
-            if (prop in others) {
-                if (prop === '$defaultStates' || prop === '$defaultValues') {
-                    formProps[prop] = { ...config[prop], ...others[prop] };
-                }
-                delete others[prop];
-            }
-        });
-
-        return (
-            <Form
-                {...config}
-                {...formProps}
-                render={$formutil => <WrappedComponent {...others} $formutil={$formutil} ref={ref} />}
-            />
+        renderChildren = $formutil => (
+            <WrappedComponent {...this.othersProps} $formutil={$formutil} ref={this.props.__forwardRef__} />
         );
-    });
 
-    FormEnhanced.displayName =
-        'React.Formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+        render() {
+            const { ...others } = this.props;
+            // component优先级最高，这里排除掉, 避免和render属性冲突
+            const { component, ...formProps } = this.props;
 
-    return hoistStatics(FormEnhanced, WrappedComponent);
+            filterProps.forEach(prop => {
+                if (prop in others) {
+                    if (prop === '$defaultStates' || prop === '$defaultValues') {
+                        formProps[prop] = { ...config[prop], ...others[prop] };
+                    }
+                    delete others[prop];
+                }
+            });
+
+            this.othersProps = others;
+
+            return <Form {...config} {...formProps} render={this.renderChildren} />;
+        }
+    }
+
+    const ForwardRefForm = forwardRef((props, ref) => <WithForm __forwardRef__={ref} {...props} />);
+
+    ForwardRefForm.displayName =
+        'React.Formutil.withForm.ForwardRef.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+
+    return hoistStatics(ForwardRefForm, WrappedComponent);
 }
 
 export default createHOC(withForm);

@@ -14,15 +14,18 @@ class EasyField extends Component {
     static propTypes = propTypes;
     static defaultProps = defaultProps;
 
-    render() {
-        const { fieldProps, childProps, renderProps } = parseProps(this.props);
+    renderChildren = $fieldutil => {
+        const { fieldProps, childProps, renderProps } = this.parsedProps;
 
-        return (
-            <Field
-                {...fieldProps}
-                children={$fieldutil => renderField(createHandler($fieldutil, fieldProps, childProps), renderProps)}
-            />
-        );
+        return renderField(createHandler($fieldutil, fieldProps, childProps), renderProps);
+    };
+
+    parsedProps = {};
+
+    render() {
+        const { fieldProps } = (this.parsedProps = parseProps(this.props));
+
+        return <Field {...fieldProps} children={this.renderChildren} />;
     }
 }
 

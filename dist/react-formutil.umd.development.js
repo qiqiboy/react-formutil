@@ -1658,32 +1658,69 @@
 
   function withForm(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var FormEnhanced = React.forwardRef(function (props, ref) {
-      var others = Object.assign({}, props); // component优先级最高，这里排除掉, 避免和render属性冲突
 
-      var component = props.component,
-          formProps = _objectWithoutProperties(props, ["component"]);
+    var WithForm = /*#__PURE__*/function (_Component) {
+      _inherits(WithForm, _Component);
 
-      filterProps.forEach(function (prop) {
-        if (prop in others) {
-          if (prop === '$defaultStates' || prop === '$defaultValues') {
-            formProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
-          }
+      function WithForm() {
+        var _getPrototypeOf2;
 
-          delete others[prop];
+        var _this;
+
+        _classCallCheck(this, WithForm);
+
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
         }
-      });
-      return React__default.createElement(Form, Object.assign({}, config, formProps, {
-        render: function render($formutil) {
-          return React__default.createElement(WrappedComponent, Object.assign({}, others, {
+
+        _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(WithForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+        _this.renderChildren = function ($formutil) {
+          return React__default.createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
             $formutil: $formutil,
-            ref: ref
+            ref: _this.props.__forwardRef__
+          }));
+        };
+
+        return _this;
+      }
+
+      _createClass(WithForm, [{
+        key: "render",
+        value: function render() {
+          var others = Object.assign({}, this.props); // component优先级最高，这里排除掉, 避免和render属性冲突
+
+          var _this$props = this.props,
+              component = _this$props.component,
+              formProps = _objectWithoutProperties(_this$props, ["component"]);
+
+          filterProps.forEach(function (prop) {
+            if (prop in others) {
+              if (prop === '$defaultStates' || prop === '$defaultValues') {
+                formProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
+              }
+
+              delete others[prop];
+            }
+          });
+          this.othersProps = others;
+          return React__default.createElement(Form, Object.assign({}, config, formProps, {
+            render: this.renderChildren
           }));
         }
-      }));
+      }]);
+
+      return WithForm;
+    }(React.Component);
+
+    WithForm.displayName = 'React.Formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+    var ForwardRefForm = React.forwardRef(function (props, ref) {
+      return React__default.createElement(WithForm, Object.assign({
+        __forwardRef__: ref
+      }, props));
     });
-    FormEnhanced.displayName = 'React.Formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
-    return hoistNonReactStatics_cjs(FormEnhanced, WrappedComponent);
+    ForwardRefForm.displayName = 'React.Formutil.withForm.ForwardRef.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+    return hoistNonReactStatics_cjs(ForwardRefForm, WrappedComponent);
   }
 
   var withForm$1 = createHOC(withForm);
@@ -2325,32 +2362,69 @@
 
   function withField(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var FieldEnhanced = React.forwardRef(function (props, ref) {
-      var others = Object.assign({}, props); // component优先级最高，这里排除掉, 避免和render属性冲突
 
-      var component = props.component,
-          fieldProps = _objectWithoutProperties(props, ["component"]);
+    var WithField = /*#__PURE__*/function (_Component) {
+      _inherits(WithField, _Component);
 
-      filterProps$1.concat(Object.keys(_objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
-        if (prop in others) {
-          if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
-            fieldProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
-          }
+      function WithField() {
+        var _getPrototypeOf2;
 
-          delete others[prop];
+        var _this;
+
+        _classCallCheck(this, WithField);
+
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
         }
-      });
-      return React__default.createElement(Field, Object.assign({}, config, fieldProps, {
-        render: function render($fieldutil) {
-          return React__default.createElement(WrappedComponent, Object.assign({}, others, {
+
+        _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(WithField)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+        _this.renderChildren = function ($fieldutil) {
+          return React__default.createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
             $fieldutil: $fieldutil,
-            ref: ref
+            ref: _this.props.__forwardRef__
+          }));
+        };
+
+        return _this;
+      }
+
+      _createClass(WithField, [{
+        key: "render",
+        value: function render() {
+          var others = Object.assign({}, this.props); // component优先级最高，这里排除掉, 避免和render属性冲突
+
+          var _this$props = this.props,
+              component = _this$props.component,
+              fieldProps = _objectWithoutProperties(_this$props, ["component"]);
+
+          filterProps$1.concat(Object.keys(_objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
+            if (prop in others) {
+              if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
+                fieldProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
+              }
+
+              delete others[prop];
+            }
+          });
+          this.othersProps = others;
+          return React__default.createElement(Field, Object.assign({}, config, fieldProps, {
+            render: this.renderChildren
           }));
         }
-      }));
+      }]);
+
+      return WithField;
+    }(React.Component);
+
+    WithField.displayName = 'React.Formutil.withField.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+    var ForwardRefField = React.forwardRef(function (props, ref) {
+      return React__default.createElement(WithField, Object.assign({
+        __forwardRef__: ref
+      }, props));
     });
-    FieldEnhanced.displayName = 'React.Formutil.withField.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
-    return hoistNonReactStatics_cjs(FieldEnhanced, WrappedComponent);
+    ForwardRefField.displayName = 'React.Formutil.withField.ForwardRef.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
+    return hoistNonReactStatics_cjs(ForwardRefField, WrappedComponent);
   }
 
   var withField$1 = createHOC(withField);
@@ -3040,11 +3114,12 @@
         $validators = fieldProps.$validators,
         $asyncValidators = fieldProps.$asyncValidators,
         $validateLazy = fieldProps.$validateLazy,
+        $renderLazy = fieldProps.$renderLazy,
         $reserveOnUnmount = fieldProps.$reserveOnUnmount,
         $parser = fieldProps.$parser,
         $formatter = fieldProps.$formatter,
         $ref = fieldProps.$ref,
-        childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
+        childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$renderLazy", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
 
     var renderProps = {
       children: children,
@@ -3149,10 +3224,10 @@
       renderProps: renderProps
     };
   }
-  function renderField$1($handleProps, props) {
-    var component = props.component,
-        render = props.render,
-        children = props.children;
+  function renderField$1($handleProps, renderprops) {
+    var component = renderprops.component,
+        render = renderprops.render,
+        children = renderprops.children;
 
     if (component) {
       return React.createElement(component, $handleProps);
@@ -3183,23 +3258,38 @@
     _inherits(EasyField, _Component);
 
     function EasyField() {
+      var _getPrototypeOf2;
+
+      var _this;
+
       _classCallCheck(this, EasyField);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(EasyField).apply(this, arguments));
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(EasyField)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+      _this.renderChildren = function ($fieldutil) {
+        var _this$parsedProps = _this.parsedProps,
+            fieldProps = _this$parsedProps.fieldProps,
+            childProps = _this$parsedProps.childProps,
+            renderProps = _this$parsedProps.renderProps;
+        return renderField$1(createHandler$1($fieldutil, fieldProps, childProps), renderProps);
+      };
+
+      _this.parsedProps = {};
+      return _this;
     }
 
     _createClass(EasyField, [{
       key: "render",
       value: function render() {
-        var _parseProps = parseProps(this.props),
-            fieldProps = _parseProps.fieldProps,
-            childProps = _parseProps.childProps,
-            renderProps = _parseProps.renderProps;
+        var _this$parsedProps2 = this.parsedProps = parseProps(this.props),
+            fieldProps = _this$parsedProps2.fieldProps;
 
         return React__default.createElement(Field, Object.assign({}, fieldProps, {
-          children: function children($fieldutil) {
-            return renderField$1(createHandler$1($fieldutil, fieldProps, childProps), renderProps);
-          }
+          children: this.renderChildren
         }));
       }
     }]);
@@ -3210,55 +3300,6 @@
   EasyField.displayName = displayName$1;
   EasyField.propTypes = propTypes$2;
   EasyField.defaultProps = defaultProps;
-
-  var LazyRender = /*#__PURE__*/function (_Component) {
-    _inherits(LazyRender, _Component);
-
-    function LazyRender() {
-      _classCallCheck(this, LazyRender);
-
-      return _possibleConstructorReturn(this, _getPrototypeOf(LazyRender).apply(this, arguments));
-    }
-
-    _createClass(LazyRender, [{
-      key: "shouldComponentUpdate",
-      value: function shouldComponentUpdate(nextProps) {
-        var pureNextProps = LazyRender.pruneProps(nextProps);
-        var pureProps = LazyRender.pruneProps(this.props);
-        return !_reactFastCompare_2_0_4_reactFastCompare(pureNextProps, pureProps);
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this$props = this.props,
-            $component = _this$props.$component,
-            $pruneProps = _this$props.$pruneProps,
-            props = _objectWithoutProperties(_this$props, ["$component", "$pruneProps"]);
-
-        if (_reactIs_16_13_0_reactIs_1($component)) return React.createElement($component, props);
-        return null;
-      }
-    }]);
-
-    return LazyRender;
-  }(React.Component);
-
-  LazyRender.displayName = 'React.Formutil.LazyRender';
-  LazyRender.propTypes = {
-    $component: PropTypes.elementType.isRequired,
-    $pruneProps: PropTypes.arrayOf(PropTypes.string)
-  };
-  LazyRender.defaultProps = {
-    $pruneProps: []
-  };
-
-  LazyRender.pruneProps = function (_ref) {
-    var props = Object.assign({}, _ref);
-    props.$pruneProps.forEach(function (key) {
-      delete props[key];
-    });
-    return props;
-  };
 
   function connect(WrappedComponent) {
     var Connect = React.forwardRef(function (props, ref) {
@@ -3442,7 +3483,6 @@
   exports.EasyField = EasyField;
   exports.Field = Field;
   exports.Form = Form;
-  exports.LazyRender = LazyRender;
   exports.connect = connect;
   exports.formContext = FormContext;
   exports.useField = useField;

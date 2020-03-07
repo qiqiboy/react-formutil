@@ -643,10 +643,3 @@ export interface FormContext<T = any, Fields = any, Validators = any, WeakFields
 }
 
 export const formContext: React.Context<() => FormContext>;
-
-export interface LazyRenderProps<T> {
-    $component: T;
-    $pruneProps?: string[];
-}
-
-export class LazyRender<T extends React.ElementType> extends React.Component<LazyRenderProps<T> & OtherKeys> {}

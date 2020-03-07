@@ -199,6 +199,7 @@ export interface BaseFieldComponentProps<T = string, P = any, Fields = any, Weak
     $validators?: Validators<T, Fields, P, WeakFields>;
     $asyncValidators?: never;
     $validateLazy?: boolean;
+    $renderLazy?: boolean;
     $reserveOnUnmount?: boolean;
     $parser?: (($viewValue: any, $setViewValue: ($newViewValue: any) => any) => T) | null;
     $formatter?: (($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any) | null;
@@ -641,4 +642,11 @@ export interface FormContext<T = any, Fields = any, Validators = any, WeakFields
     $formutil: $Formutil<Fields, Validators, WeakFields>;
 }
 
-export const formContext: React.Context<FormContext>;
+export const formContext: React.Context<() => FormContext>;
+
+export interface LazyRenderProps<T> {
+    $component: T;
+    $pruneProps?: string[];
+}
+
+export class LazyRender<T extends React.ElementType> extends React.Component<LazyRenderProps<T> & OtherKeys> {}

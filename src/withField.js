@@ -2,25 +2,17 @@ import React, { forwardRef } from 'react';
 import Field from './Field';
 import { createHOC } from './utils';
 import hoistStatics from 'hoist-non-react-statics';
+import { propTypes } from './fieldHelper';
+
+const filterProps = Object.keys(propTypes);
 
 function withField(WrappedComponent, config = {}) {
     const FieldEnhanced = forwardRef((props, ref) => {
         const { ...others } = props;
+        // component优先级最高，这里排除掉, 避免和render属性冲突
         const { component, ...fieldProps } = props;
 
-        [
-            '$validators',
-            '$asyncValidators',
-            '$validateLazy',
-            '$reserveOnUnmount',
-            '$defaultValue',
-            '$defaultState',
-            '$onFieldChange',
-            '$parser',
-            '$formatter',
-            '$ref',
-            'name'
-        ]
+        filterProps
             .concat(
                 Object.keys({
                     ...config.$validators,

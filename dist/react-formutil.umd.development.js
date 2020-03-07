@@ -205,7 +205,9 @@
     if (superClass) _setPrototypeOf(subClass, superClass);
   }
 
-  var FormContext = React.createContext({});
+  var FormContext = React.createContext(function () {
+    return {};
+  });
 
   function createCommonjsModule(fn, module) {
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
@@ -741,6 +743,32 @@
     cancelFrame = clearTimeout;
   }
 
+  var propTypes = {
+    render: PropTypes.func,
+    component: checkComponentPropType,
+    children: function children(props) {
+      var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+
+      if (!props.render && !props.component) {
+        pt = pt.isRequired;
+      }
+
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      return pt.apply(void 0, [props].concat(args));
+    },
+    $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $onFormChange: PropTypes.func,
+    $validator: PropTypes.func,
+    $processer: PropTypes.func,
+    $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
+      current: PropTypes.any
+    })])
+  };
+
   var Form = /*#__PURE__*/function (_Component) {
     _inherits(Form, _Component);
 
@@ -754,6 +782,18 @@
       _this.$$formValidatePromise = void 0;
       _this.$$registers = {};
       _this.$$deepRegisters = {};
+
+      _this.getFormContext = function () {
+        return {
+          $$registers: _this.$$registers,
+          $$register: _this.$$register,
+          $$unregister: _this.$$unregister,
+          $$onChange: _this.$$onChange,
+          $$getDefault: _this.$$getDefault,
+          $formutil: _this.$formutil
+        };
+      };
+
       _this.$$regDuplications = {};
       _this.$$duplicateTimer = void 0;
 
@@ -1069,8 +1109,8 @@
       _this.$validates = function () {
         var callback;
 
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
+        for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
         }
 
         if (isFunction(args[args.length - 1])) {
@@ -1238,18 +1278,6 @@
     }
 
     _createClass(Form, [{
-      key: "getFormContext",
-      value: function getFormContext() {
-        return {
-          $$registers: this.$$registers,
-          $$register: this.$$register,
-          $$unregister: this.$$unregister,
-          $$onChange: this.$$onChange,
-          $$getDefault: this.$$getDefault,
-          $formutil: this.$formutil
-        };
-      }
-    }, {
       key: "$$deepParseObject",
       value: function $$deepParseObject(mayWeakObj) {
         var deepObj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -1477,7 +1505,7 @@
           $pending: $pending
         };
         return React__default.createElement(FormContext.Provider, {
-          value: this.getFormContext()
+          value: this.getFormContext
         }, this._render());
       }
     }]);
@@ -1486,31 +1514,7 @@
   }(React.Component);
 
   Form.displayName = 'React.Formutil.Form';
-  Form.propTypes = {
-    render: PropTypes.func,
-    component: checkComponentPropType,
-    children: function children(props) {
-      var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-
-      if (!props.render && !props.component) {
-        pt = pt.isRequired;
-      }
-
-      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-        args[_key2 - 1] = arguments[_key2];
-      }
-
-      return pt.apply(void 0, [props].concat(args));
-    },
-    $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $onFormChange: PropTypes.func,
-    $validator: PropTypes.func,
-    $processer: PropTypes.func,
-    $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
-      current: PropTypes.any
-    })])
-  };
+  Form.propTypes = propTypes;
   Form.defaultProps = {
     $defaultValues: {},
     $defaultStates: {}
@@ -1650,15 +1654,17 @@
 
   var hoistNonReactStatics_cjs = hoistNonReactStatics;
 
+  var filterProps = Object.keys(propTypes);
+
   function withForm(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     var FormEnhanced = React.forwardRef(function (props, ref) {
-      var others = Object.assign({}, props);
+      var others = Object.assign({}, props); // component优先级最高，这里排除掉, 避免和render属性冲突
 
       var component = props.component,
           formProps = _objectWithoutProperties(props, ["component"]);
 
-      ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer', '$ref'].forEach(function (prop) {
+      filterProps.forEach(function (prop) {
         if (prop in others) {
           if (prop === '$defaultStates' || prop === '$defaultValues') {
             formProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
@@ -1706,7 +1712,7 @@
     warning_1(!isUndefined(result), "You should return a string or Error when the validation('".concat(name && name + ': ').concat(key, "') failed, otherwise return true."));
   }
 
-  var propTypes =  {
+  var propTypes$1 =  {
     name: PropTypes.string,
     $defaultValue: PropTypes.any,
     $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
@@ -1714,6 +1720,7 @@
     $validators: PropTypes.object,
     $asyncValidators: PropTypes.object,
     $validateLazy: PropTypes.bool,
+    $renderLazy: PropTypes.bool,
     $reserveOnUnmount: PropTypes.bool,
     $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
       current: PropTypes.any
@@ -2071,6 +2078,99 @@
     return $fieldHandler;
   }
 
+  var isArray = Array.isArray;
+  var keyList = Object.keys;
+  var hasProp = Object.prototype.hasOwnProperty;
+  var hasElementType = typeof Element !== 'undefined';
+
+  function equal(a, b) {
+    // fast-deep-equal index.js 2.0.1
+    if (a === b) return true;
+
+    if (a && b && typeof a == 'object' && typeof b == 'object') {
+      var arrA = isArray(a)
+        , arrB = isArray(b)
+        , i
+        , length
+        , key;
+
+      if (arrA && arrB) {
+        length = a.length;
+        if (length != b.length) return false;
+        for (i = length; i-- !== 0;)
+          if (!equal(a[i], b[i])) return false;
+        return true;
+      }
+
+      if (arrA != arrB) return false;
+
+      var dateA = a instanceof Date
+        , dateB = b instanceof Date;
+      if (dateA != dateB) return false;
+      if (dateA && dateB) return a.getTime() == b.getTime();
+
+      var regexpA = a instanceof RegExp
+        , regexpB = b instanceof RegExp;
+      if (regexpA != regexpB) return false;
+      if (regexpA && regexpB) return a.toString() == b.toString();
+
+      var keys = keyList(a);
+      length = keys.length;
+
+      if (length !== keyList(b).length)
+        return false;
+
+      for (i = length; i-- !== 0;)
+        if (!hasProp.call(b, keys[i])) return false;
+      // end fast-deep-equal
+
+      // start react-fast-compare
+      // custom handling for DOM elements
+      if (hasElementType && a instanceof Element && b instanceof Element)
+        return a === b;
+
+      // custom handling for React
+      for (i = length; i-- !== 0;) {
+        key = keys[i];
+        if (key === '_owner' && a.$$typeof) {
+          // React-specific: avoid traversing React elements' _owner.
+          //  _owner contains circular references
+          // and is not needed when comparing the actual elements (and not their owners)
+          // .$$typeof and ._store on just reasonable markers of a react element
+          continue;
+        } else {
+          // all other properties should be traversed as usual
+          if (!equal(a[key], b[key])) return false;
+        }
+      }
+      // end react-fast-compare
+
+      // fast-deep-equal index.js 2.0.1
+      return true;
+    }
+
+    return a !== a && b !== b;
+  }
+  // end fast-deep-equal
+
+  var _reactFastCompare_2_0_4_reactFastCompare = function exportedEqual(a, b) {
+    try {
+      return equal(a, b);
+    } catch (error) {
+      if ((error.message && error.message.match(/stack|recursion/i)) || (error.number === -2146828260)) {
+        // warn on circular references, don't crash
+        // browsers give this different errors name and messages:
+        // chrome/safari: "RangeError", "Maximum call stack size exceeded"
+        // firefox: "InternalError", too much recursion"
+        // edge: "Error", "Out of stack space"
+        console.warn('Warning: react-fast-compare does not handle circular references.', error.name, error.message);
+        return false;
+      }
+      // some other error. we should definitely know about these
+      throw error;
+    }
+  };
+
   var Field = /*#__PURE__*/function (_Component) {
     _inherits(Field, _Component);
 
@@ -2132,7 +2232,7 @@
           $formContext.$$register($name, this.$fieldHandler);
         }
 
-        this.$prevValue = this.$state.$value;
+        this.$prevState = this.$state;
         createRef(this.props.$ref, this.$fieldutil);
       }
     }, {
@@ -2158,16 +2258,25 @@
 
         createRef(this.props.$ref, this.$fieldutil);
 
-        if (this.$state.$value !== this.$prevValue) {
+        if (this.$state.$value !== this.$prevState.$value) {
           if (!($name in (this.$formContext.$$registers || {}))) {
             this.$registered.$$triggerChange({
               $newValue: this.$state.$value,
-              $prevValue: this.$prevValue
+              $prevValue: this.$prevState.$value
             });
           }
-
-          this.$prevValue = this.$state.$value;
         }
+
+        this.$prevState = this.$state;
+      }
+    }, {
+      key: "shouldComponentUpdate",
+      value: function shouldComponentUpdate(nextProps) {
+        if (this.props.$renderLazy) {
+          return !_reactFastCompare_2_0_4_reactFastCompare(nextProps, this.props) || !_reactFastCompare_2_0_4_reactFastCompare(this.$registered.$getState(), this.$prevState);
+        }
+
+        return true;
       }
     }, {
       key: "_render",
@@ -2185,15 +2294,15 @@
       value: function render() {
         var _this2 = this;
 
-        return React__default.createElement(FormContext.Consumer, null, function (context) {
+        return React__default.createElement(FormContext.Consumer, null, function (getFormContext) {
           var shouldInitial = !_this2.$formContext;
-          _this2.$formContext = context;
+          _this2.$formContext = getFormContext();
 
           if (!_this2.$fieldHandler) {
             _this2.$fieldHandler = createHandler(_this2, _this2);
           }
 
-          _this2.$registered = (context.$$registers || {})[_this2.$fieldHandler.$name] || _this2.$fieldHandler;
+          _this2.$registered = (_this2.$formContext.$$registers || {})[_this2.$fieldHandler.$name] || _this2.$fieldHandler;
 
           if (shouldInitial) {
             _this2.$fieldHandler.$$reset();
@@ -2210,17 +2319,19 @@
   }(React.Component);
 
   Field.displayName = displayName;
-  Field.propTypes = propTypes;
+  Field.propTypes = propTypes$1;
+
+  var filterProps$1 = Object.keys(propTypes$1);
 
   function withField(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     var FieldEnhanced = React.forwardRef(function (props, ref) {
-      var others = Object.assign({}, props);
+      var others = Object.assign({}, props); // component优先级最高，这里排除掉, 避免和render属性冲突
 
       var component = props.component,
           fieldProps = _objectWithoutProperties(props, ["component"]);
 
-      ['$validators', '$asyncValidators', '$validateLazy', '$reserveOnUnmount', '$defaultValue', '$defaultState', '$onFieldChange', '$parser', '$formatter', '$ref', 'name'].concat(Object.keys(_objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
+      filterProps$1.concat(Object.keys(_objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
         if (prop in others) {
           if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
             fieldProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
@@ -2358,7 +2469,9 @@
 
   /** @type {any} */
 
-  var _createContext = React.createContext({}),
+  var _createContext = React.createContext(function () {
+    return {};
+  }),
       Provider = _createContext.Provider,
       Consumer = _createContext.Consumer;
 
@@ -2366,17 +2479,26 @@
     _inherits(EasyFieldGroup, _Component);
 
     function EasyFieldGroup() {
+      var _getPrototypeOf2;
+
+      var _this;
+
       _classCallCheck(this, EasyFieldGroup);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(EasyFieldGroup).apply(this, arguments));
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(EasyFieldGroup)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+      _this.getGroupContext = function () {
+        return _this.props;
+      };
+
+      return _this;
     }
 
     _createClass(EasyFieldGroup, [{
-      key: "getGroupContext",
-      value: function getGroupContext() {
-        return this.props;
-      }
-    }, {
       key: "_render",
       value: function _render() {
         var _this$props = this.props,
@@ -2403,7 +2525,7 @@
       key: "render",
       value: function render() {
         return React__default.createElement(Provider, {
-          value: this.getGroupContext()
+          value: this.getGroupContext
         }, this._render());
       }
     }]);
@@ -2451,7 +2573,8 @@
             _onBlur = _this$props2.onBlur,
             others = _objectWithoutProperties(_this$props2, ["$value", "onChange", "onFocus", "onBlur"]);
 
-        return React__default.createElement(Consumer, null, function ($groupHandler) {
+        return React__default.createElement(Consumer, null, function (getGroupContext) {
+          var $groupHandler = getGroupContext();
           var type = $groupHandler.type,
               name = $groupHandler.name;
           var elemProps = type === 'radio' ? {
@@ -2525,99 +2648,6 @@
   }(React.Component);
 
   DeprecatedEasyFieldGroupOption.displayName = 'React.Formutil.EasyField.Group.Option.Deprecated';
-
-  var isArray = Array.isArray;
-  var keyList = Object.keys;
-  var hasProp = Object.prototype.hasOwnProperty;
-  var hasElementType = typeof Element !== 'undefined';
-
-  function equal(a, b) {
-    // fast-deep-equal index.js 2.0.1
-    if (a === b) return true;
-
-    if (a && b && typeof a == 'object' && typeof b == 'object') {
-      var arrA = isArray(a)
-        , arrB = isArray(b)
-        , i
-        , length
-        , key;
-
-      if (arrA && arrB) {
-        length = a.length;
-        if (length != b.length) return false;
-        for (i = length; i-- !== 0;)
-          if (!equal(a[i], b[i])) return false;
-        return true;
-      }
-
-      if (arrA != arrB) return false;
-
-      var dateA = a instanceof Date
-        , dateB = b instanceof Date;
-      if (dateA != dateB) return false;
-      if (dateA && dateB) return a.getTime() == b.getTime();
-
-      var regexpA = a instanceof RegExp
-        , regexpB = b instanceof RegExp;
-      if (regexpA != regexpB) return false;
-      if (regexpA && regexpB) return a.toString() == b.toString();
-
-      var keys = keyList(a);
-      length = keys.length;
-
-      if (length !== keyList(b).length)
-        return false;
-
-      for (i = length; i-- !== 0;)
-        if (!hasProp.call(b, keys[i])) return false;
-      // end fast-deep-equal
-
-      // start react-fast-compare
-      // custom handling for DOM elements
-      if (hasElementType && a instanceof Element && b instanceof Element)
-        return a === b;
-
-      // custom handling for React
-      for (i = length; i-- !== 0;) {
-        key = keys[i];
-        if (key === '_owner' && a.$$typeof) {
-          // React-specific: avoid traversing React elements' _owner.
-          //  _owner contains circular references
-          // and is not needed when comparing the actual elements (and not their owners)
-          // .$$typeof and ._store on just reasonable markers of a react element
-          continue;
-        } else {
-          // all other properties should be traversed as usual
-          if (!equal(a[key], b[key])) return false;
-        }
-      }
-      // end react-fast-compare
-
-      // fast-deep-equal index.js 2.0.1
-      return true;
-    }
-
-    return a !== a && b !== b;
-  }
-  // end fast-deep-equal
-
-  var _reactFastCompare_2_0_4_reactFastCompare = function exportedEqual(a, b) {
-    try {
-      return equal(a, b);
-    } catch (error) {
-      if ((error.message && error.message.match(/stack|recursion/i)) || (error.number === -2146828260)) {
-        // warn on circular references, don't crash
-        // browsers give this different errors name and messages:
-        // chrome/safari: "RangeError", "Maximum call stack size exceeded"
-        // firefox: "InternalError", too much recursion"
-        // edge: "Error", "Out of stack space"
-        console.warn('Warning: react-fast-compare does not handle circular references.', error.name, error.message);
-        return false;
-      }
-      // some other error. we should definitely know about these
-      throw error;
-    }
-  };
 
   var Wrapper = React__default.Frament || 'div';
 
@@ -2908,7 +2938,7 @@
 
     return $validators;
   }, {});
-  var propTypes$1 =  {
+  var propTypes$2 =  {
     type: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
     component: checkComponentPropType,
@@ -3178,14 +3208,63 @@
   }(React.Component);
 
   EasyField.displayName = displayName$1;
-  EasyField.propTypes = propTypes$1;
+  EasyField.propTypes = propTypes$2;
   EasyField.defaultProps = defaultProps;
+
+  var LazyRender = /*#__PURE__*/function (_Component) {
+    _inherits(LazyRender, _Component);
+
+    function LazyRender() {
+      _classCallCheck(this, LazyRender);
+
+      return _possibleConstructorReturn(this, _getPrototypeOf(LazyRender).apply(this, arguments));
+    }
+
+    _createClass(LazyRender, [{
+      key: "shouldComponentUpdate",
+      value: function shouldComponentUpdate(nextProps) {
+        var pureNextProps = LazyRender.pruneProps(nextProps);
+        var pureProps = LazyRender.pruneProps(this.props);
+        return !_reactFastCompare_2_0_4_reactFastCompare(pureNextProps, pureProps);
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this$props = this.props,
+            $component = _this$props.$component,
+            $pruneProps = _this$props.$pruneProps,
+            props = _objectWithoutProperties(_this$props, ["$component", "$pruneProps"]);
+
+        if (_reactIs_16_13_0_reactIs_1($component)) return React.createElement($component, props);
+        return null;
+      }
+    }]);
+
+    return LazyRender;
+  }(React.Component);
+
+  LazyRender.displayName = 'React.Formutil.LazyRender';
+  LazyRender.propTypes = {
+    $component: PropTypes.elementType.isRequired,
+    $pruneProps: PropTypes.arrayOf(PropTypes.string)
+  };
+  LazyRender.defaultProps = {
+    $pruneProps: []
+  };
+
+  LazyRender.pruneProps = function (_ref) {
+    var props = Object.assign({}, _ref);
+    props.$pruneProps.forEach(function (key) {
+      delete props[key];
+    });
+    return props;
+  };
 
   function connect(WrappedComponent) {
     var Connect = React.forwardRef(function (props, ref) {
-      return React__default.createElement(FormContext.Consumer, null, function (context) {
+      return React__default.createElement(FormContext.Consumer, null, function (getFormContext) {
         return React__default.createElement(WrappedComponent, Object.assign({}, props, {
-          $formutil: context.$formutil,
+          $formutil: getFormContext().$formutil,
           ref: ref
         }));
       });
@@ -3200,8 +3279,8 @@
     }
 
     var useContext = React__default.useContext;
-    var $formContext = useContext(FormContext);
-    return $formContext;
+    var getFormContext = useContext(FormContext);
+    return getFormContext();
   }
 
   /**
@@ -3267,15 +3346,14 @@
 
       if ($this.isMounting) {
         if (!($name in ($formContext.$$registers || {}))) {
-          var $prevValue = $this.$prevValue;
           $registered.$$triggerChange({
             $newValue: $state.$value,
-            $prevValue: $prevValue
+            $prevValue: $this.$prevState.$value
           });
         }
       }
 
-      $this.$prevValue = $state.$value; // eslint-disable-next-line
+      $this.$prevState = $state; // eslint-disable-next-line
     }, [$this.$state.$value]);
     useLayoutEffect(function () {
       $this.isMounting = true;
@@ -3364,6 +3442,7 @@
   exports.EasyField = EasyField;
   exports.Field = Field;
   exports.Form = Form;
+  exports.LazyRender = LazyRender;
   exports.connect = connect;
   exports.formContext = FormContext;
   exports.useField = useField;

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createHandler, GET_FIELD_UUID, propTypes, displayName, renderField } from './fieldHelper';
 import FormContext from './context';
 import warning from 'warning';
+import isEqual from 'react-fast-compare';
 import { runCallback, createRef } from './utils';
 
 class Field extends Component {
@@ -34,7 +35,7 @@ class Field extends Component {
             $formContext.$$register($name, this.$fieldHandler);
         }
 
-        this.$prevValue = this.$state.$value;
+        this.$prevState = this.$state;
 
         createRef(this.props.$ref, this.$fieldutil);
     }
@@ -60,16 +61,24 @@ class Field extends Component {
 
         createRef(this.props.$ref, this.$fieldutil);
 
-        if (this.$state.$value !== this.$prevValue) {
+        if (this.$state.$value !== this.$prevState.$value) {
             if (!($name in (this.$formContext.$$registers || {}))) {
                 this.$registered.$$triggerChange({
                     $newValue: this.$state.$value,
-                    $prevValue: this.$prevValue
+                    $prevValue: this.$prevState.$value
                 });
             }
-
-            this.$prevValue = this.$state.$value;
         }
+
+        this.$prevState = this.$state;
+    }
+
+    shouldComponentUpdate(nextProps) {
+        if (this.props.$renderLazy) {
+            return !isEqual(nextProps, this.props) || !isEqual(this.$registered.$getState(), this.$prevState);
+        }
+
+        return true;
     }
 
     $setState = ($newState, callback) =>
@@ -108,16 +117,17 @@ class Field extends Component {
     render() {
         return (
             <FormContext.Consumer>
-                {context => {
+                {getFormContext => {
                     const shouldInitial = !this.$formContext;
 
-                    this.$formContext = context;
+                    this.$formContext = getFormContext();
 
                     if (!this.$fieldHandler) {
                         this.$fieldHandler = createHandler(this, this);
                     }
 
-                    this.$registered = (context.$$registers || {})[this.$fieldHandler.$name] || this.$fieldHandler;
+                    this.$registered =
+                        (this.$formContext.$$registers || {})[this.$fieldHandler.$name] || this.$fieldHandler;
 
                     if (shouldInitial) {
                         this.$fieldHandler.$$reset();

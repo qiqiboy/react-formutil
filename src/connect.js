@@ -6,7 +6,7 @@ function connect(WrappedComponent) {
     const Connect = forwardRef((props, ref) => {
         return (
             <FormContext.Consumer>
-                {context => <WrappedComponent {...props} $formutil={context.$formutil} ref={ref} />}
+                {getFormContext => <WrappedComponent {...props} $formutil={getFormContext().$formutil} ref={ref} />}
             </FormContext.Consumer>
         );
     });

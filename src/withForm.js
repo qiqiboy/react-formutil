@@ -1,14 +1,17 @@
 import React, { forwardRef } from 'react';
-import Form from './Form';
+import Form, { propTypes } from './Form';
 import { createHOC } from './utils';
 import hoistStatics from 'hoist-non-react-statics';
+
+const filterProps = Object.keys(propTypes);
 
 function withForm(WrappedComponent, config = {}) {
     const FormEnhanced = forwardRef((props, ref) => {
         const { ...others } = props;
+        // component优先级最高，这里排除掉, 避免和render属性冲突
         const { component, ...formProps } = props;
 
-        ['$defaultStates', '$defaultValues', '$onFormChange', '$validator', '$processer', '$ref'].forEach(prop => {
+        filterProps.forEach(prop => {
             if (prop in others) {
                 if (prop === '$defaultStates' || prop === '$defaultValues') {
                     formProps[prop] = { ...config[prop], ...others[prop] };

@@ -16,33 +16,35 @@ if (typeof requestAnimationFrame === 'function') {
     cancelFrame = clearTimeout;
 }
 
+export const propTypes = {
+    render: PropTypes.func,
+    component: utils.checkComponentPropType,
+    children(props, ...args) {
+        let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+
+        if (!props.render && !props.component) {
+            pt = pt.isRequired;
+        }
+
+        return pt(props, ...args);
+    },
+    $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $onFormChange: PropTypes.func,
+    $validator: PropTypes.func,
+    $processer: PropTypes.func,
+    $ref: PropTypes.oneOfType([
+        PropTypes.func,
+        PropTypes.shape({
+            current: PropTypes.any
+        })
+    ])
+};
+
 class Form extends Component {
     static displayName = 'React.Formutil.Form';
 
-    static propTypes = {
-        render: PropTypes.func,
-        component: utils.checkComponentPropType,
-        children(props, ...args) {
-            let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-
-            if (!props.render && !props.component) {
-                pt = pt.isRequired;
-            }
-
-            return pt(props, ...args);
-        },
-        $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-        $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-        $onFormChange: PropTypes.func,
-        $validator: PropTypes.func,
-        $processer: PropTypes.func,
-        $ref: PropTypes.oneOfType([
-            PropTypes.func,
-            PropTypes.shape({
-                current: PropTypes.any
-            })
-        ])
-    };
+    static propTypes = propTypes;
 
     static defaultProps = {
         $defaultValues: {},
@@ -61,16 +63,14 @@ class Form extends Component {
         this.$$defaultInitialize();
     }
 
-    getFormContext() {
-        return {
-            $$registers: this.$$registers,
-            $$register: this.$$register,
-            $$unregister: this.$$unregister,
-            $$onChange: this.$$onChange,
-            $$getDefault: this.$$getDefault,
-            $formutil: this.$formutil
-        };
-    }
+    getFormContext = () => ({
+        $$registers: this.$$registers,
+        $$register: this.$$register,
+        $$unregister: this.$$unregister,
+        $$onChange: this.$$onChange,
+        $$getDefault: this.$$getDefault,
+        $formutil: this.$formutil
+    });
 
     $$regDuplications = {};
     $$duplicateTimer;
@@ -687,7 +687,7 @@ class Form extends Component {
             $pending
         });
 
-        return <FormContext.Provider value={this.getFormContext()}>{this._render()}</FormContext.Provider>;
+        return <FormContext.Provider value={this.getFormContext}>{this._render()}</FormContext.Provider>;
     }
 }
 

@@ -7,9 +7,9 @@ function useFormContext() {
     }
 
     const { useContext } = React;
-    const $formContext = useContext(FormContext);
+    const getFormContext = useContext(FormContext);
 
-    return $formContext;
+    return getFormContext();
 }
 
 export default useFormContext;

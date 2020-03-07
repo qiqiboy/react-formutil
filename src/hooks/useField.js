@@ -66,16 +66,14 @@ function useField(name, props = {}) {
 
         if ($this.isMounting) {
             if (!($name in ($formContext.$$registers || {}))) {
-                const { $prevValue } = $this;
-
                 $registered.$$triggerChange({
                     $newValue: $state.$value,
-                    $prevValue
+                    $prevValue: $this.$prevState.$value
                 });
             }
         }
 
-        $this.$prevValue = $state.$value;
+        $this.$prevState = $state;
         // eslint-disable-next-line
     }, [$this.$state.$value]);
 

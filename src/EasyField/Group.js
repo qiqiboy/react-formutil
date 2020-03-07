@@ -4,7 +4,7 @@ import { isFunction } from '../utils';
 import warning from 'warning';
 
 /** @type {any} */
-const { Provider, Consumer } = createContext({});
+const { Provider, Consumer } = createContext(() => ({}));
 
 class EasyFieldGroup extends Component {
     static displayName = 'React.Formutil.EasyField.Group';
@@ -26,9 +26,7 @@ class EasyFieldGroup extends Component {
         groupNode: 'div'
     };
 
-    getGroupContext() {
-        return this.props;
-    }
+    getGroupContext = () => this.props;
 
     _render() {
         const { className, groupNode: Element, children } = this.props;
@@ -50,7 +48,7 @@ class EasyFieldGroup extends Component {
     }
 
     render() {
-        return <Provider value={this.getGroupContext()}>{this._render()}</Provider>;
+        return <Provider value={this.getGroupContext}>{this._render()}</Provider>;
     }
 }
 
@@ -70,7 +68,8 @@ class EasyFieldGroupOption extends Component {
 
         return (
             <Consumer>
-                {$groupHandler => {
+                {getGroupContext => {
+                    const $groupHandler = getGroupContext();
                     const { type, name } = $groupHandler;
 
                     const elemProps =

@@ -140,7 +140,7 @@ export function parseProps(props) {
         $validators,
         $asyncValidators,
         $validateLazy,
-        $renderLazy,
+        $memo,
         $reserveOnUnmount,
         $parser,
         $formatter,

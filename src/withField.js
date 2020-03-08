@@ -12,7 +12,7 @@ const filterProps = [
     '$validators',
     '$asyncValidators',
     '$validateLazy',
-    '$renderLazy',
+    '$memo',
     '$reserveOnUnmount',
     '$ref',
     '$parserc',

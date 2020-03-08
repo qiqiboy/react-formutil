@@ -49,7 +49,7 @@ Happy to build the forms in React ^\_^
         + [`$validators`](#validators)
         + [~~`$asyncValidators`~~](#asyncvalidators)
         + [`$validateLazy`](#validatelazy)
-        + [`$renderLazy`](#renderlazy)
+        + [`$memo`](#memo)
         + [`$onFieldChange`](#onfieldchange)
         + [`$reserveOnUnmount`](#reserveonunmount)
         + [`$parser`](#parser)
@@ -470,9 +470,36 @@ yarn add react-formutil@0.4
 >
 > 如果仅仅是对个别 Field 做校验，我们更加建议将多个校验规则，在一个校验函数里实现！这样可以更加自由的设定校验顺序以及逻辑。
 
-#### `$renderLazy`
+#### `$memo`
 
 > 该属性为 `v1.0.0` 新增。
+
+```typescript
+type $memo = boolean | any[];
+
+// false 默认值, 即不启用渲染优化
+// true 启用渲染优化，深度比较Field的所有props和自身状态
+// any[] 启用渲染优化，深度比较$memo依赖项数组和自身状态
+```
+
+**第一原则**
+
+> **If the slowdown is noticeable?**
+> 是否遇到了明显的应用性能下降?
+
+你可能并不需要`$memo`。
+
+`react-formutil`与其它追求表单性能的表单库不一样，它被设计为全局状态实时更新渲染，意在强调自然、易用、响应式，避免使用时额外的心智负担。大多数情况下，简单的表单的性能是刻意满足需求的，那么就不需要可以去优化。
+
+与任何会影响 react 本身渲染过程的优化手段`shouldComponentUpdate` `PureComponent` `React.memo`等一样，都可能导致组件产生一些难以发现、追踪的运行 bug，或者导致未来的维护产生不易察觉的 bug。因为`$memo`本身也就是使用这些技术达到优化目的。
+
+**第二原则**
+
+> \$memo 应当应用于明显导致性能下降的 Field 组件
+
+一般来说，表单性能变差（例如输入变卡顿），并不一定是当前的 Field 性能差，而是该`Form`下的某个其它组件`rerender`性能较差导致的。应当分析找出这些组件，如果它正好是`Field`组件，那么可以使用`$memo`优化；如果不是`Field`组件，可以使用 [`memo-render`](https://github.com/qiqiboy/memo-render) 优化，或者直接在组件内部使用`shouldComponentUpdate`优化。
+
+**背景**
 
 由于`react-formutil`的理念是表单控制器状态被实时追踪更新，所以当一个`Field`的状态变化，会引起整个`Form`的重新渲染，而这又会导致其它没有状态变化的`Field`也会跟着一起重新渲染。这种设计对于表单副作用相关的场景是友好的，比如`Field`的值可以随意相互依赖、整个表单组件上下文中可以随意自由访问表单控制器等。
 
@@ -480,29 +507,58 @@ yarn add react-formutil@0.4
 
 但是这也不意味着我们没有手段去优化表单性能了，既然单个`Field`变化必然引起整个表单的渲染，那么我们从其它`Field`着手优化即可，即如果可以确认该`Field`不依赖其它表单`Field`，那么只要当它本身的 props 和自身的状态模型没有发生变化，就可以告诉 react 跳过渲染，以达到优化目的。
 
-**而这正是`$renderLazy`的作用和原理！**
+**而这正是`$memo`的作用和原理！**
+
+这里有个简单示例:
 
 ```typescript
 /**
- * 例如，VeryHeavyComponent是一个渲染开销非常大的组件，那么我们通过指定$renderLazy属性，来避免其它非自身Field的变化引起本组件无必要的变动
+ * 例如，VeryHeavyComponent是一个渲染开销非常大的组件，那么我们通过指定$memo属性，来避免其它非自身Field的变化引起本组件无必要的变动
+ * 该例子中，$memo=true的情况下，Field会深度比较自身的props以及自身的state状态，如果没有变化就不会重新渲染。
+ * 但是请注意，如果Field有传递临时函数属性，可以明确通过$memo传递要比较的依赖项数组，请参考下一个示例。否则可能导致负优化，请阅读下方的“陷阱和不当操作”了解更多
  */
-<Field name="username" $renderLazy component={VeryHeavyComponent} />
+<Field name="username" $memo component={VeryHeavyComponent} />
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 这个例子中，因为Field的children属于局部临时函数，所以直接$memo=true也不会产生优化效果，所以我们可以传递一个依赖更新的值数组
+ * 这有些类似Hooks中的useMemo、useCallback的第二个参数作用
+ */
+<Field name="username" $memo={[$formutil.$params.otherFieldValue]}>
+    {$fieldutil => <VeryHeavyComponent someProp={$formutil.$params.otherFieldValue} />}
+</Field>
+
+/**
+ * $memo=[] 则只会在自身Field状态变化时重新渲染！
+ * 该例子中，即使otherFieldValue更新了，这个Field也不会重新渲染！
+ */
+<Field name="username" $memo={[]}>
+    {$fieldutil => <VeryHeavyComponent someProp={$formutil.$params.otherFieldValue} />}
+</Field>
 ```
 
 **一些陷阱和不当操作**
 
-由于函数是无法深度比较(deep diff)的，所以前后渲染时传递的临时函数变量总是会被认为是不想等的，这就会导致`$renderLazy`的深度比较失败，甚至某些情况下导致负向优化，反而加重应用性能下降。
+由于函数是无法深度比较(deep diff)的，所以前后渲染时传递的临时函数变量总是会被认为是不相等的，这就会导致`$memo`的深度比较失败；或者传递了大数据值属性时，深度比较效率较低；这些状况都需要特别注意，不能贸然启用`$memo`，否则某些情况下将会导致负向优化，反而加重应用性能下降。
 
-所以，**传递给 Field 的函数或者较大的数据对象，应当总是使用`memoization`优化，例如绑定到组件实例、使用 `useCallback` `useMemo`等**
+所以，针对以上情况：
+
+-   **当 `Field` 有临时函数属性时，例如`children` `render` `$parser` `$formatter` `$validators`等属性可能存在这种现象**
+    -   方法一，请将这些函数属性使用`memoization`优化，例如绑定到组件实例、使用 `useCallback` `useMemo`等
+    -   方法二，请使用 `$memo={[...]}` 明确指定要比较的可能变动的值依赖项数组，忽略掉这些临时函数属性
+-   **当 `Field` 传递大数据属性时（即数据非常庞大，深度比较非常耗性能），并且其又不会变化，请使用 `$memo={[...]}` 明确指定要比较的可变值依赖项数组**
 
 ```typescript
 /**
  * Bad
  * function children 和$parser都是临时创建的局部函数变量，会导致深度比较总是失败
  */
-<Field name="username" $renderLazy>
+<Field name="username" $memo $parser={value => value.trim()}>
     {$fieldutil => <VeryHeavyComponent value={$fieldutil.$viewValue} onChange={$fieldutil.$render} />}
 </Field>;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Good
@@ -513,13 +569,24 @@ const render = useCallback(
     $fieldutil => <VeryHeavyComponent value={$fieldutil.$viewValue} onChange={$fieldutil.$render} />,
     []
 );
-
-<Field name="username" $renderLazy $parser={$parser}>
+<Field name="username" $memo $parser={$parser}>
     {render}
+</Field>
+
+/**
+ * Good
+ * 也可以明确指定更新依赖值，例如这里确定$parser、children都不依赖其它状态值，直接指定 $memo=[]
+ */
+<Field name="username" $memo={[]} $parser={$parser={value => value.trim()}}>
+    {$fieldutil => <VeryHeavyComponent value={$fieldutil.$viewValue} onChange={$fieldutil.$render} />}
 </Field>;
 ```
 
-最后，小提示：可以使用 chrome 的 React Devtool 的[`Profiler`](https://reactjs.org/blog/2018/09/10/introducing-the-react-profiler.html)面板来测试查看`$renderLazy`优化是否生效，或者分析导致优化失败的 props。
+**其它情况**
+
+`$memo`只能用于`Field`本身的优化，但是如果整个`Form`下有其它非用作表单项的重型组件（即没有嵌套在`Field`下），可以使用 [`memo-render`](https://github.com/qiqiboy/memo-render) 做优化。
+
+最后，小提示：可以使用 chrome 的 React Devtool 的[`Profiler`](https://reactjs.org/blog/2018/09/10/introducing-the-react-profiler.html)面板来测试页面的性能瓶颈；查看`$memo`优化是否生效；分析导致优化失败的 props。
 
 #### `$onFieldChange`
 

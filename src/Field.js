@@ -74,11 +74,13 @@ class Field extends Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        if (this.props.$renderLazy) {
-            return !isEqual(nextProps, this.props) || !isEqual(this.$registered.$getState(), this.$prevState);
-        }
+        const { $memo } = this.props;
 
-        return true;
+        return (
+            !$memo ||
+            !isEqual(this.$registered.$getState(), this.$prevState) ||
+            !(Array.isArray($memo) ? isEqual($memo, nextProps.$memo) : isEqual(this.props, nextProps))
+        );
     }
 
     $setState = ($newState, callback) =>

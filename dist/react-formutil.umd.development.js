@@ -1755,7 +1755,7 @@
     $validators: PropTypes.object,
     $asyncValidators: PropTypes.object,
     $validateLazy: PropTypes.bool,
-    $renderLazy: PropTypes.bool,
+    $memo: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
     $reserveOnUnmount: PropTypes.bool,
     $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
       current: PropTypes.any
@@ -2345,11 +2345,8 @@
     }, {
       key: "shouldComponentUpdate",
       value: function shouldComponentUpdate(nextProps) {
-        if (this.props.$renderLazy) {
-          return !_reactFastCompare_3_0_1_reactFastCompare(nextProps, this.props) || !_reactFastCompare_3_0_1_reactFastCompare(this.$registered.$getState(), this.$prevState);
-        }
-
-        return true;
+        var $memo = this.props.$memo;
+        return !$memo || !_reactFastCompare_3_0_1_reactFastCompare(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? _reactFastCompare_3_0_1_reactFastCompare($memo, nextProps.$memo) : _reactFastCompare_3_0_1_reactFastCompare(this.props, nextProps));
       }
     }, {
       key: "_render",
@@ -2394,7 +2391,7 @@
   Field.displayName = displayName;
   Field.propTypes = propTypes;
 
-  var filterProps$1 = ['name', '$defaultValue', '$defaultState', '$onFieldChange', '$validators', '$asyncValidators', '$validateLazy', '$renderLazy', '$reserveOnUnmount', '$ref', '$parserc', '$formatter', 'render', 'component', 'children'];
+  var filterProps$1 = ['name', '$defaultValue', '$defaultState', '$onFieldChange', '$validators', '$asyncValidators', '$validateLazy', '$memo', '$reserveOnUnmount', '$ref', '$parserc', '$formatter', 'render', 'component', 'children'];
 
   function withField(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -3150,12 +3147,12 @@
         $validators = fieldProps.$validators,
         $asyncValidators = fieldProps.$asyncValidators,
         $validateLazy = fieldProps.$validateLazy,
-        $renderLazy = fieldProps.$renderLazy,
+        $memo = fieldProps.$memo,
         $reserveOnUnmount = fieldProps.$reserveOnUnmount,
         $parser = fieldProps.$parser,
         $formatter = fieldProps.$formatter,
         $ref = fieldProps.$ref,
-        childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$renderLazy", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
+        childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$memo", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
 
     var renderProps = {
       children: children,

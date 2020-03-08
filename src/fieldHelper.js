@@ -45,7 +45,7 @@ export const propTypes =
               $validators: PropTypes.object,
               $asyncValidators: PropTypes.object,
               $validateLazy: PropTypes.bool,
-              $renderLazy: PropTypes.bool,
+              $memo: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
               $reserveOnUnmount: PropTypes.bool,
               $ref: PropTypes.oneOfType([
                   PropTypes.func,

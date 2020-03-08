@@ -49,6 +49,7 @@ Happy to build the forms in React ^\_^
         + [`$validators`](#validators)
         + [~~`$asyncValidators`~~](#asyncvalidators)
         + [`$validateLazy`](#validatelazy)
+        + [`$renderLazy`](#renderlazy)
         + [`$onFieldChange`](#onfieldchange)
         + [`$reserveOnUnmount`](#reserveonunmount)
         + [`$parser`](#parser)
@@ -468,6 +469,57 @@ yarn add react-formutil@0.4
 > 如果你在考虑实现一组用于多数表单项的校验函数，那么建议将这些校验规则分开，然后通过传递对应到每个校验函数的标识符来在不同的 Field 上启用不同的校验，并且可以利用`$validateLazy`来使用懒校验，提升校验性能。
 >
 > 如果仅仅是对个别 Field 做校验，我们更加建议将多个校验规则，在一个校验函数里实现！这样可以更加自由的设定校验顺序以及逻辑。
+
+#### `$renderLazy`
+
+> 该属性为 `v1.0.0` 新增。
+
+由于`react-formutil`的理念是表单控制器状态被实时追踪更新，所以当一个`Field`的状态变化，会引起整个`Form`的重新渲染，而这又会导致其它没有状态变化的`Field`也会跟着一起重新渲染。这种设计对于表单副作用相关的场景是友好的，比如`Field`的值可以随意相互依赖、整个表单组件上下文中可以随意自由访问表单控制器等。
+
+但是这种灵活性在某些场景下，比如当表单`Field`元素显著增多，或者`Field`渲染了复杂的、较重的组件时，过于频繁的重复渲染会引起表单性能下降。理想的状态下，当然希望单个`Field`的渲染不要引起其它不相关的`Field`的重复渲染。但是实际上，`Field`之间的副作用是无法追踪的，`react-formutil`运行于假设表单上下文中随时都出出现副作用的场景下。
+
+但是这也不意味着我们没有手段去优化表单性能了，既然单个`Field`变化必然引起整个表单的渲染，那么我们从其它`Field`着手优化即可，即如果可以确认该`Field`不依赖其它表单`Field`，那么只要当它本身的 props 和自身的状态模型没有发生变化，就可以告诉 react 跳过渲染，以达到优化目的。
+
+**而这正是`$renderLazy`的作用和原理！**
+
+```typescript
+/**
+ * 例如，VeryHeavyComponent是一个渲染开销非常大的组件，那么我们通过指定$renderLazy属性，来避免其它非自身Field的变化引起本组件无必要的变动
+ */
+<Field name="username" $renderLazy component={VeryHeavyComponent} />
+```
+
+**一些陷阱和不当操作**
+
+由于函数是无法深度比较(deep diff)的，所以前后渲染时传递的临时函数变量总是会被认为是不想等的，这就会导致`$renderLazy`的深度比较失败，甚至某些情况下导致负向优化，反而加重应用性能下降。
+
+所以，**传递给 Field 的函数或者较大的数据对象，应当总是使用`memoization`优化，例如绑定到组件实例、使用 `useCallback` `useMemo`等**
+
+```typescript
+/**
+ * Bad
+ * function children 和$parser都是临时创建的局部函数变量，会导致深度比较总是失败
+ */
+<Field name="username" $renderLazy>
+    {$fieldutil => <VeryHeavyComponent value={$fieldutil.$viewValue} onChange={$fieldutil.$render} />}
+</Field>;
+
+/**
+ * Good
+ * children和$parser使用useCallback创建^_^
+ */
+const $parser = useCallback(value => value.trim(), []);
+const render = useCallback(
+    $fieldutil => <VeryHeavyComponent value={$fieldutil.$viewValue} onChange={$fieldutil.$render} />,
+    []
+);
+
+<Field name="username" $renderLazy $parser={$parser}>
+    {render}
+</Field>;
+```
+
+最后，小提示：可以使用 chrome 的 React Devtool 的[`Profiler`](https://reactjs.org/blog/2018/09/10/introducing-the-react-profiler.html)面板来测试查看`$renderLazy`优化是否生效，或者分析导致优化失败的 props。
 
 #### `$onFieldChange`
 

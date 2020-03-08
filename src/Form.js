@@ -16,35 +16,33 @@ if (typeof requestAnimationFrame === 'function') {
     cancelFrame = clearTimeout;
 }
 
-export const propTypes = {
-    render: PropTypes.func,
-    component: utils.checkComponentPropType,
-    children(props, ...args) {
-        let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-
-        if (!props.render && !props.component) {
-            pt = pt.isRequired;
-        }
-
-        return pt(props, ...args);
-    },
-    $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $onFormChange: PropTypes.func,
-    $validator: PropTypes.func,
-    $processer: PropTypes.func,
-    $ref: PropTypes.oneOfType([
-        PropTypes.func,
-        PropTypes.shape({
-            current: PropTypes.any
-        })
-    ])
-};
-
 class Form extends Component {
     static displayName = 'React.Formutil.Form';
 
-    static propTypes = propTypes;
+    static propTypes = {
+        render: PropTypes.func,
+        component: utils.checkComponentPropType,
+        children(props, ...args) {
+            let pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+
+            if (!props.render && !props.component) {
+                pt = pt.isRequired;
+            }
+
+            return pt(props, ...args);
+        },
+        $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+        $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+        $onFormChange: PropTypes.func,
+        $validator: PropTypes.func,
+        $processer: PropTypes.func,
+        $ref: PropTypes.oneOfType([
+            PropTypes.func,
+            PropTypes.shape({
+                current: PropTypes.any
+            })
+        ])
+    };
 
     static defaultProps = {
         $defaultValues: {},

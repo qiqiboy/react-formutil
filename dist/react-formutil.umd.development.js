@@ -743,32 +743,6 @@
     cancelFrame = clearTimeout;
   }
 
-  var propTypes = {
-    render: PropTypes.func,
-    component: checkComponentPropType,
-    children: function children(props) {
-      var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-
-      if (!props.render && !props.component) {
-        pt = pt.isRequired;
-      }
-
-      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
-      return pt.apply(void 0, [props].concat(args));
-    },
-    $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $onFormChange: PropTypes.func,
-    $validator: PropTypes.func,
-    $processer: PropTypes.func,
-    $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
-      current: PropTypes.any
-    })])
-  };
-
   var Form = /*#__PURE__*/function (_Component) {
     _inherits(Form, _Component);
 
@@ -1109,8 +1083,8 @@
       _this.$validates = function () {
         var callback;
 
-        for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-          args[_key2] = arguments[_key2];
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
         }
 
         if (isFunction(args[args.length - 1])) {
@@ -1514,7 +1488,31 @@
   }(React.Component);
 
   Form.displayName = 'React.Formutil.Form';
-  Form.propTypes = propTypes;
+  Form.propTypes = {
+    render: PropTypes.func,
+    component: checkComponentPropType,
+    children: function children(props) {
+      var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+
+      if (!props.render && !props.component) {
+        pt = pt.isRequired;
+      }
+
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
+      return pt.apply(void 0, [props].concat(args));
+    },
+    $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+    $onFormChange: PropTypes.func,
+    $validator: PropTypes.func,
+    $processer: PropTypes.func,
+    $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
+      current: PropTypes.any
+    })])
+  };
   Form.defaultProps = {
     $defaultValues: {},
     $defaultStates: {}
@@ -1654,7 +1652,7 @@
 
   var hoistNonReactStatics_cjs = hoistNonReactStatics;
 
-  var filterProps = Object.keys(propTypes);
+  var filterProps = ['render', 'component', 'children', '$defaultValues', '$defaultStates', '$onFormChange', '$validator', '$processer', '$ref'];
 
   function withForm(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -1749,7 +1747,7 @@
     warning_1(!isUndefined(result), "You should return a string or Error when the validation('".concat(name && name + ': ').concat(key, "') failed, otherwise return true."));
   }
 
-  var propTypes$1 =  {
+  var propTypes =  {
     name: PropTypes.string,
     $defaultValue: PropTypes.any,
     $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
@@ -2115,23 +2113,24 @@
     return $fieldHandler;
   }
 
-  var isArray = Array.isArray;
-  var keyList = Object.keys;
-  var hasProp = Object.prototype.hasOwnProperty;
+  /* global Map:readonly, Set:readonly, ArrayBuffer:readonly */
+
   var hasElementType = typeof Element !== 'undefined';
+  var hasMap = typeof Map === 'function';
+  var hasSet = typeof Set === 'function';
+  var hasArrayBuffer = typeof ArrayBuffer === 'function';
+
+  // Note: We **don't** need `envHasBigInt64Array` in fde es6/index.js
 
   function equal(a, b) {
-    // fast-deep-equal index.js 2.0.1
+    // START: fast-deep-equal es6/index.js 3.1.1
     if (a === b) return true;
 
     if (a && b && typeof a == 'object' && typeof b == 'object') {
-      var arrA = isArray(a)
-        , arrB = isArray(b)
-        , i
-        , length
-        , key;
+      if (a.constructor !== b.constructor) return false;
 
-      if (arrA && arrB) {
+      var length, i, keys;
+      if (Array.isArray(a)) {
         length = a.length;
         if (length != b.length) return false;
         for (i = length; i-- !== 0;)
@@ -2139,50 +2138,87 @@
         return true;
       }
 
-      if (arrA != arrB) return false;
+      // START: Modifications:
+      // 1. Extra `has<Type> &&` helpers in initial condition allow es6 code
+      //    to co-exist with es5.
+      // 2. Replace `for of` with es5 compliant iteration using `for`.
+      //    Basically, take:
+      //
+      //    ```js
+      //    for (i of a.entries())
+      //      if (!b.has(i[0])) return false;
+      //    ```
+      //
+      //    ... and convert to:
+      //
+      //    ```js
+      //    it = a.entries();
+      //    while (!(i = it.next()).done)
+      //      if (!b.has(i.value[0])) return false;
+      //    ```
+      //
+      //    **Note**: `i` access switches to `i.value`.
+      var it;
+      if (hasMap && (a instanceof Map) && (b instanceof Map)) {
+        if (a.size !== b.size) return false;
+        it = a.entries();
+        while (!(i = it.next()).done)
+          if (!b.has(i.value[0])) return false;
+        it = a.entries();
+        while (!(i = it.next()).done)
+          if (!equal(i.value[1], b.get(i.value[0]))) return false;
+        return true;
+      }
 
-      var dateA = a instanceof Date
-        , dateB = b instanceof Date;
-      if (dateA != dateB) return false;
-      if (dateA && dateB) return a.getTime() == b.getTime();
+      if (hasSet && (a instanceof Set) && (b instanceof Set)) {
+        if (a.size !== b.size) return false;
+        it = a.entries();
+        while (!(i = it.next()).done)
+          if (!b.has(i.value[0])) return false;
+        return true;
+      }
+      // END: Modifications
 
-      var regexpA = a instanceof RegExp
-        , regexpB = b instanceof RegExp;
-      if (regexpA != regexpB) return false;
-      if (regexpA && regexpB) return a.toString() == b.toString();
+      if (hasArrayBuffer && ArrayBuffer.isView(a) && ArrayBuffer.isView(b)) {
+        length = a.length;
+        if (length != b.length) return false;
+        for (i = length; i-- !== 0;)
+          if (a[i] !== b[i]) return false;
+        return true;
+      }
 
-      var keys = keyList(a);
+      if (a.constructor === RegExp) return a.source === b.source && a.flags === b.flags;
+      if (a.valueOf !== Object.prototype.valueOf) return a.valueOf() === b.valueOf();
+      if (a.toString !== Object.prototype.toString) return a.toString() === b.toString();
+
+      keys = Object.keys(a);
       length = keys.length;
-
-      if (length !== keyList(b).length)
-        return false;
+      if (length !== Object.keys(b).length) return false;
 
       for (i = length; i-- !== 0;)
-        if (!hasProp.call(b, keys[i])) return false;
-      // end fast-deep-equal
+        if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
+      // END: fast-deep-equal
 
-      // start react-fast-compare
+      // START: react-fast-compare
       // custom handling for DOM elements
-      if (hasElementType && a instanceof Element && b instanceof Element)
-        return a === b;
+      if (hasElementType && a instanceof Element) return false;
 
       // custom handling for React
       for (i = length; i-- !== 0;) {
-        key = keys[i];
-        if (key === '_owner' && a.$$typeof) {
+        if (keys[i] === '_owner' && a.$$typeof) {
           // React-specific: avoid traversing React elements' _owner.
           //  _owner contains circular references
           // and is not needed when comparing the actual elements (and not their owners)
           // .$$typeof and ._store on just reasonable markers of a react element
           continue;
-        } else {
-          // all other properties should be traversed as usual
-          if (!equal(a[key], b[key])) return false;
         }
-      }
-      // end react-fast-compare
 
-      // fast-deep-equal index.js 2.0.1
+        // all other properties should be traversed as usual
+        if (!equal(a[keys[i]], b[keys[i]])) return false;
+      }
+      // END: react-fast-compare
+
+      // START: fast-deep-equal
       return true;
     }
 
@@ -2190,17 +2226,17 @@
   }
   // end fast-deep-equal
 
-  var _reactFastCompare_2_0_4_reactFastCompare = function exportedEqual(a, b) {
+  var _reactFastCompare_3_0_1_reactFastCompare = function isEqual(a, b) {
     try {
       return equal(a, b);
     } catch (error) {
-      if ((error.message && error.message.match(/stack|recursion/i)) || (error.number === -2146828260)) {
+      if (((error.message || '').match(/stack|recursion/i))) {
         // warn on circular references, don't crash
         // browsers give this different errors name and messages:
         // chrome/safari: "RangeError", "Maximum call stack size exceeded"
         // firefox: "InternalError", too much recursion"
         // edge: "Error", "Out of stack space"
-        console.warn('Warning: react-fast-compare does not handle circular references.', error.name, error.message);
+        console.warn('react-fast-compare cannot handle circular refs');
         return false;
       }
       // some other error. we should definitely know about these
@@ -2310,7 +2346,7 @@
       key: "shouldComponentUpdate",
       value: function shouldComponentUpdate(nextProps) {
         if (this.props.$renderLazy) {
-          return !_reactFastCompare_2_0_4_reactFastCompare(nextProps, this.props) || !_reactFastCompare_2_0_4_reactFastCompare(this.$registered.$getState(), this.$prevState);
+          return !_reactFastCompare_3_0_1_reactFastCompare(nextProps, this.props) || !_reactFastCompare_3_0_1_reactFastCompare(this.$registered.$getState(), this.$prevState);
         }
 
         return true;
@@ -2356,9 +2392,9 @@
   }(React.Component);
 
   Field.displayName = displayName;
-  Field.propTypes = propTypes$1;
+  Field.propTypes = propTypes;
 
-  var filterProps$1 = Object.keys(propTypes$1);
+  var filterProps$1 = ['name', '$defaultValue', '$defaultState', '$onFieldChange', '$validators', '$asyncValidators', '$validateLazy', '$renderLazy', '$reserveOnUnmount', '$ref', '$parserc', '$formatter', 'render', 'component', 'children'];
 
   function withField(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -2752,7 +2788,7 @@
             if (_this.props.value.length) {
               _this.props.onChange(_this.latestValue = []);
             }
-          } else if (!_reactFastCompare_2_0_4_reactFastCompare(_this.props.value, $params.list)) {
+          } else if (!_reactFastCompare_3_0_1_reactFastCompare(_this.props.value, $params.list)) {
             _this.props.onChange(_this.latestValue = $params.list);
           }
         });
@@ -2938,7 +2974,7 @@
                           if ($fieldutil.$viewValue !== null) {
                             $fieldutil.$render(null);
                           }
-                        } else if (!_reactFastCompare_2_0_4_reactFastCompare($fieldutil.$viewValue, $params)) {
+                        } else if (!_reactFastCompare_3_0_1_reactFastCompare($fieldutil.$viewValue, $params)) {
                           $fieldutil.$render($params);
                         }
                       });
@@ -3012,7 +3048,7 @@
 
     return $validators;
   }, {});
-  var propTypes$2 =  {
+  var propTypes$1 =  {
     type: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
     component: checkComponentPropType,
@@ -3298,7 +3334,7 @@
   }(React.Component);
 
   EasyField.displayName = displayName$1;
-  EasyField.propTypes = propTypes$2;
+  EasyField.propTypes = propTypes$1;
   EasyField.defaultProps = defaultProps;
 
   function connect(WrappedComponent) {

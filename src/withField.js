@@ -2,9 +2,26 @@ import React, { Component, forwardRef } from 'react';
 import Field from './Field';
 import { createHOC } from './utils';
 import hoistStatics from 'hoist-non-react-statics';
-import { propTypes } from './fieldHelper';
 
-const filterProps = Object.keys(propTypes);
+const filterProps = [
+    'name',
+
+    '$defaultValue',
+    '$defaultState',
+    '$onFieldChange',
+    '$validators',
+    '$asyncValidators',
+    '$validateLazy',
+    '$renderLazy',
+    '$reserveOnUnmount',
+    '$ref',
+    '$parserc',
+    '$formatter',
+
+    'render',
+    'component',
+    'children'
+];
 
 function withField(WrappedComponent, config = {}) {
     class WithField extends Component {

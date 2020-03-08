@@ -296,32 +296,6 @@ if (typeof requestAnimationFrame === 'function') {
   cancelFrame = clearTimeout;
 }
 
-var propTypes = {
-  render: PropTypes.func,
-  component: checkComponentPropType,
-  children: function children(props) {
-    var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
-
-    if (!props.render && !props.component) {
-      pt = pt.isRequired;
-    }
-
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    return pt.apply(void 0, [props].concat(args));
-  },
-  $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  $onFormChange: PropTypes.func,
-  $validator: PropTypes.func,
-  $processer: PropTypes.func,
-  $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
-    current: PropTypes.any
-  })])
-};
-
 var Form = /*#__PURE__*/function (_Component) {
   _inherits(Form, _Component);
 
@@ -662,8 +636,8 @@ var Form = /*#__PURE__*/function (_Component) {
     _this.$validates = function () {
       var callback;
 
-      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
       }
 
       if (isFunction(args[args.length - 1])) {
@@ -1067,13 +1041,37 @@ var Form = /*#__PURE__*/function (_Component) {
 }(React.Component);
 
 Form.displayName = 'React.Formutil.Form';
-Form.propTypes = propTypes;
+Form.propTypes = {
+  render: PropTypes.func,
+  component: checkComponentPropType,
+  children: function children(props) {
+    var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+
+    if (!props.render && !props.component) {
+      pt = pt.isRequired;
+    }
+
+    for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      args[_key2 - 1] = arguments[_key2];
+    }
+
+    return pt.apply(void 0, [props].concat(args));
+  },
+  $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  $onFormChange: PropTypes.func,
+  $validator: PropTypes.func,
+  $processer: PropTypes.func,
+  $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
+    current: PropTypes.any
+  })])
+};
 Form.defaultProps = {
   $defaultValues: {},
   $defaultStates: {}
 };
 
-var filterProps = Object.keys(propTypes);
+var filterProps = ['render', 'component', 'children', '$defaultValues', '$defaultStates', '$onFormChange', '$validator', '$processer', '$ref'];
 
 function withForm(WrappedComponent) {
   var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -1168,7 +1166,7 @@ function warningValidatorReturn(result, key, name) {
   warning(!isUndefined(result), "You should return a string or Error when the validation('".concat(name && name + ': ').concat(key, "') failed, otherwise return true."));
 }
 
-var propTypes$1 =  {
+var propTypes =  {
   name: PropTypes.string,
   $defaultValue: PropTypes.any,
   $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
@@ -1682,9 +1680,9 @@ var Field = /*#__PURE__*/function (_Component) {
 }(React.Component);
 
 Field.displayName = displayName;
-Field.propTypes = propTypes$1;
+Field.propTypes = propTypes;
 
-var filterProps$1 = Object.keys(propTypes$1);
+var filterProps$1 = ['name', '$defaultValue', '$defaultState', '$onFieldChange', '$validators', '$asyncValidators', '$validateLazy', '$renderLazy', '$reserveOnUnmount', '$ref', '$parserc', '$formatter', 'render', 'component', 'children'];
 
 function withField(WrappedComponent) {
   var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -2338,7 +2336,7 @@ var defaultValidators = [['required', function ($value, check, _ref) {
 
   return $validators;
 }, {});
-var propTypes$2 =  {
+var propTypes$1 =  {
   type: PropTypes.string,
   children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
   component: checkComponentPropType,
@@ -2624,7 +2622,7 @@ var EasyField = /*#__PURE__*/function (_Component) {
 }(React.Component);
 
 EasyField.displayName = displayName$1;
-EasyField.propTypes = propTypes$2;
+EasyField.propTypes = propTypes$1;
 EasyField.defaultProps = defaultProps;
 
 function connect(WrappedComponent) {

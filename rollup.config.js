@@ -63,7 +63,7 @@ function createConfig(env, module) {
             /**
              * 如果你有引入一些有副作用的代码模块，或者构建后的代码运行异常，可以尝试将该项设置为 true
              */
-            moduleSideEffects: true
+            moduleSideEffects: false
         },
         plugins: [
             replace({

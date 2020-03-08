@@ -1,9 +1,19 @@
 import React, { Component, forwardRef } from 'react';
-import Form, { propTypes } from './Form';
+import Form from './Form';
 import { createHOC } from './utils';
 import hoistStatics from 'hoist-non-react-statics';
 
-const filterProps = Object.keys(propTypes);
+const filterProps = [
+    'render',
+    'component',
+    'children',
+    '$defaultValues',
+    '$defaultStates',
+    '$onFormChange',
+    '$validator',
+    '$processer',
+    '$ref'
+];
 
 function withForm(WrappedComponent, config = {}) {
     class WithForm extends Component {

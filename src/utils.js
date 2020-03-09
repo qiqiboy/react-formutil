@@ -262,3 +262,23 @@ export const objectClear = (obj, name) => {
         CLEAR(obj);
     }
 };
+
+export function isStateEqual(prev, next) {
+    if (prev === next) {
+        return true;
+    }
+
+    const keys = Object.keys(prev);
+
+    if (keys.length !== Object.keys(next).length) {
+        return false;
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+        if (prev[keys[i]] !== next[keys[i]]) {
+            return false;
+        }
+    }
+
+    return true;
+}

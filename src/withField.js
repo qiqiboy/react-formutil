@@ -15,7 +15,7 @@ const filterProps = [
     '$memo',
     '$reserveOnUnmount',
     '$ref',
-    '$parserc',
+    '$parser',
     '$formatter',
 
     'render',

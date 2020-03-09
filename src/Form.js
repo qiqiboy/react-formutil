@@ -531,6 +531,8 @@ class Form extends Component {
             callback
         );
 
+    $new = () => this.$formutil;
+
     _render() {
         const $formutil = this.$formutil;
         let { children, render, component } = this.props;
@@ -657,7 +659,7 @@ class Form extends Component {
             $onValidates: this.$onValidates,
 
             // get the newest $formutil
-            $new: () => this.$formutil,
+            $new: this.$new,
 
             $setStates: this.$setStates,
             $setValues: this.$setValues,

@@ -21,13 +21,12 @@ Happy to build the forms in React ^\_^
 
 > #### react-formutil 的优势
 >
-> 1.  一切都是状态，$value/$viewValue、$diry/$pristine、$touched/$untouched、$valid/$invalid、\$error 等都是状态
-> 2.  非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构
-> 3.  采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
-> 4.  同时支持高阶组件和函数式子组件（[render props](https://reactjs.org/docs/render-props.html)）式调用，更灵活（>=0.5.0 起支持[`Hooks`](#hooks)）
-> 5.  具备灵活的表单校验方式，支持同步和异步校验
-> 6.  规范的 jsx 语法调用，更符合 react 理念
-> 7.  [对流行的 react 组件库做了适配优化，现已支持](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)：`ant-design` `material-ui` `react-bootstrap` `react-md`
+> 1. 全局表单状态同步，使用更加简单、自然、符合直觉、心智负担小，同时对于复杂场景，也提供了[性能优化支持](https://github.com/qiqiboy/react-formutil/issues/18)
+> 1. 一切都是状态，表单核心相关的 `$value` `$viewValue` `$diry` `$pristine` `$touched` `$untouched` `$valid` `$invalid` `$error` 等都是实时状态，整个表单以类似`redux`的单一状态树进行表达；无需额外的`getFieldValue(name)` `getFormValues()` `validateField()`等额外动作
+> 1. 非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构；但同时你非常容易编写出适合项目的 Field 组件，我们也提供了对[流行 UI 库的适配](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
+> 1. 采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
+> 1. 同时支持高阶组件和函数式子组件（[render props](https://reactjs.org/docs/render-props.html)）式调用，更灵活（>=0.5.0 起支持[`Hooks`](#hooks)）
+> 1. 具备灵活的表单校验方式，支持同步和异步校验、懒校验等
 
 **无论你是否已经了解了`react-formutil`的特性、用法以及 API，开始项目前，请务必阅读下我们建议的[最佳实践](#最佳实践-best-practices)！**
 
@@ -35,7 +34,6 @@ Happy to build the forms in React ^\_^
 
 * [安装 Installation](#安装-installation)
     - [`最新版`](#最新版)
-    - [`Next版`](#next版)
     - [`0.5.x`](#05x)
     - [`0.4.x`](#04x)
     - [`UMD包`](#umd包)
@@ -156,36 +154,18 @@ Happy to build the forms in React ^\_^
 
 [![react-formutil](https://nodei.co/npm/react-formutil.png?compact=true)](https://npm.im/react-formutil)
 
-目前最新版本是`0.6.x`，支持所有`v16.3+`的`react`版本！强烈推荐安装或者升级至该版本。
-
-如果你在使用`v16.3`以前的 react 版本，请安装[`0.5.x`](#05x)。
+`react-formutil`现在已经 [正式`1.0`](https://github.com/qiqiboy/react-formutil/releases/tag/1.0.0) 版本了，这代表我们其 API 设计已经趋于完整稳定。事实上，`react-formutil`从创建之处的`0.0.1`版本到目前的`1.0`，其 API 设计从来没有发生重大变动，每个版本都是向前兼容的。这代表无论你当前在哪个版本，你都可以无痛升级到最新版，并且立即获得新版本的特性支持！
 
 ### `最新版`
 
 [![npm](https://img.shields.io/npm/v/react-formutil.svg?style=flat)](https://npm.im/react-formutil)
 
-相比于上一版本`0.4.x`版本，新增或者改进了部分 API，并且支持`react@16.8`新增的[`Hooks`](#hooks)。完整更新说明请参考：[Release v0.5.0](https://github.com/qiqiboy/react-formutil/releases/tag/0.5.0)
-
 ```bash
 # npm
-npm install react-formutil@latest --save
+npm install react-formutil --save
 
 # yarn
-yarn add react-formutil@latest
-```
-
-### `Next版`
-
-[![npm](https://img.shields.io/npm/v/react-formutil/next.svg?color=yellow)](https://npm.im/react-formutil)
-
-`Next版`一般会领先于`最新版`，一般是包含一些小功能的添加、测试，或者一些`不那么重要的小bug`的 fix。
-
-```bash
-# npm
-npm install react-formutil@next --save
-
-# yarn
-yarn add react-formutil@next
+yarn add react-formutil
 ```
 
 ### `0.5.x`
@@ -489,7 +469,7 @@ type $memo = boolean | any[];
 
 你可能并不需要`$memo`。
 
-`react-formutil`与其它追求表单性能的表单库不一样，它被设计为全局状态实时更新渲染，意在强调自然、易用、响应式，避免使用时额外的心智负担。大多数情况下，简单的表单的性能是刻意满足需求的，那么就不需要可以去优化。
+`react-formutil`与其它追求表单性能的表单库不一样，它被设计为全局状态实时更新渲染，意在强调自然、易用、响应式，避免使用时额外的心智负担。大多数情况下，简单的表单的性能是可以满足需求的，那么就不需要刻意去优化。
 
 与任何会影响 react 本身渲染过程的优化手段`shouldComponentUpdate` `PureComponent` `React.memo`等一样，都可能导致组件产生一些难以发现、追踪的运行 bug，或者导致未来的维护产生不易察觉的 bug。因为`$memo`本身也就是使用这些技术达到优化目的。
 
@@ -545,9 +525,9 @@ type $memo = boolean | any[];
 所以，针对以上情况：
 
 -   **当 `Field` 有临时函数属性时，例如`children` `render` `$parser` `$formatter` `$validators`等属性可能存在这种现象**
-    -   方法一，请将这些函数属性使用`memoization`优化，例如绑定到组件实例、使用 `useCallback` `useMemo`等
-    -   方法二，请使用 `$memo={[...]}` 明确指定要比较的可能变动的值依赖项数组，忽略掉这些临时函数属性
--   **当 `Field` 传递大数据属性时（即数据非常庞大，深度比较非常耗性能），并且其又不会变化，请使用 `$memo={[...]}` 明确指定要比较的可变值依赖项数组**
+    -   **方法一，请将这些函数属性使用`memoization`优化，例如绑定到组件实例、使用 `useCallback` `useMemo`等**
+    -   **方法二，请使用 `$memo={[...]}` 明确指定要比较的可能变动的值依赖项数组，忽略掉这些临时函数属性**
+-   **当 `Field` 具有大数据值属性时（即数据非常庞大，深度比较非常耗性能），并且其又不会变化，请使用 `$memo={[...]}` 明确指定要比较的可变值依赖项数组**
 
 ```typescript
 /**
@@ -577,7 +557,7 @@ const render = useCallback(
  * Good
  * 也可以明确指定更新依赖值，例如这里确定$parser、children都不依赖其它状态值，直接指定 $memo=[]
  */
-<Field name="username" $memo={[]} $parser={$parser={value => value.trim()}}>
+<Field name="username" $memo={[]} $parser={value => value.trim()}>
     {$fieldutil => <VeryHeavyComponent value={$fieldutil.$viewValue} onChange={$fieldutil.$render} />}
 </Field>;
 ```

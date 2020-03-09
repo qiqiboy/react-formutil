@@ -731,6 +731,25 @@
       CLEAR(obj);
     }
   };
+  function isStateEqual(prev, next) {
+    if (prev === next) {
+      return true;
+    }
+
+    var keys = Object.keys(prev);
+
+    if (keys.length !== Object.keys(next).length) {
+      return false;
+    }
+
+    for (var i = 0; i < keys.length; i++) {
+      if (prev[keys[i]] !== next[keys[i]]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   var FORM_VALIDATE_RESULT = 'FORM_VALIDATE_RESULT';
   var requestFrame, cancelFrame;
@@ -1246,6 +1265,10 @@
         }, callback);
       };
 
+      _this.$new = function () {
+        return _this.$formutil;
+      };
+
       _this.$$defaultInitialize();
 
       return _this;
@@ -1453,9 +1476,7 @@
           $getField: this.$getField,
           $onValidates: this.$onValidates,
           // get the newest $formutil
-          $new: function $new() {
-            return _this3.$formutil;
-          },
+          $new: this.$new,
           $setStates: this.$setStates,
           $setValues: this.$setValues,
           $setErrors: this.$setErrors,
@@ -2345,8 +2366,13 @@
     }, {
       key: "shouldComponentUpdate",
       value: function shouldComponentUpdate(nextProps) {
-        var $memo = this.props.$memo;
-        return !$memo || !_reactFastCompare_3_0_1_reactFastCompare(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? _reactFastCompare_3_0_1_reactFastCompare($memo, nextProps.$memo) : _reactFastCompare_3_0_1_reactFastCompare(this.props, nextProps));
+        var $memo = nextProps.$memo;
+        return !$memo ||
+        /**
+         * 这里不能用isEqual深度比较，避免遇到$value为大数据时导致性能问题
+         * isStateEqual只比较一层
+         */
+        !isStateEqual(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? _reactFastCompare_3_0_1_reactFastCompare($memo, this.props.$memo) : _reactFastCompare_3_0_1_reactFastCompare(this.props, nextProps));
       }
     }, {
       key: "_render",
@@ -2391,7 +2417,7 @@
   Field.displayName = displayName;
   Field.propTypes = propTypes;
 
-  var filterProps$1 = ['name', '$defaultValue', '$defaultState', '$onFieldChange', '$validators', '$asyncValidators', '$validateLazy', '$memo', '$reserveOnUnmount', '$ref', '$parserc', '$formatter', 'render', 'component', 'children'];
+  var filterProps$1 = ['name', '$defaultValue', '$defaultState', '$onFieldChange', '$validators', '$asyncValidators', '$validateLazy', '$memo', '$reserveOnUnmount', '$ref', '$parser', '$formatter', 'render', 'component', 'children'];
 
   function withField(WrappedComponent) {
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};

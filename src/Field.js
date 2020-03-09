@@ -3,7 +3,7 @@ import { createHandler, GET_FIELD_UUID, propTypes, displayName, renderField } fr
 import FormContext from './context';
 import warning from 'warning';
 import isEqual from 'react-fast-compare';
-import { runCallback, createRef } from './utils';
+import { runCallback, createRef, isStateEqual } from './utils';
 
 class Field extends Component {
     static displayName = displayName;
@@ -74,12 +74,16 @@ class Field extends Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        const { $memo } = this.props;
+        const { $memo } = nextProps;
 
         return (
             !$memo ||
-            !isEqual(this.$registered.$getState(), this.$prevState) ||
-            !(Array.isArray($memo) ? isEqual($memo, nextProps.$memo) : isEqual(this.props, nextProps))
+            /**
+             * 这里不能用isEqual深度比较，避免遇到$value为大数据时导致性能问题
+             * isStateEqual只比较一层
+             */
+            !isStateEqual(this.$registered.$getState(), this.$prevState) ||
+            !(Array.isArray($memo) ? isEqual($memo, this.props.$memo) : isEqual(this.props, nextProps))
         );
     }
 

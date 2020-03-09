@@ -114,6 +114,8 @@ class Form extends Component {
 
             this.$$registers[($handler.$name = name)] = $handler;
 
+            this.$$formShouldUpdateAll = true;
+
             this.createDeepRegisters();
             this.$render();
         }
@@ -146,6 +148,8 @@ class Form extends Component {
                 }
             }
 
+            this.$$formShouldUpdateAll = true;
+
             this.createDeepRegisters();
             this.$render();
         }
@@ -171,6 +175,15 @@ class Form extends Component {
         utils.objectEach(mayWeakObj, (data, name) => utils.parsePath(deepObj, name, data));
 
         return deepObj;
+    }
+
+    // 本次Form更新时需要变动的fields
+    $$formShouldUpdateFields = {};
+    $$formShouldUpdateAll = false;
+
+    $$resetFormUpdateFields() {
+        this.$$formShouldUpdateFields = {};
+        this.$$formShouldUpdateAll = false;
     }
 
     $$triggerChangeTimer;
@@ -378,6 +391,8 @@ class Form extends Component {
                             });
                         }
                     }
+
+                    this.$$formShouldUpdateFields[name] = true;
                 }
             }
         });
@@ -565,20 +580,8 @@ class Form extends Component {
             $state: this.$$registers[path].$getState()
         }));
 
-        const $weakParams = utils.toObject($stateArray, ($params, { path, $state }) => {
-            if ($processer) {
-                $processer($state, path);
-            }
-
-            if ('$value' in $state && ($state.$dirty || !utils.isUndefined($state.$value))) {
-                $params[path] = $state.$value;
-            }
-        });
-
-        const $pureParams = utils.toObject(
-            $stateArray,
-            ($params, { path, $state }) => path in $weakParams && utils.parsePath($params, path, $weakParams[path])
-        );
+        const updateAll = this.$$formShouldUpdateAll;
+        const lastFormutil = this.$formutil || {}
 
         const $invalid = $stateArray.some(({ $state }) => $state.$invalid);
         const $dirty = $stateArray.some(({ $state }) => $state.$dirty);
@@ -586,52 +589,102 @@ class Form extends Component {
         const $focused = $stateArray.some(({ $state }) => $state.$focused);
         const $pending = this.$$formPending || $stateArray.some(({ $state }) => $state.$pending);
 
+        const $pureParams = updateAll ? {} : {...lastFormutil.$pureParams};
+
+        const $states = updateAll ? {} : {...lastFormutil.$states};
+        const $errors = updateAll ? {} : {...lastFormutil.$errors};
+        const $dirts = updateAll ? {} : {...lastFormutil.$dirts};
+        const $touches = updateAll ? {} : {...lastFormutil.$touches};
+        const $focuses = updateAll ? {} : {...lastFormutil.$focuses};
+        const $pendings = updateAll ? {} : {...lastFormutil.$pendings};
+
+        const $weakStates = updateAll ? {} : {...lastFormutil.$weakStates};
+        const $weakParams = updateAll ? {} : {...lastFormutil.$weakParams};
+        const $weakErrors = updateAll ? {} : {...lastFormutil.$weakErrors};
+        const $weakDirts = updateAll ? {} : {...lastFormutil.$weakDirts};
+        const $weakFocuses = updateAll ? {} : {...lastFormutil.$weakFocuses};
+        const $weakTouches = updateAll ? {} : {...lastFormutil.$weakTouches};
+        const $weakPendings = updateAll ? {} : {...lastFormutil.$weakPendings};
+
+        for (let i = 0, j = $stateArray.length; i < j; i++) {
+            const { $state, path } = $stateArray[i];
+
+            if (!updateAll) {
+                if (!this.$$formShouldUpdateFields[path]) {
+                    continue;
+                }
+            }
+
+            if ($processer) {
+                $processer($state, path);
+            }
+
+            if ('$value' in $state && ($state.$dirty || !utils.isUndefined($state.$value))) {
+                // update $weakParams
+                $weakParams[path] = $state.$value;
+
+                // update $pureParams
+                utils.parsePath($pureParams, path, $state.$value);
+            }
+
+            // update $states
+            utils.parsePath($states, path, $state);
+            // update $weakStates
+            $weakStates[path] = $state;
+
+            if ($state.$invalid) {
+                // update $errors
+                utils.parsePath($errors, path, $state.$error);
+                // update $weakErrors
+                $weakErrors[path] = $state.$error;
+            } else {
+                utils.objectClear($errors, path);
+                delete $weakErrors[path];
+            }
+
+            // update $dirts
+            utils.parsePath($dirts, path, $state.$dirty);
+            // update $weakDirts
+            $weakDirts[path] = $state.$dirty;
+
+            // update $touches
+            utils.parsePath($touches, path, $state.$touched);
+            // update $weakTouches
+            $weakTouches[path] = $state.$touched;
+
+            // update $focuses
+            utils.parsePath($focuses, path, $state.$focused);
+            // update $weakFocuses
+            $weakFocuses[path] = $state.$focused;
+
+            // update $pendings
+            utils.parsePath($pendings, path, $state.$pending);
+            // update $weakPendings
+            $weakPendings[path] = $state.$pending;
+        }
+
         const $formutil = (this.$formutil = {
             $$registers: { ...this.$$registers },
             $$deepRegisters: this.$$deepRegisters,
-            $states: utils.toObject($stateArray, ($states, { path, $state }) => utils.parsePath($states, path, $state)),
+            $states,
+            $pureParams,
             $params: {
                 ...this.$$defaultValues,
                 ...$pureParams
             },
-            $errors: utils.toObject($stateArray, ($errors, { path, $state }) => {
-                if ($state.$invalid) {
-                    utils.parsePath($errors, path, $state.$error);
-                }
-            }),
-            $dirts: utils.toObject($stateArray, ($dirts, { path, $state }) =>
-                utils.parsePath($dirts, path, $state.$dirty)
-            ),
-            $touches: utils.toObject($stateArray, ($touches, { path, $state }) =>
-                utils.parsePath($touches, path, $state.$touched)
-            ),
-            $focuses: utils.toObject($stateArray, ($focuses, { path, $state }) =>
-                utils.parsePath($focuses, path, $state.$focused)
-            ),
-            $pendings: utils.toObject($stateArray, ($pendings, { path, $state }) =>
-                utils.parsePath($pendings, path, $state.$pending)
-            ),
+            $errors,
+            $dirts,
+            $touches,
+            $focuses,
+            $pendings,
 
-            $weakStates: utils.toObject($stateArray, ($states, { path, $state }) => ($states[path] = $state)),
+            $weakStates,
             $weakParams,
-            $weakErrors: utils.toObject($stateArray, ($errors, { path, $state }) => {
-                if ($state.$invalid) {
-                    $errors[path] = $state.$error;
-                }
-            }),
-            $weakDirts: utils.toObject($stateArray, ($dirts, { path, $state }) => ($dirts[path] = $state.$dirty)),
-            $weakTouches: utils.toObject(
-                $stateArray,
-                ($touches, { path, $state }) => ($touches[path] = $state.$touched)
-            ),
-            $weakFocuses: utils.toObject(
-                $stateArray,
-                ($focuses, { path, $state }) => ($focuses[path] = $state.$focused)
-            ),
-            $weakPendings: utils.toObject(
-                $stateArray,
-                ($weakPendings, { path, $state }) => ($weakPendings[path] = $state.$pending)
-            ),
+            $weakErrors,
+            $weakDirts,
+            $weakTouches,
+            $weakFocuses,
+            $weakPendings,
 
             $getFirstError(name) {
                 if (name) {
@@ -686,6 +739,8 @@ class Form extends Component {
             $focused,
             $pending
         });
+
+        this.$$resetFormUpdateFields();
 
         return <FormContext.Provider value={this.getFormContext}>{this._render()}</FormContext.Provider>;
     }

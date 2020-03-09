@@ -246,8 +246,7 @@ class LoginForm extends Component {
                             name="remember"
                             required
                             $validators={this.$validators}
-                            $reserveOnUnmount
-                            $ref={a => console.log(a)}>
+                            $reserveOnUnmount>
                             {props => (
                                 <div className={'form-group' + (props.$dirty && props.$invalid ? ' has-error' : '')}>
                                     <select

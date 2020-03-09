@@ -254,13 +254,6 @@ var objectEach = function objectEach(obj, handler) {
     return handler(obj[key], key, obj);
   });
 };
-var toObject = function toObject(arr, handler) {
-  var obj = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  return arr.reduce(function () {
-    handler.apply(void 0, arguments);
-    return arguments.length <= 0 ? undefined : arguments[0];
-  }, obj);
-};
 var TODO_DELETE = undefined;
 function CLEAR(obj, pkey, pobj) {
   objectEach(obj, function (value, key) {
@@ -383,6 +376,7 @@ var Form = /*#__PURE__*/function (_Component) {
         }
 
         _this.$$registers[$handler.$name = name] = $handler;
+        _this.$$formShouldUpdateAll = true;
 
         _this.createDeepRegisters();
 
@@ -419,6 +413,8 @@ var Form = /*#__PURE__*/function (_Component) {
           }
         }
 
+        _this.$$formShouldUpdateAll = true;
+
         _this.createDeepRegisters();
 
         _this.$render();
@@ -440,6 +436,8 @@ var Form = /*#__PURE__*/function (_Component) {
       };
     };
 
+    _this.$$formShouldUpdateFields = {};
+    _this.$$formShouldUpdateAll = false;
     _this.$$triggerChangeTimer = void 0;
     _this.$$fieldChangedQueue = [];
 
@@ -638,6 +636,8 @@ var Form = /*#__PURE__*/function (_Component) {
                 });
               }
             }
+
+            _this.$$formShouldUpdateFields[name] = true;
           }
         }
       });
@@ -835,6 +835,13 @@ var Form = /*#__PURE__*/function (_Component) {
         return parsePath(deepObj, name, data);
       });
       return deepObj;
+    } // 本次Form更新时需要变动的fields
+
+  }, {
+    key: "$$resetFormUpdateFields",
+    value: function $$resetFormUpdateFields() {
+      this.$$formShouldUpdateFields = {};
+      this.$$formShouldUpdateAll = false;
     }
   }, {
     key: "componentDidMount",
@@ -899,114 +906,116 @@ var Form = /*#__PURE__*/function (_Component) {
           $state: _this3.$$registers[path].$getState()
         };
       });
-      var $weakParams = toObject($stateArray, function ($params, _ref3) {
-        var path = _ref3.path,
-            $state = _ref3.$state;
+      var updateAll = this.$$formShouldUpdateAll;
+      var lastFormutil = this.$formutil || {};
+      var $invalid = $stateArray.some(function (_ref3) {
+        var $state = _ref3.$state;
+        return $state.$invalid;
+      });
+      var $dirty = $stateArray.some(function (_ref4) {
+        var $state = _ref4.$state;
+        return $state.$dirty;
+      });
+      var $touched = $stateArray.some(function (_ref5) {
+        var $state = _ref5.$state;
+        return $state.$touched;
+      });
+      var $focused = $stateArray.some(function (_ref6) {
+        var $state = _ref6.$state;
+        return $state.$focused;
+      });
+      var $pending = this.$$formPending || $stateArray.some(function (_ref7) {
+        var $state = _ref7.$state;
+        return $state.$pending;
+      });
+      var $pureParams = updateAll ? {} : _objectSpread({}, lastFormutil.$pureParams);
+      var $states = updateAll ? {} : _objectSpread({}, lastFormutil.$states);
+      var $errors = updateAll ? {} : _objectSpread({}, lastFormutil.$errors);
+      var $dirts = updateAll ? {} : _objectSpread({}, lastFormutil.$dirts);
+      var $touches = updateAll ? {} : _objectSpread({}, lastFormutil.$touches);
+      var $focuses = updateAll ? {} : _objectSpread({}, lastFormutil.$focuses);
+      var $pendings = updateAll ? {} : _objectSpread({}, lastFormutil.$pendings);
+      var $weakStates = updateAll ? {} : _objectSpread({}, lastFormutil.$weakStates);
+      var $weakParams = updateAll ? {} : _objectSpread({}, lastFormutil.$weakParams);
+      var $weakErrors = updateAll ? {} : _objectSpread({}, lastFormutil.$weakErrors);
+      var $weakDirts = updateAll ? {} : _objectSpread({}, lastFormutil.$weakDirts);
+      var $weakFocuses = updateAll ? {} : _objectSpread({}, lastFormutil.$weakFocuses);
+      var $weakTouches = updateAll ? {} : _objectSpread({}, lastFormutil.$weakTouches);
+      var $weakPendings = updateAll ? {} : _objectSpread({}, lastFormutil.$weakPendings);
+
+      for (var i = 0, j = $stateArray.length; i < j; i++) {
+        var _$stateArray$i = $stateArray[i],
+            $state = _$stateArray$i.$state,
+            path = _$stateArray$i.path;
+
+        if (!updateAll) {
+          if (!this.$$formShouldUpdateFields[path]) {
+            continue;
+          }
+        }
 
         if ($processer) {
           $processer($state, path);
         }
 
         if ('$value' in $state && ($state.$dirty || !isUndefined($state.$value))) {
-          $params[path] = $state.$value;
-        }
-      });
-      var $pureParams = toObject($stateArray, function ($params, _ref4) {
-        var path = _ref4.path,
-            $state = _ref4.$state;
-        return path in $weakParams && parsePath($params, path, $weakParams[path]);
-      });
-      var $invalid = $stateArray.some(function (_ref5) {
-        var $state = _ref5.$state;
-        return $state.$invalid;
-      });
-      var $dirty = $stateArray.some(function (_ref6) {
-        var $state = _ref6.$state;
-        return $state.$dirty;
-      });
-      var $touched = $stateArray.some(function (_ref7) {
-        var $state = _ref7.$state;
-        return $state.$touched;
-      });
-      var $focused = $stateArray.some(function (_ref8) {
-        var $state = _ref8.$state;
-        return $state.$focused;
-      });
-      var $pending = this.$$formPending || $stateArray.some(function (_ref9) {
-        var $state = _ref9.$state;
-        return $state.$pending;
-      });
+          // update $weakParams
+          $weakParams[path] = $state.$value; // update $pureParams
+
+          parsePath($pureParams, path, $state.$value);
+        } // update $states
+
+
+        parsePath($states, path, $state); // update $weakStates
+
+        $weakStates[path] = $state;
+
+        if ($state.$invalid) {
+          // update $errors
+          parsePath($errors, path, $state.$error); // update $weakErrors
+
+          $weakErrors[path] = $state.$error;
+        } else {
+          objectClear($errors, path);
+          delete $weakErrors[path];
+        } // update $dirts
+
+
+        parsePath($dirts, path, $state.$dirty); // update $weakDirts
+
+        $weakDirts[path] = $state.$dirty; // update $touches
+
+        parsePath($touches, path, $state.$touched); // update $weakTouches
+
+        $weakTouches[path] = $state.$touched; // update $focuses
+
+        parsePath($focuses, path, $state.$focused); // update $weakFocuses
+
+        $weakFocuses[path] = $state.$focused; // update $pendings
+
+        parsePath($pendings, path, $state.$pending); // update $weakPendings
+
+        $weakPendings[path] = $state.$pending;
+      }
+
       var $formutil = this.$formutil = {
         $$registers: _objectSpread({}, this.$$registers),
         $$deepRegisters: this.$$deepRegisters,
-        $states: toObject($stateArray, function ($states, _ref10) {
-          var path = _ref10.path,
-              $state = _ref10.$state;
-          return parsePath($states, path, $state);
-        }),
+        $states: $states,
+        $pureParams: $pureParams,
         $params: _objectSpread({}, this.$$defaultValues, {}, $pureParams),
-        $errors: toObject($stateArray, function ($errors, _ref11) {
-          var path = _ref11.path,
-              $state = _ref11.$state;
-
-          if ($state.$invalid) {
-            parsePath($errors, path, $state.$error);
-          }
-        }),
-        $dirts: toObject($stateArray, function ($dirts, _ref12) {
-          var path = _ref12.path,
-              $state = _ref12.$state;
-          return parsePath($dirts, path, $state.$dirty);
-        }),
-        $touches: toObject($stateArray, function ($touches, _ref13) {
-          var path = _ref13.path,
-              $state = _ref13.$state;
-          return parsePath($touches, path, $state.$touched);
-        }),
-        $focuses: toObject($stateArray, function ($focuses, _ref14) {
-          var path = _ref14.path,
-              $state = _ref14.$state;
-          return parsePath($focuses, path, $state.$focused);
-        }),
-        $pendings: toObject($stateArray, function ($pendings, _ref15) {
-          var path = _ref15.path,
-              $state = _ref15.$state;
-          return parsePath($pendings, path, $state.$pending);
-        }),
-        $weakStates: toObject($stateArray, function ($states, _ref16) {
-          var path = _ref16.path,
-              $state = _ref16.$state;
-          return $states[path] = $state;
-        }),
+        $errors: $errors,
+        $dirts: $dirts,
+        $touches: $touches,
+        $focuses: $focuses,
+        $pendings: $pendings,
+        $weakStates: $weakStates,
         $weakParams: $weakParams,
-        $weakErrors: toObject($stateArray, function ($errors, _ref17) {
-          var path = _ref17.path,
-              $state = _ref17.$state;
-
-          if ($state.$invalid) {
-            $errors[path] = $state.$error;
-          }
-        }),
-        $weakDirts: toObject($stateArray, function ($dirts, _ref18) {
-          var path = _ref18.path,
-              $state = _ref18.$state;
-          return $dirts[path] = $state.$dirty;
-        }),
-        $weakTouches: toObject($stateArray, function ($touches, _ref19) {
-          var path = _ref19.path,
-              $state = _ref19.$state;
-          return $touches[path] = $state.$touched;
-        }),
-        $weakFocuses: toObject($stateArray, function ($focuses, _ref20) {
-          var path = _ref20.path,
-              $state = _ref20.$state;
-          return $focuses[path] = $state.$focused;
-        }),
-        $weakPendings: toObject($stateArray, function ($weakPendings, _ref21) {
-          var path = _ref21.path,
-              $state = _ref21.$state;
-          return $weakPendings[path] = $state.$pending;
-        }),
+        $weakErrors: $weakErrors,
+        $weakDirts: $weakDirts,
+        $weakTouches: $weakTouches,
+        $weakFocuses: $weakFocuses,
+        $weakPendings: $weakPendings,
         $getFirstError: function $getFirstError(name) {
           if (name) {
             var $fieldutil = $formutil.$getField(name);
@@ -1052,6 +1061,7 @@ var Form = /*#__PURE__*/function (_Component) {
         $focused: $focused,
         $pending: $pending
       };
+      this.$$resetFormUpdateFields();
       return React__default.createElement(FormContext.Provider, {
         value: this.getFormContext
       }, this._render());

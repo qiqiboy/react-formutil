@@ -89,6 +89,7 @@ Happy to build the forms in React ^\_^
         + [`$defaultState`](#defaultstate-1)
         + [`$validators`](#validators-1)
         + [`$validateLazy`](#validatelazy-1)
+        + [`$memo`](#memo-1)
         + [~~`$asyncValidators`~~](#asyncvalidators-1)
         + [`$parser`](#parser-1)
         + [`$formatter`](#formatter-1)
@@ -461,6 +462,8 @@ type $memo = boolean | any[];
 // true 启用渲染优化，深度比较Field的所有props和自身状态
 // any[] 启用渲染优化，深度比较$memo依赖项数组和自身状态
 ```
+
+![](https://user-images.githubusercontent.com/3774036/76183369-209ff800-6203-11ea-8c52-7bae0fe39c3e.png)
 
 **第一原则**
 
@@ -1309,7 +1312,11 @@ import Select from 'react-select';
 
 #### `$validateLazy`
 
-同`Field`的[`$validateLazy`](#validatelazy)
+同`Field`的 [`$validateLazy`](#validatelazy)
+
+#### `$memo`
+
+同`Field`的 [`$memo`](#memo)
 
 #### ~~`$asyncValidators`~~
 

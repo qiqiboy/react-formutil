@@ -24,6 +24,8 @@ class LoginForm extends Component {
         } else {
             alert('表单填写正确，可以登录');
         }
+
+        console.log('$formutil:', this.props.$formutil)
     };
 
     autoInput = () => {

@@ -951,7 +951,7 @@ var Form = /*#__PURE__*/function (_Component) {
           $processer($state, path);
         }
 
-        if ('$value' in $state && ($state.$dirty || !isUndefined($state.$value))) {
+        if ('$value' in $state && (!(path in $weakParams) || $weakParams[path] !== $state.$value) && ($state.$dirty || !isUndefined($state.$value))) {
           // update $weakParams
           $weakParams[path] = $state.$value; // update $pureParams
 
@@ -963,32 +963,45 @@ var Form = /*#__PURE__*/function (_Component) {
 
         $weakStates[path] = $state;
 
-        if ($state.$invalid) {
-          // update $errors
-          parsePath($errors, path, $state.$error); // update $weakErrors
+        if ($weakErrors[path] !== $state.$error) {
+          if ($state.$invalid) {
+            // update $errors
+            parsePath($errors, path, $state.$error); // update $weakErrors
 
-          $weakErrors[path] = $state.$error;
-        } else {
-          objectClear($errors, path);
-          delete $weakErrors[path];
-        } // update $dirts
+            $weakErrors[path] = $state.$error;
+          } else if (path in $weakErrors) {
+            objectClear($errors, path);
+            delete $weakErrors[path];
+          }
+        }
 
+        if ($weakDirts[path] !== $state.$dirty) {
+          // update $dirts
+          parsePath($dirts, path, $state.$dirty); // update $weakDirts
 
-        parsePath($dirts, path, $state.$dirty); // update $weakDirts
+          $weakDirts[path] = $state.$dirty;
+        }
 
-        $weakDirts[path] = $state.$dirty; // update $touches
+        if ($weakTouches[path] !== $state.$touched) {
+          // update $touches
+          parsePath($touches, path, $state.$touched); // update $weakTouches
 
-        parsePath($touches, path, $state.$touched); // update $weakTouches
+          $weakTouches[path] = $state.$touched;
+        }
 
-        $weakTouches[path] = $state.$touched; // update $focuses
+        if ($weakFocuses[path] !== $state.$focused) {
+          // update $focuses
+          parsePath($focuses, path, $state.$focused); // update $weakFocuses
 
-        parsePath($focuses, path, $state.$focused); // update $weakFocuses
+          $weakFocuses[path] = $state.$focused;
+        }
 
-        $weakFocuses[path] = $state.$focused; // update $pendings
+        if ($weakPendings[path] !== $state.$pending) {
+          // update $pendings
+          parsePath($pendings, path, $state.$pending); // update $weakPendings
 
-        parsePath($pendings, path, $state.$pending); // update $weakPendings
-
-        $weakPendings[path] = $state.$pending;
+          $weakPendings[path] = $state.$pending;
+        }
       }
 
       var $formutil = this.$formutil = {

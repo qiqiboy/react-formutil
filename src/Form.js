@@ -581,7 +581,7 @@ class Form extends Component {
         }));
 
         const updateAll = this.$$formShouldUpdateAll;
-        const lastFormutil = this.$formutil || {}
+        const lastFormutil = this.$formutil || {};
 
         const $invalid = $stateArray.some(({ $state }) => $state.$invalid);
         const $dirty = $stateArray.some(({ $state }) => $state.$dirty);
@@ -589,22 +589,22 @@ class Form extends Component {
         const $focused = $stateArray.some(({ $state }) => $state.$focused);
         const $pending = this.$$formPending || $stateArray.some(({ $state }) => $state.$pending);
 
-        const $pureParams = updateAll ? {} : {...lastFormutil.$pureParams};
+        const $pureParams = updateAll ? {} : { ...lastFormutil.$pureParams };
 
-        const $states = updateAll ? {} : {...lastFormutil.$states};
-        const $errors = updateAll ? {} : {...lastFormutil.$errors};
-        const $dirts = updateAll ? {} : {...lastFormutil.$dirts};
-        const $touches = updateAll ? {} : {...lastFormutil.$touches};
-        const $focuses = updateAll ? {} : {...lastFormutil.$focuses};
-        const $pendings = updateAll ? {} : {...lastFormutil.$pendings};
+        const $states = updateAll ? {} : { ...lastFormutil.$states };
+        const $errors = updateAll ? {} : { ...lastFormutil.$errors };
+        const $dirts = updateAll ? {} : { ...lastFormutil.$dirts };
+        const $touches = updateAll ? {} : { ...lastFormutil.$touches };
+        const $focuses = updateAll ? {} : { ...lastFormutil.$focuses };
+        const $pendings = updateAll ? {} : { ...lastFormutil.$pendings };
 
-        const $weakStates = updateAll ? {} : {...lastFormutil.$weakStates};
-        const $weakParams = updateAll ? {} : {...lastFormutil.$weakParams};
-        const $weakErrors = updateAll ? {} : {...lastFormutil.$weakErrors};
-        const $weakDirts = updateAll ? {} : {...lastFormutil.$weakDirts};
-        const $weakFocuses = updateAll ? {} : {...lastFormutil.$weakFocuses};
-        const $weakTouches = updateAll ? {} : {...lastFormutil.$weakTouches};
-        const $weakPendings = updateAll ? {} : {...lastFormutil.$weakPendings};
+        const $weakStates = updateAll ? {} : { ...lastFormutil.$weakStates };
+        const $weakParams = updateAll ? {} : { ...lastFormutil.$weakParams };
+        const $weakErrors = updateAll ? {} : { ...lastFormutil.$weakErrors };
+        const $weakDirts = updateAll ? {} : { ...lastFormutil.$weakDirts };
+        const $weakFocuses = updateAll ? {} : { ...lastFormutil.$weakFocuses };
+        const $weakTouches = updateAll ? {} : { ...lastFormutil.$weakTouches };
+        const $weakPendings = updateAll ? {} : { ...lastFormutil.$weakPendings };
 
         for (let i = 0, j = $stateArray.length; i < j; i++) {
             const { $state, path } = $stateArray[i];
@@ -619,7 +619,11 @@ class Form extends Component {
                 $processer($state, path);
             }
 
-            if ('$value' in $state && ($state.$dirty || !utils.isUndefined($state.$value))) {
+            if (
+                '$value' in $state &&
+                (!(path in $weakParams) || $weakParams[path] !== $state.$value) &&
+                ($state.$dirty || !utils.isUndefined($state.$value))
+            ) {
                 // update $weakParams
                 $weakParams[path] = $state.$value;
 
@@ -632,35 +636,45 @@ class Form extends Component {
             // update $weakStates
             $weakStates[path] = $state;
 
-            if ($state.$invalid) {
-                // update $errors
-                utils.parsePath($errors, path, $state.$error);
-                // update $weakErrors
-                $weakErrors[path] = $state.$error;
-            } else {
-                utils.objectClear($errors, path);
-                delete $weakErrors[path];
+            if ($weakErrors[path] !== $state.$error) {
+                if ($state.$invalid) {
+                    // update $errors
+                    utils.parsePath($errors, path, $state.$error);
+                    // update $weakErrors
+                    $weakErrors[path] = $state.$error;
+                } else if (path in $weakErrors) {
+                    utils.objectClear($errors, path);
+                    delete $weakErrors[path];
+                }
             }
 
-            // update $dirts
-            utils.parsePath($dirts, path, $state.$dirty);
-            // update $weakDirts
-            $weakDirts[path] = $state.$dirty;
+            if ($weakDirts[path] !== $state.$dirty) {
+                // update $dirts
+                utils.parsePath($dirts, path, $state.$dirty);
+                // update $weakDirts
+                $weakDirts[path] = $state.$dirty;
+            }
 
-            // update $touches
-            utils.parsePath($touches, path, $state.$touched);
-            // update $weakTouches
-            $weakTouches[path] = $state.$touched;
+            if ($weakTouches[path] !== $state.$touched) {
+                // update $touches
+                utils.parsePath($touches, path, $state.$touched);
+                // update $weakTouches
+                $weakTouches[path] = $state.$touched;
+            }
 
-            // update $focuses
-            utils.parsePath($focuses, path, $state.$focused);
-            // update $weakFocuses
-            $weakFocuses[path] = $state.$focused;
+            if ($weakFocuses[path] !== $state.$focused) {
+                // update $focuses
+                utils.parsePath($focuses, path, $state.$focused);
+                // update $weakFocuses
+                $weakFocuses[path] = $state.$focused;
+            }
 
-            // update $pendings
-            utils.parsePath($pendings, path, $state.$pending);
-            // update $weakPendings
-            $weakPendings[path] = $state.$pending;
+            if ($weakPendings[path] !== $state.$pending) {
+                // update $pendings
+                utils.parsePath($pendings, path, $state.$pending);
+                // update $weakPendings
+                $weakPendings[path] = $state.$pending;
+            }
         }
 
         const $formutil = (this.$formutil = {

@@ -375,8 +375,9 @@ var Form = /*#__PURE__*/function (_Component) {
           objectClear(_this.$$defaultValues, name);
         }
 
-        _this.$$registers[$handler.$name = name] = $handler;
-        _this.$$formShouldUpdateAll = true;
+        _this.$$registers[$handler.$name = name] = $handler; // this.$$formShouldUpdateAll = true;
+
+        _this.$$formShouldUpdateFields[name] = true;
 
         _this.createDeepRegisters();
 

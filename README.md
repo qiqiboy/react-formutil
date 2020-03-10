@@ -21,7 +21,7 @@ Happy to build the forms in React ^\_^
 
 > #### react-formutil 的优势
 >
-> 1. 全局表单状态同步，使用更加简单、自然、符合直觉、心智负担小，同时对于复杂场景，也提供了[性能优化支持](https://github.com/qiqiboy/react-formutil/issues/18)
+> 1. 全局表单状态同步，使用更加简单、自然、符合直觉、心智负担小，同时对于复杂场景，也提供了 [高性能表单优化指南](https://github.com/qiqiboy/react-formutil/issues/18) 供参考
 > 1. 一切都是状态，表单核心相关的 `$value` `$viewValue` `$diry` `$pristine` `$touched` `$untouched` `$valid` `$invalid` `$error` 等都是实时状态，整个表单以类似`redux`的单一状态树进行表达；无需额外的`getFieldValue(name)` `getFormValues()` `validateField()`等额外动作
 > 1. 非侵入性，只提供了对表单状态收集的抽象接口，不渲染任何 dom 结构；但同时你非常容易编写出适合项目的 Field 组件，我们也提供了对[流行 UI 库的适配](#如何在-ant-design-或者-material-ui-等项目中使用-react-formutil)
 > 1. 采用受控组件和 context，对组件嵌套层级没有限制，支持数据双向同步（`model<->view`）
@@ -121,7 +121,7 @@ Happy to build the forms in React ^\_^
             * [`$batchState($newState) | $batchDirty($dirty) | $batchTouched($touched) | $batchFocused($focused)`](#batchstatenewstate--batchdirtydirty--batchtouchedtouched--batchfocusedfocused)
             * [`$getFirstError()`](#getfirsterror-1)
             * [`$states | $weakStates`](#states--weakstates)
-            * [`$params | $weakParams`](#params--weakparams)
+            * [`$params | $weakParams | $pureParams`](#params--weakparams--pureparams)
             * [`$errors | $weakErrors`](#errors--weakerrors)
             * [`$dirts | $weakDirts`](#dirts--weakdirts)
             * [`$touches | $weakTouches`](#touches--weaktouches)
@@ -439,6 +439,8 @@ yarn add react-formutil
 #### `$memo`
 
 > 该属性为 `v1.0.0` 新增。
+>
+> 关于如何使用 react-formutil 创建高性能表单，可以阅读这篇 [**`高性能表单指南`**](https://github.com/qiqiboy/react-formutil/issues/18) 了解更多。
 
 ```typescript
 type $memo = boolean | any[];
@@ -553,6 +555,8 @@ const render = useCallback(
 **其它情况**
 
 `$memo`只能用于`Field`本身的优化，但是如果整个`Form`下有其它非用作表单项的重型组件（即没有嵌套在`Field`下），可以使用 [`memo-render`](https://github.com/qiqiboy/memo-render) 做优化。
+
+> 关于如何使用 react-formutil 创建高性能表单，可以阅读这篇 [**`高性能表单指南`**](https://github.com/qiqiboy/react-formutil/issues/18) 了解更多。
 
 最后，小提示：可以使用 chrome 的 React Devtool 的[`Profiler`](https://reactjs.org/blog/2018/09/10/introducing-the-react-profiler.html)面板来测试页面的性能瓶颈；查看`$memo`优化是否生效；分析导致优化失败的 props。
 
@@ -1954,9 +1958,9 @@ if ($invalid) {
 
 所有表单项的 值`$value` 集合。
 
-* `$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，并且包含`$defaultValues`中的其它值
-* `$weakParams` 是直接以以 `Field` 的 `name` 字符串当 key 的对象
-* `$pureParams` 与`$params`类似，只不过它仅仅包含实际注册的Field的值，不包括`$defaultValues`传递的未注册的值
+-   `$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，并且包含`$defaultValues`中的其它值
+-   `$weakParams` 是直接以以 `Field` 的 `name` 字符串当 key 的对象
+-   `$pureParams` 与`$params`类似，只不过它仅仅包含实际注册的 Field 的值，不包括`$defaultValues`传递的未注册的值
 
 > **请注意：** 只有表单项的`$dirty`状态为`false`，或者其值`$value`不是`undefined`时，其值才会被收集解析道`$params`或者`$weakParams`中！
 >

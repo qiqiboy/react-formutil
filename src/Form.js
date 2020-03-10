@@ -114,7 +114,8 @@ class Form extends Component {
 
             this.$$registers[($handler.$name = name)] = $handler;
 
-            this.$$formShouldUpdateAll = true;
+            // this.$$formShouldUpdateAll = true;
+            this.$$formShouldUpdateFields[name] = true;
 
             this.createDeepRegisters();
             this.$render();

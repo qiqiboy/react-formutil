@@ -35,7 +35,6 @@ Happy to build the forms in React ^\_^
 * [安装 Installation](#安装-installation)
     - [`最新版`](#最新版)
     - [`0.5.x`](#05x)
-    - [`0.4.x`](#04x)
     - [`UMD包`](#umd包)
 * [示例 Examples](#示例-examples)
 * [使用 Usage](#使用-usage)
@@ -174,20 +173,6 @@ yarn add react-formutil
 `0.5.x` 包含了一些对`v16.3`以前版本的 react 的一些`polyfills`处理，所以可以用于小于`16.3`的 react 版本。如果你还在使用早期版本的 react，可以使用该版本。
 
 **所有的`react@16`早期版本的 react，都可以升级到最新的 react，所以建议将项目中的 react 都进行升级，并使用最新的`0.6.x`版本的`react-formutil`.**
-
-### `0.4.x`
-
-**不建议继续使用。仅限升级`0.5.x`遇到一些暂时没有条件兼容的问题（例如 TS 类型声明变动、Field 注册时机变动），或者进入维护期的项目修复 bug**
-
-`0.4.x`支持所有`v15` - `v16`版本的 react（不支持未来发布的`v17`版本，因为该版本使用旧版的`context API`；目前也不再更新新功能支持，只修复 Bug）；文档请参考：[react-formutil 0.4.x](https://github.com/qiqiboy/react-formutil/tree/0.4.8)
-
-```bash
-# npm
-npm install react-formutil@0.4 --save
-
-# yarn
-yarn add react-formutil@0.4
-```
 
 ### `UMD包`
 
@@ -486,7 +471,7 @@ type $memo = boolean | any[];
 
 由于`react-formutil`的理念是表单控制器状态被实时追踪更新，所以当一个`Field`的状态变化，会引起整个`Form`的重新渲染，而这又会导致其它没有状态变化的`Field`也会跟着一起重新渲染。这种设计对于表单副作用相关的场景是友好的，比如`Field`的值可以随意相互依赖、整个表单组件上下文中可以随意自由访问表单控制器等。
 
-但是这种灵活性在某些场景下，比如当表单`Field`元素显著增多，或者`Field`渲染了复杂的、较重的组件时，过于频繁的重复渲染会引起表单性能下降。理想的状态下，当然希望单个`Field`的渲染不要引起其它不相关的`Field`的重复渲染。但是实际上，`Field`之间的副作用是无法追踪的，`react-formutil`运行于假设表单上下文中随时都出出现副作用的场景下。
+但是这种灵活性在某些场景下，比如当表单`Field`元素显著增多，或者`Field`渲染了复杂的、较重的组件时，过于频繁的重复渲染会引起表单性能下降。理想的状态下，当然希望单个`Field`的渲染不要引起其它不相关的`Field`的重复渲染。但是实际上，`Field`与其组件的副作用是无法预知的，`react-formutil`运行于假设表单上下文中随时都出出现副作用的场景下。
 
 但是这也不意味着我们没有手段去优化表单性能了，既然单个`Field`变化必然引起整个表单的渲染，那么我们从其它`Field`着手优化即可，即如果可以确认该`Field`不依赖其它表单`Field`，那么只要当它本身的 props 和自身的状态模型没有发生变化，就可以告诉 react 跳过渲染，以达到优化目的。
 
@@ -1965,9 +1950,13 @@ if ($invalid) {
 
 所有表单项的状态集合。`$formutl.$state` 是以 `Field` 的 name 值经过路径解析后的对象，`$formutil.$weakState` 是以 `Field` 的 `name` 字符串当 key 的对象。
 
-##### `$params | $weakParams`
+##### `$params | $weakParams | $pureParams`
 
-所有表单项的 值`$value` 集合。`$formutil.$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，`$formutil.$weakParams` 是以 `Field` 的 `name` 字符串当 key 的对象。
+所有表单项的 值`$value` 集合。
+
+* `$params` 是以 `Field` 的 `name` 值经过路径解析后的对象，并且包含`$defaultValues`中的其它值
+* `$weakParams` 是直接以以 `Field` 的 `name` 字符串当 key 的对象
+* `$pureParams` 与`$params`类似，只不过它仅仅包含实际注册的Field的值，不包括`$defaultValues`传递的未注册的值
 
 > **请注意：** 只有表单项的`$dirty`状态为`false`，或者其值`$value`不是`undefined`时，其值才会被收集解析道`$params`或者`$weakParams`中！
 >

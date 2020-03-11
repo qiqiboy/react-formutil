@@ -3190,6 +3190,7 @@
         checked = fieldProps.checked,
         unchecked = fieldProps.unchecked,
         __TYPE__ = fieldProps.__TYPE__,
+        __DIFF__ = fieldProps.__DIFF__,
         passUtil = fieldProps.passUtil,
         $defaultValue = fieldProps.$defaultValue,
         $defaultState = fieldProps.$defaultState,
@@ -3202,7 +3203,7 @@
         $parser = fieldProps.$parser,
         $formatter = fieldProps.$formatter,
         $ref = fieldProps.$ref,
-        childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$memo", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
+        childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "__DIFF__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$memo", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
 
     var renderProps = {
       children: children,

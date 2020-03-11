@@ -131,6 +131,7 @@ export function parseProps(props) {
         checked,
         unchecked,
         __TYPE__,
+        __DIFF__,
         passUtil,
 
         // filter all the props that accept by Field

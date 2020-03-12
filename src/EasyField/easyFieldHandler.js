@@ -156,6 +156,10 @@ export function parseProps(props) {
         render
     };
 
+    if ($memo === true && isUndefined(__DIFF__)) {
+        fieldProps.__DIFF__ = [children, component, render];
+    }
+
     const isNative = !isUndefined(type) || (isUndefined(children) && isUndefined(component) && isUndefined(render));
 
     Object.keys({

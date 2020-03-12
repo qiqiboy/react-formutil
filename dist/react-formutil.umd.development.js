@@ -2158,24 +2158,23 @@
     return $fieldHandler;
   }
 
-  /* global Map:readonly, Set:readonly, ArrayBuffer:readonly */
-
+  var isArray = Array.isArray;
+  var keyList = Object.keys;
+  var hasProp = Object.prototype.hasOwnProperty;
   var hasElementType = typeof Element !== 'undefined';
-  var hasMap = typeof Map === 'function';
-  var hasSet = typeof Set === 'function';
-  var hasArrayBuffer = typeof ArrayBuffer === 'function';
-
-  // Note: We **don't** need `envHasBigInt64Array` in fde es6/index.js
 
   function equal(a, b) {
-    // START: fast-deep-equal es6/index.js 3.1.1
+    // fast-deep-equal index.js 2.0.1
     if (a === b) return true;
 
     if (a && b && typeof a == 'object' && typeof b == 'object') {
-      if (a.constructor !== b.constructor) return false;
+      var arrA = isArray(a)
+        , arrB = isArray(b)
+        , i
+        , length
+        , key;
 
-      var length, i, keys;
-      if (Array.isArray(a)) {
+      if (arrA && arrB) {
         length = a.length;
         if (length != b.length) return false;
         for (i = length; i-- !== 0;)
@@ -2183,87 +2182,50 @@
         return true;
       }
 
-      // START: Modifications:
-      // 1. Extra `has<Type> &&` helpers in initial condition allow es6 code
-      //    to co-exist with es5.
-      // 2. Replace `for of` with es5 compliant iteration using `for`.
-      //    Basically, take:
-      //
-      //    ```js
-      //    for (i of a.entries())
-      //      if (!b.has(i[0])) return false;
-      //    ```
-      //
-      //    ... and convert to:
-      //
-      //    ```js
-      //    it = a.entries();
-      //    while (!(i = it.next()).done)
-      //      if (!b.has(i.value[0])) return false;
-      //    ```
-      //
-      //    **Note**: `i` access switches to `i.value`.
-      var it;
-      if (hasMap && (a instanceof Map) && (b instanceof Map)) {
-        if (a.size !== b.size) return false;
-        it = a.entries();
-        while (!(i = it.next()).done)
-          if (!b.has(i.value[0])) return false;
-        it = a.entries();
-        while (!(i = it.next()).done)
-          if (!equal(i.value[1], b.get(i.value[0]))) return false;
-        return true;
-      }
+      if (arrA != arrB) return false;
 
-      if (hasSet && (a instanceof Set) && (b instanceof Set)) {
-        if (a.size !== b.size) return false;
-        it = a.entries();
-        while (!(i = it.next()).done)
-          if (!b.has(i.value[0])) return false;
-        return true;
-      }
-      // END: Modifications
+      var dateA = a instanceof Date
+        , dateB = b instanceof Date;
+      if (dateA != dateB) return false;
+      if (dateA && dateB) return a.getTime() == b.getTime();
 
-      if (hasArrayBuffer && ArrayBuffer.isView(a) && ArrayBuffer.isView(b)) {
-        length = a.length;
-        if (length != b.length) return false;
-        for (i = length; i-- !== 0;)
-          if (a[i] !== b[i]) return false;
-        return true;
-      }
+      var regexpA = a instanceof RegExp
+        , regexpB = b instanceof RegExp;
+      if (regexpA != regexpB) return false;
+      if (regexpA && regexpB) return a.toString() == b.toString();
 
-      if (a.constructor === RegExp) return a.source === b.source && a.flags === b.flags;
-      if (a.valueOf !== Object.prototype.valueOf) return a.valueOf() === b.valueOf();
-      if (a.toString !== Object.prototype.toString) return a.toString() === b.toString();
-
-      keys = Object.keys(a);
+      var keys = keyList(a);
       length = keys.length;
-      if (length !== Object.keys(b).length) return false;
+
+      if (length !== keyList(b).length)
+        return false;
 
       for (i = length; i-- !== 0;)
-        if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
-      // END: fast-deep-equal
+        if (!hasProp.call(b, keys[i])) return false;
+      // end fast-deep-equal
 
-      // START: react-fast-compare
+      // start react-fast-compare
       // custom handling for DOM elements
-      if (hasElementType && a instanceof Element) return false;
+      if (hasElementType && a instanceof Element && b instanceof Element)
+        return a === b;
 
       // custom handling for React
       for (i = length; i-- !== 0;) {
-        if (keys[i] === '_owner' && a.$$typeof) {
+        key = keys[i];
+        if (key === '_owner' && a.$$typeof) {
           // React-specific: avoid traversing React elements' _owner.
           //  _owner contains circular references
           // and is not needed when comparing the actual elements (and not their owners)
           // .$$typeof and ._store on just reasonable markers of a react element
           continue;
+        } else {
+          // all other properties should be traversed as usual
+          if (!equal(a[key], b[key])) return false;
         }
-
-        // all other properties should be traversed as usual
-        if (!equal(a[keys[i]], b[keys[i]])) return false;
       }
-      // END: react-fast-compare
+      // end react-fast-compare
 
-      // START: fast-deep-equal
+      // fast-deep-equal index.js 2.0.1
       return true;
     }
 
@@ -2271,17 +2233,17 @@
   }
   // end fast-deep-equal
 
-  var _reactFastCompare_3_0_1_reactFastCompare = function isEqual(a, b) {
+  var _reactFastCompare_2_0_4_reactFastCompare = function exportedEqual(a, b) {
     try {
       return equal(a, b);
     } catch (error) {
-      if (((error.message || '').match(/stack|recursion/i))) {
+      if ((error.message && error.message.match(/stack|recursion/i)) || (error.number === -2146828260)) {
         // warn on circular references, don't crash
         // browsers give this different errors name and messages:
         // chrome/safari: "RangeError", "Maximum call stack size exceeded"
         // firefox: "InternalError", too much recursion"
         // edge: "Error", "Out of stack space"
-        console.warn('react-fast-compare cannot handle circular refs');
+        console.warn('Warning: react-fast-compare does not handle circular references.', error.name, error.message);
         return false;
       }
       // some other error. we should definitely know about these
@@ -2396,7 +2358,7 @@
          * 这里不能用isEqual深度比较，避免遇到$value为大数据时导致性能问题
          * isStateEqual只比较一层
          */
-        !isStateEqual(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? _reactFastCompare_3_0_1_reactFastCompare($memo, this.props.$memo) : _reactFastCompare_3_0_1_reactFastCompare(this.props, nextProps));
+        !isStateEqual(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? _reactFastCompare_2_0_4_reactFastCompare($memo, this.props.$memo) : _reactFastCompare_2_0_4_reactFastCompare(this.props, nextProps));
       }
     }, {
       key: "_render",
@@ -2835,7 +2797,7 @@
             if (_this.props.value.length) {
               _this.props.onChange(_this.latestValue = []);
             }
-          } else if (!_reactFastCompare_3_0_1_reactFastCompare(_this.props.value, $params.list)) {
+          } else if (!_reactFastCompare_2_0_4_reactFastCompare(_this.props.value, $params.list)) {
             _this.props.onChange(_this.latestValue = $params.list);
           }
         });
@@ -3021,7 +2983,7 @@
                           if ($fieldutil.$viewValue !== null) {
                             $fieldutil.$render(null);
                           }
-                        } else if (!_reactFastCompare_3_0_1_reactFastCompare($fieldutil.$viewValue, $params)) {
+                        } else if (!_reactFastCompare_2_0_4_reactFastCompare($fieldutil.$viewValue, $params)) {
                           $fieldutil.$render($params);
                         }
                       });
@@ -3210,6 +3172,11 @@
       component: component,
       render: render
     };
+
+    if ($memo === true && isUndefined(__DIFF__)) {
+      fieldProps.__DIFF__ = [children, component, render];
+    }
+
     var isNative = !isUndefined(type) || isUndefined(children) && isUndefined(component) && isUndefined(render);
     Object.keys(_objectSpread2({}, fieldProps.$validators = _objectSpread2({}, defaultValidators, {}, fieldProps.$validators), {}, fieldProps.$asyncValidators)).forEach(function (prop) {
       if (prop in childProps) {

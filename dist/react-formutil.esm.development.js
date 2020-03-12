@@ -2491,6 +2491,11 @@ function parseProps(props) {
     component: component,
     render: render
   };
+
+  if ($memo === true && isUndefined(__DIFF__)) {
+    fieldProps.__DIFF__ = [children, component, render];
+  }
+
   var isNative = !isUndefined(type) || isUndefined(children) && isUndefined(component) && isUndefined(render);
   Object.keys(_objectSpread({}, fieldProps.$validators = _objectSpread({}, defaultValidators, {}, fieldProps.$validators), {}, fieldProps.$asyncValidators)).forEach(function (prop) {
     if (prop in childProps) {

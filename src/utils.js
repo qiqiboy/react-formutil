@@ -157,16 +157,20 @@ export function parsePath(...args) {
                 switch (symbol) {
                     case '].':
                     case '.':
-                        scope = isUndefined(scope[word]) ? (scope[word] = {}) : scope[word];
+                        scope = scope[word] = isUndefined(scope[word]) ? {} : { ...scope[word] };
                         break;
 
                     case '][':
                     case '[':
                         const nextVarWord = executeWord(nextWord);
 
-                        scope = isUndefined(scope[word])
-                            ? (scope[word] = typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {})
-                            : scope[word];
+                        scope = scope[word] = isUndefined(scope[word])
+                            ? typeof nextVarWord === 'number' && nextVarWord >= 0
+                                ? []
+                                : {}
+                            : Array.isArray(scope[word])
+                            ? [...scope[word]]
+                            : { ...scope[word] };
                         break;
 
                     default:

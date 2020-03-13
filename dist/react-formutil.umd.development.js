@@ -628,13 +628,13 @@
           switch (symbol) {
             case '].':
             case '.':
-              scope = isUndefined(scope[_word]) ? scope[_word] = {} : scope[_word];
+              scope = scope[_word] = isUndefined(scope[_word]) ? {} : _objectSpread2({}, scope[_word]);
               break;
 
             case '][':
             case '[':
               var nextVarWord = executeWord(nextWord);
-              scope = isUndefined(scope[_word]) ? scope[_word] = typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {} : scope[_word];
+              scope = scope[_word] = isUndefined(scope[_word]) ? typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {} : Array.isArray(scope[_word]) ? _toConsumableArray(scope[_word]) : _objectSpread2({}, scope[_word]);
               break;
 
             default:

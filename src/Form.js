@@ -620,11 +620,11 @@ class Form extends Component {
                 $processer($state, path);
             }
 
-            if (
-                '$value' in $state &&
-                (!(path in $weakParams) || $weakParams[path] !== $state.$value) &&
-                ($state.$dirty || !utils.isUndefined($state.$value))
-            ) {
+            if (path in $weakParams && $state.$pristine && utils.isUndefined($state.$value)) {
+                delete $weakParams[path];
+
+                utils.objectClear($pureParams, path);
+            } else if ($weakParams[path] !== $state.$value) {
                 // update $weakParams
                 $weakParams[path] = $state.$value;
 

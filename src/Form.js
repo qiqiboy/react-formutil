@@ -245,7 +245,7 @@ class Form extends Component {
         }
     };
 
-    $$formValidate = callback =>
+    $$formValidate = () =>
         (this.$$formValidatePromise = new Promise(resolve => {
             const { $validator } = this.props;
 
@@ -254,9 +254,8 @@ class Form extends Component {
             let prevCallback;
             let validation;
 
-            const result = $validator(this.$formutil.$params, this.formtutil);
-            const execCallback = $formutil =>
-                resolve(utils.runCallback(callback, utils.runCallback(prevCallback, $formutil)));
+            const result = $validator(this.$formutil.$params, this.$formutil);
+            const execCallback = $formutil => resolve(utils.runCallback(prevCallback, $formutil));
 
             if (utils.isPromise(result)) {
                 if (!this.$$formPending) {
@@ -333,8 +332,6 @@ class Form extends Component {
                         $error
                     };
                 }
-
-                return;
             },
             callback,
             true
@@ -364,9 +361,9 @@ class Form extends Component {
         const $parsedTree = this.$$deepParseObject($stateTree);
 
         utils.objectEach(this.$$registers, (handler, name) => {
-            let pathData;
+            const pathData = utils.pathExist($parsedTree, name);
 
-            if (force || (pathData = utils.pathExist($parsedTree, name))) {
+            if (force || pathData) {
                 const $newState = processer(pathData && pathData.data, handler);
 
                 if ($newState) {

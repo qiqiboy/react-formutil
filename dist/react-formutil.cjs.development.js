@@ -497,17 +497,17 @@ var Form = /*#__PURE__*/function (_Component) {
       }
     };
 
-    _this.$$formValidate = function (callback) {
+    _this.$$formValidate = function () {
       return _this.$$formValidatePromise = new Promise(function (resolve) {
         var $validator = _this.props.$validator;
         var $breakAsyncHandler;
         var $shouldCancelPrevAsyncValidate;
         var prevCallback;
         var validation;
-        var result = $validator(_this.$formutil.$params, _this.formtutil);
+        var result = $validator(_this.$formutil.$params, _this.$formutil);
 
         var execCallback = function execCallback($formutil) {
-          return resolve(runCallback(callback, runCallback(prevCallback, $formutil)));
+          return resolve(runCallback(prevCallback, $formutil));
         };
 
         if (isPromise(result)) {
@@ -576,8 +576,6 @@ var Form = /*#__PURE__*/function (_Component) {
             $error: $error
           };
         }
-
-        return;
       }, callback, true);
     };
 
@@ -605,9 +603,9 @@ var Form = /*#__PURE__*/function (_Component) {
       var $parsedTree = _this.$$deepParseObject($stateTree);
 
       objectEach(_this.$$registers, function (handler, name) {
-        var pathData;
+        var pathData = pathExist($parsedTree, name);
 
-        if (force || (pathData = pathExist($parsedTree, name))) {
+        if (force || pathData) {
           var $newState = processer(pathData && pathData.data, handler);
 
           if ($newState) {

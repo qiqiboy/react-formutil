@@ -697,7 +697,7 @@ class Form extends Component {
             }
         }
 
-        const $formutil = (this.$formutil = {
+        this.$formutil = {
             $$registers: { ...this.$$registers },
             $$deepRegisters: this.$$deepRegisters,
             $states,
@@ -754,7 +754,7 @@ class Form extends Component {
             $untouched: !$touched,
             $focused,
             $pending
-        });
+        };
 
         this.$$resetFormUpdateFields();
 

@@ -544,6 +544,28 @@ class Form extends Component {
             callback
         );
 
+    $getFirstError = name => {
+        const $formutil = this.$formutil;
+
+        if (name) {
+            const $fieldutil = $formutil.$getField(name);
+
+            return $fieldutil && $fieldutil.$getFirstError();
+        }
+
+        for (let name in $formutil.$weakErrors) {
+            if ($formutil.$weakErrors.hasOwnProperty(name)) {
+                const $fieldError = $formutil.$weakErrors[name];
+
+                for (let key in $fieldError) {
+                    if ($fieldError.hasOwnProperty(key)) {
+                        return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
+                    }
+                }
+            }
+        }
+    };
+
     $new = () => this.$formutil;
 
     _render() {
@@ -698,25 +720,7 @@ class Form extends Component {
             $weakFocuses,
             $weakPendings,
 
-            $getFirstError(name) {
-                if (name) {
-                    const $fieldutil = $formutil.$getField(name);
-
-                    return $fieldutil && $fieldutil.$getFirstError();
-                }
-
-                for (let name in $formutil.$weakErrors) {
-                    if ($formutil.$weakErrors.hasOwnProperty(name)) {
-                        const $fieldError = $formutil.$weakErrors[name];
-
-                        for (let key in $fieldError) {
-                            if ($fieldError.hasOwnProperty(key)) {
-                                return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
-                            }
-                        }
-                    }
-                }
-            },
+            $getFirstError: this.$getFirstError,
 
             $render: this.$render,
 

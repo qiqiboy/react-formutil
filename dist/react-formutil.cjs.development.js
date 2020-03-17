@@ -586,7 +586,9 @@ var Form = /*#__PURE__*/function (_Component) {
       warning(name, "You should pass a name of the mounted Field to $getField().");
 
       if (field) {
-        return field.$new();
+        var _field$$new;
+
+        return (_field$$new = field.$new) === null || _field$$new === void 0 ? void 0 : _field$$new.call(field);
       }
     };
 
@@ -817,6 +819,27 @@ var Form = /*#__PURE__*/function (_Component) {
       }, callback);
     };
 
+    _this.$getFirstError = function (name) {
+      var $formutil = _this.$formutil;
+
+      if (name) {
+        var $fieldutil = $formutil.$getField(name);
+        return $fieldutil && $fieldutil.$getFirstError();
+      }
+
+      for (var _name in $formutil.$weakErrors) {
+        if ($formutil.$weakErrors.hasOwnProperty(_name)) {
+          var $fieldError = $formutil.$weakErrors[_name];
+
+          for (var key in $fieldError) {
+            if ($fieldError.hasOwnProperty(key)) {
+              return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
+            }
+          }
+        }
+      }
+    };
+
     _this.$new = function () {
       return _this.$formutil;
     };
@@ -1013,7 +1036,7 @@ var Form = /*#__PURE__*/function (_Component) {
         }
       }
 
-      var $formutil = this.$formutil = {
+      this.$formutil = {
         $$registers: _objectSpread({}, this.$$registers),
         $$deepRegisters: this.$$deepRegisters,
         $states: $states,
@@ -1031,24 +1054,7 @@ var Form = /*#__PURE__*/function (_Component) {
         $weakTouches: $weakTouches,
         $weakFocuses: $weakFocuses,
         $weakPendings: $weakPendings,
-        $getFirstError: function $getFirstError(name) {
-          if (name) {
-            var $fieldutil = $formutil.$getField(name);
-            return $fieldutil && $fieldutil.$getFirstError();
-          }
-
-          for (var _name in $formutil.$weakErrors) {
-            if ($formutil.$weakErrors.hasOwnProperty(_name)) {
-              var $fieldError = $formutil.$weakErrors[_name];
-
-              for (var key in $fieldError) {
-                if ($fieldError.hasOwnProperty(key)) {
-                  return $fieldError[key] instanceof Error ? $fieldError[key].message : $fieldError[key];
-                }
-              }
-            }
-          }
-        },
+        $getFirstError: this.$getFirstError,
         $render: this.$render,
         $getField: this.$getField,
         $onValidates: this.$onValidates,
@@ -1060,6 +1066,7 @@ var Form = /*#__PURE__*/function (_Component) {
         $setTouches: this.$setTouches,
         $setDirts: this.$setDirts,
         $setFocuses: this.$setFocuses,
+        $setPendings: this.$setPendings,
         $batchState: this.$batchState,
         $batchTouched: this.$batchTouched,
         $batchDirty: this.$batchDirty,

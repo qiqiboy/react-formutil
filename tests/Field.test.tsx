@@ -1,0 +1,542 @@
+import React from 'react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { $Formutil, $Fieldutil, FieldProps, FormProps } from '../index.d';
+import { Form, Field } from '../src';
+
+function renderForm(content: React.ReactNode, formProps?: FormProps) {
+    let formHandler: $Formutil;
+    const getForm = content => (
+        <Form {...formProps}>
+            {$formutil => {
+                formHandler = $formutil;
+
+                return content;
+            }}
+        </Form>
+    );
+    const { rerender, ...rest } = render(getForm(content));
+
+    return {
+        getFormutil() {
+            return formHandler;
+        },
+        ...rest,
+        rerender: content => rerender(getForm(content))
+    };
+}
+
+function renderField(fieldProps?: FieldProps) {
+    let fieldHandler: $Fieldutil;
+    let instance;
+    const getForm = (newProps?: FieldProps) => (
+        <Form>
+            <Field {...fieldProps} {...newProps} ref={node => (instance = node)}>
+                {$fieldutil => {
+                    fieldHandler = $fieldutil;
+
+                    return (
+                        <input
+                            data-testid="input"
+                            value={$fieldutil.$viewValue}
+                            onChange={ev => {
+                                $fieldutil.$render(ev.target.value);
+
+                                if ($fieldutil.$pristine) {
+                                    $fieldutil.$setDirty(true);
+                                }
+                            }}
+                            onFocus={() => {
+                                $fieldutil.$setFocused(true);
+                            }}
+                            onBlur={() => {
+                                $fieldutil.$setFocused(false);
+
+                                if ($fieldutil.$untouched) {
+                                    $fieldutil.$setTouched(true);
+                                }
+                            }}
+                        />
+                    );
+                }}
+            </Field>
+        </Form>
+    );
+    const { rerender, ...rest } = render(getForm());
+
+    return {
+        getFieldutil() {
+            return fieldHandler;
+        },
+        getInstance() {
+            return instance;
+        },
+        getElement() {
+            return rest.getByTestId('input') as HTMLInputElement;
+        },
+        rerender(newProps?: FieldProps) {
+            return rerender(getForm(newProps));
+        },
+        ...rest
+    };
+}
+
+describe('name', () => {
+    test('mount name "a"', () => {
+        const { getFormutil } = renderForm(<Field name="a" children={null} />);
+        const $formutil = getFormutil();
+
+        expect($formutil.$$registers.a).toBeTruthy();
+    });
+
+    test('unmount name "a"', async () => {
+        const { getFormutil, rerender } = renderForm(<Field name="a" children={null} />);
+
+        rerender(null);
+
+        const $formutil = getFormutil();
+
+        expect($formutil.$$deepRegisters.a).toBeUndefined();
+    });
+
+    test('mount name "a.b[1].c[2].d"', () => {
+        const { getFormutil } = renderForm(<Field name="a.b[1].c[2].d" children={null} />);
+        const $formutil = getFormutil();
+
+        // @ts-ignore
+        expect($formutil.$$deepRegisters.a.b[1].c[2].d).toBeTruthy();
+        expect($formutil.$params.a.b[1].c[2].d).toBe('');
+    });
+});
+
+describe('$defaultValue', () => {
+    test('as variable', () => {
+        const { getFieldutil } = renderField({
+            name: 'a',
+            $defaultValue: 'a'
+        });
+
+        expect(getFieldutil().$value).toBe('a');
+    });
+
+    test('as function', () => {
+        const { getFieldutil } = renderField({
+            name: 'a',
+            $defaultValue() {
+                return 'a';
+            }
+        });
+
+        expect(getFieldutil().$value).toBe('a');
+    });
+});
+
+describe('$defaultState', () => {
+    const initializedState = {
+        $viewValue: 'a',
+        $touched: true
+    };
+
+    test('as object', () => {
+        const { getFieldutil } = renderField({
+            name: 'a',
+            $defaultState: initializedState
+        });
+
+        expect(getFieldutil().$getState()).toMatchObject(initializedState);
+    });
+
+    test('as function', () => {
+        const { getFieldutil } = renderField({
+            name: 'a',
+            $defaultState() {
+                return initializedState;
+            }
+        });
+
+        expect(getFieldutil().$getState()).toMatchObject(initializedState);
+    });
+});
+
+describe('$validators', () => {
+    const spyValidators = {
+        sync: jest.fn(),
+        async: jest.fn()
+    };
+    const $validators = {
+        syncValidate: value => {
+            spyValidators.sync();
+            return !!value || 'sync-validate!';
+        },
+        asyncValidate: jest.fn(value => {
+            return new Promise((resolve, reject) =>
+                setTimeout(() => {
+                    spyValidators.async();
+                    reject(new Error('async-validate!'));
+                }, 200)
+            );
+        })
+    };
+
+    test('sync&async validate', async () => {
+        const { getFieldutil, rerender } = renderField({
+            name: 'a',
+            $validators,
+            syncValidate: true
+        });
+
+        expect(getFieldutil().$error).toEqual({
+            syncValidate: 'sync-validate!'
+        });
+
+        expect(spyValidators.sync).toBeCalledTimes(1);
+        expect($validators.asyncValidate).not.toBeCalled();
+
+        rerender({
+            asyncValidate: true
+        });
+        getFieldutil().$render('');
+
+        expect(spyValidators.sync).toBeCalledTimes(2);
+        expect($validators.asyncValidate).toBeCalledTimes(1);
+
+        await waitFor(() => {
+            expect(getFieldutil().$error).toEqual({
+                syncValidate: 'sync-validate!',
+                asyncValidate: new Error('async-validate!')
+            });
+
+            expect(spyValidators.async).toBeCalledTimes(1);
+        });
+
+        getFieldutil().$render('a');
+
+        await waitFor(() => {
+            expect(getFieldutil().$error).toEqual({
+                asyncValidate: new Error('async-validate!')
+            });
+            expect(spyValidators.sync).toBeCalledTimes(3);
+            expect(spyValidators.async).toBeCalledTimes(2);
+        });
+    });
+});
+
+describe('$validateLazy', () => {
+    const $validators = {
+        syncValidate: jest.fn(value => {
+            return !!value || 'sync-validate!';
+        }),
+        asyncValidate: jest.fn(value => {
+            return new Promise((resolve, reject) =>
+                setTimeout(() => {
+                    reject(new Error('async-validate!'));
+                }, 200)
+            );
+        })
+    };
+
+    test('stop when get the first error', async () => {
+        const { getFieldutil, rerender } = renderField({
+            name: 'a',
+            $validators,
+            syncValidate: true,
+            asyncValidate: true
+        });
+
+        expect($validators.syncValidate).toBeCalledTimes(1);
+        expect($validators.asyncValidate).toBeCalledTimes(1);
+
+        rerender({
+            $validateLazy: true
+        });
+        getFieldutil().$render('');
+        expect($validators.syncValidate).toBeCalledTimes(2);
+        expect($validators.asyncValidate).toBeCalledTimes(1);
+
+        getFieldutil().$render('a');
+        expect($validators.syncValidate).toBeCalledTimes(3);
+        expect($validators.asyncValidate).toBeCalledTimes(2);
+    });
+});
+
+describe('$reserveOnUnmount', () => {
+    test('keep value even Field unmount', async () => {
+        const { getFormutil, rerender } = renderForm(<Field name="a" children={null} />);
+
+        expect(getFormutil().$params).toHaveProperty('a');
+
+        rerender(null);
+        expect(getFormutil().$params).not.toHaveProperty('a');
+
+        rerender(<Field name="a" $reserveOnUnmount children={null} />);
+        expect(getFormutil().$params).toHaveProperty('a');
+
+        rerender(null);
+        expect(getFormutil().$params).toHaveProperty('a');
+    });
+});
+
+describe('$parser & $formatter', () => {
+    test('transform $viewValue <-> $value', async () => {
+        const { getFieldutil, getElement, rerender } = renderField({
+            name: 'a',
+            $defaultValue: '0',
+            $parser(value) {
+                return 'parser: ' + value;
+            },
+            $formatter(value) {
+                return 'formatter: ' + value;
+            }
+        });
+
+        expect(getFieldutil().$value).toBe('0');
+        expect(getFieldutil().$viewValue).toBe('formatter: 0');
+
+        getElement().value = '';
+        userEvent.type(getElement(), '1');
+        expect(getFieldutil().$value).toBe('parser: 1');
+        expect(getFieldutil().$viewValue).toBe('1');
+
+        rerender({
+            $parser(value, $setViewValue) {
+                return $setViewValue('parser: ' + value);
+            },
+            $formatter(value, $setModelValue) {
+                return $setModelValue('formatter: ' + value);
+            }
+        });
+
+        getFieldutil().$setValue('2');
+        expect(getFieldutil().$value).toBe('formatter: 2');
+        expect(getFieldutil().$viewValue).toBe('formatter: 2');
+
+        getElement().value = '';
+        userEvent.type(getElement(), '3');
+        expect(getFieldutil().$value).toBe('parser: 3');
+        expect(getFieldutil().$viewValue).toBe('parser: 3');
+    });
+});
+
+describe('$ref', () => {
+    test('as function', async () => {
+        let $ref;
+        const { getFieldutil } = renderField({
+            name: 'a',
+            $ref: ref => ($ref = ref)
+        });
+
+        expect($ref).toBe(getFieldutil());
+    });
+
+    test('as createRef()', async () => {
+        let $ref = React.createRef<any>();
+        const { getFieldutil } = renderField({
+            name: 'a',
+            $ref
+        });
+
+        expect($ref.current).toBe(getFieldutil());
+    });
+});
+
+describe('$onFieldChange()', () => {
+    test('called when field value change', async () => {
+        const onChange = jest.fn();
+        const { getFieldutil, getElement } = renderField({
+            name: 'a',
+            $onFieldChange: onChange
+        });
+
+        expect(onChange).not.toBeCalled();
+
+        userEvent.type(getElement(), 'abc', {
+            allAtOnce: true
+        });
+
+        await waitFor(() => {
+            expect(onChange).toBeCalled();
+            expect(onChange.mock.calls[0]).toEqual(['abc', '', getFieldutil().$$formutil]);
+        });
+    });
+});
+
+describe('$fieldutil', () => {
+    test('$state & $getState()', () => {
+        const { getFieldutil } = renderField({
+            name: 'a'
+        });
+        const $fieldutil = getFieldutil();
+        const strictState = {
+            $value: expect.anything(),
+            $viewValue: expect.anything(),
+            $dirty: expect.any(Boolean),
+            $pristine: expect.any(Boolean),
+            $touched: expect.any(Boolean),
+            $untouched: expect.any(Boolean),
+            $focused: expect.any(Boolean),
+            $pending: expect.any(Boolean),
+            $valid: expect.any(Boolean),
+            $invalid: expect.any(Boolean),
+            $error: expect.objectContaining({})
+        };
+
+        expect($fieldutil.$value).toBe('');
+        expect($fieldutil.$dirty).toBe(false);
+        expect($fieldutil.$touched).toBe(false);
+        expect($fieldutil.$focused).toBe(false);
+        expect($fieldutil.$error).toMatchObject({});
+        expect($fieldutil).toMatchObject(strictState);
+        expect($fieldutil.$getState()).toEqual(strictState);
+    });
+
+    test('change value', async () => {
+        const { getFieldutil, getByTestId } = renderField({
+            name: 'a'
+        });
+        const input = getByTestId('input');
+
+        fireEvent.focus(input);
+        fireEvent.input(input, {
+            target: { value: 'b' }
+        });
+        // await userEvent.type(input, 'b');
+
+        expect(getFieldutil().$value).toBe('b');
+        expect(getFieldutil().$dirty).toBe(true);
+        expect(getFieldutil().$focused).toBe(true);
+
+        fireEvent.blur(input);
+
+        expect(getFieldutil().$focused).toBe(false);
+        expect(getFieldutil().$touched).toBe(true);
+    });
+
+    test('$reset()', async () => {
+        const { getFieldutil, getByTestId } = renderField({
+            name: 'a'
+        });
+        const input = getByTestId('input');
+
+        await userEvent.type(input, 'b');
+
+        expect(getFieldutil().$value).toBe('b');
+        getFieldutil().$reset();
+        expect(getFieldutil().$value).toBe('');
+    });
+
+    test('$setState()', async () => {
+        const callback = jest.fn();
+
+        const { getFieldutil, getByTestId } = renderField({
+            name: 'a'
+        });
+
+        getFieldutil().$setState(
+            {
+                $dirty: true,
+                $viewValue: 'b'
+            },
+            callback
+        );
+
+        const input = getByTestId('input') as HTMLInputElement;
+
+        expect(getFieldutil().$value).toBe('b');
+        expect(getFieldutil().$pristine).toBe(false);
+        expect(callback).toBeCalled();
+        expect(input.value).toBe('b');
+    });
+
+    test('$setValue() / $render()', async () => {
+        const callback = jest.fn();
+
+        const { getFieldutil, findByTestId } = renderField({
+            name: 'b'
+        });
+
+        getFieldutil().$setValue('b', callback);
+
+        const input = (await findByTestId('input')) as HTMLInputElement;
+
+        expect(getFieldutil().$value).toBe('b');
+        expect(callback).toBeCalled();
+        expect(input.value).toBe('b');
+
+        callback.mockClear();
+
+        getFieldutil().$render('c', callback);
+
+        expect(getFieldutil().$value).toBe('c');
+        expect(callback).toBeCalled();
+        expect(callback.mock.calls[0][0]).toBe(getFieldutil());
+        expect(input.value).toBe('c');
+    });
+
+    test('$setError()/$setValidaty()', async () => {
+        const callback = jest.fn();
+
+        const { getFieldutil } = renderField({
+            name: 'a'
+        });
+
+        getFieldutil().$setError(
+            {
+                required: 'required!'
+            },
+            callback
+        );
+        getFieldutil().$setValidity('maxlength', 'maxlength < 5', callback);
+
+        expect(getFieldutil().$error).toEqual({
+            required: 'required!',
+            maxlength: 'maxlength < 5'
+        });
+        expect(callback).toBeCalled();
+        expect(callback.mock.calls[1][0]).toBe(getFieldutil());
+    });
+
+    const stateMap = {
+        $dirty: '$setDirty',
+        $touched: '$setTouched',
+        $focused: '$setFocused'
+    };
+
+    Object.keys(stateMap).forEach(key => {
+        const method = stateMap[key];
+
+        test(method + '()', async () => {
+            const callback = jest.fn();
+
+            const { getFieldutil } = renderField({
+                name: 'a'
+            });
+
+            await getFieldutil()
+                [method](true, callback)
+                .then(callback);
+
+            expect(getFieldutil()[key]).toBe(true);
+            expect(callback).toBeCalledTimes(2);
+            expect(callback.mock.calls[0][0]).toBe(getFieldutil());
+        });
+    });
+
+    test('$validate() / $onValidate()', async () => {
+        const callback = jest.fn(v => !!v);
+
+        const { getFieldutil } = renderField({
+            name: 'b',
+            required: true,
+            $validators: {
+                required: callback
+            }
+        });
+
+        expect(callback).toBeCalledTimes(1);
+        getFieldutil().$validate();
+        expect(callback).toBeCalledTimes(2);
+
+        await getFieldutil().$onValidate();
+        expect(callback).toBeCalledTimes(2);
+    });
+});

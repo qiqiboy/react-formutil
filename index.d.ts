@@ -82,13 +82,16 @@ export type FormStates<Fields, Validators> = {
     >;
 };
 
-export type ArgFormParams<Fields> = {
+export type ArgFormParams<Fields, WeakFields = Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
         Fields[K],
         Fields[K] extends object ? ArgFormParams<Fields[K]> : Fields[K]
     >;
-};
+} &
+    {
+        [K in keyof WeakFields]?: WeakFields[K];
+    };
 
 export type ArgFieldError<Validators> = null | false | { [K in keyof Validators]?: any };
 
@@ -98,7 +101,7 @@ export type ArgFieldState<T, Validators> = Partial<
     }
 >;
 
-export type ArgFormErrors<Fields, Validators> = {
+export type ArgFormErrors<Fields, Validators, WeakFields = Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
         ArgFieldError<Validators>,
@@ -106,41 +109,56 @@ export type ArgFormErrors<Fields, Validators> = {
             ? ArgFormErrors<Fields[K], Validators> | ArgFieldError<Validators>
             : ArgFieldError<Validators>
     >;
-};
+} &
+    {
+        [K in keyof WeakFields]?: ArgFieldError<Validators>;
+    };
 
-export type ArgFormTouches<Fields> = {
+export type ArgFormTouches<Fields, WeakFields = Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
         boolean,
         Fields[K] extends object ? ArgFormTouches<Fields[K]> | boolean : boolean
     >;
-};
+} &
+    {
+        [K in keyof WeakFields]?: boolean;
+    };
 
-export type ArgFormPendings<Fields> = {
+export type ArgFormPendings<Fields, WeakFields = Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
         boolean,
         Fields[K] extends object ? ArgFormPendings<Fields[K]> | boolean : boolean
     >;
-};
+} &
+    {
+        [K in keyof WeakFields]?: boolean;
+    };
 
-export type ArgFormDirts<Fields> = {
+export type ArgFormDirts<Fields, WeakFields = Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
         boolean,
         Fields[K] extends object ? ArgFormDirts<Fields[K]> | boolean : boolean
     >;
-};
+} &
+    {
+        [K in keyof WeakFields]?: boolean;
+    };
 
-export type ArgFormFocuses<Fields> = {
+export type ArgFormFocuses<Fields, WeakFields = Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
         boolean,
         Fields[K] extends object ? ArgFormFocuses<Fields[K]> | boolean : boolean
     >;
-};
+} &
+    {
+        [K in keyof WeakFields]?: boolean;
+    };
 
-export type ArgFormStates<Fields, Validators> = {
+export type ArgFormStates<Fields, Validators, WeakFields = Fields> = {
     [K in keyof Fields]?: DetectAny<
         Fields[K],
         ArgFieldState<Fields[K], Validators>,
@@ -148,7 +166,10 @@ export type ArgFormStates<Fields, Validators> = {
             ? ArgFormStates<Fields[K], Validators> | ArgFieldState<Fields[K], Validators>
             : ArgFieldState<Fields[K], Validators>
     >;
-};
+} &
+    {
+        [K in keyof WeakFields]?: ArgFieldState<WeakFields[K], Validators>;
+    };
 
 export type FormWeakParams<Fields> = { [K in keyof Fields]: Fields[K] };
 
@@ -165,13 +186,13 @@ export type FormWeakPendings<Fields> = { [K in keyof Fields]: boolean };
 export type FormWeakStates<Fields, Validators> = { [K in keyof Fields]: FieldState<Fields[K], Validators> };
 
 export type Registers<Fields, Validators, WeakFields = Fields> = {
-    [K in keyof WeakFields]: $Fieldutil<WeakFields[K], Validators, Fields, WeakFields>;
+    [K in keyof WeakFields]: $FieldRegister<WeakFields[K], Validators, Fields, WeakFields>;
 };
 
 export type DeepRegisters<Fields, Validators, WeakFields = Fields> = {
     [K in keyof Fields]: DetectAny<
         Fields[K],
-        $Fieldutil<Fields[K], Validators, Fields, WeakFields>,
+        $FieldRegister<Fields[K], Validators, Fields, WeakFields>,
         Fields[K] extends object
             ? DeepRegisters<Fields[K], Validators, WeakFields>
             : $Fieldutil<Fields[K], Validators, Fields, WeakFields>
@@ -205,9 +226,7 @@ export interface BaseFieldComponentProps<T = string, P = any, Fields = any, Weak
     $formatter?: (($modelValue: T, $setModelValue: ($newModelValue: T) => T) => any) | null;
     $ref?:
         | (($fieldutil: $Fieldutil<T, P, Fields, WeakFields> | null) => void)
-        | {
-              readonly current: $Fieldutil<T, P, Fields, WeakFields> | null;
-          };
+        | React.RefObject<$Fieldutil<T, P, Fields, WeakFields>>;
     name?: string;
 }
 
@@ -296,11 +315,8 @@ export type $FieldHandler<
     // @ts-ignore
     { [K in passUtil]: K extends string ? $Fieldutil<T> : never };
 
-export interface $Fieldutil<T = string, Validators = any, Fields = any, WeakFields = Fields>
-    extends Readonly<FieldState<T, Validators>> {
+export interface $FieldRegister<T = string, Validators = any, Fields = any, WeakFields = Fields> {
     readonly $$FIELD_UUID: number;
-    readonly $$formutil: $Formutil<Fields, Validators, WeakFields>;
-    readonly $name: string;
     $new(): $Fieldutil<T, Validators, Fields, WeakFields>;
     $picker(): Readonly<FieldState<T, Validators>>;
     $getState(): Readonly<FieldState<T, Validators>>;
@@ -353,6 +369,13 @@ export interface $Fieldutil<T = string, Validators = any, Fields = any, WeakFiel
     $validate<S = $Fieldutil<T, Validators, Fields, WeakFields>>(callback?: ($fieldutil: S) => void): Promise<S>;
 }
 
+export interface $Fieldutil<T = string, Validators = any, Fields = any, WeakFields = Fields>
+    extends Readonly<$FieldRegister<T, Validators, Fields, WeakFields>>,
+        Readonly<FieldState<T, Validators>> {
+    readonly $name: string;
+    readonly $$formutil: $Formutil<Fields, Validators, WeakFields>;
+}
+
 export interface $Formutil<Fields = any, Validators = any, WeakFields = Fields> {
     readonly $states: Readonly<FormStates<Fields, Validators>>;
     readonly $params: Readonly<FormParams<Fields>>;
@@ -401,35 +424,35 @@ export interface $Formutil<Fields = any, Validators = any, WeakFields = Fields> 
     $validates<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
     $reset<S = $Formutil<Fields, Validators, WeakFields>>(callback?: ($formutil: S) => void): Promise<S>;
     $reset<S = $Formutil<Fields, Validators, WeakFields>>(
-        stateTree: ArgFormStates<Fields, Validators>,
+        stateTree: ArgFormStates<Fields, Validators, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $setStates<S = $Formutil<Fields, Validators, WeakFields>>(
-        stateTree: ArgFormStates<Fields, Validators>,
+        stateTree: ArgFormStates<Fields, Validators, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $setValues<S = $Formutil<Fields, Validators, WeakFields>>(
-        valueTree: ArgFormParams<Fields>,
+        valueTree: ArgFormParams<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $setFocuses<S = $Formutil<Fields, Validators, WeakFields>>(
-        focusedTree: ArgFormFocuses<Fields>,
+        focusedTree: ArgFormFocuses<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $setDirts<S = $Formutil<Fields, Validators, WeakFields>>(
-        dirtyTree: ArgFormDirts<Fields>,
+        dirtyTree: ArgFormDirts<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $setTouches<S = $Formutil<Fields, Validators, WeakFields>>(
-        touchedTree: ArgFormTouches<Fields>,
+        touchedTree: ArgFormTouches<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $setPendings<S = $Formutil<Fields, Validators, WeakFields>>(
-        pendingTree: ArgFormPendings<Fields>,
+        pendingTree: ArgFormPendings<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $setErrors<S = $Formutil<Fields, Validators, WeakFields>>(
-        errorTree: ArgFormErrors<Fields, Validators>,
+        errorTree: ArgFormErrors<Fields, Validators, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $batchState<S = $Formutil<Fields, Validators, WeakFields>>(
@@ -472,11 +495,11 @@ export interface $Listutil<Fields = any, Validators = any, WeakFields = Fields>
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
         position: number,
-        values: ArgFormParams<Fields>,
+        values: ArgFormParams<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
-        posOrValues: number | ArgFormParams<Fields>,
+        posOrValues: number | ArgFormParams<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $insert<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
@@ -490,7 +513,7 @@ export interface $Listutil<Fields = any, Validators = any, WeakFields = Fields>
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $push<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
-        values: ArgFormParams<Fields>,
+        values: ArgFormParams<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $push<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(callback?: ($formutil: S) => void): Promise<S>;
@@ -499,7 +522,7 @@ export interface $Listutil<Fields = any, Validators = any, WeakFields = Fields>
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $unshift<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
-        values: ArgFormParams<Fields>,
+        values: ArgFormParams<Fields, WeakFields>,
         callback?: ($formutil: S) => void
     ): Promise<S>;
     $unshift<S = $Formutil<{ list: Fields[] }, { required: boolean }, any>>(
@@ -511,8 +534,10 @@ export interface $Listutil<Fields = any, Validators = any, WeakFields = Fields>
 }
 
 export interface BaseFormComponentProps<Fields = any, Validators = any, WeakFields = Fields> {
-    $defaultValues?: ArgFormParams<Fields> | ((props: any) => ArgFormParams<Fields>);
-    $defaultStates?: ArgFormStates<Fields, Validators> | ((props: any) => ArgFormStates<Fields, Validators>);
+    $defaultValues?: ArgFormParams<Fields, WeakFields> | ((props: any) => ArgFormParams<Fields, WeakFields>);
+    $defaultStates?:
+        | ArgFormStates<Fields, Validators, WeakFields>
+        | ((props: any) => ArgFormStates<Fields, Validators, WeakFields>);
     $onFormChange?: (
         $formutil: $Formutil<Fields, Validators, WeakFields>,
         newValues: Readonly<FormParams<Fields>>,
@@ -525,9 +550,7 @@ export interface BaseFormComponentProps<Fields = any, Validators = any, WeakFiel
     $processer?: <K extends keyof WeakFields>($state: FieldState<WeakFields[K], Validators>, name: K) => void;
     $ref?:
         | (($formutil: $Formutil<Fields, Validators, WeakFields> | null) => void)
-        | {
-              readonly current: $Formutil<Fields, Validators, WeakFields> | null;
-          };
+        | React.RefObject<$Formutil<Fields, Validators, WeakFields>>;
 }
 
 export type FormProps<Fields = any, Validators = any, WeakFields = Fields> = BaseFormComponentProps<

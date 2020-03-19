@@ -345,7 +345,7 @@ class Form extends Component {
         warning(name, `You should pass a name of the mounted Field to $getField().`);
 
         if (field) {
-            return field.$new();
+            return field.$new?.();
         }
     };
 
@@ -736,6 +736,7 @@ class Form extends Component {
             $setTouches: this.$setTouches,
             $setDirts: this.$setDirts,
             $setFocuses: this.$setFocuses,
+            $setPendings: this.$setPendings,
 
             $batchState: this.$batchState,
             $batchTouched: this.$batchTouched,

@@ -1518,6 +1518,7 @@
           $batchTouched: this.$batchTouched,
           $batchDirty: this.$batchDirty,
           $batchFocused: this.$batchFocused,
+          $batchPending: this.$batchPending,
           $reset: this.$reset,
           $validates: this.$validates,
           $validate: this.$validate,
@@ -2315,6 +2316,7 @@
       _this.$$FIELD_UUID = GET_FIELD_UUID();
       _this.$formContext = void 0;
       _this.$state = void 0;
+      _this.shouldRendered = false;
 
       _this.$setState = function ($newState, callback) {
         return new Promise(function (resolve) {
@@ -2326,7 +2328,18 @@
             var $name = _this.props.name;
 
             if ($name in (_this.$formContext.$$registers || {})) {
+              _this.shouldRendered = false;
+
               _this.$formContext.$$onChange($name, $newState, execute);
+              /**
+               * Ensure Field could rerender if <Field /> has been cached. In others words, it's vdomEq always true,
+               * <Form /> render not trigger Field rerender
+               */
+
+
+              if (!_this.shouldRendered) {
+                _this.forceUpdate();
+              }
             } else {
               _this.$registered.$$merge($newState);
 
@@ -2422,6 +2435,7 @@
       value: function render() {
         var _this2 = this;
 
+        this.shouldRendered = true;
         return React__default.createElement(FormContext.Consumer, null, function (getFormContext) {
           var shouldInitial = !_this2.$formContext;
           _this2.$formContext = getFormContext();
@@ -3076,18 +3090,18 @@
         _ref$checked = _ref.checked,
         checked = _ref$checked === void 0 ? true : _ref$checked;
     return __TYPE__ === 'checked' ? $value === checked : !isEmpty($value);
-  }], ['maxLength', function ($value, len) {
-    return isEmpty($value) || $value.length <= len;
-  }], ['minLength', function ($value, len) {
-    return isEmpty($value) || $value.length >= len;
-  }], ['max', function ($value, limit) {
-    return isEmpty($value) || $value * 1 <= limit;
-  }], ['min', function ($value, limit) {
-    return isEmpty($value) || $value * 1 >= limit;
-  }], ['pattern', function ($value, regexp) {
-    return isEmpty($value) || regexp.test($value);
-  }], ['enum', function ($value, enumeration) {
-    return isEmpty($value) || enumeration.indexOf($value) > -1;
+  }], ['maxLength', function ($value, len, props) {
+    return props.required && isEmpty($value) || $value.length <= len;
+  }], ['minLength', function ($value, len, props) {
+    return props.required && isEmpty($value) || $value.length >= len;
+  }], ['max', function ($value, limit, props) {
+    return props.required && isEmpty($value) || $value * 1 <= limit;
+  }], ['min', function ($value, limit, props) {
+    return props.required && isEmpty($value) || $value * 1 >= limit;
+  }], ['pattern', function ($value, regexp, props) {
+    return props.required && isEmpty($value) || regexp.test($value);
+  }], ['enum', function ($value, enumeration, props) {
+    return props.required && isEmpty($value) || enumeration.indexOf($value) > -1;
   }], ['checker', function ($value, checker, props) {
     return checker($value, props);
   }]].reduce(function ($validators, item) {
@@ -3463,14 +3477,14 @@
     var $registered;
     $this.$formContext = $formContext;
     $this.props = props;
-    $this.$setState = $setState; // we not directly use this $state, just from $this.$state
+    $this.$setState = $setState;
+    $this.shouldRendered = true; // we not directly use this $state, just from $this.$state
 
     var _useState = useState(function () {
       $this.$$FIELD_UUID = GET_FIELD_UUID();
       $this.$fieldHandler = $registered = createHandler($this);
-      var $state = $this.$fieldHandler.$$reset();
+      $this.$fieldHandler.$$reset();
       $this.$fieldHandler.$validate();
-      return $state;
     }),
         _useState2 = _slicedToArray(_useState, 2),
         setState = _useState2[1];
@@ -3537,10 +3551,16 @@
 
         if ($this.isMounting) {
           if ($name in ($formContext.$$registers || {})) {
+            $this.shouldRendered = false;
             $formContext.$$onChange($name, $newState, execute);
+
+            if (!$this.shouldRendered) {
+              setState({});
+            }
           } else {
-            setState($registered.$$merge($newState));
+            $registered.$$merge($newState);
             $registered.$$detectChange($newState);
+            setState({});
             callbackRef.current.push(execute);
           }
         } else {

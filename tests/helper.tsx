@@ -30,45 +30,54 @@ export function renderForm<Fields = any, Validators = {}, WeakFields = Fields>(
 
 export function renderField(fieldProps?: FieldProps) {
     let fieldHandler: $Fieldutil;
+    let formHandler: $Formutil;
     let instance;
     const getForm = (newProps?: FieldProps) => (
-        <Form>
-            <Field {...fieldProps} {...newProps} ref={node => (instance = node)}>
-                {$fieldutil => {
-                    fieldHandler = $fieldutil;
+        <Form
+            render={$formutil => {
+                formHandler = $formutil;
 
-                    return (
-                        <input
-                            data-testid="input"
-                            value={$fieldutil.$viewValue}
-                            onChange={ev => {
-                                $fieldutil.$render(ev.target.value);
+                return (
+                    <Field {...fieldProps} {...newProps} ref={node => (instance = node)}>
+                        {$fieldutil => {
+                            fieldHandler = $fieldutil;
 
-                                if ($fieldutil.$pristine) {
-                                    $fieldutil.$setDirty(true);
-                                }
-                            }}
-                            onFocus={() => {
-                                $fieldutil.$setFocused(true);
-                            }}
-                            onBlur={() => {
-                                $fieldutil.$setFocused(false);
+                            return (
+                                <input
+                                    data-testid="input"
+                                    value={$fieldutil.$viewValue}
+                                    onChange={ev => {
+                                        $fieldutil.$render(ev.target.value);
 
-                                if ($fieldutil.$untouched) {
-                                    $fieldutil.$setTouched(true);
-                                }
-                            }}
-                        />
-                    );
-                }}
-            </Field>
-        </Form>
+                                        if ($fieldutil.$pristine) {
+                                            $fieldutil.$setDirty(true);
+                                        }
+                                    }}
+                                    onFocus={() => {
+                                        $fieldutil.$setFocused(true);
+                                    }}
+                                    onBlur={() => {
+                                        $fieldutil.$setFocused(false);
+
+                                        if ($fieldutil.$untouched) {
+                                            $fieldutil.$setTouched(true);
+                                        }
+                                    }}
+                                />
+                            );
+                        }}
+                    </Field>
+                );
+            }}></Form>
     );
     const { rerender, ...rest } = render(getForm());
 
     return {
         getFieldutil() {
             return fieldHandler;
+        },
+        getFormutil() {
+            return formHandler;
         },
         getInstance() {
             return instance;

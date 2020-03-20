@@ -378,7 +378,7 @@ describe('$memo', () => {
 describe('$onFieldChange()', () => {
     test('called when field value change', async () => {
         const onChange = jest.fn();
-        const { getFieldutil, getElement } = renderField({
+        const { getFieldutil, getFormutil, getElement } = renderField({
             name: 'a',
             $onFieldChange: onChange
         });
@@ -391,7 +391,7 @@ describe('$onFieldChange()', () => {
 
         await waitFor(() => {
             expect(onChange).toBeCalled();
-            expect(onChange.mock.calls[0]).toEqual(['abc', '', getFieldutil().$$formutil]);
+            expect(onChange.mock.calls[0]).toEqual(['abc', '', getFormutil()]);
         });
     });
 });
@@ -488,7 +488,7 @@ describe('$fieldutil', () => {
         expect(input.value).toBe('b');
     });
 
-    test('$setValue() / $render()', async () => {
+    test.only('$setValue() / $render()', async () => {
         const callback = jest.fn();
 
         const { getFieldutil, findByTestId } = renderField({

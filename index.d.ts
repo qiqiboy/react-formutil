@@ -47,14 +47,17 @@ export type FormErrors<Fields, Validators> = {
 };
 
 // $validator on <Form />
-export type FormValiateResult<Fields> =
-    | {
+export type FormValiateResult<Fields, WeakFields = Fields> =
+    | ({
           [K in keyof Fields]?: DetectAny<
               Fields[K],
               Fields[K],
               Fields[K] extends object ? FormValiateResult<Fields[K]> : any
           >;
-      }
+      } &
+          {
+              [K in keyof WeakFields]?: any;
+          })
     | void
     | undefined;
 
@@ -199,7 +202,12 @@ export type DeepRegisters<Fields, Validators, WeakFields = Fields> = {
     >;
 };
 
-export type Validate<T = string, Fields = any, Validators = any, WeakFields = Fields> = (
+export type CheckerValidator<T = string, Fields = any, Validators = any, WeakFields = Fields> = (
+    value: T,
+    fieldProps: Parameters<Validator<T, Fields, Validators, WeakFields>>[2]
+) => any;
+
+export type Validator<T = string, Fields = any, Validators = any, WeakFields = Fields> = (
     value: T,
     propName: any,
     fieldProps: EasyFieldProps<T, Validators, Fields, WeakFields> & {
@@ -210,7 +218,7 @@ export type Validate<T = string, Fields = any, Validators = any, WeakFields = Fi
 ) => any;
 
 export type Validators<T = string, Fields = any, P = any, WeakFields = Fields> = {
-    [K in keyof P]: Validate<T, Fields, P, WeakFields>;
+    [K in keyof P]: Validator<T, Fields, P, WeakFields>;
 };
 
 export interface BaseFieldComponentProps<T = string, P = any, Fields = any, WeakFields = Fields> {
@@ -272,7 +280,7 @@ export interface BaseEasyFieldComponentProps<T = string, Validators = any, Field
     focusPropName?: string;
     blurPropName?: string;
 
-    checker?: Validate<T, Fields, Validators, WeakFields>;
+    checker?: CheckerValidator<T, Fields, Validators, WeakFields>;
 }
 
 export type EasyFieldProps<
@@ -546,7 +554,7 @@ export interface BaseFormComponentProps<Fields = any, Validators = any, WeakFiel
     $validator?: (
         $params: FormParams<Fields>,
         $formutil: $Formutil<Fields, Validators, WeakFields>
-    ) => FormValiateResult<Fields> | Promise<FormValiateResult<Fields>>;
+    ) => FormValiateResult<Fields, WeakFields> | Promise<FormValiateResult<Fields, WeakFields>>;
     $processer?: <K extends keyof WeakFields>($state: FieldState<WeakFields[K], Validators>, name: K) => void;
     $ref?:
         | (($formutil: $Formutil<Fields, Validators, WeakFields> | null) => void)

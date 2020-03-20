@@ -1,7 +1,10 @@
 docs/
 src/
 npm/
+jest/
+tests/
 *.un~
 /jsconfig.json
 /tsconfig.json
 /rollup.*
+/babel.config.json

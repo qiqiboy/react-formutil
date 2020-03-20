@@ -1,33 +1,7 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { $Formutil, $Fieldutil, FieldProps, FormProps } from '../index.d';
-import { Form, Field } from '../src';
-
-function renderForm<Fields = any, Validators = {}, WeakFields = Fields>(
-    content: React.ReactNode,
-    formProps?: FormProps<Fields, Validators, WeakFields>
-) {
-    let formHandler: $Formutil<Fields, Validators, WeakFields>;
-    const getForm = content => (
-        <Form<Fields, Validators, WeakFields> {...formProps}>
-            {$formutil => {
-                formHandler = $formutil;
-
-                return content;
-            }}
-        </Form>
-    );
-    const { rerender, ...rest } = render(getForm(content));
-
-    return {
-        getFormutil() {
-            return formHandler;
-        },
-        ...rest,
-        rerender: content => rerender(getForm(content))
-    };
-}
+import { waitFor } from '@testing-library/react';
+import { Field } from '../src';
+import { renderForm } from './helper';
 
 const nativeConsoleLog = console.log;
 const spyConsoleLog = jest.fn((...args) => nativeConsoleLog(...args));
@@ -213,9 +187,146 @@ describe('$defaultStates', () => {
     });
 });
 
+describe('$processer', () => {
+    test('called', async () => {
+        const $processerSpy = jest.fn(($state, name) => {
+            if (name === 'a.b') {
+                $state.$value = 10;
+            }
+
+            if (name === 'd') {
+                $state.$dirty = true;
+            }
+        });
+        const { getFormutil } = renderForm(
+            <>
+                <Field name="a.b" $defaultValue={1} children={null} />
+                <Field name="c[0]" $defaultValue={2} children={null} />
+                <Field name="d" $defaultValue={3} children={null} />
+            </>,
+            {
+                $processer: $processerSpy
+            }
+        );
+
+        await waitFor(() => {
+            expect($processerSpy).toBeCalledTimes(3);
+        });
+
+        expect($processerSpy.mock.calls.map(call => call[1])).toEqual(['a.b', 'c[0]', 'd']);
+
+        expect(getFormutil().$params).toEqual({
+            a: { b: 10 },
+            c: [2],
+            d: 3
+        });
+    });
+});
+
+describe('$ref', () => {
+    test('pass createRef()', async () => {
+        let formutilRef = React.createRef(null);
+        const { getFormutil } = renderForm(
+            <>
+                <Field name="a" $defaultValue={1} children={null} />
+            </>,
+            {
+                $ref: formutilRef
+            }
+        );
+
+        expect(formutilRef.current).toBe(getFormutil());
+    });
+
+    test('pass function', async () => {
+        let refSpy = jest.fn();
+        const { getFormutil } = renderForm(
+            <>
+                <Field name="a" $defaultValue={1} children={null} />
+            </>,
+            {
+                $ref: refSpy
+            }
+        );
+
+        expect(refSpy).toBeCalled();
+        expect(refSpy).toHaveBeenLastCalledWith(getFormutil());
+    });
+});
+
 describe('$validator', () => {
-    
-})
+    test('called', async () => {
+        const $validatorSpy = jest.fn(params => {
+            if (!params.a?.b) {
+                return {
+                    'a[b]': 'required!'
+                };
+            }
+
+            return {};
+        });
+        const { getFormutil } = renderForm(
+            <>
+                <Field name="a.b" children={null} />
+                <Field name="c[0]" $defaultValue={2} children={null} />
+                <Field name="d" $defaultValue={3} children={null} />
+            </>,
+            {
+                $validator: $validatorSpy
+            }
+        );
+
+        await waitFor(() => {
+            expect($validatorSpy).toBeCalledTimes(1);
+            expect(getFormutil().$errors).toEqual({
+                a: {
+                    b: {
+                        FORM_VALIDATE_RESULT: 'required!'
+                    }
+                }
+            });
+        });
+
+        getFormutil().$setValues({
+            // @ts-ignore
+            a: {
+                b: 4
+            }
+        });
+
+        await waitFor(() => {
+            expect($validatorSpy).toBeCalledTimes(2);
+            expect(getFormutil().$errors).toEqual({});
+        });
+    });
+});
+
+describe('$onFormChange', () => {
+    test('called', async () => {
+        let changeSpy = jest.fn();
+        const { getFormutil } = renderForm(
+            <>
+                <Field name="a" $defaultValue={1} children={null} />
+            </>,
+            {
+                $onFormChange: changeSpy
+            }
+        );
+
+        await waitFor(() => {
+            expect(changeSpy).toBeCalledTimes(1);
+        });
+        expect(changeSpy).toHaveBeenLastCalledWith(getFormutil(), { a: 1 }, {});
+
+        getFormutil().$setValues({
+            a: 2
+        });
+        await waitFor(() => {
+            expect(changeSpy).toBeCalledTimes(2);
+        });
+        expect(changeSpy).toHaveBeenLastCalledWith(getFormutil(), { a: 2 }, { a: 1 });
+    });
+});
 
 describe('$formutil', () => {
     test('$params / $weakParams / $pureParams / $states / $weakState', () => {
@@ -658,6 +769,72 @@ describe('$formutil', () => {
             'c[0]': true
         });
         expect(getFormutil().$pendings).toEqual({
+            a: { b: true },
+            c: [true]
+        });
+    });
+
+    test('$batchState() / $batchError() / $batchDirty() / $batchTouched() / $batchFocused()', async () => {
+        const { getFormutil } = renderForm<
+            {
+                a: { b: number };
+                c: [number];
+            },
+            any,
+            {
+                'a.b': number;
+                'c[0]': number;
+            }
+        >(
+            <>
+                <Field
+                    name="a.b"
+                    children={null}
+                    required
+                    $validators={{ required: value => !!value || 'reuqired!' }}
+                />
+                <Field
+                    name="c[0]"
+                    children={null}
+                    asyncValidate
+                    $validators={{
+                        asyncValidate: value =>
+                            new Promise((resolve, reject) =>
+                                setTimeout(() => (value ? resolve() : reject('async error')), 200)
+                            )
+                    }}
+                />
+            </>
+        );
+
+        getFormutil().$batchState({
+            $value: 1
+        });
+        expect(getFormutil().$params).toEqual({
+            a: { b: 1 },
+            c: [1]
+        });
+
+        getFormutil().$batchDirty(true);
+        expect(getFormutil().$dirts).toEqual({
+            a: { b: true },
+            c: [true]
+        });
+
+        getFormutil().$batchTouched(true);
+        expect(getFormutil().$touches).toEqual({
+            a: { b: true },
+            c: [true]
+        });
+
+        getFormutil().$batchPending(true);
+        expect(getFormutil().$pendings).toEqual({
+            a: { b: true },
+            c: [true]
+        });
+
+        getFormutil().$batchFocused(true);
+        expect(getFormutil().$focuses).toEqual({
             a: { b: true },
             c: [true]
         });

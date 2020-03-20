@@ -45,16 +45,14 @@ function useField(name, props = {}) {
     $this.$formContext = $formContext;
     $this.props = props;
     $this.$setState = $setState;
+    $this.shouldRendered = true;
     // we not directly use this $state, just from $this.$state
     const [, setState] = useState(() => {
         $this.$$FIELD_UUID = GET_FIELD_UUID();
         $this.$fieldHandler = $registered = createHandler($this);
 
-        const $state = $this.$fieldHandler.$$reset();
-
+        $this.$fieldHandler.$$reset();
         $this.$fieldHandler.$validate();
-
-        return $state;
     });
 
     if (!$registered) {
@@ -131,11 +129,17 @@ function useField(name, props = {}) {
 
             if ($this.isMounting) {
                 if ($name in ($formContext.$$registers || {})) {
+                    $this.shouldRendered = false;
                     $formContext.$$onChange($name, $newState, execute);
-                } else {
-                    setState($registered.$$merge($newState));
 
+                    if (!$this.shouldRendered) {
+                        setState({});
+                    }
+                } else {
+                    $registered.$$merge($newState);
                     $registered.$$detectChange($newState);
+
+                    setState({});
 
                     callbackRef.current.push(execute);
                 }

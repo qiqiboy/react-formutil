@@ -742,6 +742,7 @@ class Form extends Component {
             $batchTouched: this.$batchTouched,
             $batchDirty: this.$batchDirty,
             $batchFocused: this.$batchFocused,
+            $batchPending: this.$batchPending,
 
             $reset: this.$reset,
             $validates: this.$validates,

@@ -1,85 +1,8 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { $Formutil, $Fieldutil, FieldProps, FormProps } from '../index.d';
-import { Form, Field } from '../src';
-
-function renderForm(content: React.ReactNode, formProps?: FormProps) {
-    let formHandler: $Formutil;
-    const getForm = content => (
-        <Form {...formProps}>
-            {$formutil => {
-                formHandler = $formutil;
-
-                return content;
-            }}
-        </Form>
-    );
-    const { rerender, ...rest } = render(getForm(content));
-
-    return {
-        getFormutil() {
-            return formHandler;
-        },
-        ...rest,
-        rerender: content => rerender(getForm(content))
-    };
-}
-
-function renderField(fieldProps?: FieldProps) {
-    let fieldHandler: $Fieldutil;
-    let instance;
-    const getForm = (newProps?: FieldProps) => (
-        <Form>
-            <Field {...fieldProps} {...newProps} ref={node => (instance = node)}>
-                {$fieldutil => {
-                    fieldHandler = $fieldutil;
-
-                    return (
-                        <input
-                            data-testid="input"
-                            value={$fieldutil.$viewValue}
-                            onChange={ev => {
-                                $fieldutil.$render(ev.target.value);
-
-                                if ($fieldutil.$pristine) {
-                                    $fieldutil.$setDirty(true);
-                                }
-                            }}
-                            onFocus={() => {
-                                $fieldutil.$setFocused(true);
-                            }}
-                            onBlur={() => {
-                                $fieldutil.$setFocused(false);
-
-                                if ($fieldutil.$untouched) {
-                                    $fieldutil.$setTouched(true);
-                                }
-                            }}
-                        />
-                    );
-                }}
-            </Field>
-        </Form>
-    );
-    const { rerender, ...rest } = render(getForm());
-
-    return {
-        getFieldutil() {
-            return fieldHandler;
-        },
-        getInstance() {
-            return instance;
-        },
-        getElement() {
-            return rest.getByTestId('input') as HTMLInputElement;
-        },
-        rerender(newProps?: FieldProps) {
-            return rerender(getForm(newProps));
-        },
-        ...rest
-    };
-}
+import { Field } from '../src';
+import { renderForm, renderField } from './helper';
 
 describe('name', () => {
     test('mount name "a"', () => {
@@ -339,6 +262,119 @@ describe('$ref', () => {
     });
 });
 
+describe('$memo', () => {
+    test("should not rerender if props deep equal", async () => {
+        const renderA = jest.fn();
+        const renderB = jest.fn();
+        const getFormContent = () => (
+            <>
+                <Field name="a" $memo propObject={{}} render={renderA} />
+                <Field name="b" render={renderB} />
+            </>
+        );
+
+        const { rerender } = renderForm(getFormContent());
+
+        expect(renderA).toBeCalledTimes(1);
+        expect(renderB).toBeCalledTimes(1);
+
+        rerender(getFormContent());
+        expect(renderA).toBeCalledTimes(1);
+        expect(renderB).toBeCalledTimes(2);
+    });
+
+    test("should rerender if Field'state changed", async () => {
+        const renderA = jest.fn();
+        const renderB = jest.fn();
+        const getFormContent = () => (
+            <>
+                <Field name="a" $memo render={renderA} />
+                <Field name="b" $memo={[]} render={renderB} />
+            </>
+        );
+
+        const { getFormutil } = renderForm(getFormContent());
+
+        expect(renderA).toBeCalledTimes(1);
+        expect(renderB).toBeCalledTimes(1);
+
+        getFormutil().$setValues({
+            a: 1,
+            b: 1
+        })
+        expect(renderA).toBeCalledTimes(2);
+        expect(renderB).toBeCalledTimes(2);
+    });
+
+    test("should rerender if Field'props changed", async () => {
+        const renderA = jest.fn();
+        const renderB = jest.fn();
+        const getFormContent = () => (
+            <>
+                <Field name="a" $memo $validators={{ mutableFunc: () => {} }} render={renderA} />
+                <Field name="b" $memo render={renderB} />
+            </>
+        );
+
+        const { rerender } = renderForm(getFormContent());
+
+        expect(renderA).toBeCalledTimes(1);
+        expect(renderB).toBeCalledTimes(1);
+
+        rerender(getFormContent());
+        expect(renderA).toBeCalledTimes(2);
+        expect(renderB).toBeCalledTimes(1);
+    });
+
+    test("$memo=[] should not rerender even Field'props changed", async () => {
+        const renderA = jest.fn();
+        const renderB = jest.fn();
+        const getFormContent = () => (
+            <>
+                <Field name="a" $memo={[]} $validators={{ mutableFunc: () => {} }} render={renderA} />
+                <Field name="b" $memo={[]} render={renderB} />
+            </>
+        );
+
+        const { rerender } = renderForm(getFormContent());
+
+        expect(renderA).toBeCalledTimes(1);
+        expect(renderB).toBeCalledTimes(1);
+
+        rerender(getFormContent());
+        expect(renderA).toBeCalledTimes(1);
+        expect(renderB).toBeCalledTimes(1);
+    });
+
+    test("$memo=[...deps] should rerender if deps changed", async () => {
+        const renderA = jest.fn();
+        const renderB = jest.fn();
+        const getFormContent = (...deps) => (
+            <>
+                <Field name="a" $memo={[...deps]} render={renderA} />
+                <Field name="b" $memo={[]} render={renderB} />
+            </>
+        );
+
+        const { rerender } = renderForm(getFormContent());
+
+        expect(renderA).toBeCalledTimes(1);
+        expect(renderB).toBeCalledTimes(1);
+
+        rerender(getFormContent(1));
+        expect(renderA).toBeCalledTimes(2);
+        expect(renderB).toBeCalledTimes(1);
+
+        rerender(getFormContent(1));
+        expect(renderA).toBeCalledTimes(2);
+        expect(renderB).toBeCalledTimes(1);
+
+        rerender(getFormContent(1, 2));
+        expect(renderA).toBeCalledTimes(3);
+        expect(renderB).toBeCalledTimes(1);
+    });
+});
+
 describe('$onFieldChange()', () => {
     test('called when field value change', async () => {
         const onChange = jest.fn();
@@ -409,6 +445,11 @@ describe('$fieldutil', () => {
 
         expect(getFieldutil().$focused).toBe(false);
         expect(getFieldutil().$touched).toBe(true);
+
+        getFieldutil().$$formutil.$setValues({
+            a: 'c'
+        });
+        expect(input.value).toBe('c');
     });
 
     test('$reset()', async () => {

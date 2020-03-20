@@ -12,12 +12,12 @@ export const defaultValidators = [
         ($value, check, { __TYPE__, checked = true }) =>
             __TYPE__ === 'checked' ? $value === checked : !isEmpty($value)
     ],
-    ['maxLength', ($value, len) => isEmpty($value) || $value.length <= len],
-    ['minLength', ($value, len) => isEmpty($value) || $value.length >= len],
-    ['max', ($value, limit) => isEmpty($value) || $value * 1 <= limit],
-    ['min', ($value, limit) => isEmpty($value) || $value * 1 >= limit],
-    ['pattern', ($value, regexp) => isEmpty($value) || regexp.test($value)],
-    ['enum', ($value, enumeration) => isEmpty($value) || enumeration.indexOf($value) > -1],
+    ['maxLength', ($value, len, props) => (props.required && isEmpty($value)) || $value.length <= len],
+    ['minLength', ($value, len, props) => (props.required && isEmpty($value)) || $value.length >= len],
+    ['max', ($value, limit, props) => (props.required && isEmpty($value)) || $value * 1 <= limit],
+    ['min', ($value, limit, props) => (props.required && isEmpty($value)) || $value * 1 >= limit],
+    ['pattern', ($value, regexp, props) => (props.required && isEmpty($value)) || regexp.test($value)],
+    ['enum', ($value, enumeration, props) => (props.required && isEmpty($value)) || enumeration.indexOf($value) > -1],
     ['checker', ($value, checker, props) => checker($value, props)]
 ].reduce(($validators, item) => {
     const [validKey, validate] = item;

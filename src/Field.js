@@ -16,6 +16,8 @@ class Field extends Component {
     /** @type { any } */
     $state;
 
+    shouldRendered = false;
+
     componentDidMount() {
         this.isMounting = true;
 
@@ -95,10 +97,18 @@ class Field extends Component {
                 const $name = this.props.name;
 
                 if ($name in (this.$formContext.$$registers || {})) {
+                    this.shouldRendered = false;
                     this.$formContext.$$onChange($name, $newState, execute);
+
+                    /**
+                     * Ensure Field could rerender if <Field /> has been cached. In others words, it's vdomEq always true,
+                     * <Form /> render not trigger Field rerender
+                     */
+                    if (!this.shouldRendered) {
+                        this.forceUpdate();
+                    }
                 } else {
                     this.$registered.$$merge($newState);
-
                     this.$registered.$$detectChange($newState);
 
                     this.forceUpdate(execute);
@@ -121,6 +131,8 @@ class Field extends Component {
     }
 
     render() {
+        this.shouldRendered = true;
+
         return (
             <FormContext.Consumer>
                 {getFormContext => {

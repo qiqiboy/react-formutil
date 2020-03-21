@@ -86,7 +86,6 @@
     "autoprefixer": "7.1.6",
     "babel-loader": "8.0.6",
     "babel-plugin-named-asset-import": "0.3.6",
-    "babel-preset-react-app": "9.1.1",
     "babel-runtime": "6.26.0",
     "case-sensitive-paths-webpack-plugin": "2.2.0",
     "chalk": "3.0.0",

@@ -5,7 +5,7 @@ module.exports = {
     rootDir: process.cwd(),
     roots: ['<rootDir>/src', '<rootDir>/tests'],
     setupFiles: ['react-app-polyfill/jsdom'],
-    setupFilesAfterEnv: ['<rootDir>/jest/setupTests.ts'],
+    setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
     testMatch: [
         '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
         '<rootDir>/{src,tests}/**/*.{spec,test}.{js,jsx,ts,tsx}',

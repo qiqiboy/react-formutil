@@ -19,5 +19,5 @@
     "noUnusedLocals": true,
     "importHelpers": true
   },
-  "exclude": ["scripts", "node_modules", "dist", "build", "buildDev"]
+  "exclude": ["node_modules", "scripts", "dist", "build", "buildDev"]
 }

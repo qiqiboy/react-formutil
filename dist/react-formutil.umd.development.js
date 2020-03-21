@@ -22,6 +22,8 @@
     return obj;
   }
 
+  var defineProperty = _defineProperty;
+
   function ownKeys(object, enumerableOnly) {
     var keys = Object.keys(object);
 
@@ -42,7 +44,7 @@
 
       if (i % 2) {
         ownKeys(Object(source), true).forEach(function (key) {
-          _defineProperty(target, key, source[key]);
+          defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
@@ -56,6 +58,8 @@
     return target;
   }
 
+  var objectSpread2 = _objectSpread2;
+
   function _arrayWithoutHoles(arr) {
     if (Array.isArray(arr)) {
       for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
@@ -66,21 +70,31 @@
     }
   }
 
+  var arrayWithoutHoles = _arrayWithoutHoles;
+
   function _iterableToArray(iter) {
     if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
   }
+
+  var iterableToArray = _iterableToArray;
 
   function _nonIterableSpread() {
     throw new TypeError("Invalid attempt to spread non-iterable instance");
   }
 
+  var nonIterableSpread = _nonIterableSpread;
+
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+    return arrayWithoutHoles(arr) || iterableToArray(arr) || nonIterableSpread();
   }
+
+  var toConsumableArray = _toConsumableArray;
 
   function _arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
   }
+
+  var arrayWithHoles = _arrayWithHoles;
 
   function _iterableToArrayLimit(arr, i) {
     if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
@@ -112,19 +126,27 @@
     return _arr;
   }
 
+  var iterableToArrayLimit = _iterableToArrayLimit;
+
   function _nonIterableRest() {
     throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }
 
+  var nonIterableRest = _nonIterableRest;
+
   function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+    return arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || nonIterableRest();
   }
+
+  var slicedToArray = _slicedToArray;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   }
+
+  var classCallCheck = _classCallCheck;
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -142,21 +164,31 @@
     return Constructor;
   }
 
+  var createClass = _createClass;
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var _typeof_1 = createCommonjsModule(function (module) {
   function _typeof(obj) {
     "@babel/helpers - typeof";
 
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function _typeof(obj) {
+      module.exports = _typeof = function _typeof(obj) {
         return typeof obj;
       };
     } else {
-      _typeof = function _typeof(obj) {
+      module.exports = _typeof = function _typeof(obj) {
         return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
       };
     }
 
     return _typeof(obj);
   }
+
+  module.exports = _typeof;
+  });
 
   function _assertThisInitialized(self) {
     if (self === void 0) {
@@ -166,29 +198,41 @@
     return self;
   }
 
+  var assertThisInitialized = _assertThisInitialized;
+
   function _possibleConstructorReturn(self, call) {
-    if (call && (_typeof(call) === "object" || typeof call === "function")) {
+    if (call && (_typeof_1(call) === "object" || typeof call === "function")) {
       return call;
     }
 
-    return _assertThisInitialized(self);
+    return assertThisInitialized(self);
   }
 
+  var possibleConstructorReturn = _possibleConstructorReturn;
+
+  var getPrototypeOf = createCommonjsModule(function (module) {
   function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
     };
     return _getPrototypeOf(o);
   }
 
+  module.exports = _getPrototypeOf;
+  });
+
+  var setPrototypeOf = createCommonjsModule(function (module) {
   function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
 
     return _setPrototypeOf(o, p);
   }
+
+  module.exports = _setPrototypeOf;
+  });
 
   function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
@@ -202,16 +246,14 @@
         configurable: true
       }
     });
-    if (superClass) _setPrototypeOf(subClass, superClass);
+    if (superClass) setPrototypeOf(subClass, superClass);
   }
+
+  var inherits = _inherits;
 
   var FormContext = React.createContext(function () {
     return {};
   });
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
 
   var reactIs_development = createCommonjsModule(function (module, exports) {
 
@@ -628,13 +670,13 @@
           switch (symbol) {
             case '].':
             case '.':
-              scope = scope[_word] = isUndefined(scope[_word]) ? {} : _objectSpread2({}, scope[_word]);
+              scope = scope[_word] = isUndefined(scope[_word]) ? {} : objectSpread2({}, scope[_word]);
               break;
 
             case '][':
             case '[':
               var nextVarWord = executeWord(nextWord);
-              scope = scope[_word] = isUndefined(scope[_word]) ? typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {} : Array.isArray(scope[_word]) ? _toConsumableArray(scope[_word]) : _objectSpread2({}, scope[_word]);
+              scope = scope[_word] = isUndefined(scope[_word]) ? typeof nextVarWord === 'number' && nextVarWord >= 0 ? [] : {} : Array.isArray(scope[_word]) ? toConsumableArray(scope[_word]) : objectSpread2({}, scope[_word]);
               break;
 
             default:
@@ -756,14 +798,14 @@
   }
 
   var Form = /*#__PURE__*/function (_Component) {
-    _inherits(Form, _Component);
+    inherits(Form, _Component);
 
     function Form(props) {
       var _this;
 
-      _classCallCheck(this, Form);
+      classCallCheck(this, Form);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Form).call(this, props));
+      _this = possibleConstructorReturn(this, getPrototypeOf(Form).call(this, props));
       _this.$$formPending = void 0;
       _this.$$formValidatePromise = void 0;
       _this.$$registers = {};
@@ -784,12 +826,12 @@
       _this.$$duplicateTimer = void 0;
 
       _this.$$checkDuplication = function () {
-        var _assertThisInitialize = _assertThisInitialized(_this),
+        var _assertThisInitialize = assertThisInitialized(_this),
             $$regDuplications = _assertThisInitialize.$$regDuplications;
 
         var hasDup;
         objectEach($$regDuplications, function (_ref, name) {
-          var _ref2 = _slicedToArray(_ref, 2),
+          var _ref2 = slicedToArray(_ref, 2),
               $curRegistered = _ref2[0],
               $handler = _ref2[1];
 
@@ -835,7 +877,7 @@
       _this.$$unregister = function (name, $handler, $$reserved) {
         if (name) {
           if (name in _this.$$regDuplications) {
-            var _this$$$regDuplicatio = _slicedToArray(_this.$$regDuplications[name], 2),
+            var _this$$$regDuplicatio = slicedToArray(_this.$$regDuplications[name], 2),
                 $curRegistered = _this$$$regDuplicatio[0],
                 _$handler = _this$$$regDuplicatio[1];
 
@@ -891,7 +933,7 @@
 
       _this.$$triggerFormChange = function () {
         if (_this.$$fieldChangedQueue.length) {
-          var $$fieldChangedQueue = _toConsumableArray(_this.$$fieldChangedQueue);
+          var $$fieldChangedQueue = toConsumableArray(_this.$$fieldChangedQueue);
 
           _this.$$fieldChangedQueue.length = 0;
           var $newValues = {};
@@ -1013,7 +1055,7 @@
 
           if (result) {
             return {
-              $error: _objectSpread2({}, $error, _defineProperty({}, FORM_VALIDATE_RESULT, result))
+              $error: objectSpread2({}, $error, defineProperty({}, FORM_VALIDATE_RESULT, result))
             };
           }
 
@@ -1040,7 +1082,7 @@
       };
 
       _this.$$onChange = function (name, $state, callback) {
-        return _this.$setStates(_defineProperty({}, name, $state), callback);
+        return _this.$setStates(defineProperty({}, name, $state), callback);
       };
 
       _this.$$setStates = function () {
@@ -1296,7 +1338,7 @@
       return _this;
     }
 
-    _createClass(Form, [{
+    createClass(Form, [{
       key: "$$deepParseObject",
       value: function $$deepParseObject(mayWeakObj) {
         var deepObj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -1397,20 +1439,20 @@
           var $state = _ref7.$state;
           return $state.$pending;
         });
-        var $pureParams = updateAll ? {} : _objectSpread2({}, lastFormutil.$pureParams);
-        var $states = updateAll ? {} : _objectSpread2({}, lastFormutil.$states);
-        var $errors = updateAll ? {} : _objectSpread2({}, lastFormutil.$errors);
-        var $dirts = updateAll ? {} : _objectSpread2({}, lastFormutil.$dirts);
-        var $touches = updateAll ? {} : _objectSpread2({}, lastFormutil.$touches);
-        var $focuses = updateAll ? {} : _objectSpread2({}, lastFormutil.$focuses);
-        var $pendings = updateAll ? {} : _objectSpread2({}, lastFormutil.$pendings);
-        var $weakStates = updateAll ? {} : _objectSpread2({}, lastFormutil.$weakStates);
-        var $weakParams = updateAll ? {} : _objectSpread2({}, lastFormutil.$weakParams);
-        var $weakErrors = updateAll ? {} : _objectSpread2({}, lastFormutil.$weakErrors);
-        var $weakDirts = updateAll ? {} : _objectSpread2({}, lastFormutil.$weakDirts);
-        var $weakFocuses = updateAll ? {} : _objectSpread2({}, lastFormutil.$weakFocuses);
-        var $weakTouches = updateAll ? {} : _objectSpread2({}, lastFormutil.$weakTouches);
-        var $weakPendings = updateAll ? {} : _objectSpread2({}, lastFormutil.$weakPendings);
+        var $pureParams = updateAll ? {} : objectSpread2({}, lastFormutil.$pureParams);
+        var $states = updateAll ? {} : objectSpread2({}, lastFormutil.$states);
+        var $errors = updateAll ? {} : objectSpread2({}, lastFormutil.$errors);
+        var $dirts = updateAll ? {} : objectSpread2({}, lastFormutil.$dirts);
+        var $touches = updateAll ? {} : objectSpread2({}, lastFormutil.$touches);
+        var $focuses = updateAll ? {} : objectSpread2({}, lastFormutil.$focuses);
+        var $pendings = updateAll ? {} : objectSpread2({}, lastFormutil.$pendings);
+        var $weakStates = updateAll ? {} : objectSpread2({}, lastFormutil.$weakStates);
+        var $weakParams = updateAll ? {} : objectSpread2({}, lastFormutil.$weakParams);
+        var $weakErrors = updateAll ? {} : objectSpread2({}, lastFormutil.$weakErrors);
+        var $weakDirts = updateAll ? {} : objectSpread2({}, lastFormutil.$weakDirts);
+        var $weakFocuses = updateAll ? {} : objectSpread2({}, lastFormutil.$weakFocuses);
+        var $weakTouches = updateAll ? {} : objectSpread2({}, lastFormutil.$weakTouches);
+        var $weakPendings = updateAll ? {} : objectSpread2({}, lastFormutil.$weakPendings);
 
         for (var i = 0, j = $stateArray.length; i < j; i++) {
           var _$stateArray$i = $stateArray[i],
@@ -1484,11 +1526,11 @@
         }
 
         this.$formutil = {
-          $$registers: _objectSpread2({}, this.$$registers),
+          $$registers: objectSpread2({}, this.$$registers),
           $$deepRegisters: this.$$deepRegisters,
           $states: $states,
           $pureParams: $pureParams,
-          $params: _objectSpread2({}, this.$$defaultValues, {}, $pureParams),
+          $params: objectSpread2({}, this.$$defaultValues, {}, $pureParams),
           $errors: $errors,
           $dirts: $dirts,
           $touches: $touches,
@@ -1587,9 +1629,11 @@
     return target;
   }
 
+  var objectWithoutPropertiesLoose = _objectWithoutPropertiesLoose;
+
   function _objectWithoutProperties(source, excluded) {
     if (source == null) return {};
-    var target = _objectWithoutPropertiesLoose(source, excluded);
+    var target = objectWithoutPropertiesLoose(source, excluded);
     var key, i;
 
     if (Object.getOwnPropertySymbols) {
@@ -1605,6 +1649,8 @@
 
     return target;
   }
+
+  var objectWithoutProperties = _objectWithoutProperties;
 
   /**
    * Copyright 2015, Yahoo! Inc.
@@ -1661,17 +1707,17 @@
     return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
   }
 
-  var defineProperty = Object.defineProperty;
+  var defineProperty$1 = Object.defineProperty;
   var getOwnPropertyNames = Object.getOwnPropertyNames;
   var getOwnPropertySymbols = Object.getOwnPropertySymbols;
   var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-  var getPrototypeOf = Object.getPrototypeOf;
+  var getPrototypeOf$1 = Object.getPrototypeOf;
   var objectPrototype = Object.prototype;
   function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
     if (typeof sourceComponent !== 'string') {
       // don't hoist over string (html) components
       if (objectPrototype) {
-        var inheritedComponent = getPrototypeOf(sourceComponent);
+        var inheritedComponent = getPrototypeOf$1(sourceComponent);
 
         if (inheritedComponent && inheritedComponent !== objectPrototype) {
           hoistNonReactStatics(targetComponent, inheritedComponent, blacklist);
@@ -1695,7 +1741,7 @@
 
           try {
             // Avoid failures from read-only properties
-            defineProperty(targetComponent, key, descriptor);
+            defineProperty$1(targetComponent, key, descriptor);
           } catch (e) {}
         }
       }
@@ -1712,20 +1758,20 @@
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var WithForm = /*#__PURE__*/function (_Component) {
-      _inherits(WithForm, _Component);
+      inherits(WithForm, _Component);
 
       function WithForm() {
         var _getPrototypeOf2;
 
         var _this;
 
-        _classCallCheck(this, WithForm);
+        classCallCheck(this, WithForm);
 
         for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
           args[_key] = arguments[_key];
         }
 
-        _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(WithForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
+        _this = possibleConstructorReturn(this, (_getPrototypeOf2 = getPrototypeOf(WithForm)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
         _this.renderChildren = function ($formutil) {
           return React__default.createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
@@ -1737,19 +1783,19 @@
         return _this;
       }
 
-      _createClass(WithForm, [{
+      createClass(WithForm, [{
         key: "render",
         value: function render() {
           var others = Object.assign({}, this.props); // component优先级最高，这里排除掉, 避免和render属性冲突
 
           var _this$props = this.props,
               component = _this$props.component,
-              formProps = _objectWithoutProperties(_this$props, ["component"]);
+              formProps = objectWithoutProperties(_this$props, ["component"]);
 
           filterProps.forEach(function (prop) {
             if (prop in others) {
               if (prop === '$defaultStates' || prop === '$defaultValues') {
-                formProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
+                formProps[prop] = objectSpread2({}, config[prop], {}, others[prop]);
               }
 
               delete others[prop];
@@ -1940,14 +1986,14 @@
 
       var $defaultValue = props.$defaultValue,
           $defaultState = props.$defaultState;
-      return $$merge(_objectSpread2({}, $baseState, {}, isFunction($defaultState) ? $defaultState(props) : $defaultState, {
+      return $$merge(objectSpread2({}, $baseState, {}, isFunction($defaultState) ? $defaultState(props) : $defaultState, {
         // self default state
         $value: isFunction($defaultValue) ? $defaultValue(props) : '$defaultValue' in props ? $defaultValue : ''
       }, $initialState, {}, $newState));
     }
 
     function $getState() {
-      return _objectSpread2({}, $this.$state);
+      return objectSpread2({}, $this.$state);
     }
 
     function $validate(callback) {
@@ -1955,7 +2001,7 @@
         var props = $this.props,
             $formContext = $this.$formContext;
 
-        var $validators = _objectSpread2({}, props.$validators, {}, props.$asyncValidators);
+        var $validators = objectSpread2({}, props.$validators, {}, props.$asyncValidators);
 
         var _$this$$state = $this.$state,
             $value = _$this$$state.$value,
@@ -1973,7 +2019,7 @@
           delete $newError[key];
 
           if (!$skipRestValidate && props[key] != null) {
-            var result = $validators[key]($value, props[key], _objectSpread2({}, props, {
+            var result = $validators[key]($value, props[key], objectSpread2({}, props, {
               $formutil: $formutil,
               $fieldutil: $this.$fieldutil,
               $validError: $validError
@@ -2012,7 +2058,7 @@
             return $breakAsyncHandler = setCallback(execCallback);
           };
 
-          $validatePromises.push($setError(_objectSpread2({}, $newError, {}, $validError)));
+          $validatePromises.push($setError(objectSpread2({}, $newError, {}, $validError)));
           validation = Promise.all($validatePromises).then(function () {
             if ($breakAsyncHandler) {
               return $breakAsyncHandler;
@@ -2026,7 +2072,7 @@
             $setPending(false);
           }
 
-          validation = $setError(_objectSpread2({}, $newError, {}, $validError), execCallback);
+          validation = $setError(objectSpread2({}, $newError, {}, $validError), execCallback);
         }
 
         if ($this.$shouldCancelPrevAsyncValidate) {
@@ -2160,7 +2206,7 @@
         $newState.$touched = !$newState.$untouched;
       }
 
-      $this.$state = _objectSpread2({}, $this.$state, {}, $newState);
+      $this.$state = objectSpread2({}, $this.$state, {}, $newState);
       return $getState();
     }
 
@@ -2299,20 +2345,20 @@
   };
 
   var Field = /*#__PURE__*/function (_Component) {
-    _inherits(Field, _Component);
+    inherits(Field, _Component);
 
     function Field() {
       var _getPrototypeOf2;
 
       var _this;
 
-      _classCallCheck(this, Field);
+      classCallCheck(this, Field);
 
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Field)).call.apply(_getPrototypeOf2, [this].concat(args)));
+      _this = possibleConstructorReturn(this, (_getPrototypeOf2 = getPrototypeOf(Field)).call.apply(_getPrototypeOf2, [this].concat(args)));
       _this.$$FIELD_UUID = GET_FIELD_UUID();
       _this.$formContext = void 0;
       _this.$state = void 0;
@@ -2358,7 +2404,7 @@
       return _this;
     }
 
-    _createClass(Field, [{
+    createClass(Field, [{
       key: "componentDidMount",
       value: function componentDidMount() {
         this.isMounting = true;
@@ -2422,7 +2468,7 @@
     }, {
       key: "_render",
       value: function _render() {
-        var $fieldutil = this.$fieldutil = _objectSpread2({
+        var $fieldutil = this.$fieldutil = objectSpread2({
           $name: this.props.name
         }, this.$registered.$getState(), {}, this.$registered, {
           $$formutil: this.$formContext.$formutil
@@ -2469,20 +2515,20 @@
     var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var WithField = /*#__PURE__*/function (_Component) {
-      _inherits(WithField, _Component);
+      inherits(WithField, _Component);
 
       function WithField() {
         var _getPrototypeOf2;
 
         var _this;
 
-        _classCallCheck(this, WithField);
+        classCallCheck(this, WithField);
 
         for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
           args[_key] = arguments[_key];
         }
 
-        _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(WithField)).call.apply(_getPrototypeOf2, [this].concat(args)));
+        _this = possibleConstructorReturn(this, (_getPrototypeOf2 = getPrototypeOf(WithField)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
         _this.renderChildren = function ($fieldutil) {
           return React__default.createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
@@ -2494,19 +2540,19 @@
         return _this;
       }
 
-      _createClass(WithField, [{
+      createClass(WithField, [{
         key: "render",
         value: function render() {
           var others = Object.assign({}, this.props); // component优先级最高，这里排除掉, 避免和render属性冲突
 
           var _this$props = this.props,
               component = _this$props.component,
-              fieldProps = _objectWithoutProperties(_this$props, ["component"]);
+              fieldProps = objectWithoutProperties(_this$props, ["component"]);
 
-          filterProps$1.concat(Object.keys(_objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
+          filterProps$1.concat(Object.keys(objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
             if (prop in others) {
               if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
-                fieldProps[prop] = _objectSpread2({}, config[prop], {}, others[prop]);
+                fieldProps[prop] = objectSpread2({}, config[prop], {}, others[prop]);
               }
 
               delete others[prop];
@@ -2535,15 +2581,15 @@
   var withField$1 = createHOC(withField);
 
   var EasyFieldNative = /*#__PURE__*/function (_Component) {
-    _inherits(EasyFieldNative, _Component);
+    inherits(EasyFieldNative, _Component);
 
     function EasyFieldNative() {
-      _classCallCheck(this, EasyFieldNative);
+      classCallCheck(this, EasyFieldNative);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(EasyFieldNative).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(EasyFieldNative).apply(this, arguments));
     }
 
-    _createClass(EasyFieldNative, [{
+    createClass(EasyFieldNative, [{
       key: "render",
       value: function render() {
         var _this = this;
@@ -2556,7 +2602,7 @@
             onBlur = _this$props.onBlur,
             checked = _this$props.checked,
             unchecked = _this$props.unchecked,
-            others = _objectWithoutProperties(_this$props, ["$fieldutil", "value", "onChange", "onFocus", "onBlur", "checked", "unchecked"]);
+            others = objectWithoutProperties(_this$props, ["$fieldutil", "value", "onChange", "onFocus", "onBlur", "checked", "unchecked"]);
 
         var htmlType = this.props.type;
         var htmlProps = {
@@ -2655,20 +2701,20 @@
       Consumer = _createContext.Consumer;
 
   var EasyFieldGroup = /*#__PURE__*/function (_Component) {
-    _inherits(EasyFieldGroup, _Component);
+    inherits(EasyFieldGroup, _Component);
 
     function EasyFieldGroup() {
       var _getPrototypeOf2;
 
       var _this;
 
-      _classCallCheck(this, EasyFieldGroup);
+      classCallCheck(this, EasyFieldGroup);
 
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(EasyFieldGroup)).call.apply(_getPrototypeOf2, [this].concat(args)));
+      _this = possibleConstructorReturn(this, (_getPrototypeOf2 = getPrototypeOf(EasyFieldGroup)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
       _this.getGroupContext = function () {
         return _this.props;
@@ -2677,7 +2723,7 @@
       return _this;
     }
 
-    _createClass(EasyFieldGroup, [{
+    createClass(EasyFieldGroup, [{
       key: "_render",
       value: function _render() {
         var _this$props = this.props,
@@ -2729,15 +2775,15 @@
   };
 
   var EasyFieldGroupOption = /*#__PURE__*/function (_Component2) {
-    _inherits(EasyFieldGroupOption, _Component2);
+    inherits(EasyFieldGroupOption, _Component2);
 
     function EasyFieldGroupOption() {
-      _classCallCheck(this, EasyFieldGroupOption);
+      classCallCheck(this, EasyFieldGroupOption);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(EasyFieldGroupOption).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(EasyFieldGroupOption).apply(this, arguments));
     }
 
-    _createClass(EasyFieldGroupOption, [{
+    createClass(EasyFieldGroupOption, [{
       key: "componentDidMount",
       value: function componentDidMount() {
         warning_1('$value' in this.props, "You should pass a $value to <GroupOption />.");
@@ -2750,7 +2796,7 @@
             _onChange = _this$props2.onChange,
             _onFocus = _this$props2.onFocus,
             _onBlur = _this$props2.onBlur,
-            others = _objectWithoutProperties(_this$props2, ["$value", "onChange", "onFocus", "onBlur"]);
+            others = objectWithoutProperties(_this$props2, ["$value", "onChange", "onFocus", "onBlur"]);
 
         return React__default.createElement(Consumer, null, function (getGroupContext) {
           var $groupHandler = getGroupContext();
@@ -2803,15 +2849,15 @@
   };
 
   var DeprecatedEasyFieldGroupOption = /*#__PURE__*/function (_Component3) {
-    _inherits(DeprecatedEasyFieldGroupOption, _Component3);
+    inherits(DeprecatedEasyFieldGroupOption, _Component3);
 
     function DeprecatedEasyFieldGroupOption() {
-      _classCallCheck(this, DeprecatedEasyFieldGroupOption);
+      classCallCheck(this, DeprecatedEasyFieldGroupOption);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(DeprecatedEasyFieldGroupOption).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(DeprecatedEasyFieldGroupOption).apply(this, arguments));
     }
 
-    _createClass(DeprecatedEasyFieldGroupOption, [{
+    createClass(DeprecatedEasyFieldGroupOption, [{
       key: "componentDidMount",
       value: function componentDidMount() {
         warning_1(false, "The \"Field\" property in EasyField's children-props has been deprecated. Please use \"GroupOption\" instead.");
@@ -2831,14 +2877,14 @@
   var Wrapper = React__default.Frament || 'div';
 
   var EasyFieldList = /*#__PURE__*/function (_Component) {
-    _inherits(EasyFieldList, _Component);
+    inherits(EasyFieldList, _Component);
 
     function EasyFieldList(props) {
       var _this;
 
-      _classCallCheck(this, EasyFieldList);
+      classCallCheck(this, EasyFieldList);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(EasyFieldList).call(this, props));
+      _this = possibleConstructorReturn(this, getPrototypeOf(EasyFieldList).call(this, props));
       _this.id = 0;
       _this.latestValue = _this.props.value;
       _this.$formutil = void 0;
@@ -2956,7 +3002,7 @@
       return _this;
     }
 
-    _createClass(EasyFieldList, [{
+    createClass(EasyFieldList, [{
       key: "componentDidUpdate",
       value: function componentDidUpdate(prevProps) {
         var _this2 = this;
@@ -3049,7 +3095,7 @@
                       });
                     },
                     children: function children($innerFormutil) {
-                      return _children(_objectSpread2({
+                      return _children(objectSpread2({
                         get $length() {
                           return $self.state.items.length;
                         },
@@ -3105,7 +3151,7 @@
   }], ['checker', function ($value, checker, props) {
     return checker($value, props);
   }]].reduce(function ($validators, item) {
-    var _item = _slicedToArray(item, 2),
+    var _item = slicedToArray(item, 2),
         validKey = _item[0],
         validate = _item[1];
 
@@ -3143,7 +3189,7 @@
     }
   };
   function createHandler$1($fieldutil, fieldProps, childProps) {
-    var _objectSpread2$1;
+    var _objectSpread2;
 
     var valuePropName = fieldProps.valuePropName,
         changePropName = fieldProps.changePropName,
@@ -3156,7 +3202,7 @@
       return ev && ev.target ? ev.target[valuePropName] : ev;
     };
 
-    var $handleProps = _objectSpread2({}, childProps, (_objectSpread2$1 = {}, _defineProperty(_objectSpread2$1, valuePropName, $fieldutil.$viewValue), _defineProperty(_objectSpread2$1, changePropName, function (value) {
+    var $handleProps = objectSpread2({}, childProps, (_objectSpread2 = {}, defineProperty(_objectSpread2, valuePropName, $fieldutil.$viewValue), defineProperty(_objectSpread2, changePropName, function (value) {
       var _events$;
 
       for (var _len = arguments.length, events = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -3173,11 +3219,11 @@
       onChange && onChange.apply(void 0, events);
       var newValue = getValueFromEvent ? getValueFromEvent.apply(void 0, events) : fetchValueFromEvent(value);
       $fieldutil.$render(newValue);
-    }), _defineProperty(_objectSpread2$1, focusPropName, function () {
+    }), defineProperty(_objectSpread2, focusPropName, function () {
       var onFocus = fieldProps[focusPropName];
       onFocus && onFocus.apply(void 0, arguments);
       $fieldutil.$setFocused(true);
-    }), _defineProperty(_objectSpread2$1, blurPropName, function () {
+    }), defineProperty(_objectSpread2, blurPropName, function () {
       var onBlur = fieldProps[blurPropName];
       onBlur && onBlur.apply(void 0, arguments);
 
@@ -3186,7 +3232,7 @@
       }
 
       $fieldutil.$setFocused(false);
-    }), _objectSpread2$1));
+    }), _objectSpread2));
 
     if (passUtil) {
       $handleProps[passUtil === true ? '$fieldutil' : String(passUtil)] = $fieldutil;
@@ -3198,7 +3244,7 @@
     var children = props.children,
         component = props.component,
         render = props.render,
-        fieldProps = _objectWithoutProperties(props, ["children", "component", "render"]);
+        fieldProps = objectWithoutProperties(props, ["children", "component", "render"]);
 
     var name = fieldProps.name,
         type = fieldProps.type,
@@ -3225,7 +3271,7 @@
         $parser = fieldProps.$parser,
         $formatter = fieldProps.$formatter,
         $ref = fieldProps.$ref,
-        childProps = _objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "__DIFF__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$memo", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
+        childProps = objectWithoutProperties(fieldProps, ["name", "type", "defaultValue", "valuePropName", "changePropName", "focusPropName", "blurPropName", "getValueFromEvent", "validMessage", "checked", "unchecked", "__TYPE__", "__DIFF__", "passUtil", "$defaultValue", "$defaultState", "$onFieldChange", "$validators", "$asyncValidators", "$validateLazy", "$memo", "$reserveOnUnmount", "$parser", "$formatter", "$ref"]);
 
     var renderProps = {
       children: children,
@@ -3238,7 +3284,7 @@
     }
 
     var isNative = !isUndefined(type) || isUndefined(children) && isUndefined(component) && isUndefined(render);
-    Object.keys(_objectSpread2({}, fieldProps.$validators = _objectSpread2({}, defaultValidators, {}, fieldProps.$validators), {}, fieldProps.$asyncValidators)).forEach(function (prop) {
+    Object.keys(objectSpread2({}, fieldProps.$validators = objectSpread2({}, defaultValidators, {}, fieldProps.$validators), {}, fieldProps.$asyncValidators)).forEach(function (prop) {
       if (prop in childProps) {
         if (!isNative || !isValidProp(prop)) {
           delete childProps[prop];
@@ -3248,7 +3294,7 @@
 
     if (isNative) {
       var _split = (type || '').split('.'),
-          _split2 = _slicedToArray(_split, 2),
+          _split2 = slicedToArray(_split, 2),
           _split2$ = _split2[0],
           htmlType = _split2$ === void 0 ? 'text' : _split2$,
           groupType = _split2[1];
@@ -3366,20 +3412,20 @@
    */
 
   var EasyField = /*#__PURE__*/function (_Component) {
-    _inherits(EasyField, _Component);
+    inherits(EasyField, _Component);
 
     function EasyField() {
       var _getPrototypeOf2;
 
       var _this;
 
-      _classCallCheck(this, EasyField);
+      classCallCheck(this, EasyField);
 
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(EasyField)).call.apply(_getPrototypeOf2, [this].concat(args)));
+      _this = possibleConstructorReturn(this, (_getPrototypeOf2 = getPrototypeOf(EasyField)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
       _this.renderChildren = function ($fieldutil) {
         var _this$parsedProps = _this.parsedProps,
@@ -3393,7 +3439,7 @@
       return _this;
     }
 
-    _createClass(EasyField, [{
+    createClass(EasyField, [{
       key: "render",
       value: function render() {
         var _this$parsedProps2 = this.parsedProps = parseProps(this.props),
@@ -3486,7 +3532,7 @@
       $this.$fieldHandler.$$reset();
       $this.$fieldHandler.$validate();
     }),
-        _useState2 = _slicedToArray(_useState, 2),
+        _useState2 = slicedToArray(_useState, 2),
         setState = _useState2[1];
 
     if (!$registered) {
@@ -3533,7 +3579,7 @@
     });
     useLayoutEffect(function () {
       if (callbackRef.current.length > 0) {
-        var callbackQueue = _toConsumableArray(callbackRef.current);
+        var callbackQueue = toConsumableArray(callbackRef.current);
 
         callbackRef.current.length = 0;
 
@@ -3570,7 +3616,7 @@
       });
     }
 
-    return $this.$fieldutil = _objectSpread2({
+    return $this.$fieldutil = objectSpread2({
       $name: $name
     }, $registered.$getState(), {}, $registered, {
       $$formutil: $formContext.$formutil
@@ -3585,7 +3631,7 @@
   }
 
   function useHandler(props) {
-    props = _objectSpread2({}, defaultProps, {}, props, {
+    props = objectSpread2({}, defaultProps, {}, props, {
       children: null
     });
 

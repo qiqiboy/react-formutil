@@ -3,17 +3,8 @@ import { waitFor } from '@testing-library/react';
 import { Field } from '../src';
 import { renderForm } from './helper';
 
-const nativeConsoleLog = console.log;
-const spyConsoleLog = jest.fn((...args) => nativeConsoleLog(...args));
-
-beforeAll(() => (console.log = spyConsoleLog));
-afterAll(() => (console.log = nativeConsoleLog));
-beforeEach(() => {
-    spyConsoleLog.mockClear();
-});
-
 describe('$defaultValues', () => {
-    test('as shallow object', () => {
+    test('should set form initial values from a shallow object', () => {
         const { getFormutil } = renderForm(
             <>
                 <Field name="a" children={null} />
@@ -33,7 +24,7 @@ describe('$defaultValues', () => {
         });
     });
 
-    test('as nested object', () => {
+    test('should set form initial values from a nested object', () => {
         const { getFormutil } = renderForm(
             <>
                 <Field name="a.b" children={null} />
@@ -57,7 +48,7 @@ describe('$defaultValues', () => {
         });
     });
 
-    test('as function', () => {
+    test('should set form initial values from a function', () => {
         const { getFormutil } = renderForm(
             <>
                 <Field name="a" children={null} />
@@ -79,7 +70,7 @@ describe('$defaultValues', () => {
 });
 
 describe('$defaultStates', () => {
-    test('as shallow object', () => {
+    test('should set form initial states from a shallow object', () => {
         const { getFormutil } = renderForm(
             <>
                 <Field name="a" children={null} />
@@ -109,7 +100,7 @@ describe('$defaultStates', () => {
         });
     });
 
-    test('as nested object', () => {
+    test('should set form initial states from a nested object', () => {
         const { getFormutil } = renderForm<
             {
                 a: {
@@ -156,7 +147,7 @@ describe('$defaultStates', () => {
         });
     });
 
-    test('as function', () => {
+    test('should set form initial states from a function', () => {
         const { getFormutil } = renderForm(
             <>
                 <Field name="a" children={null} />
@@ -188,7 +179,7 @@ describe('$defaultStates', () => {
 });
 
 describe('$processer', () => {
-    test('called', async () => {
+    test('should be called and modify form values when exists', async () => {
         const $processerSpy = jest.fn(($state, name) => {
             if (name === 'a.b') {
                 $state.$value = 10;
@@ -224,8 +215,8 @@ describe('$processer', () => {
 });
 
 describe('$ref', () => {
-    test('pass createRef()', async () => {
-        let formutilRef = React.createRef(null);
+    test('should setin $formutil to createRef()', async () => {
+        let formutilRef = React.createRef<any>();
         const { getFormutil } = renderForm(
             <>
                 <Field name="a" $defaultValue={1} children={null} />
@@ -238,7 +229,7 @@ describe('$ref', () => {
         expect(formutilRef.current).toBe(getFormutil());
     });
 
-    test('pass function', async () => {
+    test('should pass $formutil as the argument to function', async () => {
         let refSpy = jest.fn();
         const { getFormutil } = renderForm(
             <>
@@ -255,7 +246,7 @@ describe('$ref', () => {
 });
 
 describe('$validator', () => {
-    test('called', async () => {
+    test('should be called and validate form values\'s errors', async () => {
         const $validatorSpy = jest.fn(params => {
             if (!params.a?.b) {
                 return {
@@ -302,7 +293,7 @@ describe('$validator', () => {
 });
 
 describe('$onFormChange', () => {
-    test('called', async () => {
+    test('should be called when field value changed', async () => {
         let changeSpy = jest.fn();
         const { getFormutil } = renderForm(
             <>

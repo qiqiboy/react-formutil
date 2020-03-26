@@ -1,18 +1,28 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, waitFor, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Field } from '../src';
 import { renderForm, renderField } from './helper';
 
 describe('name', () => {
-    test('mount name "a"', () => {
+    const nativeConsoleError = console.error;
+
+    beforeEach(() => {
+        console.error = jest.fn();
+    });
+
+    afterEach(() => {
+        console.error = nativeConsoleError;
+    });
+
+    test('should register form value with name "a"', () => {
         const { getFormutil } = renderForm(<Field name="a" children={null} />);
         const $formutil = getFormutil();
 
         expect($formutil.$$registers.a).toBeTruthy();
     });
 
-    test('unmount name "a"', async () => {
+    test('should unregister form value with name "a"', async () => {
         const { getFormutil, rerender } = renderForm(<Field name="a" children={null} />);
 
         rerender(null);
@@ -22,7 +32,7 @@ describe('name', () => {
         expect($formutil.$$deepRegisters.a).toBeUndefined();
     });
 
-    test('mount name "a.b[1].c[2].d"', () => {
+    test('should register form value with nested-path name "a.b[1].c[2].d"', () => {
         const { getFormutil } = renderForm(<Field name="a.b[1].c[2].d" children={null} />);
         const $formutil = getFormutil();
 
@@ -30,10 +40,26 @@ describe('name', () => {
         expect($formutil.$$deepRegisters.a.b[1].c[2].d).toBeTruthy();
         expect($formutil.$params.a.b[1].c[2].d).toBe('');
     });
+
+    test('should show wanrings when missing name ', () => {
+        renderForm(<Field children={null} />);
+
+        expect(console.error).toHaveBeenLastCalledWith(
+            'Warning: You should assign a name to <Field />, otherwise it will be isolated!'
+        );
+    });
+
+    test('should show wanrings if not underneath a Form ', () => {
+        render(<Field name="a" children={null} />);
+
+        expect(console.error).toHaveBeenLastCalledWith(
+            "Warning: You should enusre that the <Field /> with the name 'a' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."
+        );
+    });
 });
 
 describe('$defaultValue', () => {
-    test('as variable', () => {
+    test('should set initial value', () => {
         const { getFieldutil } = renderField({
             name: 'a',
             $defaultValue: 'a'
@@ -42,7 +68,7 @@ describe('$defaultValue', () => {
         expect(getFieldutil().$value).toBe('a');
     });
 
-    test('as function', () => {
+    test('should set initial value that equal function returns', () => {
         const { getFieldutil } = renderField({
             name: 'a',
             $defaultValue() {
@@ -60,7 +86,7 @@ describe('$defaultState', () => {
         $touched: true
     };
 
-    test('as object', () => {
+    test('should set initial state by a object', () => {
         const { getFieldutil } = renderField({
             name: 'a',
             $defaultState: initializedState
@@ -69,7 +95,7 @@ describe('$defaultState', () => {
         expect(getFieldutil().$getState()).toMatchObject(initializedState);
     });
 
-    test('as function', () => {
+    test('should set initial state by function returns', () => {
         const { getFieldutil } = renderField({
             name: 'a',
             $defaultState() {
@@ -87,11 +113,11 @@ describe('$validators', () => {
         async: jest.fn()
     };
     const $validators = {
-        syncValidate: value => {
+        syncValidate: (value) => {
             spyValidators.sync();
             return !!value || 'sync-validate!';
         },
-        asyncValidate: jest.fn(value => {
+        asyncValidate: jest.fn((value) => {
             return new Promise((resolve, reject) =>
                 setTimeout(() => {
                     spyValidators.async();
@@ -101,7 +127,7 @@ describe('$validators', () => {
         })
     };
 
-    test('sync&async validate', async () => {
+    test("should be called and validate field's error", async () => {
         const { getFieldutil, rerender } = renderField({
             name: 'a',
             $validators,
@@ -146,10 +172,10 @@ describe('$validators', () => {
 
 describe('$validateLazy', () => {
     const $validators = {
-        syncValidate: jest.fn(value => {
+        syncValidate: jest.fn((value) => {
             return !!value || 'sync-validate!';
         }),
-        asyncValidate: jest.fn(value => {
+        asyncValidate: jest.fn((value) => {
             return new Promise((resolve, reject) =>
                 setTimeout(() => {
                     reject(new Error('async-validate!'));
@@ -158,7 +184,7 @@ describe('$validateLazy', () => {
         })
     };
 
-    test('stop when get the first error', async () => {
+    test('should cancel the rest validators calls when get the first error', async () => {
         const { getFieldutil, rerender } = renderField({
             name: 'a',
             $validators,
@@ -183,7 +209,7 @@ describe('$validateLazy', () => {
 });
 
 describe('$reserveOnUnmount', () => {
-    test('keep value even Field unmount', async () => {
+    test('should keep value in form when Field removed', async () => {
         const { getFormutil, rerender } = renderForm(<Field name="a" children={null} />);
 
         expect(getFormutil().$params).toHaveProperty('a');
@@ -200,7 +226,7 @@ describe('$reserveOnUnmount', () => {
 });
 
 describe('$parser & $formatter', () => {
-    test('transform $viewValue <-> $value', async () => {
+    test('should transform $viewValue <-> $value', async () => {
         const { getFieldutil, getElement, rerender } = renderField({
             name: 'a',
             $defaultValue: '0',
@@ -241,17 +267,17 @@ describe('$parser & $formatter', () => {
 });
 
 describe('$ref', () => {
-    test('as function', async () => {
+    test('should pass $fieldutil as argument to function', async () => {
         let $ref;
         const { getFieldutil } = renderField({
             name: 'a',
-            $ref: ref => ($ref = ref)
+            $ref: (ref) => ($ref = ref)
         });
 
         expect($ref).toBe(getFieldutil());
     });
 
-    test('as createRef()', async () => {
+    test('should setin $fieldutil to createRef()', async () => {
         let $ref = React.createRef<any>();
         const { getFieldutil } = renderField({
             name: 'a',
@@ -263,7 +289,7 @@ describe('$ref', () => {
 });
 
 describe('$memo', () => {
-    test("should not rerender if props deep equal", async () => {
+    test('should not rerender if props deep equal', async () => {
         const renderA = jest.fn();
         const renderB = jest.fn();
         const getFormContent = () => (
@@ -301,7 +327,7 @@ describe('$memo', () => {
         getFormutil().$setValues({
             a: 1,
             b: 1
-        })
+        });
         expect(renderA).toBeCalledTimes(2);
         expect(renderB).toBeCalledTimes(2);
     });
@@ -346,7 +372,7 @@ describe('$memo', () => {
         expect(renderB).toBeCalledTimes(1);
     });
 
-    test("$memo=[...deps] should rerender if deps changed", async () => {
+    test('$memo=[...deps] should rerender if deps changed', async () => {
         const renderA = jest.fn();
         const renderB = jest.fn();
         const getFormContent = (...deps) => (
@@ -542,7 +568,7 @@ describe('$fieldutil', () => {
         $focused: '$setFocused'
     };
 
-    Object.keys(stateMap).forEach(key => {
+    Object.keys(stateMap).forEach((key) => {
         const method = stateMap[key];
 
         test(method + '()', async () => {
@@ -552,9 +578,7 @@ describe('$fieldutil', () => {
                 name: 'a'
             });
 
-            await getFieldutil()
-                [method](true, callback)
-                .then(callback);
+            await getFieldutil()[method](true, callback).then(callback);
 
             expect(getFieldutil()[key]).toBe(true);
             expect(callback).toBeCalledTimes(2);
@@ -563,7 +587,7 @@ describe('$fieldutil', () => {
     });
 
     test('$validate() / $onValidate()', async () => {
-        const callback = jest.fn(v => !!v);
+        const callback = jest.fn((v) => !!v);
 
         const { getFieldutil } = renderField({
             name: 'b',

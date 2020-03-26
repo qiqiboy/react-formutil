@@ -488,7 +488,7 @@ describe('$fieldutil', () => {
         expect(input.value).toBe('b');
     });
 
-    test.only('$setValue() / $render()', async () => {
+    test('$setValue() / $render()', async () => {
         const callback = jest.fn();
 
         const { getFieldutil, findByTestId } = renderField({

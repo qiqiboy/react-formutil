@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'production';
 
 const path = require('path');
-const fs = require('fs-extra');
+const fs = require('fs');
 const commonjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 const nodeResolve = require('@rollup/plugin-node-resolve');
@@ -161,8 +161,6 @@ function createConfig(env, module) {
         ].filter(Boolean)
     };
 }
-
-fs.emptyDirSync('dist');
 
 module.exports = ['cjs', 'esm', 'umd'].reduce((configQueue, module) => {
     return fs.existsSync(`./npm/index.${module}.js`)

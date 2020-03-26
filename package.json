@@ -10,7 +10,8 @@
   "entryFile": "src/index.js",
   "scripts": {
     "start": "cd docs && npm start",
-    "build": "rollup -c",
+    "build": "npm run clear && rollup -c",
+    "clear": "rimraf dist",
     "test": "node jest/test.js -c jest/jest.config.js"
   },
   "repository": {

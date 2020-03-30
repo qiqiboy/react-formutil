@@ -94,6 +94,34 @@ describe('native browser field', () => {
         });
     });
 
+    test('group', async () => {
+        const { getFormutil, getByTestId } = renderForm(
+            <EasyField type="group.checkbox" name="group">
+                {({ GroupOption }) => (
+                    <div>
+                        <GroupOption $value={1} data-testid="a1" />
+                        <GroupOption $value={2} data-testid="a2" />
+                    </div>
+                )}
+            </EasyField>
+        );
+
+        expect(getFormutil().$params).toEqual({
+            group: []
+        });
+
+        getFormutil().$setValues({
+            group: [1]
+        });
+
+        expect(getByTestId('a1')).toBeChecked();
+
+        userEvent.click(getByTestId('a2'));
+        expect(getFormutil().$params).toEqual({
+            group: [1, 2]
+        });
+    });
+
     test('list', async () => {
         let listHandlers: $Listutil[] = [];
         const { getFormutil, getByTestId } = renderForm(

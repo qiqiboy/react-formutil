@@ -25,7 +25,7 @@ function withForm(WrappedComponent, config = {}) {
         );
 
         render() {
-            const { ...others } = this.props;
+            const { __forwardRef__, ...others } = this.props;
             // component优先级最高，这里排除掉, 避免和render属性冲突
             const { component, ...formProps } = this.props;
 

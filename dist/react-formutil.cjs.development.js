@@ -1479,11 +1479,14 @@ function withForm(WrappedComponent) {
     createClass(WithForm, [{
       key: "render",
       value: function render() {
-        var others = Object.assign({}, this.props); // component优先级最高，这里排除掉, 避免和render属性冲突
-
         var _this$props = this.props,
-            component = _this$props.component,
-            formProps = objectWithoutProperties(_this$props, ["component"]);
+            __forwardRef__ = _this$props.__forwardRef__,
+            others = objectWithoutProperties(_this$props, ["__forwardRef__"]); // component优先级最高，这里排除掉, 避免和render属性冲突
+
+
+        var _this$props2 = this.props,
+            component = _this$props2.component,
+            formProps = objectWithoutProperties(_this$props2, ["component"]);
 
         filterProps.forEach(function (prop) {
           if (prop in others) {
@@ -2105,11 +2108,14 @@ function withField(WrappedComponent) {
     createClass(WithField, [{
       key: "render",
       value: function render() {
-        var others = Object.assign({}, this.props); // component优先级最高，这里排除掉, 避免和render属性冲突
-
         var _this$props = this.props,
-            component = _this$props.component,
-            fieldProps = objectWithoutProperties(_this$props, ["component"]);
+            __forwardRef__ = _this$props.__forwardRef__,
+            others = objectWithoutProperties(_this$props, ["__forwardRef__"]); // component优先级最高，这里排除掉, 避免和render属性冲突
+
+
+        var _this$props2 = this.props,
+            component = _this$props2.component,
+            fieldProps = objectWithoutProperties(_this$props2, ["component"]);
 
         filterProps$1.concat(Object.keys(objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
           if (prop in others) {
@@ -2711,9 +2717,9 @@ var defaultValidators = [['required', function ($value, check, _ref) {
 }], ['minLength', function ($value, len, props) {
   return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : '').length >= len * 1;
 }], ['max', function ($value, limit, props) {
-  return 'required' in props.$validError || $value * 1 <= limit * 1;
+  return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : 0) * 1 <= limit * 1;
 }], ['min', function ($value, limit, props) {
-  return 'required' in props.$validError || $value * 1 >= limit * 1;
+  return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : 0) * 1 >= limit * 1;
 }], ['pattern', function ($value, regexp, props) {
   return 'required' in props.$validError || regexp.test($value);
 }], ['enum', function ($value, enumeration, props) {

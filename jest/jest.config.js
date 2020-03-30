@@ -4,6 +4,7 @@
 module.exports = {
     rootDir: process.cwd(),
     roots: ['<rootDir>/src', '<rootDir>/tests'],
+    collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts'],
     setupFiles: ['react-app-polyfill/jsdom'],
     setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
     testMatch: [

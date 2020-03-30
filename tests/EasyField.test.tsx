@@ -257,7 +257,7 @@ describe('built-in validators', () => {
 
         expect(getFormutil().$errors).toEqual({
             a: { min: 'Error input: min' },
-            b: { max: 'Error input: max', min: 'Error input: min' }
+            b: { min: 'Error input: min' }
         });
 
         userEvent.type(getByTestId('input'), '1'); // 11

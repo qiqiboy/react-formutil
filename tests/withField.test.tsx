@@ -8,6 +8,8 @@ const CustomField = withField(({ $fieldutil, ...others }) => {
 });
 
 test('should pass $fieldutil', async () => {
+    expect(CustomField.displayName).toBe('React.Formutil.withField.ForwardRef.Anonymous');
+
     const { getFormutil, getByTestId } = renderForm(<CustomField name="a" $defaultValue="1" data-testid="input" />);
 
     expect(getFormutil().$params).toEqual({

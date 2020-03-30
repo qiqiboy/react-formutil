@@ -2,6 +2,7 @@ docs/
 src/
 npm/
 jest/
+coverage/
 tests/
 *.un~
 /jsconfig.json

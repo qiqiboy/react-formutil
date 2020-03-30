@@ -15,6 +15,9 @@ function FormPage() {
 test('withForm', () => {
     const formutilRef = React.createRef<$Formutil>();
     const Form = withForm(FormPage);
+
+    expect(Form.displayName).toBe('React.Formutil.withForm.ForwardRef.FormPage');
+
     render(<Form $ref={formutilRef} />);
 
     expect(formutilRef.current!.$params).toEqual({

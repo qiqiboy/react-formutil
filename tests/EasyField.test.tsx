@@ -251,19 +251,24 @@ describe('built-in validators', () => {
         const { getFormutil, getByTestId } = renderForm(
             <>
                 <EasyField name="a" data-testid="input" $defaultValue={1} min={10} max={20} />
+                <EasyField name="b" data-testid="input-2" $defaultValue={undefined} min={10} max={20} />
             </>
         );
 
         expect(getFormutil().$errors).toEqual({
-            a: { min: 'Error input: min' }
+            a: { min: 'Error input: min' },
+            b: { max: 'Error input: max', min: 'Error input: min' }
         });
 
         userEvent.type(getByTestId('input'), '1'); // 11
+        userEvent.type(getByTestId('input-2'), '11'); // 11
         expect(getFormutil().$errors).toEqual({});
 
         userEvent.type(getByTestId('input'), '1'); // 111
+        userEvent.type(getByTestId('input-2'), '1'); // 111
         expect(getFormutil().$errors).toEqual({
-            a: { max: 'Error input: max' }
+            a: { max: 'Error input: max' },
+            b: { max: 'Error input: max' }
         });
     });
 
@@ -271,19 +276,24 @@ describe('built-in validators', () => {
         const { getFormutil, getByTestId } = renderForm(
             <>
                 <EasyField name="a" data-testid="input" $defaultValue="" minLength={2} maxLength={5} />
+                <EasyField name="b" data-testid="input-2" $defaultValue={undefined} minLength={2} maxLength={5} />
             </>
         );
 
         expect(getFormutil().$errors).toEqual({
-            a: { minLength: 'Error input: minLength' }
+            a: { minLength: 'Error input: minLength' },
+            b: { minLength: 'Error input: minLength' }
         });
 
         userEvent.type(getByTestId('input'), '123'); // 12
+        userEvent.type(getByTestId('input-2'), '123'); // 12
         expect(getFormutil().$errors).toEqual({});
 
         userEvent.type(getByTestId('input'), '456'); // 123456
+        userEvent.type(getByTestId('input-2'), '456'); // 123456
         expect(getFormutil().$errors).toEqual({
-            a: { maxLength: 'Error input: maxLength' }
+            a: { maxLength: 'Error input: maxLength' },
+            b: { maxLength: 'Error input: maxLength' }
         });
     });
 
@@ -291,14 +301,17 @@ describe('built-in validators', () => {
         const { getFormutil, getByTestId } = renderForm(
             <>
                 <EasyField name="a" data-testid="input" $defaultValue="abc" pattern={/@/} />
+                <EasyField name="b" data-testid="input-2" $defaultValue={undefined} pattern={/@/} />
             </>
         );
 
         expect(getFormutil().$errors).toEqual({
-            a: { pattern: 'Error input: pattern' }
+            a: { pattern: 'Error input: pattern' },
+            b: { pattern: 'Error input: pattern' }
         });
 
         userEvent.type(getByTestId('input'), '@123'); // abc@123
+        userEvent.type(getByTestId('input-2'), 'abc@123'); // abc@123
         expect(getFormutil().$errors).toEqual({});
     });
 
@@ -333,6 +346,34 @@ describe('built-in validators', () => {
         userEvent.type(getByTestId('input'), '1'); // 11
         expect(getFormutil().$errors).toEqual({});
         expect(checkerSpy).toBeCalledTimes(2);
+    });
+
+    test('required has high priority', () => {
+        const { getFormutil, getByTestId } = renderForm(
+            <>
+                <EasyField name="a" data-testid="input" $defaultValue="" required minLength={2} maxLength={5} />
+                <EasyField
+                    name="b"
+                    data-testid="input-2"
+                    $defaultValue={undefined}
+                    required
+                    minLength={2}
+                    maxLength={5}
+                />
+            </>
+        );
+
+        expect(getFormutil().$errors).toEqual({
+            a: { required: 'Error input: required' },
+            b: { required: 'Error input: required' }
+        });
+
+        userEvent.type(getByTestId('input'), '1'); // 1
+        userEvent.type(getByTestId('input-2'), '1'); // 1
+        expect(getFormutil().$errors).toEqual({
+            a: { minLength: 'Error input: minLength' },
+            b: { minLength: 'Error input: minLength' }
+        });
     });
 });
 

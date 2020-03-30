@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Happy to build the forms in React ^_^",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -35,6 +35,23 @@
   "eslintConfig": {
     "extends": [
       "react-app"
+    ]
+  },
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 4,
+    "trailingComma": "none",
+    "jsxBracketSameLine": true,
+    "semi": true,
+    "arrowParens": "avoid",
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.json",
+        "options": {
+          "tabWidth": 2
+        }
+      }
     ]
   },
   "homepage": "https://github.com/qiqiboy/react-formutil#readme",

@@ -190,10 +190,6 @@
 
   var assertThisInitialized = _assertThisInitialized;
 
-  function unwrapExports (x) {
-  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-  }
-
   function createCommonjsModule(fn, module) {
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
@@ -313,88 +309,39 @@
   {
     (function() {
 
-  Object.defineProperty(exports, '__esModule', { value: true });
-
   // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
   // nor polyfill, then a plain number is used for performance.
   var hasSymbol = typeof Symbol === 'function' && Symbol.for;
-
   var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
   var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for('react.portal') : 0xeaca;
   var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb;
   var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeacc;
   var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
   var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
-  var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace;
+  var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace; // TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
+  // (unstable) APIs that have been removed. Can we remove the symbols?
+
   var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for('react.async_mode') : 0xeacf;
   var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
   var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
   var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
+  var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
   var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
   var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
+  var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for('react.block') : 0xead9;
+  var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
+  var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
+  var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for('react.scope') : 0xead7;
 
   function isValidElementType(type) {
-    return typeof type === 'string' || typeof type === 'function' ||
-    // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-    type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE);
+    return typeof type === 'string' || typeof type === 'function' || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
+    type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
   }
-
-  /**
-   * Forked from fbjs/warning:
-   * https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/__forks__/warning.js
-   *
-   * Only change is we use console.warn instead of console.error,
-   * and do nothing when 'console' is not supported.
-   * This really simplifies the code.
-   * ---
-   * Similar to invariant but only logs a warning if the condition is not met.
-   * This can be used to log issues in development environments in critical
-   * paths. Removing the logging code for production environments will keep the
-   * same logic and follow the same code paths.
-   */
-
-  var lowPriorityWarning = function () {};
-
-  {
-    var printWarning = function (format) {
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
-      var argIndex = 0;
-      var message = 'Warning: ' + format.replace(/%s/g, function () {
-        return args[argIndex++];
-      });
-      if (typeof console !== 'undefined') {
-        console.warn(message);
-      }
-      try {
-        // --- Welcome to debugging React ---
-        // This error was thrown as a convenience so that you can use this stack
-        // to find the callsite that caused this warning to fire.
-        throw new Error(message);
-      } catch (x) {}
-    };
-
-    lowPriorityWarning = function (condition, format) {
-      if (format === undefined) {
-        throw new Error('`lowPriorityWarning(condition, format, ...args)` requires a warning ' + 'message argument');
-      }
-      if (!condition) {
-        for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-          args[_key2 - 2] = arguments[_key2];
-        }
-
-        printWarning.apply(undefined, [format].concat(args));
-      }
-    };
-  }
-
-  var lowPriorityWarning$1 = lowPriorityWarning;
 
   function typeOf(object) {
     if (typeof object === 'object' && object !== null) {
       var $$typeof = object.$$typeof;
+
       switch ($$typeof) {
         case REACT_ELEMENT_TYPE:
           var type = object.type;
@@ -407,29 +354,32 @@
             case REACT_STRICT_MODE_TYPE:
             case REACT_SUSPENSE_TYPE:
               return type;
+
             default:
               var $$typeofType = type && type.$$typeof;
 
               switch ($$typeofType) {
                 case REACT_CONTEXT_TYPE:
                 case REACT_FORWARD_REF_TYPE:
+                case REACT_LAZY_TYPE:
+                case REACT_MEMO_TYPE:
                 case REACT_PROVIDER_TYPE:
                   return $$typeofType;
+
                 default:
                   return $$typeof;
               }
+
           }
-        case REACT_LAZY_TYPE:
-        case REACT_MEMO_TYPE:
+
         case REACT_PORTAL_TYPE:
           return $$typeof;
       }
     }
 
     return undefined;
-  }
+  } // AsyncMode is deprecated along with isAsyncMode
 
-  // AsyncMode is deprecated along with isAsyncMode
   var AsyncMode = REACT_ASYNC_MODE_TYPE;
   var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
   var ContextConsumer = REACT_CONTEXT_TYPE;
@@ -443,17 +393,17 @@
   var Profiler = REACT_PROFILER_TYPE;
   var StrictMode = REACT_STRICT_MODE_TYPE;
   var Suspense = REACT_SUSPENSE_TYPE;
+  var hasWarnedAboutDeprecatedIsAsyncMode = false; // AsyncMode should be deprecated
 
-  var hasWarnedAboutDeprecatedIsAsyncMode = false;
-
-  // AsyncMode should be deprecated
   function isAsyncMode(object) {
     {
       if (!hasWarnedAboutDeprecatedIsAsyncMode) {
-        hasWarnedAboutDeprecatedIsAsyncMode = true;
-        lowPriorityWarning$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+        hasWarnedAboutDeprecatedIsAsyncMode = true; // Using console['warn'] to evade Babel and ESLint
+
+        console['warn']('The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
       }
     }
+
     return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
   }
   function isConcurrentMode(object) {
@@ -493,7 +443,6 @@
     return typeOf(object) === REACT_SUSPENSE_TYPE;
   }
 
-  exports.typeOf = typeOf;
   exports.AsyncMode = AsyncMode;
   exports.ConcurrentMode = ConcurrentMode;
   exports.ContextConsumer = ContextConsumer;
@@ -507,7 +456,6 @@
   exports.Profiler = Profiler;
   exports.StrictMode = StrictMode;
   exports.Suspense = Suspense;
-  exports.isValidElementType = isValidElementType;
   exports.isAsyncMode = isAsyncMode;
   exports.isConcurrentMode = isConcurrentMode;
   exports.isContextConsumer = isContextConsumer;
@@ -521,47 +469,47 @@
   exports.isProfiler = isProfiler;
   exports.isStrictMode = isStrictMode;
   exports.isSuspense = isSuspense;
+  exports.isValidElementType = isValidElementType;
+  exports.typeOf = typeOf;
     })();
   }
   });
+  var reactIs_development_1 = reactIs_development.AsyncMode;
+  var reactIs_development_2 = reactIs_development.ConcurrentMode;
+  var reactIs_development_3 = reactIs_development.ContextConsumer;
+  var reactIs_development_4 = reactIs_development.ContextProvider;
+  var reactIs_development_5 = reactIs_development.Element;
+  var reactIs_development_6 = reactIs_development.ForwardRef;
+  var reactIs_development_7 = reactIs_development.Fragment;
+  var reactIs_development_8 = reactIs_development.Lazy;
+  var reactIs_development_9 = reactIs_development.Memo;
+  var reactIs_development_10 = reactIs_development.Portal;
+  var reactIs_development_11 = reactIs_development.Profiler;
+  var reactIs_development_12 = reactIs_development.StrictMode;
+  var reactIs_development_13 = reactIs_development.Suspense;
+  var reactIs_development_14 = reactIs_development.isAsyncMode;
+  var reactIs_development_15 = reactIs_development.isConcurrentMode;
+  var reactIs_development_16 = reactIs_development.isContextConsumer;
+  var reactIs_development_17 = reactIs_development.isContextProvider;
+  var reactIs_development_18 = reactIs_development.isElement;
+  var reactIs_development_19 = reactIs_development.isForwardRef;
+  var reactIs_development_20 = reactIs_development.isFragment;
+  var reactIs_development_21 = reactIs_development.isLazy;
+  var reactIs_development_22 = reactIs_development.isMemo;
+  var reactIs_development_23 = reactIs_development.isPortal;
+  var reactIs_development_24 = reactIs_development.isProfiler;
+  var reactIs_development_25 = reactIs_development.isStrictMode;
+  var reactIs_development_26 = reactIs_development.isSuspense;
+  var reactIs_development_27 = reactIs_development.isValidElementType;
+  var reactIs_development_28 = reactIs_development.typeOf;
 
-  unwrapExports(reactIs_development);
-  var reactIs_development_1 = reactIs_development.typeOf;
-  var reactIs_development_2 = reactIs_development.AsyncMode;
-  var reactIs_development_3 = reactIs_development.ConcurrentMode;
-  var reactIs_development_4 = reactIs_development.ContextConsumer;
-  var reactIs_development_5 = reactIs_development.ContextProvider;
-  var reactIs_development_6 = reactIs_development.Element;
-  var reactIs_development_7 = reactIs_development.ForwardRef;
-  var reactIs_development_8 = reactIs_development.Fragment;
-  var reactIs_development_9 = reactIs_development.Lazy;
-  var reactIs_development_10 = reactIs_development.Memo;
-  var reactIs_development_11 = reactIs_development.Portal;
-  var reactIs_development_12 = reactIs_development.Profiler;
-  var reactIs_development_13 = reactIs_development.StrictMode;
-  var reactIs_development_14 = reactIs_development.Suspense;
-  var reactIs_development_15 = reactIs_development.isValidElementType;
-  var reactIs_development_16 = reactIs_development.isAsyncMode;
-  var reactIs_development_17 = reactIs_development.isConcurrentMode;
-  var reactIs_development_18 = reactIs_development.isContextConsumer;
-  var reactIs_development_19 = reactIs_development.isContextProvider;
-  var reactIs_development_20 = reactIs_development.isElement;
-  var reactIs_development_21 = reactIs_development.isForwardRef;
-  var reactIs_development_22 = reactIs_development.isFragment;
-  var reactIs_development_23 = reactIs_development.isLazy;
-  var reactIs_development_24 = reactIs_development.isMemo;
-  var reactIs_development_25 = reactIs_development.isPortal;
-  var reactIs_development_26 = reactIs_development.isProfiler;
-  var reactIs_development_27 = reactIs_development.isStrictMode;
-  var reactIs_development_28 = reactIs_development.isSuspense;
-
-  var reactIs = createCommonjsModule(function (module) {
+  var _reactIs_16_13_1_reactIs = createCommonjsModule(function (module) {
 
   {
     module.exports = reactIs_development;
   }
   });
-  var reactIs_1 = reactIs.isValidElementType;
+  var _reactIs_16_13_1_reactIs_1 = _reactIs_16_13_1_reactIs.isValidElementType;
 
   /**
    * Copyright (c) 2014-present, Facebook, Inc.
@@ -640,7 +588,7 @@
     return obj.constructor.prototype === OBJECT_PROTO;
   }
   function isComponent(obj) {
-    return reactIs_1(obj) && typeof obj !== 'string';
+    return _reactIs_16_13_1_reactIs_1(obj) && typeof obj !== 'string';
   }
   function checkComponentPropType(props, propName, componentName) {
     if (props[propName] && !isComponent(props[propName])) {
@@ -1795,12 +1743,12 @@
     type: true
   };
   var TYPE_STATICS = {};
-  TYPE_STATICS[reactIs.ForwardRef] = FORWARD_REF_STATICS;
-  TYPE_STATICS[reactIs.Memo] = MEMO_STATICS;
+  TYPE_STATICS[_reactIs_16_13_1_reactIs.ForwardRef] = FORWARD_REF_STATICS;
+  TYPE_STATICS[_reactIs_16_13_1_reactIs.Memo] = MEMO_STATICS;
 
   function getStatics(component) {
     // React v16.11 and below
-    if (reactIs.isMemo(component)) {
+    if (_reactIs_16_13_1_reactIs.isMemo(component)) {
       return MEMO_STATICS;
     } // React v16.12 and above
 
@@ -2427,7 +2375,7 @@
   }
   // end fast-deep-equal
 
-  var reactFastCompare = function isEqual(a, b) {
+  var _reactFastCompare_3_0_1_reactFastCompare = function isEqual(a, b) {
     try {
       return equal(a, b);
     } catch (error) {
@@ -2564,7 +2512,7 @@
          * 这里不能用isEqual深度比较，避免遇到$value为大数据时导致性能问题
          * isStateEqual只比较一层
          */
-        !isStateEqual(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? reactFastCompare($memo, this.props.$memo) : reactFastCompare(this.props, nextProps));
+        !isStateEqual(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? _reactFastCompare_3_0_1_reactFastCompare($memo, this.props.$memo) : _reactFastCompare_3_0_1_reactFastCompare(this.props, nextProps));
       }
     }, {
       key: "_render",
@@ -3012,7 +2960,7 @@
             if (_this.props.value.length) {
               _this.props.onChange(_this.latestValue = []);
             }
-          } else if (!reactFastCompare(_this.props.value, $params.list)) {
+          } else if (!_reactFastCompare_3_0_1_reactFastCompare(_this.props.value, $params.list)) {
             _this.props.onChange(_this.latestValue = $params.list);
           }
         });
@@ -3198,7 +3146,7 @@
                           if ($fieldutil.$viewValue !== null) {
                             $fieldutil.$render(null);
                           }
-                        } else if (!reactFastCompare($fieldutil.$viewValue, $params)) {
+                        } else if (!_reactFastCompare_3_0_1_reactFastCompare($fieldutil.$viewValue, $params)) {
                           $fieldutil.$render($params);
                         }
                       });
@@ -3246,19 +3194,19 @@
         checked = _ref$checked === void 0 ? true : _ref$checked;
     return __TYPE__ === 'checked' ? $value === checked : !isEmpty($value);
   }], ['maxLength', function ($value, len, props) {
-    return props.required && isEmpty($value) || $value.length <= len;
+    return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : '').length <= len * 1;
   }], ['minLength', function ($value, len, props) {
-    return props.required && isEmpty($value) || $value.length >= len;
+    return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : '').length >= len * 1;
   }], ['max', function ($value, limit, props) {
-    return props.required && isEmpty($value) || $value * 1 <= limit;
+    return 'required' in props.$validError || $value * 1 <= limit * 1;
   }], ['min', function ($value, limit, props) {
-    return props.required && isEmpty($value) || $value * 1 >= limit;
+    return 'required' in props.$validError || $value * 1 >= limit * 1;
   }], ['pattern', function ($value, regexp, props) {
-    return props.required && isEmpty($value) || regexp.test($value);
+    return 'required' in props.$validError || regexp.test($value);
   }], ['enum', function ($value, enumeration, props) {
-    return props.required && isEmpty($value) || enumeration.indexOf($value) > -1;
+    return 'required' in props.$validError || enumeration.indexOf($value) > -1;
   }], ['checker', function ($value, checker, props) {
-    return checker($value, props);
+    return 'required' in props.$validError || checker($value, props);
   }]].reduce(function ($validators, item) {
     var _item = slicedToArray(item, 2),
         validKey = _item[0],

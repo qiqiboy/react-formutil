@@ -12,13 +12,13 @@ export const defaultValidators = [
         ($value, check, { __TYPE__, checked = true }) =>
             __TYPE__ === 'checked' ? $value === checked : !isEmpty($value)
     ],
-    ['maxLength', ($value, len, props) => (props.required && isEmpty($value)) || $value.length <= len],
-    ['minLength', ($value, len, props) => (props.required && isEmpty($value)) || $value.length >= len],
-    ['max', ($value, limit, props) => (props.required && isEmpty($value)) || $value * 1 <= limit],
-    ['min', ($value, limit, props) => (props.required && isEmpty($value)) || $value * 1 >= limit],
-    ['pattern', ($value, regexp, props) => (props.required && isEmpty($value)) || regexp.test($value)],
-    ['enum', ($value, enumeration, props) => (props.required && isEmpty($value)) || enumeration.indexOf($value) > -1],
-    ['checker', ($value, checker, props) => checker($value, props)]
+    ['maxLength', ($value, len, props) => 'required' in props.$validError || ($value ?? '').length <= len * 1],
+    ['minLength', ($value, len, props) => 'required' in props.$validError || ($value ?? '').length >= len * 1],
+    ['max', ($value, limit, props) => 'required' in props.$validError || $value * 1 <= limit * 1],
+    ['min', ($value, limit, props) => 'required' in props.$validError || $value * 1 >= limit * 1],
+    ['pattern', ($value, regexp, props) => 'required' in props.$validError || regexp.test($value)],
+    ['enum', ($value, enumeration, props) => 'required' in props.$validError || enumeration.indexOf($value) > -1],
+    ['checker', ($value, checker, props) => 'required' in props.$validError || checker($value, props)]
 ].reduce(($validators, item) => {
     const [validKey, validate] = item;
     $validators[validKey] = function validator($value, propValue, { validMessage = {} }) {
@@ -62,7 +62,7 @@ export const defaultProps = {
 export function createHandler($fieldutil, fieldProps, childProps) {
     const { valuePropName, changePropName, focusPropName, blurPropName, getValueFromEvent, passUtil } = fieldProps;
 
-    const fetchValueFromEvent = function(ev) {
+    const fetchValueFromEvent = function (ev) {
         return ev && ev.target ? ev.target[valuePropName] : ev;
     };
 

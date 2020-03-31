@@ -284,8 +284,7 @@ describe('built-in validators', () => {
         );
 
         expect(getFormutil().$errors).toEqual({
-            a: { min: 'Error input: min' },
-            b: { min: 'Error input: min' }
+            a: { min: 'Error input: min' }
         });
 
         userEvent.type(getByTestId('input'), '1'); // 11
@@ -303,14 +302,21 @@ describe('built-in validators', () => {
     test('maxLength/minLength', () => {
         const { getFormutil, getByTestId } = renderForm(
             <>
-                <EasyField name="a" data-testid="input" $defaultValue="" minLength={2} maxLength={5} />
-                <EasyField name="b" data-testid="input-2" $defaultValue={undefined} minLength={2} maxLength={5} />
+                <EasyField name="a" data-testid="input" required $defaultValue="" minLength={2} maxLength={5} />
+                <EasyField
+                    name="b"
+                    data-testid="input-2"
+                    required
+                    $defaultValue={undefined}
+                    minLength={2}
+                    maxLength={5}
+                />
             </>
         );
 
         expect(getFormutil().$errors).toEqual({
-            a: { minLength: 'Error input: minLength' },
-            b: { minLength: 'Error input: minLength' }
+            a: { required: 'Error input: required' },
+            b: { required: 'Error input: required' }
         });
 
         userEvent.type(getByTestId('input'), '123'); // 12
@@ -334,8 +340,7 @@ describe('built-in validators', () => {
         );
 
         expect(getFormutil().$errors).toEqual({
-            a: { pattern: 'Error input: pattern' },
-            b: { pattern: 'Error input: pattern' }
+            a: { pattern: 'Error input: pattern' }
         });
 
         userEvent.type(getByTestId('input'), '@123'); // abc@123

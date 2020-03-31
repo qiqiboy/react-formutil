@@ -2647,20 +2647,20 @@ var defaultValidators = [['required', function ($value, check, _ref) {
       _ref$checked = _ref.checked,
       checked = _ref$checked === void 0 ? true : _ref$checked;
   return __TYPE__ === 'checked' ? $value === checked : !isEmpty($value);
-}], ['maxLength', function ($value, len, props) {
-  return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : '').length <= len * 1;
-}], ['minLength', function ($value, len, props) {
-  return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : '').length >= len * 1;
-}], ['max', function ($value, limit, props) {
-  return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : 0) * 1 <= limit * 1;
-}], ['min', function ($value, limit, props) {
-  return 'required' in props.$validError || ($value !== null && $value !== void 0 ? $value : 0) * 1 >= limit * 1;
-}], ['pattern', function ($value, regexp, props) {
-  return 'required' in props.$validError || regexp.test($value);
-}], ['enum', function ($value, enumeration, props) {
-  return 'required' in props.$validError || enumeration.indexOf($value) > -1;
+}], ['maxLength', function ($value, len) {
+  return isEmpty($value) || $value.length <= len * 1;
+}], ['minLength', function ($value, len) {
+  return isEmpty($value) || $value.length >= len * 1;
+}], ['max', function ($value, limit) {
+  return isEmpty($value) || $value * 1 <= limit * 1;
+}], ['min', function ($value, limit) {
+  return isEmpty($value) || $value * 1 >= limit * 1;
+}], ['pattern', function ($value, regexp) {
+  return isEmpty($value) || regexp.test($value);
+}], ['enum', function ($value, enumeration) {
+  return isEmpty($value) || enumeration.indexOf($value) > -1;
 }], ['checker', function ($value, checker, props) {
-  return 'required' in props.$validError || checker($value, props);
+  return checker($value, props);
 }]].reduce(function ($validators, item) {
   var _item = _slicedToArray(item, 2),
       validKey = _item[0],

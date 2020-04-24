@@ -3,7 +3,7 @@ import warning from 'warning';
 
 const OBJECT_PROTO = Object.getPrototypeOf({});
 const PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
-const Root = isUndefined(window) ? global : window;
+const Root = typeof window === 'undefined' ? global : window;
 
 export function isUndefined(arg) {
     return typeof arg === 'undefined';

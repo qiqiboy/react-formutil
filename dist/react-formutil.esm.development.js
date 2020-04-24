@@ -248,7 +248,7 @@ var FormContext = createContext(function () {
 
 var OBJECT_PROTO = Object.getPrototypeOf({});
 var PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
-var Root = isUndefined(window) ? global : window;
+var Root = typeof window === 'undefined' ? global : window;
 function isUndefined(arg) {
   return typeof arg === 'undefined';
 }

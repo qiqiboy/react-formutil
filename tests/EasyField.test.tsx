@@ -303,20 +303,12 @@ describe('built-in validators', () => {
         const { getFormutil, getByTestId } = renderForm(
             <>
                 <EasyField name="a" data-testid="input" required $defaultValue="" minLength={2} maxLength={5} />
-                <EasyField
-                    name="b"
-                    data-testid="input-2"
-                    required
-                    $defaultValue={undefined}
-                    minLength={2}
-                    maxLength={5}
-                />
+                <EasyField name="b" data-testid="input-2" $defaultValue={undefined} minLength={2} maxLength={5} />
             </>
         );
 
         expect(getFormutil().$errors).toEqual({
-            a: { required: 'Error input: required' },
-            b: { required: 'Error input: required' }
+            a: { required: 'Error input: required' }
         });
 
         userEvent.type(getByTestId('input'), '123'); // 12
@@ -352,6 +344,7 @@ describe('built-in validators', () => {
         const { getFormutil, getByTestId } = renderForm(
             <>
                 <EasyField name="a" data-testid="input" $defaultValue="a" enum={['a1', '2', '3']} />
+                <EasyField name="b" data-testid="input-2" $defaultValue={undefined} enum={['a1', '2', '3']} />
             </>
         );
 
@@ -365,20 +358,28 @@ describe('built-in validators', () => {
 
     test('checker', () => {
         const checkerSpy = jest.fn(value => value * 1 > 10);
+        const checkerSpy2 = jest.fn(value => value * 1 > 10);
         const { getFormutil, getByTestId } = renderForm(
             <>
                 <EasyField name="a" data-testid="input" $defaultValue="1" checker={checkerSpy} />
+                <EasyField name="b" data-testid="input-2" $defaultValue={undefined} checker={checkerSpy2} />
             </>
         );
 
         expect(checkerSpy).toBeCalledTimes(1);
+        expect(checkerSpy2).toBeCalledTimes(1);
         expect(getFormutil().$errors).toEqual({
-            a: { checker: 'Error input: checker' }
+            a: { checker: 'Error input: checker' },
+            b: { checker: 'Error input: checker' }
         });
 
         userEvent.type(getByTestId('input'), '1'); // 11
-        expect(getFormutil().$errors).toEqual({});
+        userEvent.type(getByTestId('input-2'), '1'); // 1
+        expect(getFormutil().$errors).toEqual({
+            b: { checker: 'Error input: checker' }
+        });
         expect(checkerSpy).toBeCalledTimes(2);
+        expect(checkerSpy2).toBeCalledTimes(2);
     });
 
     test('required has high priority', () => {

@@ -2169,7 +2169,7 @@ var EasyFieldNative = /*#__PURE__*/function (_Component) {
           htmlValue = _this$props.value,
           _onChange = _this$props.onChange,
           onFocus = _this$props.onFocus,
-          onBlur = _this$props.onBlur,
+          _onBlur = _this$props.onBlur,
           checked = _this$props.checked,
           unchecked = _this$props.unchecked,
           others = objectWithoutProperties(_this$props, ["$fieldutil", "value", "onChange", "onFocus", "onBlur", "checked", "unchecked"]);
@@ -2197,7 +2197,15 @@ var EasyFieldNative = /*#__PURE__*/function (_Component) {
           }
         },
         onFocus: onFocus,
-        onBlur: onBlur
+        onBlur: function onBlur(ev) {
+          if (_this.isComposition) {
+            _this.isComposition = false;
+            delete _this.compositionValue;
+            htmlProps.onChange(ev);
+          }
+
+          return _onBlur(ev);
+        }
       };
       var Element = 'input';
 
@@ -2232,7 +2240,7 @@ var EasyFieldNative = /*#__PURE__*/function (_Component) {
               _onChange(ev.target.checked ? checked : unchecked, ev);
             },
             onFocus: onFocus,
-            onBlur: onBlur
+            onBlur: _onBlur
           };
           break;
       }

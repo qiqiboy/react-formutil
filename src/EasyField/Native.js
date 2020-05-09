@@ -47,7 +47,15 @@ class EasyFieldNative extends Component {
                 }
             },
             onFocus,
-            onBlur
+            onBlur: ev => {
+                if (this.isComposition) {
+                    this.isComposition = false;
+                    delete this.compositionValue;
+                    htmlProps.onChange(ev);
+                }
+
+                return onBlur(ev);
+            }
         };
         let Element = 'input';
 

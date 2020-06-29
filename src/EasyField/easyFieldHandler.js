@@ -10,7 +10,7 @@ export const defaultValidators = [
     [
         'required',
         ($value, check, { __TYPE__, checked = true }) =>
-            __TYPE__ === 'checked' ? $value === checked : !isEmpty($value)
+            check === false || (__TYPE__ === 'checked' ? $value === checked : !isEmpty($value))
     ],
     ['maxLength', ($value, len) => isEmpty($value) || $value.length <= len * 1],
     ['minLength', ($value, len) => isEmpty($value) || $value.length >= len * 1],

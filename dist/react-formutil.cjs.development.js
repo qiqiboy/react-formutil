@@ -2719,7 +2719,7 @@ var defaultValidators = [['required', function ($value, check, _ref) {
   var __TYPE__ = _ref.__TYPE__,
       _ref$checked = _ref.checked,
       checked = _ref$checked === void 0 ? true : _ref$checked;
-  return __TYPE__ === 'checked' ? $value === checked : !isEmpty($value);
+  return check === false || (__TYPE__ === 'checked' ? $value === checked : !isEmpty($value));
 }], ['maxLength', function ($value, len) {
   return isEmpty($value) || $value.length <= len * 1;
 }], ['minLength', function ($value, len) {

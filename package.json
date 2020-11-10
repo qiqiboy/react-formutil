@@ -1,6 +1,6 @@
 {
   "name": "react-formutil",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Happy to build the forms in React ^_^",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -56,7 +56,7 @@
   },
   "homepage": "https://github.com/qiqiboy/react-formutil#readme",
   "peerDependencies": {
-    "react": "^16.3.0",
+    "react": "^16.3.0 || ^17.0.0",
     "prop-types": "^15.0.0"
   },
   "types": "./index.d.ts",

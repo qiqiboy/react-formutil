@@ -1,7 +1,7 @@
 import React, { Component, Children, cloneElement, createContext } from 'react';
 import PropTypes from 'prop-types';
-import { isFunction } from '../utils';
 import warning from 'warning';
+import { isFunction } from '../utils';
 
 /** @type {any} */
 const { Provider, Consumer } = createContext(() => ({}));

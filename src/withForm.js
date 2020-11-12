@@ -1,7 +1,7 @@
 import React, { Component, forwardRef } from 'react';
+import hoistStatics from 'hoist-non-react-statics';
 import Form from './Form';
 import { createHOC } from './utils';
-import hoistStatics from 'hoist-non-react-statics';
 
 const filterProps = [
     'render',
@@ -34,6 +34,7 @@ function withForm(WrappedComponent, config = {}) {
                     if (prop === '$defaultStates' || prop === '$defaultValues') {
                         formProps[prop] = { ...config[prop], ...others[prop] };
                     }
+
                     delete others[prop];
                 }
             });

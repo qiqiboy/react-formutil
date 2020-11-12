@@ -2,15 +2,21 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
 var React = require('react');
-var React__default = _interopDefault(React);
-var PropTypes = _interopDefault(require('prop-types'));
+var PropTypes = require('prop-types');
+var warning = require('warning');
 var reactIs = require('react-is');
-var warning = _interopDefault(require('warning'));
-var hoistStatics = _interopDefault(require('hoist-non-react-statics'));
-var isEqual = _interopDefault(require('react-fast-compare'));
+var hoistStatics = require('hoist-non-react-statics');
+var isEqual = require('react-fast-compare');
+
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
+var PropTypes__default = /*#__PURE__*/_interopDefaultLegacy(PropTypes);
+var warning__default = /*#__PURE__*/_interopDefaultLegacy(warning);
+var reactIs__default = /*#__PURE__*/_interopDefaultLegacy(reactIs);
+var hoistStatics__default = /*#__PURE__*/_interopDefaultLegacy(hoistStatics);
+var isEqual__default = /*#__PURE__*/_interopDefaultLegacy(isEqual);
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -94,7 +100,7 @@ function _unsupportedIterableToArray(o, minLen) {
   if (typeof o === "string") return arrayLikeToArray(o, minLen);
   var n = Object.prototype.toString.call(o).slice(8, -1);
   if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(n);
+  if (n === "Map" || n === "Set") return Array.from(o);
   if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray(o, minLen);
 }
 
@@ -199,6 +205,36 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
+var setPrototypeOf = createCommonjsModule(function (module) {
+function _setPrototypeOf(o, p) {
+  module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+module.exports = _setPrototypeOf;
+});
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) setPrototypeOf(subClass, superClass);
+}
+
+var inherits = _inherits;
+
 var getPrototypeOf = createCommonjsModule(function (module) {
 function _getPrototypeOf(o) {
   module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
@@ -256,11 +292,12 @@ function _possibleConstructorReturn(self, call) {
 var possibleConstructorReturn = _possibleConstructorReturn;
 
 function _createSuper(Derived) {
-  return function () {
+  var hasNativeReflectConstruct = isNativeReflectConstruct();
+  return function _createSuperInternal() {
     var Super = getPrototypeOf(Derived),
         result;
 
-    if (isNativeReflectConstruct()) {
+    if (hasNativeReflectConstruct) {
       var NewTarget = getPrototypeOf(this).constructor;
       result = Reflect.construct(Super, arguments, NewTarget);
     } else {
@@ -273,40 +310,11 @@ function _createSuper(Derived) {
 
 var createSuper = _createSuper;
 
-var setPrototypeOf = createCommonjsModule(function (module) {
-function _setPrototypeOf(o, p) {
-  module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-
-  return _setPrototypeOf(o, p);
-}
-
-module.exports = _setPrototypeOf;
-});
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) setPrototypeOf(subClass, superClass);
-}
-
-var inherits = _inherits;
-
-var FormContext = React.createContext(function () {
+var FormContext = /*#__PURE__*/React.createContext(function () {
   return {};
 });
 
+var isValidElementType = reactIs__default['default'].isValidElementType;
 var OBJECT_PROTO = Object.getPrototypeOf({});
 var PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
 var Root = typeof window === 'undefined' ? global : window;
@@ -332,7 +340,7 @@ function isPlainObj(obj) {
   return obj.constructor.prototype === OBJECT_PROTO;
 }
 function isComponent(obj) {
-  return reactIs.isValidElementType(obj) && typeof obj !== 'string';
+  return isValidElementType(obj) && typeof obj !== 'string';
 }
 function checkComponentPropType(props, propName, componentName) {
   if (props[propName] && !isComponent(props[propName])) {
@@ -420,7 +428,7 @@ function parsePath() {
   var target = args[0],
       path = args[1],
       value = args[2];
-  warning(typeof path === 'string', "The second parameter(".concat(JSON.stringify(path), ") of parsePath() must be a string."));
+  warning__default['default'](typeof path === 'string', "The second parameter(".concat(JSON.stringify(path), ") of parsePath() must be a string."));
   var pathSymbols = (path.match(PATH_REGEXP) || []).map(function (s) {
     return s.replace(/\s/g, '');
   });
@@ -477,7 +485,7 @@ function parsePath() {
       }
     }
   } catch (error) {
-    warning(false, "The name '%s' of Field seems is not a legal expression.", path);
+    warning__default['default'](false, "The name '%s' of Field seems is not a legal expression.", path);
   }
 
   if (args.length > 2) {
@@ -628,7 +636,7 @@ var Form = /*#__PURE__*/function (_Component) {
             $curRegistered = _ref2[0],
             $handler = _ref2[1];
 
-        warning($curRegistered.$$reserved, "The Field with a name '".concat(name, "' has been registered!"));
+        warning__default['default']($curRegistered.$$reserved, "The Field with a name '".concat(name, "' has been registered!"));
         $handler.$$reset($curRegistered.$getState());
         hasDup = delete $$regDuplications[name];
       });
@@ -837,7 +845,7 @@ var Form = /*#__PURE__*/function (_Component) {
 
     _this.$$setFormErrors = function (validResults, callback) {
       if (validResults && (validResults instanceof Error || typeof validResults !== 'object')) {
-        warning(false, "The result of $validator in <Form /> should always return None(null,undefined) or an object contains error message of Field.");
+        warning__default['default'](false, "The result of $validator in <Form /> should always return None(null,undefined) or an object contains error message of Field.");
         return _this.$render(callback);
       }
 
@@ -848,7 +856,7 @@ var Form = /*#__PURE__*/function (_Component) {
 
         if (result) {
           return {
-            $error: objectSpread2({}, $error, defineProperty({}, FORM_VALIDATE_RESULT, result))
+            $error: objectSpread2(objectSpread2({}, $error), {}, defineProperty({}, FORM_VALIDATE_RESULT, result))
           };
         }
 
@@ -864,8 +872,8 @@ var Form = /*#__PURE__*/function (_Component) {
     _this.$getField = function (name) {
       var field = _this.$$getRegister(name);
 
-      warning(!name || field, "$getField('".concat(name, "') fail to find the matched Field. Maybe it has been unmounted."));
-      warning(name, "You should pass a name of the mounted Field to $getField().");
+      warning__default['default'](!name || field, "$getField('".concat(name, "') fail to find the matched Field. Maybe it has been unmounted."));
+      warning__default['default'](name, "You should pass a name of the mounted Field to $getField().");
 
       if (field) {
         var _field$$new;
@@ -1179,7 +1187,7 @@ var Form = /*#__PURE__*/function (_Component) {
           component = _this$props2.component;
 
       if (component) {
-        return React.createElement(component, {
+        return /*#__PURE__*/React.createElement(component, {
           $formutil: $formutil
         });
       }
@@ -1193,7 +1201,7 @@ var Form = /*#__PURE__*/function (_Component) {
       }
 
       return React.Children.map(children, function (child) {
-        return child && isComponent(child.type) ? React.cloneElement(child, {
+        return child && isComponent(child.type) ? /*#__PURE__*/React.cloneElement(child, {
           $formutil: $formutil
         }) : child;
       });
@@ -1323,7 +1331,7 @@ var Form = /*#__PURE__*/function (_Component) {
         $$deepRegisters: this.$$deepRegisters,
         $states: $states,
         $pureParams: $pureParams,
-        $params: objectSpread2({}, this.$$defaultValues, {}, $pureParams),
+        $params: objectSpread2(objectSpread2({}, this.$$defaultValues), $pureParams),
         $errors: $errors,
         $dirts: $dirts,
         $touches: $touches,
@@ -1367,7 +1375,7 @@ var Form = /*#__PURE__*/function (_Component) {
         $pending: $pending
       };
       this.$$resetFormUpdateFields();
-      return /*#__PURE__*/React__default.createElement(FormContext.Provider, {
+      return /*#__PURE__*/React__default['default'].createElement(FormContext.Provider, {
         value: this.getFormContext
       }, this._render());
     }
@@ -1378,10 +1386,10 @@ var Form = /*#__PURE__*/function (_Component) {
 
 Form.displayName = 'React.Formutil.Form';
 Form.propTypes = {
-  render: PropTypes.func,
+  render: PropTypes__default['default'].func,
   component: checkComponentPropType,
   children: function children(props) {
-    var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+    var pt = PropTypes__default['default'].oneOfType([PropTypes__default['default'].func, PropTypes__default['default'].node]);
 
     if (!props.render && !props.component) {
       pt = pt.isRequired;
@@ -1393,13 +1401,13 @@ Form.propTypes = {
 
     return pt.apply(void 0, [props].concat(args));
   },
-  $defaultValues: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  $defaultStates: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  $onFormChange: PropTypes.func,
-  $validator: PropTypes.func,
-  $processer: PropTypes.func,
-  $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
-    current: PropTypes.any
+  $defaultValues: PropTypes__default['default'].oneOfType([PropTypes__default['default'].object, PropTypes__default['default'].func]),
+  $defaultStates: PropTypes__default['default'].oneOfType([PropTypes__default['default'].object, PropTypes__default['default'].func]),
+  $onFormChange: PropTypes__default['default'].func,
+  $validator: PropTypes__default['default'].func,
+  $processer: PropTypes__default['default'].func,
+  $ref: PropTypes__default['default'].oneOfType([PropTypes__default['default'].func, PropTypes__default['default'].shape({
+    current: PropTypes__default['default'].any
   })])
 };
 Form.defaultProps = {
@@ -1467,7 +1475,7 @@ function withForm(WrappedComponent) {
       _this = _super.call.apply(_super, [this].concat(args));
 
       _this.renderChildren = function ($formutil) {
-        return /*#__PURE__*/React__default.createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
+        return /*#__PURE__*/React__default['default'].createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
           $formutil: $formutil,
           ref: _this.props.__forwardRef__
         }));
@@ -1491,14 +1499,14 @@ function withForm(WrappedComponent) {
         filterProps.forEach(function (prop) {
           if (prop in others) {
             if (prop === '$defaultStates' || prop === '$defaultValues') {
-              formProps[prop] = objectSpread2({}, config[prop], {}, others[prop]);
+              formProps[prop] = objectSpread2(objectSpread2({}, config[prop]), others[prop]);
             }
 
             delete others[prop];
           }
         });
         this.othersProps = others;
-        return /*#__PURE__*/React__default.createElement(Form, Object.assign({}, config, formProps, {
+        return /*#__PURE__*/React__default['default'].createElement(Form, Object.assign({}, config, formProps, {
           render: this.renderChildren
         }));
       }
@@ -1508,13 +1516,13 @@ function withForm(WrappedComponent) {
   }(React.Component);
 
   WithForm.displayName = 'React.Formutil.withForm.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
-  var ForwardRefForm = React.forwardRef(function (props, ref) {
-    return /*#__PURE__*/React__default.createElement(WithForm, Object.assign({
+  var ForwardRefForm = /*#__PURE__*/React.forwardRef(function (props, ref) {
+    return /*#__PURE__*/React__default['default'].createElement(WithForm, Object.assign({
       __forwardRef__: ref
     }, props));
   });
   ForwardRefForm.displayName = 'React.Formutil.withForm.ForwardRef.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
-  return hoistStatics(ForwardRefForm, WrappedComponent);
+  return hoistStatics__default['default'](ForwardRefForm, WrappedComponent);
 }
 
 var withForm$1 = createHOC(withForm);
@@ -1540,28 +1548,28 @@ function isError(result) {
 }
 
 function warningValidatorReturn(result, key, name) {
-  warning(!isUndefined(result), "You should return a string or Error when the validation('".concat(name && name + ': ').concat(key, "') failed, otherwise return true."));
+  warning__default['default'](!isUndefined(result), "You should return a string or Error when the validation('".concat(name && name + ': ').concat(key, "') failed, otherwise return true."));
 }
 
 var propTypes =  {
-  name: PropTypes.string,
-  $defaultValue: PropTypes.any,
-  $defaultState: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-  $onFieldChange: PropTypes.func,
-  $validators: PropTypes.object,
-  $asyncValidators: PropTypes.object,
-  $validateLazy: PropTypes.bool,
-  $memo: PropTypes.oneOfType([PropTypes.bool, PropTypes.array]),
-  $reserveOnUnmount: PropTypes.bool,
-  $ref: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({
-    current: PropTypes.any
+  name: PropTypes__default['default'].string,
+  $defaultValue: PropTypes__default['default'].any,
+  $defaultState: PropTypes__default['default'].oneOfType([PropTypes__default['default'].object, PropTypes__default['default'].func]),
+  $onFieldChange: PropTypes__default['default'].func,
+  $validators: PropTypes__default['default'].object,
+  $asyncValidators: PropTypes__default['default'].object,
+  $validateLazy: PropTypes__default['default'].bool,
+  $memo: PropTypes__default['default'].oneOfType([PropTypes__default['default'].bool, PropTypes__default['default'].array]),
+  $reserveOnUnmount: PropTypes__default['default'].bool,
+  $ref: PropTypes__default['default'].oneOfType([PropTypes__default['default'].func, PropTypes__default['default'].shape({
+    current: PropTypes__default['default'].any
   })]),
-  $parser: PropTypes.func,
-  $formatter: PropTypes.func,
-  render: PropTypes.func,
+  $parser: PropTypes__default['default'].func,
+  $formatter: PropTypes__default['default'].func,
+  render: PropTypes__default['default'].func,
   component: checkComponentPropType,
   children: function children(props) {
-    var pt = PropTypes.oneOfType([PropTypes.func, PropTypes.node]);
+    var pt = PropTypes__default['default'].oneOfType([PropTypes__default['default'].func, PropTypes__default['default'].node]);
 
     if (!props.render && !props.component && props.children !== null) {
       pt = pt.isRequired;
@@ -1584,7 +1592,7 @@ function renderField($fieldutil, props) {
       component = props.component;
 
   if (component) {
-    return React.createElement(component, {
+    return /*#__PURE__*/React.createElement(component, {
       $fieldutil: $fieldutil
     });
   }
@@ -1598,7 +1606,7 @@ function renderField($fieldutil, props) {
   }
 
   return React.Children.map(children, function (child) {
-    return child && isComponent(child.type) ? React.cloneElement(child, {
+    return child && isComponent(child.type) ? /*#__PURE__*/React.cloneElement(child, {
       $fieldutil: $fieldutil
     }) : child;
   });
@@ -1682,10 +1690,10 @@ function createHandler($this, owner) {
 
     var $defaultValue = props.$defaultValue,
         $defaultState = props.$defaultState;
-    return $$merge(objectSpread2({}, $baseState, {}, isFunction($defaultState) ? $defaultState(props) : $defaultState, {
+    return $$merge(objectSpread2(objectSpread2(objectSpread2(objectSpread2({}, $baseState), isFunction($defaultState) ? $defaultState(props) : $defaultState), {}, {
       // self default state
       $value: isFunction($defaultValue) ? $defaultValue(props) : '$defaultValue' in props ? $defaultValue : ''
-    }, $initialState, {}, $newState));
+    }, $initialState), $newState));
   }
 
   function $getState() {
@@ -1697,7 +1705,7 @@ function createHandler($this, owner) {
       var props = $this.props,
           $formContext = $this.$formContext;
 
-      var $validators = objectSpread2({}, props.$validators, {}, props.$asyncValidators);
+      var $validators = objectSpread2(objectSpread2({}, props.$validators), props.$asyncValidators);
 
       var _$this$$state = $this.$state,
           $value = _$this$$state.$value,
@@ -1715,7 +1723,7 @@ function createHandler($this, owner) {
         delete $newError[key];
 
         if (!$skipRestValidate && props[key] != null) {
-          var result = $validators[key]($value, props[key], objectSpread2({}, props, {
+          var result = $validators[key]($value, props[key], objectSpread2(objectSpread2({}, props), {}, {
             $formutil: $formutil,
             $fieldutil: $this.$fieldutil,
             $validError: $validError
@@ -1754,7 +1762,7 @@ function createHandler($this, owner) {
           return $breakAsyncHandler = setCallback(execCallback);
         };
 
-        $validatePromises.push($setError(objectSpread2({}, $newError, {}, $validError)));
+        $validatePromises.push($setError(objectSpread2(objectSpread2({}, $newError), $validError)));
         validation = Promise.all($validatePromises).then(function () {
           if ($breakAsyncHandler) {
             return $breakAsyncHandler;
@@ -1768,7 +1776,7 @@ function createHandler($this, owner) {
           $setPending(false);
         }
 
-        validation = $setError(objectSpread2({}, $newError, {}, $validError), execCallback);
+        validation = $setError(objectSpread2(objectSpread2({}, $newError), $validError), execCallback);
       }
 
       if ($this.$shouldCancelPrevAsyncValidate) {
@@ -1902,7 +1910,7 @@ function createHandler($this, owner) {
       $newState.$touched = !$newState.$untouched;
     }
 
-    $this.$state = objectSpread2({}, $this.$state, {}, $newState);
+    $this.$state = objectSpread2(objectSpread2({}, $this.$state), $newState);
     return $getState();
   }
 
@@ -1975,8 +1983,8 @@ var Field = /*#__PURE__*/function (_Component) {
       this.isMounting = true;
       var $name = this.props.name,
           $formContext = this.$formContext;
-      warning(!$name || $formContext.$formutil, "You should enusre that the <Field /> with the name '".concat($name, "' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."));
-      warning($name, "You should assign a name to <Field />, otherwise it will be isolated!");
+      warning__default['default'](!$name || $formContext.$formutil, "You should enusre that the <Field /> with the name '".concat($name, "' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."));
+      warning__default['default']($name, "You should assign a name to <Field />, otherwise it will be isolated!");
 
       if ($formContext.$$register) {
         $formContext.$$register($name, this.$fieldHandler);
@@ -2028,14 +2036,14 @@ var Field = /*#__PURE__*/function (_Component) {
        * 这里不能用isEqual深度比较，避免遇到$value为大数据时导致性能问题
        * isStateEqual只比较一层
        */
-      !isStateEqual(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? isEqual($memo, this.props.$memo) : isEqual(this.props, nextProps));
+      !isStateEqual(this.$registered.$getState(), this.$prevState) || !(Array.isArray($memo) ? isEqual__default['default']($memo, this.props.$memo) : isEqual__default['default'](this.props, nextProps));
     }
   }, {
     key: "_render",
     value: function _render() {
-      var $fieldutil = this.$fieldutil = objectSpread2({
+      var $fieldutil = this.$fieldutil = objectSpread2(objectSpread2(objectSpread2({
         $name: this.props.name
-      }, this.$registered.$getState(), {}, this.$registered, {
+      }, this.$registered.$getState()), this.$registered), {}, {
         $$formutil: this.$formContext.$formutil
       });
 
@@ -2047,7 +2055,7 @@ var Field = /*#__PURE__*/function (_Component) {
       var _this2 = this;
 
       this.shouldRendered = true;
-      return /*#__PURE__*/React__default.createElement(FormContext.Consumer, null, function (getFormContext) {
+      return /*#__PURE__*/React__default['default'].createElement(FormContext.Consumer, null, function (getFormContext) {
         var shouldInitial = !_this2.$formContext;
         _this2.$formContext = getFormContext();
 
@@ -2096,7 +2104,7 @@ function withField(WrappedComponent) {
       _this = _super.call.apply(_super, [this].concat(args));
 
       _this.renderChildren = function ($fieldutil) {
-        return /*#__PURE__*/React__default.createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
+        return /*#__PURE__*/React__default['default'].createElement(WrappedComponent, Object.assign({}, _this.othersProps, {
           $fieldutil: $fieldutil,
           ref: _this.props.__forwardRef__
         }));
@@ -2117,17 +2125,17 @@ function withField(WrappedComponent) {
             component = _this$props2.component,
             fieldProps = objectWithoutProperties(_this$props2, ["component"]);
 
-        filterProps$1.concat(Object.keys(objectSpread2({}, config.$validators, {}, config.$asyncValidators, {}, others.$validators, {}, others.$asyncValidators))).forEach(function (prop) {
+        filterProps$1.concat(Object.keys(objectSpread2(objectSpread2(objectSpread2(objectSpread2({}, config.$validators), config.$asyncValidators), others.$validators), others.$asyncValidators))).forEach(function (prop) {
           if (prop in others) {
             if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
-              fieldProps[prop] = objectSpread2({}, config[prop], {}, others[prop]);
+              fieldProps[prop] = objectSpread2(objectSpread2({}, config[prop]), others[prop]);
             }
 
             delete others[prop];
           }
         });
         this.othersProps = others;
-        return /*#__PURE__*/React__default.createElement(Field, Object.assign({}, config, fieldProps, {
+        return /*#__PURE__*/React__default['default'].createElement(Field, Object.assign({}, config, fieldProps, {
           render: this.renderChildren
         }));
       }
@@ -2137,13 +2145,13 @@ function withField(WrappedComponent) {
   }(React.Component);
 
   WithField.displayName = 'React.Formutil.withField.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
-  var ForwardRefField = React.forwardRef(function (props, ref) {
-    return /*#__PURE__*/React__default.createElement(WithField, Object.assign({
+  var ForwardRefField = /*#__PURE__*/React.forwardRef(function (props, ref) {
+    return /*#__PURE__*/React__default['default'].createElement(WithField, Object.assign({
       __forwardRef__: ref
     }, props));
   });
   ForwardRefField.displayName = 'React.Formutil.withField.ForwardRef.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
-  return hoistStatics(ForwardRefField, WrappedComponent);
+  return hoistStatics__default['default'](ForwardRefField, WrappedComponent);
 }
 
 var withField$1 = createHOC(withField);
@@ -2245,7 +2253,7 @@ var EasyFieldNative = /*#__PURE__*/function (_Component) {
           break;
       }
 
-      return /*#__PURE__*/React__default.createElement(Element, Object.assign({}, others, htmlProps));
+      return /*#__PURE__*/React__default['default'].createElement(Element, Object.assign({}, others, htmlProps));
     }
   }]);
 
@@ -2254,14 +2262,14 @@ var EasyFieldNative = /*#__PURE__*/function (_Component) {
 
 EasyFieldNative.displayName = 'React.Formutil.EasyField.Native';
 EasyFieldNative.propTypes = {
-  onChange: PropTypes.func,
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
-  value: PropTypes.any,
-  name: PropTypes.string,
-  type: PropTypes.string,
-  checked: PropTypes.any,
-  unchekced: PropTypes.any
+  onChange: PropTypes__default['default'].func,
+  onFocus: PropTypes__default['default'].func,
+  onBlur: PropTypes__default['default'].func,
+  value: PropTypes__default['default'].any,
+  name: PropTypes__default['default'].string,
+  type: PropTypes__default['default'].string,
+  checked: PropTypes__default['default'].any,
+  unchekced: PropTypes__default['default'].any
 };
 EasyFieldNative.defaultProps = {
   value: '',
@@ -2272,7 +2280,7 @@ EasyFieldNative.defaultProps = {
 
 /** @type {any} */
 
-var _createContext = React.createContext(function () {
+var _createContext = /*#__PURE__*/React.createContext(function () {
   return {};
 }),
     Provider = _createContext.Provider,
@@ -2313,21 +2321,21 @@ var EasyFieldGroup = /*#__PURE__*/function (_Component) {
         Field: DeprecatedEasyFieldGroupOption
       };
       var childNodes = isFunction(children) ? children(GroupOptionProps) : React.Children.map(children, function (child) {
-        return React.cloneElement(child, GroupOptionProps);
+        return /*#__PURE__*/React.cloneElement(child, GroupOptionProps);
       });
 
       if (Element === null) {
         return childNodes;
       }
 
-      return /*#__PURE__*/React__default.createElement(Element, {
+      return /*#__PURE__*/React__default['default'].createElement(Element, {
         className: className
       }, childNodes);
     }
   }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/React__default.createElement(Provider, {
+      return /*#__PURE__*/React__default['default'].createElement(Provider, {
         value: this.getGroupContext
       }, this._render());
     }
@@ -2338,14 +2346,14 @@ var EasyFieldGroup = /*#__PURE__*/function (_Component) {
 
 EasyFieldGroup.displayName = 'React.Formutil.EasyField.Group';
 EasyFieldGroup.propTypes = {
-  onChange: PropTypes.func,
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
-  value: PropTypes.any,
-  name: PropTypes.string,
-  type: PropTypes.string.isRequired,
-  groupNode: PropTypes.any,
-  children: PropTypes.oneOfType([PropTypes.func, PropTypes.element]).isRequired
+  onChange: PropTypes__default['default'].func,
+  onFocus: PropTypes__default['default'].func,
+  onBlur: PropTypes__default['default'].func,
+  value: PropTypes__default['default'].any,
+  name: PropTypes__default['default'].string,
+  type: PropTypes__default['default'].string.isRequired,
+  groupNode: PropTypes__default['default'].any,
+  children: PropTypes__default['default'].oneOfType([PropTypes__default['default'].func, PropTypes__default['default'].element]).isRequired
 };
 EasyFieldGroup.defaultProps = {
   type: 'checkbox',
@@ -2366,7 +2374,7 @@ var EasyFieldGroupOption = /*#__PURE__*/function (_Component2) {
   createClass(EasyFieldGroupOption, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      warning('$value' in this.props, "You should pass a $value to <GroupOption />.");
+      warning__default['default']('$value' in this.props, "You should pass a $value to <GroupOption />.");
     }
   }, {
     key: "render",
@@ -2378,7 +2386,7 @@ var EasyFieldGroupOption = /*#__PURE__*/function (_Component2) {
           _onBlur = _this$props2.onBlur,
           others = objectWithoutProperties(_this$props2, ["$value", "onChange", "onFocus", "onBlur"]);
 
-      return /*#__PURE__*/React__default.createElement(Consumer, null, function (getGroupContext) {
+      return /*#__PURE__*/React__default['default'].createElement(Consumer, null, function (getGroupContext) {
         var $groupHandler = getGroupContext();
         var type = $groupHandler.type,
             name = $groupHandler.name;
@@ -2403,7 +2411,7 @@ var EasyFieldGroupOption = /*#__PURE__*/function (_Component2) {
             _onChange && _onChange(ev);
           }
         };
-        return /*#__PURE__*/React__default.createElement("input", Object.assign({
+        return /*#__PURE__*/React__default['default'].createElement("input", Object.assign({
           name: name
         }, others, elemProps, {
           type: type,
@@ -2425,7 +2433,7 @@ var EasyFieldGroupOption = /*#__PURE__*/function (_Component2) {
 
 EasyFieldGroupOption.displayName = 'React.Formutil.EasyField.Group.Option';
 EasyFieldGroupOption.propTypes = {
-  $value: PropTypes.any.isRequired
+  $value: PropTypes__default['default'].any.isRequired
 };
 
 var DeprecatedEasyFieldGroupOption = /*#__PURE__*/function (_Component3) {
@@ -2442,12 +2450,12 @@ var DeprecatedEasyFieldGroupOption = /*#__PURE__*/function (_Component3) {
   createClass(DeprecatedEasyFieldGroupOption, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      warning(false, "The \"Field\" property in EasyField's children-props has been deprecated. Please use \"GroupOption\" instead.");
+      warning__default['default'](false, "The \"Field\" property in EasyField's children-props has been deprecated. Please use \"GroupOption\" instead.");
     }
   }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/React__default.createElement(EasyFieldGroupOption, this.props);
+      return /*#__PURE__*/React__default['default'].createElement(EasyFieldGroupOption, this.props);
     }
   }]);
 
@@ -2456,7 +2464,7 @@ var DeprecatedEasyFieldGroupOption = /*#__PURE__*/function (_Component3) {
 
 DeprecatedEasyFieldGroupOption.displayName = 'React.Formutil.EasyField.Group.Option.Deprecated';
 
-var Wrapper = React__default.Frament || 'div';
+var Wrapper = React__default['default'].Frament || 'div';
 
 var EasyFieldList = /*#__PURE__*/function (_Component) {
   inherits(EasyFieldList, _Component);
@@ -2487,7 +2495,7 @@ var EasyFieldList = /*#__PURE__*/function (_Component) {
           if (_this.props.value.length) {
             _this.props.onChange(_this.latestValue = []);
           }
-        } else if (!isEqual(_this.props.value, $params.list)) {
+        } else if (!isEqual__default['default'](_this.props.value, $params.list)) {
           _this.props.onChange(_this.latestValue = $params.list);
         }
       });
@@ -2644,7 +2652,7 @@ var EasyFieldList = /*#__PURE__*/function (_Component) {
         onFocus: onFocus,
         onBlur: onBlur
       };
-      return /*#__PURE__*/React__default.createElement(Form, {
+      return /*#__PURE__*/React__default['default'].createElement(Form, {
         key: this.state.formKey,
         $defaultValues: {
           list: value
@@ -2652,17 +2660,17 @@ var EasyFieldList = /*#__PURE__*/function (_Component) {
         $onFormChange: this.$onFormChange,
         children: function children($formutil) {
           _this3.$formutil = $formutil;
-          return /*#__PURE__*/React__default.createElement(Wrapper, null, _this3.state.items.map(function (_ref5, index) {
+          return /*#__PURE__*/React__default['default'].createElement(Wrapper, null, _this3.state.items.map(function (_ref5, index) {
             var id = _ref5.id,
                 values = _ref5.values;
-            return /*#__PURE__*/React__default.createElement(Field, {
+            return /*#__PURE__*/React__default['default'].createElement(Field, {
               key: id,
               required: true,
               $defaultValue: values || null,
               $validators: _this3.FieldValidators,
               name: "list[".concat(index, "]"),
               children: function children($fieldutil) {
-                return /*#__PURE__*/React__default.createElement(Form, {
+                return /*#__PURE__*/React__default['default'].createElement(Form, {
                   $defaultValues: $fieldutil.$value || {},
                   $onFormChange: function $onFormChange($formutil) {
                     return $formutil.$onValidates(function ($formutil) {
@@ -2673,13 +2681,13 @@ var EasyFieldList = /*#__PURE__*/function (_Component) {
                         if ($fieldutil.$viewValue !== null) {
                           $fieldutil.$render(null);
                         }
-                      } else if (!isEqual($fieldutil.$viewValue, $params)) {
+                      } else if (!isEqual__default['default']($fieldutil.$viewValue, $params)) {
                         $fieldutil.$render($params);
                       }
                     });
                   },
                   children: function children($innerFormutil) {
-                    return _children(objectSpread2({
+                    return _children(objectSpread2(objectSpread2({
                       get $length() {
                         return $self.state.items.length;
                       },
@@ -2691,7 +2699,7 @@ var EasyFieldList = /*#__PURE__*/function (_Component) {
                       $isFirst: function $isFirst() {
                         return index === 0;
                       }
-                    }, $baseutil, {}, $innerFormutil), $formutil);
+                    }, $baseutil), $innerFormutil), $formutil);
                   }
                 });
               }
@@ -2707,11 +2715,11 @@ var EasyFieldList = /*#__PURE__*/function (_Component) {
 
 EasyFieldList.displayName = 'React.Formutil.EasyField.List';
 EasyFieldList.propTypes = {
-  onChange: PropTypes.func,
-  onFocus: PropTypes.func,
-  onBlur: PropTypes.func,
-  value: PropTypes.array,
-  children: PropTypes.func.isRequired
+  onChange: PropTypes__default['default'].func,
+  onFocus: PropTypes__default['default'].func,
+  onBlur: PropTypes__default['default'].func,
+  value: PropTypes__default['default'].array,
+  children: PropTypes__default['default'].func.isRequired
 };
 
 var TYPE = '__TYPE__';
@@ -2748,18 +2756,18 @@ var defaultValidators = [['required', function ($value, check, _ref) {
   return $validators;
 }, {});
 var propTypes$1 =  {
-  type: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
+  type: PropTypes__default['default'].string,
+  children: PropTypes__default['default'].oneOfType([PropTypes__default['default'].func, PropTypes__default['default'].node]),
   component: checkComponentPropType,
-  render: PropTypes.func,
-  defaultValue: PropTypes.any,
-  validMessage: PropTypes.object,
-  valuePropName: PropTypes.string,
-  changePropName: PropTypes.string,
-  focusPropName: PropTypes.string,
-  blurPropName: PropTypes.string,
-  getValueFromEvent: PropTypes.func,
-  passUtil: PropTypes.oneOfType([PropTypes.string, PropTypes.bool])
+  render: PropTypes__default['default'].func,
+  defaultValue: PropTypes__default['default'].any,
+  validMessage: PropTypes__default['default'].object,
+  valuePropName: PropTypes__default['default'].string,
+  changePropName: PropTypes__default['default'].string,
+  focusPropName: PropTypes__default['default'].string,
+  blurPropName: PropTypes__default['default'].string,
+  getValueFromEvent: PropTypes__default['default'].func,
+  passUtil: PropTypes__default['default'].oneOfType([PropTypes__default['default'].string, PropTypes__default['default'].bool])
 } ;
 var displayName$1 = 'React.Formutil.EasyField';
 var defaultProps = {
@@ -2786,7 +2794,7 @@ function createHandler$1($fieldutil, fieldProps, childProps) {
     return ev && ev.target ? ev.target[valuePropName] : ev;
   };
 
-  var $handleProps = objectSpread2({}, childProps, (_objectSpread2 = {}, defineProperty(_objectSpread2, valuePropName, $fieldutil.$viewValue), defineProperty(_objectSpread2, changePropName, function (value) {
+  var $handleProps = objectSpread2(objectSpread2({}, childProps), {}, (_objectSpread2 = {}, defineProperty(_objectSpread2, valuePropName, $fieldutil.$viewValue), defineProperty(_objectSpread2, changePropName, function (value) {
     var _events$;
 
     for (var _len = arguments.length, events = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2868,7 +2876,7 @@ function parseProps(props) {
   }
 
   var isNative = !isUndefined(type) || isUndefined(children) && isUndefined(component) && isUndefined(render);
-  Object.keys(objectSpread2({}, fieldProps.$validators = objectSpread2({}, defaultValidators, {}, fieldProps.$validators), {}, fieldProps.$asyncValidators)).forEach(function (prop) {
+  Object.keys(objectSpread2(objectSpread2({}, fieldProps.$validators = objectSpread2(objectSpread2({}, defaultValidators), fieldProps.$validators)), fieldProps.$asyncValidators)).forEach(function (prop) {
     if (prop in childProps) {
       if (!isNative || !isValidProp(prop)) {
         delete childProps[prop];
@@ -2971,7 +2979,7 @@ function renderField$1($handleProps, renderprops) {
       children = renderprops.children;
 
   if (component) {
-    return React.createElement(component, $handleProps);
+    return /*#__PURE__*/React.createElement(component, $handleProps);
   }
 
   if (isFunction(render)) {
@@ -2983,7 +2991,7 @@ function renderField$1($handleProps, renderprops) {
   }
 
   return React.Children.map(children, function (child) {
-    return React.cloneElement(child, $handleProps);
+    return /*#__PURE__*/React.cloneElement(child, $handleProps);
   });
 }
 
@@ -3029,7 +3037,7 @@ var EasyField = /*#__PURE__*/function (_Component) {
       var _this$parsedProps2 = this.parsedProps = parseProps(this.props),
           fieldProps = _this$parsedProps2.fieldProps;
 
-      return /*#__PURE__*/React__default.createElement(Field, Object.assign({}, fieldProps, {
+      return /*#__PURE__*/React__default['default'].createElement(Field, Object.assign({}, fieldProps, {
         children: this.renderChildren
       }));
     }
@@ -3043,24 +3051,24 @@ EasyField.propTypes = propTypes$1;
 EasyField.defaultProps = defaultProps;
 
 function connect(WrappedComponent) {
-  var Connect = React.forwardRef(function (props, ref) {
-    return /*#__PURE__*/React__default.createElement(FormContext.Consumer, null, function (getFormContext) {
-      return /*#__PURE__*/React__default.createElement(WrappedComponent, Object.assign({}, props, {
+  var Connect = /*#__PURE__*/React.forwardRef(function (props, ref) {
+    return /*#__PURE__*/React__default['default'].createElement(FormContext.Consumer, null, function (getFormContext) {
+      return /*#__PURE__*/React__default['default'].createElement(WrappedComponent, Object.assign({}, props, {
         $formutil: getFormContext().$formutil,
         ref: ref
       }));
     });
   });
   Connect.displayName = 'React.Formutil.connect.' + (WrappedComponent.displayName || WrappedComponent.name || 'Anonymous');
-  return hoistStatics(Connect, WrappedComponent);
+  return hoistStatics__default['default'](Connect, WrappedComponent);
 }
 
 function useFormContext() {
-  if (!React__default.useState) {
+  if (!React__default['default'].useState) {
     throw new Error("Hooks api need react@>=16.8, Please upgrade your reactjs.");
   }
 
-  var useContext = React__default.useContext;
+  var useContext = React__default['default'].useContext;
   var getFormContext = useContext(FormContext);
   return getFormContext();
 }
@@ -3078,13 +3086,13 @@ function useFormContext() {
 function useField(name) {
   var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-  if (!React__default.useState) {
+  if (!React__default['default'].useState) {
     throw new Error("Hooks api need react@>=16.8, Please upgrade your reactjs.");
   }
 
-  var useState = React__default.useState,
-      useLayoutEffect = React__default.useLayoutEffect,
-      useRef = React__default.useRef;
+  var useState = React__default['default'].useState,
+      useLayoutEffect = React__default['default'].useLayoutEffect,
+      useRef = React__default['default'].useRef;
   var $name;
 
   if (name) {
@@ -3139,8 +3147,8 @@ function useField(name) {
   }, [$this.$state.$value]);
   useLayoutEffect(function () {
     $this.isMounting = true;
-    warning(!$name || $formContext.$formutil, "You should enusre that the useField() with the name '".concat($name, "' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."));
-    warning($name, "You should pass a name argument to useField(), otherwise it will be isolated!");
+    warning__default['default'](!$name || $formContext.$formutil, "You should enusre that the useField() with the name '".concat($name, "' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."));
+    warning__default['default']($name, "You should pass a name argument to useField(), otherwise it will be isolated!");
     return function () {
       $this.isMounting = false;
       createRef(props.$ref, null);
@@ -3200,9 +3208,9 @@ function useField(name) {
     });
   }
 
-  return $this.$fieldutil = objectSpread2({
+  return $this.$fieldutil = objectSpread2(objectSpread2(objectSpread2({
     $name: $name
-  }, $registered.$getState(), {}, $registered, {
+  }, $registered.$getState()), $registered), {}, {
     $$formutil: $formContext.$formutil
   });
 }
@@ -3215,7 +3223,7 @@ function useForm() {
 }
 
 function useHandler(props) {
-  props = objectSpread2({}, defaultProps, {}, props, {
+  props = objectSpread2(objectSpread2(objectSpread2({}, defaultProps), props), {}, {
     children: null
   });
 

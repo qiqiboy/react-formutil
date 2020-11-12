@@ -62,6 +62,7 @@ class EasyFieldNative extends Component {
         switch (htmlType) {
             case 'select':
                 Element = htmlType;
+
                 htmlProps.onChange = ev => {
                     const node = ev.target;
                     const value = node.multiple
@@ -92,6 +93,7 @@ class EasyFieldNative extends Component {
                     onFocus,
                     onBlur
                 };
+
                 break;
 
             default:

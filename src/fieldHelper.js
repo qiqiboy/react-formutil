@@ -1,7 +1,7 @@
 import { Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
-import * as utils from './utils';
 import warning from 'warning';
+import * as utils from './utils';
 import { FORM_VALIDATE_RESULT } from './Form';
 
 let FIELD_UUID = 0;
@@ -29,8 +29,9 @@ function isError(result) {
 function warningValidatorReturn(result, key, name) {
     warning(
         !utils.isUndefined(result),
-        `You should return a string or Error when the validation('${name &&
-            name + ': '}${key}') failed, otherwise return true.`
+        `You should return a string or Error when the validation('${
+            name && name + ': '
+        }${key}') failed, otherwise return true.`
     );
 }
 

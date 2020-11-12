@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
-import FormContext from './context';
 import hoistStatics from 'hoist-non-react-statics';
+import FormContext from './context';
 
 function connect(WrappedComponent) {
     const Connect = forwardRef((props, ref) => {

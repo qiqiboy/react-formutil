@@ -1,8 +1,8 @@
 import React from 'react';
+import warning from 'warning';
 import useFormContext from './useFormContext';
 import { runCallback, createRef } from '../utils';
 import { createHandler, GET_FIELD_UUID } from '../fieldHelper';
-import warning from 'warning';
 
 /**
  * @description
@@ -46,6 +46,7 @@ function useField(name, props = {}) {
     $this.props = props;
     $this.$setState = $setState;
     $this.shouldRendered = true;
+
     // we not directly use this $state, just from $this.$state
     const [, setState] = useState(() => {
         $this.$$FIELD_UUID = GET_FIELD_UUID();

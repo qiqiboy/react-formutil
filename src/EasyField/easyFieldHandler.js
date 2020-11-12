@@ -21,9 +21,11 @@ export const defaultValidators = [
     ['checker', ($value, checker, props) => checker($value, props)]
 ].reduce(($validators, item) => {
     const [validKey, validate] = item;
+
     $validators[validKey] = function validator($value, propValue, { validMessage = {} }) {
         return validate(...arguments) || validMessage[validKey] || `Error input: ${validKey}`;
     };
+
     return $validators;
 }, {});
 
@@ -78,19 +80,23 @@ export function createHandler($fieldutil, fieldProps, childProps) {
             }
 
             const onChange = fieldProps[changePropName];
+
             onChange && onChange(...events);
 
             const newValue = getValueFromEvent ? getValueFromEvent(...events) : fetchValueFromEvent(value);
+
             $fieldutil.$render(newValue);
         },
         [focusPropName]: (...args) => {
             const onFocus = fieldProps[focusPropName];
+
             onFocus && onFocus(...args);
 
             $fieldutil.$setFocused(true);
         },
         [blurPropName]: (...args) => {
             const onBlur = fieldProps[blurPropName];
+
             onBlur && onBlur(...args);
 
             if ($fieldutil.$untouched) {
@@ -203,6 +209,7 @@ export function parseProps(props) {
                 if (props.multiple) {
                     fieldProps[TYPE] = 'array';
                 }
+
                 break;
 
             case 'group':

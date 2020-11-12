@@ -1,5 +1,7 @@
-import { isValidElementType } from 'react-is';
 import warning from 'warning';
+import reactIs from 'react-is';
+
+const { isValidElementType } = reactIs;
 
 const OBJECT_PROTO = Object.getPrototypeOf({});
 const PATH_REGEXP = /\s*(?:\]\s*\.|\]\s*\[|\.|\[|\])\s*/g;
@@ -89,6 +91,7 @@ export function createHOC(withHOC) {
 }
 
 const VALID_PROPS = ['minlength', 'maxlength', 'max', 'min', 'required', 'pattern', 'step'];
+
 export function isValidProp(prop) {
     return VALID_PROPS.indexOf(prop.toLowerCase()) > -1;
 }

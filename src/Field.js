@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { createHandler, GET_FIELD_UUID, propTypes, displayName, renderField } from './fieldHelper';
-import FormContext from './context';
 import warning from 'warning';
 import isEqual from 'react-fast-compare';
+import { createHandler, GET_FIELD_UUID, propTypes, displayName, renderField } from './fieldHelper';
+import FormContext from './context';
 import { runCallback, createRef, isStateEqual } from './utils';
 
 class Field extends Component {

@@ -1,7 +1,7 @@
 import React, { Component, forwardRef } from 'react';
+import hoistStatics from 'hoist-non-react-statics';
 import Field from './Field';
 import { createHOC } from './utils';
-import hoistStatics from 'hoist-non-react-statics';
 
 const filterProps = [
     'name',
@@ -51,6 +51,7 @@ function withField(WrappedComponent, config = {}) {
                         if (prop === '$validators' || prop === '$asyncValidators' || prop === '$defaultState') {
                             fieldProps[prop] = { ...config[prop], ...others[prop] };
                         }
+
                         delete others[prop];
                     }
                 });

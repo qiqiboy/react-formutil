@@ -1,8 +1,8 @@
 import React, { Component, Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
+import warning from 'warning';
 import FormContext from './context';
 import * as utils from './utils';
-import warning from 'warning';
 
 export const FORM_VALIDATE_RESULT = 'FORM_VALIDATE_RESULT';
 
@@ -162,6 +162,7 @@ class Form extends Component {
         this.$$defaultValues = this.$$deepParseObject(
             utils.deepClone(utils.isFunction($defaultValues) ? $defaultValues(this.props) || {} : $defaultValues)
         );
+
         this.$$defaultStates = this.$$deepParseObject(
             utils.deepClone(utils.isFunction($defaultStates) ? $defaultStates(this.props) || {} : $defaultStates)
         );
@@ -504,6 +505,7 @@ class Form extends Component {
             utils.objectMap(this.$$registers, () => $state),
             callback
         );
+
     $batchDirty = ($dirty, callback) =>
         this.$batchState(
             {

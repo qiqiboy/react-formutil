@@ -141,6 +141,7 @@ test('objectClear()', () => {
             }
         }
     };
+
     utils.objectClear(obj, 'a.b[c][0][0].d');
 
     expect(obj).toEqual({});
@@ -159,6 +160,7 @@ test('objectClear()', () => {
             }
         }
     };
+
     utils.objectClear(obj1, 'a.b[c][0][0].e');
 
     expect(obj1).toEqual({

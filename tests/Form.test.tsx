@@ -139,6 +139,7 @@ describe('$defaultStates', () => {
             },
             c: [undefined, 2]
         });
+
         expect(getFormutil().$dirts).toEqual({
             a: {
                 b: true
@@ -269,6 +270,7 @@ describe('$validator', () => {
 
         await waitFor(() => {
             expect($validatorSpy).toBeCalledTimes(1);
+
             expect(getFormutil().$errors).toEqual({
                 a: {
                     b: {
@@ -307,14 +309,17 @@ describe('$onFormChange', () => {
         await waitFor(() => {
             expect(changeSpy).toBeCalledTimes(1);
         });
+
         expect(changeSpy).toHaveBeenLastCalledWith(getFormutil(), { a: 1 }, {});
 
         getFormutil().$setValues({
             a: 2
         });
+
         await waitFor(() => {
             expect(changeSpy).toBeCalledTimes(2);
         });
+
         expect(changeSpy).toHaveBeenLastCalledWith(getFormutil(), { a: 2 }, { a: 1 });
     });
 });
@@ -409,6 +414,7 @@ describe('$formutil', () => {
             c: [false],
             d: false
         });
+
         expect(getFormutil().$weakTouches).toEqual({
             'a.b': false,
             'c[0]': false,
@@ -420,6 +426,7 @@ describe('$formutil', () => {
             c: [false],
             d: false
         });
+
         expect(getFormutil().$weakDirts).toEqual({
             'a.b': false,
             'c[0]': false,
@@ -431,6 +438,7 @@ describe('$formutil', () => {
             c: [false],
             d: false
         });
+
         expect(getFormutil().$weakFocuses).toEqual({
             'a.b': false,
             'c[0]': false,
@@ -442,6 +450,7 @@ describe('$formutil', () => {
             c: [true],
             d: false
         });
+
         expect(getFormutil().$weakPendings).toEqual({
             'a.b': false,
             'c[0]': true,
@@ -455,6 +464,7 @@ describe('$formutil', () => {
                 }
             }
         });
+
         expect(getFormutil().$weakErrors).toEqual({
             'a.b': {
                 required: 'reuqired!'
@@ -467,6 +477,7 @@ describe('$formutil', () => {
                 c: [false],
                 d: false
             });
+
             expect(getFormutil().$weakPendings).toEqual({
                 'a.b': false,
                 'c[0]': false,
@@ -485,6 +496,7 @@ describe('$formutil', () => {
                     }
                 ]
             });
+
             expect(getFormutil().$weakErrors).toEqual({
                 'a.b': {
                     required: 'reuqired!'
@@ -496,7 +508,7 @@ describe('$formutil', () => {
         });
     });
 
-    test('$valid / $invalid / $focused / $touched / $untouched /  $dirty / $pristine / $pending ', async () => {
+    test('$valid / $invalid / $focused / $touched / $untouched /  $dirty / $pristine / $pending', async () => {
         const { getFormutil } = renderForm(
             <>
                 <Field
@@ -594,6 +606,7 @@ describe('$formutil', () => {
             'a.b': fieldRegister,
             'c[0]': fieldRegister
         });
+
         expect(getFormutil().$$deepRegisters).toMatchObject({
             a: {
                 b: fieldRegister
@@ -681,6 +694,7 @@ describe('$formutil', () => {
                 $value: 2
             }
         });
+
         expect(getFormutil().$params).toEqual({
             a: { b: 1 },
             c: [2]
@@ -692,6 +706,7 @@ describe('$formutil', () => {
             },
             'c[0]': 4
         });
+
         expect(getFormutil().$params).toEqual({
             a: { b: 3 },
             c: [4]
@@ -707,6 +722,7 @@ describe('$formutil', () => {
                 required: 'required!'
             }
         });
+
         expect(getFormutil().$errors).toEqual({
             a: {
                 b: {
@@ -726,6 +742,7 @@ describe('$formutil', () => {
             },
             'c[0]': true
         });
+
         expect(getFormutil().$touches).toEqual({
             a: { b: true },
             c: [true]
@@ -737,6 +754,7 @@ describe('$formutil', () => {
             },
             'c[0]': true
         });
+
         expect(getFormutil().$dirts).toEqual({
             a: { b: true },
             c: [true]
@@ -748,6 +766,7 @@ describe('$formutil', () => {
             },
             'c[0]': true
         });
+
         expect(getFormutil().$focuses).toEqual({
             a: { b: true },
             c: [true]
@@ -759,6 +778,7 @@ describe('$formutil', () => {
             },
             'c[0]': true
         });
+
         expect(getFormutil().$pendings).toEqual({
             a: { b: true },
             c: [true]
@@ -801,30 +821,35 @@ describe('$formutil', () => {
         getFormutil().$batchState({
             $value: 1
         });
+
         expect(getFormutil().$params).toEqual({
             a: { b: 1 },
             c: [1]
         });
 
         getFormutil().$batchDirty(true);
+
         expect(getFormutil().$dirts).toEqual({
             a: { b: true },
             c: [true]
         });
 
         getFormutil().$batchTouched(true);
+
         expect(getFormutil().$touches).toEqual({
             a: { b: true },
             c: [true]
         });
 
         getFormutil().$batchPending(true);
+
         expect(getFormutil().$pendings).toEqual({
             a: { b: true },
             c: [true]
         });
 
         getFormutil().$batchFocused(true);
+
         expect(getFormutil().$focuses).toEqual({
             a: { b: true },
             c: [true]
@@ -932,6 +957,7 @@ describe('$formutil', () => {
                 $dirty: true
             }
         });
+
         expect(getFormutil().$states).toMatchObject({
             a: {
                 b: expect.objectContaining({
@@ -948,6 +974,7 @@ describe('$formutil', () => {
         });
 
         getFormutil().$reset();
+
         expect(getFormutil().$states).toMatchObject({
             a: {
                 b: expect.objectContaining({
@@ -972,6 +999,7 @@ describe('$formutil', () => {
                 $value: 2
             }
         });
+
         expect(getFormutil().$states).toMatchObject({
             a: {
                 b: expect.objectContaining({

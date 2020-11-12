@@ -12,7 +12,7 @@
     "start": "cd docs && npm start",
     "build": "npm run clear && rollup -c",
     "clear": "rimraf dist",
-    "test": "node jest/test.js -c jest/jest.config.js"
+    "test": "node jest/test.js"
   },
   "repository": {
     "type": "git",

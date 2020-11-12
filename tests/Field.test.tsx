@@ -41,7 +41,7 @@ describe('name', () => {
         expect($formutil.$params.a.b[1].c[2].d).toBe('');
     });
 
-    test('should show wanrings when missing name ', () => {
+    test('should show wanrings when missing name', () => {
         renderForm(<Field children={null} />);
 
         expect(console.error).toHaveBeenLastCalledWith(
@@ -49,7 +49,7 @@ describe('name', () => {
         );
     });
 
-    test('should show wanrings if not underneath a Form ', () => {
+    test('should show wanrings if not underneath a Form', () => {
         render(<Field name="a" children={null} />);
 
         expect(console.error).toHaveBeenLastCalledWith(
@@ -115,6 +115,7 @@ describe('$validators', () => {
     const $validators = {
         syncValidate: (value) => {
             spyValidators.sync();
+
             return !!value || 'sync-validate!';
         },
         asyncValidate: jest.fn((value) => {
@@ -144,6 +145,7 @@ describe('$validators', () => {
         rerender({
             asyncValidate: true
         });
+
         getFieldutil().$render('');
 
         expect(spyValidators.sync).toBeCalledTimes(2);
@@ -164,6 +166,7 @@ describe('$validators', () => {
             expect(getFieldutil().$error).toEqual({
                 asyncValidate: new Error('async-validate!')
             });
+
             expect(spyValidators.sync).toBeCalledTimes(3);
             expect(spyValidators.async).toBeCalledTimes(2);
         });
@@ -198,6 +201,7 @@ describe('$validateLazy', () => {
         rerender({
             $validateLazy: true
         });
+
         getFieldutil().$render('');
         expect($validators.syncValidate).toBeCalledTimes(2);
         expect($validators.asyncValidate).toBeCalledTimes(1);
@@ -328,6 +332,7 @@ describe('$memo', () => {
             a: 1,
             b: 1
         });
+
         expect(renderA).toBeCalledTimes(2);
         expect(renderB).toBeCalledTimes(2);
     });
@@ -404,7 +409,7 @@ describe('$memo', () => {
 describe('$onFieldChange()', () => {
     test('called when field value change', async () => {
         const onChange = jest.fn();
-        const { getFieldutil, getFormutil, getElement } = renderField({
+        const { getFormutil, getElement } = renderField({
             name: 'a',
             $onFieldChange: onChange
         });
@@ -458,6 +463,7 @@ describe('$fieldutil', () => {
         const input = getByTestId('input');
 
         fireEvent.focus(input);
+
         fireEvent.input(input, {
             target: { value: 'b' }
         });
@@ -475,6 +481,7 @@ describe('$fieldutil', () => {
         getFieldutil().$$formutil.$setValues({
             a: 'c'
         });
+
         expect(input.value).toBe('c');
     });
 
@@ -552,12 +559,14 @@ describe('$fieldutil', () => {
             },
             callback
         );
+
         getFieldutil().$setValidity('maxlength', 'maxlength < 5', callback);
 
         expect(getFieldutil().$error).toEqual({
             required: 'required!',
             maxlength: 'maxlength < 5'
         });
+
         expect(callback).toBeCalled();
         expect(callback.mock.calls[1][0]).toBe(getFieldutil());
     });

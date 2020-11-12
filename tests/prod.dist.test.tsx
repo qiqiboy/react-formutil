@@ -7,6 +7,7 @@ import { Form as FormUMD, EasyField as EasyFieldUMD } from '../dist/react-formut
 
 test('react-formutil.cjs.production should running', async () => {
     let formutilRef = React.createRef<$Formutil>();
+
     render(
         <FormCJS $ref={formutilRef}>
             {() => (
@@ -28,6 +29,7 @@ test('react-formutil.cjs.production should running', async () => {
 
 test('react-formutil.esm.production should running', async () => {
     let formutilRef = React.createRef<$Formutil>();
+
     render(
         <FormESM $ref={formutilRef}>
             {() => (
@@ -49,6 +51,7 @@ test('react-formutil.esm.production should running', async () => {
 
 test('react-formutil.umd.production should running', async () => {
     let formutilRef = React.createRef<$Formutil>();
+
     render(
         <FormUMD $ref={formutilRef}>
             {() => (

@@ -15,6 +15,7 @@ module.exports = {
             ]
         },
         {
+            displayName: 'test',
             rootDir: process.cwd(),
             roots: ['<rootDir>/src', fs.existsSync(process.cwd() + '/tests') && '<rootDir>/tests'].filter(Boolean),
             collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts'],

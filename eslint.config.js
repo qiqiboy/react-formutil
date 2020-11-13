@@ -1,19 +1,5 @@
 const pkg = require('./package.json');
 
-const hasJsxRuntime = (() => {
-    if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
-        return false;
-    }
-
-    try {
-        require.resolve('react/jsx-runtime');
-
-        return true;
-    } catch (e) {
-        return false;
-    }
-})();
-
 /**
  * 0: off
  * 1: warn
@@ -31,7 +17,7 @@ module.exports = {
         }
     ],
     settings: {
-        'import/core-modules': [...Object.keys(pkg.dependencies), ...Object.keys(pkg.peerDependencies)]
+        'import/core-modules': [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})]
     },
     rules: {
         'react/react-in-jsx-scope': 2,

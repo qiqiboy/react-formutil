@@ -1,6 +1,7 @@
 import React, { createContext, createElement, Children, cloneElement, Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import warning from 'warning';
+import { unstable_batchedUpdates } from 'react-dom';
 import reactIs from 'react-is';
 import hoistStatics from 'hoist-non-react-statics';
 import isEqual from 'react-fast-compare';
@@ -588,7 +589,9 @@ var Form = /*#__PURE__*/function (_Component) {
         if ($curRegistered) {
           cancelFrame(_this.$$duplicateTimer);
           _this.$$regDuplications[name] = [$curRegistered, $handler];
-          _this.$$duplicateTimer = requestFrame(_this.$$checkDuplication);
+          _this.$$duplicateTimer = requestFrame(function () {
+            return unstable_batchedUpdates(_this.$$checkDuplication);
+          });
         } else {
           _this.$$fieldChangedQueue.push({
             name: name,
@@ -1110,7 +1113,7 @@ var Form = /*#__PURE__*/function (_Component) {
       cancelFrame(this.$$triggerChangeTimer); // ensure this calls to access the newest $formutil
 
       this.$$triggerChangeTimer = requestFrame(function () {
-        _this2.$$triggerFormChange();
+        unstable_batchedUpdates(_this2.$$triggerFormChange);
       });
     }
   }, {

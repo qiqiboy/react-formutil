@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('prop-types')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'react', 'prop-types'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ReactFormutil = {}, global.React, global.PropTypes));
-}(this, (function (exports, React, PropTypes) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('prop-types'), require('react-dom')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'react', 'prop-types', 'react-dom'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ReactFormutil = {}, global.React, global.PropTypes, global.ReactDOM));
+}(this, (function (exports, React, PropTypes, reactDom) { 'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -949,7 +949,9 @@
           if ($curRegistered) {
             cancelFrame(_this.$$duplicateTimer);
             _this.$$regDuplications[name] = [$curRegistered, $handler];
-            _this.$$duplicateTimer = requestFrame(_this.$$checkDuplication);
+            _this.$$duplicateTimer = requestFrame(function () {
+              return reactDom.unstable_batchedUpdates(_this.$$checkDuplication);
+            });
           } else {
             _this.$$fieldChangedQueue.push({
               name: name,
@@ -1471,7 +1473,7 @@
         cancelFrame(this.$$triggerChangeTimer); // ensure this calls to access the newest $formutil
 
         this.$$triggerChangeTimer = requestFrame(function () {
-          _this2.$$triggerFormChange();
+          reactDom.unstable_batchedUpdates(_this2.$$triggerFormChange);
         });
       }
     }, {

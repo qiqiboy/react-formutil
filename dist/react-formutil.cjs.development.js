@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var React = require('react');
 var PropTypes = require('prop-types');
 var warning = require('warning');
+var reactDom = require('react-dom');
 var reactIs = require('react-is');
 var hoistStatics = require('hoist-non-react-statics');
 var isEqual = require('react-fast-compare');
@@ -655,7 +656,9 @@ var Form = /*#__PURE__*/function (_Component) {
         if ($curRegistered) {
           cancelFrame(_this.$$duplicateTimer);
           _this.$$regDuplications[name] = [$curRegistered, $handler];
-          _this.$$duplicateTimer = requestFrame(_this.$$checkDuplication);
+          _this.$$duplicateTimer = requestFrame(function () {
+            return reactDom.unstable_batchedUpdates(_this.$$checkDuplication);
+          });
         } else {
           _this.$$fieldChangedQueue.push({
             name: name,
@@ -1177,7 +1180,7 @@ var Form = /*#__PURE__*/function (_Component) {
       cancelFrame(this.$$triggerChangeTimer); // ensure this calls to access the newest $formutil
 
       this.$$triggerChangeTimer = requestFrame(function () {
-        _this2.$$triggerFormChange();
+        reactDom.unstable_batchedUpdates(_this2.$$triggerFormChange);
       });
     }
   }, {

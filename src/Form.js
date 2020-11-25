@@ -1,6 +1,7 @@
 import React, { Component, Children, cloneElement, createElement } from 'react';
 import PropTypes from 'prop-types';
 import warning from 'warning';
+import { unstable_batchedUpdates } from 'react-dom';
 import FormContext from './context';
 import * as utils from './utils';
 
@@ -102,7 +103,7 @@ class Form extends Component {
                 cancelFrame(this.$$duplicateTimer);
 
                 this.$$regDuplications[name] = [$curRegistered, $handler];
-                this.$$duplicateTimer = requestFrame(this.$$checkDuplication);
+                this.$$duplicateTimer = requestFrame(() => unstable_batchedUpdates(this.$$checkDuplication));
             } else {
                 this.$$fieldChangedQueue.push({
                     name,
@@ -413,7 +414,7 @@ class Form extends Component {
 
         // ensure this calls to access the newest $formutil
         this.$$triggerChangeTimer = requestFrame(() => {
-            this.$$triggerFormChange();
+            unstable_batchedUpdates(this.$$triggerFormChange);
         });
     }
 

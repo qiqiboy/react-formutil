@@ -31,15 +31,15 @@ class EasyFieldNative extends Component {
         let htmlProps = {
             value: 'compositionValue' in this ? this.compositionValue : htmlValue,
             onCompositionEnd: ev => {
-                this.composition = false;
+                this.isComposing = false;
                 delete this.compositionValue;
                 htmlProps.onChange(ev);
             },
-            onCompositionStart: () => (this.composition = true),
+            onCompositionStart: () => (this.isComposing = true),
             onChange: ev => {
                 const { value } = ev.target;
 
-                if (this.composition) {
+                if (this.isComposing) {
                     this.compositionValue = value;
                     this.forceUpdate();
                 } else {

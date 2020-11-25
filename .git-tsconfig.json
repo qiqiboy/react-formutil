@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","include":["*.d.ts","src/EasyField/Native.js","src/Form.js"]}

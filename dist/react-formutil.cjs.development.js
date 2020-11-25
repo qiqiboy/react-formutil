@@ -894,11 +894,12 @@ var Form = /*#__PURE__*/function (_Component) {
 
       var $parsedTree = _this.$$deepParseObject($stateTree);
 
+      var changed = [];
       objectEach(_this.$$registers, function (handler, name) {
         var pathData = pathExist($parsedTree, name);
 
         if (force || pathData) {
-          var $newState = processer(pathData && pathData.data, handler);
+          var $newState = handler && processer(pathData && pathData.data, handler);
 
           if ($newState) {
             var $prevValue = _this.$formutil.$weakParams[name];
@@ -906,7 +907,7 @@ var Form = /*#__PURE__*/function (_Component) {
             var _handler$$$merge = handler.$$merge($newState),
                 $newValue = _handler$$$merge.$value;
 
-            handler.$$detectChange($newState);
+            changed.push([handler, $newState]);
 
             if ('$value' in $newState || '$viewValue' in $newState) {
               var findItem = arrayFind(_this.$$fieldChangedQueue, function (item) {
@@ -931,6 +932,13 @@ var Form = /*#__PURE__*/function (_Component) {
             _this.$$formShouldUpdateFields[name] = true;
           }
         }
+      });
+      changed.forEach(function (_ref3) {
+        var _ref4 = slicedToArray(_ref3, 2),
+            handler = _ref4[0],
+            $newState = _ref4[1];
+
+        return handler.$$detectChange($newState);
       });
       return _this.$render(callback);
     };
@@ -1220,24 +1228,24 @@ var Form = /*#__PURE__*/function (_Component) {
       });
       var updateAll = this.$$formShouldUpdateAll;
       var lastFormutil = this.$formutil || {};
-      var $invalid = $stateArray.some(function (_ref3) {
-        var $state = _ref3.$state;
+      var $invalid = $stateArray.some(function (_ref5) {
+        var $state = _ref5.$state;
         return $state.$invalid;
       });
-      var $dirty = $stateArray.some(function (_ref4) {
-        var $state = _ref4.$state;
+      var $dirty = $stateArray.some(function (_ref6) {
+        var $state = _ref6.$state;
         return $state.$dirty;
       });
-      var $touched = $stateArray.some(function (_ref5) {
-        var $state = _ref5.$state;
+      var $touched = $stateArray.some(function (_ref7) {
+        var $state = _ref7.$state;
         return $state.$touched;
       });
-      var $focused = $stateArray.some(function (_ref6) {
-        var $state = _ref6.$state;
+      var $focused = $stateArray.some(function (_ref8) {
+        var $state = _ref8.$state;
         return $state.$focused;
       });
-      var $pending = this.$$formPending || $stateArray.some(function (_ref7) {
-        var $state = _ref7.$state;
+      var $pending = this.$$formPending || $stateArray.some(function (_ref9) {
+        var $state = _ref9.$state;
         return $state.$pending;
       });
       var $pureParams = updateAll ? {} : objectSpread2({}, lastFormutil.$pureParams);
@@ -1731,7 +1739,7 @@ function createHandler($this, owner) {
 
           if (isPromise(result)) {
             promises.push( // @ts-ignore
-            result["catch"](function (reason) {
+            result.catch(function (reason) {
               if (!$breakAsyncHandler) {
                 $setValidity(key, reason || key);
               }
@@ -2186,17 +2194,17 @@ var EasyFieldNative = /*#__PURE__*/function (_Component) {
       var htmlProps = {
         value: 'compositionValue' in this ? this.compositionValue : htmlValue,
         onCompositionEnd: function onCompositionEnd(ev) {
-          _this.composition = false;
+          _this.isComposing = false;
           delete _this.compositionValue;
           htmlProps.onChange(ev);
         },
         onCompositionStart: function onCompositionStart() {
-          return _this.composition = true;
+          return _this.isComposing = true;
         },
         onChange: function onChange(ev) {
           var value = ev.target.value;
 
-          if (_this.composition) {
+          if (_this.isComposing) {
             _this.compositionValue = value;
 
             _this.forceUpdate();

@@ -360,18 +360,19 @@ class Form extends Component {
 
     $$setStates = ($stateTree = {}, processer, callback, force) => {
         const $parsedTree = this.$$deepParseObject($stateTree);
+        const changed = [];
 
         utils.objectEach(this.$$registers, (handler, name) => {
             const pathData = utils.pathExist($parsedTree, name);
 
             if (force || pathData) {
-                const $newState = processer(pathData && pathData.data, handler);
+                const $newState = handler && processer(pathData && pathData.data, handler);
 
                 if ($newState) {
                     const $prevValue = this.$formutil.$weakParams[name];
                     const { $value: $newValue } = handler.$$merge($newState);
 
-                    handler.$$detectChange($newState);
+                    changed.push([handler, $newState]);
 
                     if ('$value' in $newState || '$viewValue' in $newState) {
                         const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
@@ -395,6 +396,8 @@ class Form extends Component {
                 }
             }
         });
+
+        changed.forEach(([handler, $newState]) => handler.$$detectChange($newState));
 
         return this.$render(callback);
     };

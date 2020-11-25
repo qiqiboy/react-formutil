@@ -69,7 +69,7 @@
     "prop-types": "15.7.2",
     "react-animated-router": "0.1.11",
     "react-awesome-snippets": "0.0.18",
-    "react-router-dom": "4.3.1",
+    "react-router-dom": "5.2.0",
     "react-transition-group": "2.3.0"
   },
   "devDependencies": {

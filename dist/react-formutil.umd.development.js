@@ -2951,8 +2951,8 @@
           },
           onFocus: onFocus,
           onBlur: function onBlur(ev) {
-            if (_this.isComposition) {
-              _this.isComposition = false;
+            if (_this.isComposing) {
+              _this.isComposing = false;
               delete _this.compositionValue;
               htmlProps.onChange(ev);
             }

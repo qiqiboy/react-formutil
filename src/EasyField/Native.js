@@ -48,8 +48,8 @@ class EasyFieldNative extends Component {
             },
             onFocus,
             onBlur: ev => {
-                if (this.isComposition) {
-                    this.isComposition = false;
+                if (this.isComposing) {
+                    this.isComposing = false;
                     delete this.compositionValue;
                     htmlProps.onChange(ev);
                 }

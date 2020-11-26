@@ -901,6 +901,7 @@ var Form = /*#__PURE__*/function (_Component) {
         var pathData = pathExist($parsedTree, name);
 
         if (force || pathData) {
+          var $curState = handler.$getState();
           var $newState = handler && processer(pathData && pathData.data, handler);
 
           if ($newState) {
@@ -916,11 +917,11 @@ var Form = /*#__PURE__*/function (_Component) {
 
               if (findItem) {
                 findItem.$newValue = $newValue;
-              } else if (name in _this.$formutil.$weakParams) {
+              } else {
                 _this.$$fieldChangedQueue.push({
                   name: name,
                   $newValue: $newValue,
-                  $prevValue: _this.$formutil.$weakParams[name]
+                  $prevValue: $curState.$value
                 });
               }
             }

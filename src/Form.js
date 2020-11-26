@@ -366,6 +366,7 @@ class Form extends Component {
             const pathData = utils.pathExist($parsedTree, name);
 
             if (force || pathData) {
+                const $curState = handler.$getState();
                 const $newState = handler && processer(pathData && pathData.data, handler);
 
                 if ($newState) {
@@ -378,11 +379,11 @@ class Form extends Component {
 
                         if (findItem) {
                             findItem.$newValue = $newValue;
-                        } else if (name in this.$formutil.$weakParams) {
+                        } else {
                             this.$$fieldChangedQueue.push({
                                 name,
                                 $newValue,
-                                $prevValue: this.$formutil.$weakParams[name]
+                                $prevValue: $curState.$value
                             });
                         }
                     }

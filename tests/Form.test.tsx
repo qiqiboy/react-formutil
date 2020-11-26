@@ -1,6 +1,7 @@
 import React from 'react';
 import { waitFor } from '@testing-library/react';
-import { Field } from '../src';
+import userEvent from '@testing-library/user-event';
+import { Field, EasyField } from '../src';
 import { renderForm } from './helper';
 
 describe('$defaultValues', () => {
@@ -247,7 +248,7 @@ describe('$ref', () => {
 });
 
 describe('$validator', () => {
-    test('should be called and validate form values\'s errors', async () => {
+    test("should be called and validate form values's errors", async () => {
         const $validatorSpy = jest.fn(params => {
             if (!params.a?.b) {
                 return {
@@ -296,30 +297,28 @@ describe('$validator', () => {
 
 describe('$onFormChange', () => {
     test('should be called when field value changed', async () => {
-        let changeSpy = jest.fn();
+        const changeSpy = jest.fn();
+        const fieldChangeSpy = jest.fn();
         const { getFormutil } = renderForm(
             <>
-                <Field name="a" $defaultValue={1} children={null} />
+                <Field name="a" $defaultValue={1} $onFieldChange={fieldChangeSpy} children={null} />
+                <Field name="b" $defaultValue={2} children={null} />
             </>,
             {
                 $onFormChange: changeSpy
             }
         );
 
-        await waitFor(() => {
-            expect(changeSpy).toBeCalledTimes(1);
-        });
-
-        expect(changeSpy).toHaveBeenLastCalledWith(getFormutil(), { a: 1 }, {});
+        expect(changeSpy).toBeCalledTimes(1);
+        expect(fieldChangeSpy).not.toBeCalled();
+        expect(changeSpy).toHaveBeenLastCalledWith(getFormutil(), { a: 1, b: 2 }, {});
 
         getFormutil().$setValues({
             a: 2
         });
 
-        await waitFor(() => {
-            expect(changeSpy).toBeCalledTimes(2);
-        });
-
+        expect(fieldChangeSpy).toBeCalledTimes(1);
+        expect(changeSpy).toBeCalledTimes(2);
         expect(changeSpy).toHaveBeenLastCalledWith(getFormutil(), { a: 2 }, { a: 1 });
     });
 });
@@ -544,20 +543,16 @@ describe('$formutil', () => {
             expect(getFormutil().$pending).toEqual(false);
         });
 
-        getFormutil()
-            .$getField('a.b')!
-            .$setState({
-                $value: 1,
-                $focused: true,
-                $dirty: true,
-                $touched: true
-            });
+        getFormutil().$getField('a.b')!.$setState({
+            $value: 1,
+            $focused: true,
+            $dirty: true,
+            $touched: true
+        });
 
-        getFormutil()
-            .$getField('c[0]')!
-            .$setState({
-                $value: ''
-            });
+        getFormutil().$getField('c[0]')!.$setState({
+            $value: ''
+        });
 
         expect(getFormutil().$invalid).toEqual(false);
         expect(getFormutil().$valid).toEqual(true);
@@ -1012,5 +1007,59 @@ describe('$formutil', () => {
                 })
             ]
         });
+    });
+});
+
+describe('Complex nested form', () => {
+    test.only('condition render', async () => {
+        const renderFn = jest.fn();
+        const changeFn = jest.fn();
+        const { getFormutil, getByTestId } = renderForm($formutil => {
+            const { $params } = $formutil;
+
+            renderFn();
+
+            return (
+                <>
+                    <EasyField name="a" data-testid="a" />
+                    {$params.a === '1' && <EasyField name="b" data-testid="b" $onFieldChange={changeFn} />}
+                </>
+            );
+        });
+
+        expect(renderFn).toBeCalledTimes(2);
+
+        expect(getFormutil().$params).toEqual({
+            a: ''
+        });
+
+        await userEvent.type(getByTestId('a'), '1');
+
+        expect(getFormutil().$params).toEqual({
+            a: '1',
+            b: ''
+        });
+
+        expect(renderFn).toBeCalledTimes(4);
+        expect(changeFn).not.toBeCalled();
+
+        await userEvent.type(getByTestId('b'), '2');
+
+        expect(renderFn).toBeCalledTimes(5);
+        expect(changeFn).toBeCalledTimes(1);
+
+        changeFn.mockImplementation(() => {
+            return userEvent.type(getByTestId('a'), '1');
+        });
+
+        await userEvent.type(getByTestId('b'), '2');
+
+        expect(changeFn).toBeCalledTimes(2);
+
+        expect(getFormutil().$params).toEqual({
+            a: '11'
+        });
+
+        expect(renderFn).toBeCalledTimes(8);
     });
 });

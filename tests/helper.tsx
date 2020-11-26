@@ -4,7 +4,7 @@ import { $Formutil, FormProps, $Fieldutil, FieldProps } from '../index.d';
 import { Form, Field } from '../src';
 
 export function renderForm<Fields = any, Validators = {}, WeakFields = Fields>(
-    content: React.ReactNode,
+    content: React.ReactNode | (($formutil: $Formutil<Fields, Validators, WeakFields>) => React.ReactNode),
     formProps?: FormProps<Fields, Validators, WeakFields>
 ) {
     let formHandler: $Formutil<Fields, Validators, WeakFields>;
@@ -13,7 +13,7 @@ export function renderForm<Fields = any, Validators = {}, WeakFields = Fields>(
             {$formutil => {
                 formHandler = $formutil;
 
-                return content;
+                return typeof content === 'function' ? content($formutil) : content;
             }}
         </Form>
     );

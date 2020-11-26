@@ -189,7 +189,6 @@ class Form extends Component {
         this.$$formShouldUpdateAll = false;
     }
 
-    $$triggerChangeTimer;
     $$fieldChangedQueue = [];
     $$triggerFormChange = () => {
         if (this.$$fieldChangedQueue.length) {
@@ -370,7 +369,6 @@ class Form extends Component {
                 const $newState = handler && processer(pathData && pathData.data, handler);
 
                 if ($newState) {
-                    const $prevValue = this.$formutil.$weakParams[name];
                     const { $value: $newValue } = handler.$$merge($newState);
 
                     changed.push([handler, $newState]);
@@ -379,16 +377,12 @@ class Form extends Component {
                         const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
 
                         if (findItem) {
-                            if (!('$prevValue' in findItem)) {
-                                findItem.$prevValue = findItem.$newValue;
-                            }
-
                             findItem.$newValue = $newValue;
-                        } else {
+                        } else if (name in this.$formutil.$weakParams) {
                             this.$$fieldChangedQueue.push({
                                 name,
                                 $newValue,
-                                $prevValue
+                                $prevValue: this.$formutil.$weakParams[name]
                             });
                         }
                     }
@@ -398,9 +392,11 @@ class Form extends Component {
             }
         });
 
-        changed.forEach(([handler, $newState]) => handler.$$detectChange($newState));
+        return unstable_batchedUpdates(() => {
+            changed.forEach(([handler, $newState]) => handler.$$detectChange($newState));
 
-        return this.$render(callback);
+            return this.$render(callback);
+        });
     };
 
     componentDidMount() {
@@ -410,12 +406,7 @@ class Form extends Component {
     componentDidUpdate(prevProps) {
         utils.createRef(this.props.$ref, this.$formutil);
 
-        cancelFrame(this.$$triggerChangeTimer);
-
-        // ensure this calls to access the newest $formutil
-        this.$$triggerChangeTimer = requestFrame(() => {
-            unstable_batchedUpdates(this.$$triggerFormChange);
-        });
+        this.$$triggerFormChange();
     }
 
     componentWillUnmount() {

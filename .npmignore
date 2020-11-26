@@ -9,3 +9,4 @@ tests/
 /tsconfig.json
 /rollup.*
 /babel.config.json
+/eslint.config.js

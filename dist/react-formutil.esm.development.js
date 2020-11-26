@@ -665,7 +665,6 @@ var Form = /*#__PURE__*/function (_Component) {
 
     _this.$$formShouldUpdateFields = {};
     _this.$$formShouldUpdateAll = false;
-    _this.$$triggerChangeTimer = void 0;
     _this.$$fieldChangedQueue = [];
 
     _this.$$triggerFormChange = function () {
@@ -838,8 +837,6 @@ var Form = /*#__PURE__*/function (_Component) {
           var $newState = handler && processer(pathData && pathData.data, handler);
 
           if ($newState) {
-            var $prevValue = _this.$formutil.$weakParams[name];
-
             var _handler$$$merge = handler.$$merge($newState),
                 $newValue = _handler$$$merge.$value;
 
@@ -851,16 +848,12 @@ var Form = /*#__PURE__*/function (_Component) {
               });
 
               if (findItem) {
-                if (!('$prevValue' in findItem)) {
-                  findItem.$prevValue = findItem.$newValue;
-                }
-
                 findItem.$newValue = $newValue;
-              } else {
+              } else if (name in _this.$formutil.$weakParams) {
                 _this.$$fieldChangedQueue.push({
                   name: name,
                   $newValue: $newValue,
-                  $prevValue: $prevValue
+                  $prevValue: _this.$formutil.$weakParams[name]
                 });
               }
             }
@@ -869,14 +862,16 @@ var Form = /*#__PURE__*/function (_Component) {
           }
         }
       });
-      changed.forEach(function (_ref3) {
-        var _ref4 = _slicedToArray(_ref3, 2),
-            handler = _ref4[0],
-            $newState = _ref4[1];
+      return unstable_batchedUpdates(function () {
+        changed.forEach(function (_ref3) {
+          var _ref4 = _slicedToArray(_ref3, 2),
+              handler = _ref4[0],
+              $newState = _ref4[1];
 
-        return handler.$$detectChange($newState);
+          return handler.$$detectChange($newState);
+        });
+        return _this.$render(callback);
       });
-      return _this.$render(callback);
     };
 
     _this.$render = function (callback) {
@@ -1107,14 +1102,8 @@ var Form = /*#__PURE__*/function (_Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps) {
-      var _this2 = this;
-
       createRef(this.props.$ref, this.$formutil);
-      cancelFrame(this.$$triggerChangeTimer); // ensure this calls to access the newest $formutil
-
-      this.$$triggerChangeTimer = requestFrame(function () {
-        unstable_batchedUpdates(_this2.$$triggerFormChange);
-      });
+      this.$$triggerFormChange();
     }
   }, {
     key: "componentWillUnmount",
@@ -1153,13 +1142,13 @@ var Form = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
+      var _this2 = this;
 
       var $processer = this.props.$processer;
       var $stateArray = Object.keys(this.$$registers).map(function (path) {
         return {
           path: path,
-          $state: _this3.$$registers[path].$getState()
+          $state: _this2.$$registers[path].$getState()
         };
       });
       var updateAll = this.$$formShouldUpdateAll;

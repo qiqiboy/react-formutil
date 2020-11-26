@@ -416,12 +416,10 @@ describe('$onFieldChange()', () => {
 
         expect(onChange).not.toBeCalled();
 
-        userEvent.type(getElement(), 'abc', {
-            allAtOnce: true
-        });
+        userEvent.paste(getElement(), 'abc');
 
         await waitFor(() => {
-            expect(onChange).toBeCalled();
+            expect(onChange).toBeCalledTimes(1);
             expect(onChange.mock.calls[0]).toEqual(['abc', '', getFormutil()]);
         });
     });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { fireEvent, waitFor, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Field } from '../src';
@@ -113,12 +113,12 @@ describe('$validators', () => {
         async: jest.fn()
     };
     const $validators = {
-        syncValidate: (value) => {
+        syncValidate: value => {
             spyValidators.sync();
 
             return !!value || 'sync-validate!';
         },
-        asyncValidate: jest.fn((value) => {
+        asyncValidate: jest.fn(value => {
             return new Promise((resolve, reject) =>
                 setTimeout(() => {
                     spyValidators.async();
@@ -175,10 +175,10 @@ describe('$validators', () => {
 
 describe('$validateLazy', () => {
     const $validators = {
-        syncValidate: jest.fn((value) => {
+        syncValidate: jest.fn(value => {
             return !!value || 'sync-validate!';
         }),
-        asyncValidate: jest.fn((value) => {
+        asyncValidate: jest.fn(value => {
             return new Promise((resolve, reject) =>
                 setTimeout(() => {
                     reject(new Error('async-validate!'));
@@ -275,7 +275,7 @@ describe('$ref', () => {
         let $ref;
         const { getFieldutil } = renderField({
             name: 'a',
-            $ref: (ref) => ($ref = ref)
+            $ref: ref => ($ref = ref)
         });
 
         expect($ref).toBe(getFieldutil());
@@ -407,7 +407,7 @@ describe('$memo', () => {
 });
 
 describe('$onFieldChange()', () => {
-    test('called when field value change', async () => {
+    test('called when value change', async () => {
         const onChange = jest.fn();
         const { getFormutil, getElement } = renderField({
             name: 'a',
@@ -418,10 +418,37 @@ describe('$onFieldChange()', () => {
 
         userEvent.paste(getElement(), 'abc');
 
-        await waitFor(() => {
-            expect(onChange).toBeCalledTimes(1);
-            expect(onChange.mock.calls[0]).toEqual(['abc', '', getFormutil()]);
+        expect(onChange).toBeCalledTimes(1);
+        expect(onChange).toBeCalledWith('abc', '', getFormutil());
+    });
+
+    test('called when value change, even if before form mount', async () => {
+        const fieldChangeFn = jest.fn();
+        const formChangeFn = jest.fn();
+        const MyForm = ({ $formutil }) => {
+            useEffect(() => {
+                $formutil.$setValues({
+                    a: '2'
+                });
+            }, []); // eslint-disable-line
+
+            return <Field name="a" $defaultValue="1" $onFieldChange={fieldChangeFn} children={null} />;
+        };
+        const { getFormutil } = renderForm($formutil => <MyForm $formutil={$formutil} />, {
+            $onFormChange: formChangeFn
         });
+
+        expect(fieldChangeFn).toBeCalledTimes(1);
+        expect(fieldChangeFn).toBeCalledWith('2', '1', getFormutil());
+        expect(formChangeFn).toBeCalledTimes(1);
+
+        expect(formChangeFn).toBeCalledWith(
+            getFormutil(),
+            {
+                a: '2'
+            },
+            {}
+        );
     });
 });
 
@@ -575,7 +602,7 @@ describe('$fieldutil', () => {
         $focused: '$setFocused'
     };
 
-    Object.keys(stateMap).forEach((key) => {
+    Object.keys(stateMap).forEach(key => {
         const method = stateMap[key];
 
         test(method + '()', async () => {
@@ -594,7 +621,7 @@ describe('$fieldutil', () => {
     });
 
     test('$validate() / $onValidate()', async () => {
-        const callback = jest.fn((v) => !!v);
+        const callback = jest.fn(v => !!v);
 
         const { getFieldutil } = renderField({
             name: 'b',

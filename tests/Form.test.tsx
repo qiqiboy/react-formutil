@@ -296,7 +296,7 @@ describe('$validator', () => {
 });
 
 describe('$onFormChange', () => {
-    test('should be called when field value changed', async () => {
+    test('should be called when form mount or field value changed', async () => {
         const changeSpy = jest.fn();
         const fieldChangeSpy = jest.fn();
         const { getFormutil } = renderForm(
@@ -1011,7 +1011,7 @@ describe('$formutil', () => {
 });
 
 describe('Complex nested form', () => {
-    test.only('condition render', async () => {
+    test('condition render', async () => {
         const renderFn = jest.fn();
         const changeFn = jest.fn();
         const { getFormutil, getByTestId } = renderForm($formutil => {

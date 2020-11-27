@@ -216,7 +216,7 @@ class Form extends Component {
                     }
 
                     '$newValue' in item && utils.parsePath($newValues, item.name, item.$newValue);
-                    '$prevValue' in item && utils.parsePath($prevValues, item.name, item.$prevValue);
+                    !item.$dirty && '$prevValue' in item && utils.parsePath($prevValues, item.name, item.$prevValue);
 
                     hasFormChanged = true;
                 }
@@ -378,6 +378,11 @@ class Form extends Component {
                         const findItem = utils.arrayFind(this.$$fieldChangedQueue, item => item.name === name);
 
                         if (findItem) {
+                            if (!('$prevValue' in findItem)) {
+                                findItem.$dirty = true;
+                                findItem.$prevValue = findItem.$newValue;
+                            }
+
                             findItem.$newValue = $newValue;
                         } else {
                             this.$$fieldChangedQueue.push({

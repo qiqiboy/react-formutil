@@ -758,7 +758,7 @@ var Form = /*#__PURE__*/function (_Component) {
             }
 
             '$newValue' in item && parsePath($newValues, item.name, item.$newValue);
-            '$prevValue' in item && parsePath($prevValues, item.name, item.$prevValue);
+            !item.$dirty && '$prevValue' in item && parsePath($prevValues, item.name, item.$prevValue);
             hasFormChanged = true;
           }
         });
@@ -916,6 +916,11 @@ var Form = /*#__PURE__*/function (_Component) {
               });
 
               if (findItem) {
+                if (!('$prevValue' in findItem)) {
+                  findItem.$dirty = true;
+                  findItem.$prevValue = findItem.$newValue;
+                }
+
                 findItem.$newValue = $newValue;
               } else {
                 _this.$$fieldChangedQueue.push({

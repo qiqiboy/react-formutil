@@ -28,8 +28,8 @@ export function renderForm<Fields = any, Validators = {}, WeakFields = Fields>(
     };
 }
 
-export function renderField(fieldProps?: FieldProps) {
-    let fieldHandler: $Fieldutil;
+export function renderField<Value = string>(fieldProps?: FieldProps<Value>) {
+    let fieldHandler: $Fieldutil<Value>;
     let formHandler: $Formutil;
     let instance;
     const getForm = (newProps?: FieldProps) => (

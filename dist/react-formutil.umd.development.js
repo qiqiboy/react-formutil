@@ -2635,7 +2635,7 @@
       if ('$valid' in $newState) {
         $newState.$invalid = !$newState.$valid;
       } else if ('$invalid' in $newState) {
-        $newState.$dirty = !$newState.$invalid;
+        $newState.$valid = !$newState.$invalid;
       } // process $dirty/$pristine
 
 

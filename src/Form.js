@@ -367,7 +367,7 @@ class Form extends Component {
 
             if (force || pathData) {
                 const $curState = handler.$getState();
-                const $newState = handler && processer(pathData && pathData.data, handler);
+                const $newState = processer(pathData && pathData.data, handler);
 
                 if ($newState) {
                     const { $value: $newValue } = handler.$$merge($newState);

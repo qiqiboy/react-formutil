@@ -902,7 +902,7 @@ var Form = /*#__PURE__*/function (_Component) {
 
         if (force || pathData) {
           var $curState = handler.$getState();
-          var $newState = handler && processer(pathData && pathData.data, handler);
+          var $newState = processer(pathData && pathData.data, handler);
 
           if ($newState) {
             var _handler$$$merge = handler.$$merge($newState),

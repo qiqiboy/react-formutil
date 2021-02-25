@@ -3027,7 +3027,11 @@ function useField(name) {
 
   var useState = React.useState,
       useLayoutEffect = React.useLayoutEffect,
+      useEffect = React.useEffect,
       useRef = React.useRef;
+
+  var _useEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
   var $name;
 
   if (name) {
@@ -3066,7 +3070,7 @@ function useField(name) {
     $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
   }
 
-  useLayoutEffect(function () {
+  _useEffect(function () {
     var $state = $this.$state;
 
     if ($this.isMounting) {
@@ -3080,7 +3084,8 @@ function useField(name) {
 
     $this.$prevState = $state; // eslint-disable-next-line
   }, [$this.$state.$value]);
-  useLayoutEffect(function () {
+
+  _useEffect(function () {
     $this.isMounting = true;
     warning(!$name || $formContext.$formutil, "You should enusre that the useField() with the name '".concat($name, "' must be used underneath a <Form /> component or withForm() HOC, otherwise it's isolated."));
     warning($name, "You should pass a name argument to useField(), otherwise it will be isolated!");
@@ -3089,7 +3094,8 @@ function useField(name) {
       createRef(props.$ref, null);
     }; // eslint-disable-next-line
   }, []);
-  useLayoutEffect(function () {
+
+  _useEffect(function () {
     if ($formContext.$$register) {
       $formContext.$$register($name, $this.$fieldHandler);
     }
@@ -3101,10 +3107,12 @@ function useField(name) {
     }; // eslint-disable-next-line
   }, [$name]); // trigger ref callback
 
-  useLayoutEffect(function () {
+
+  _useEffect(function () {
     createRef(props.$ref, $this.$fieldutil);
   });
-  useLayoutEffect(function () {
+
+  _useEffect(function () {
     if (callbackRef.current.length > 0) {
       var callbackQueue = _toConsumableArray(callbackRef.current);
 

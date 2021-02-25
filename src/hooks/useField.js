@@ -18,7 +18,8 @@ function useField(name, props = {}) {
         throw new Error(`Hooks api need react@>=16.8, Please upgrade your reactjs.`);
     }
 
-    const { useState, useLayoutEffect, useRef } = React;
+    const { useState, useLayoutEffect, useEffect, useRef } = React;
+    const _useEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
     let $name;
 
@@ -60,7 +61,7 @@ function useField(name, props = {}) {
         $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
     }
 
-    useLayoutEffect(() => {
+    _useEffect(() => {
         const { $state } = $this;
 
         if ($this.isMounting) {
@@ -76,7 +77,7 @@ function useField(name, props = {}) {
         // eslint-disable-next-line
     }, [$this.$state.$value]);
 
-    useLayoutEffect(() => {
+    _useEffect(() => {
         $this.isMounting = true;
 
         warning(
@@ -94,7 +95,7 @@ function useField(name, props = {}) {
         // eslint-disable-next-line
     }, []);
 
-    useLayoutEffect(() => {
+    _useEffect(() => {
         if ($formContext.$$register) {
             $formContext.$$register($name, $this.$fieldHandler);
         }
@@ -108,11 +109,11 @@ function useField(name, props = {}) {
     }, [$name]);
 
     // trigger ref callback
-    useLayoutEffect(() => {
+    _useEffect(() => {
         createRef(props.$ref, $this.$fieldutil);
     });
 
-    useLayoutEffect(() => {
+    _useEffect(() => {
         if (callbackRef.current.length > 0) {
             const callbackQueue = [...callbackRef.current];
 

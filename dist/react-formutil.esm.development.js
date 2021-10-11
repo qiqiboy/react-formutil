@@ -2612,12 +2612,11 @@ var EasyFieldList = /*#__PURE__*/function (_Component) {
                       var $invalid = $formutil.$invalid,
                           $params = $formutil.$params;
 
-                      if ($invalid) {
-                        if ($fieldutil.$viewValue !== null) {
-                          $fieldutil.$render(null);
-                        }
-                      } else if (!isEqual($fieldutil.$viewValue, $params)) {
-                        $fieldutil.$render($params);
+                      if (!isEqual($fieldutil.$viewValue, $params)) {
+                        $fieldutil.$setState({
+                          $viewValue: $params,
+                          $value: $invalid ? null : $params
+                        });
                       }
                     });
                   },

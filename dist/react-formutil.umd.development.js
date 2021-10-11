@@ -3419,12 +3419,11 @@
                         var $invalid = $formutil.$invalid,
                             $params = $formutil.$params;
 
-                        if ($invalid) {
-                          if ($fieldutil.$viewValue !== null) {
-                            $fieldutil.$render(null);
-                          }
-                        } else if (!_reactFastCompare_3_2_0_reactFastCompare($fieldutil.$viewValue, $params)) {
-                          $fieldutil.$render($params);
+                        if (!_reactFastCompare_3_2_0_reactFastCompare($fieldutil.$viewValue, $params)) {
+                          $fieldutil.$setState({
+                            $viewValue: $params,
+                            $value: $invalid ? null : $params
+                          });
                         }
                       });
                     },

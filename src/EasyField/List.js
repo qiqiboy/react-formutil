@@ -181,12 +181,11 @@ class EasyFieldList extends Component {
                                                     $formutil.$onValidates($formutil => {
                                                         const { $invalid, $params } = $formutil;
 
-                                                        if ($invalid) {
-                                                            if ($fieldutil.$viewValue !== null) {
-                                                                $fieldutil.$render(null);
-                                                            }
-                                                        } else if (!isEqual($fieldutil.$viewValue, $params)) {
-                                                            $fieldutil.$render($params);
+                                                        if (!isEqual($fieldutil.$viewValue, $params)) {
+                                                            $fieldutil.$setState({
+                                                                $viewValue: $params,
+                                                                $value: $invalid ? null : $params
+                                                            });
                                                         }
                                                     })
                                                 }

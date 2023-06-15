@@ -105,6 +105,8 @@ export function createHandler($this, owner) {
     const $fieldHandler = {
         $$FIELD_UUID: $this.$$FIELD_UUID,
 
+        $name: $this.props.name,
+
         $$reset,
         $$merge,
         $$detectChange,

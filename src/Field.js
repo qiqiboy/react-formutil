@@ -148,7 +148,9 @@ class Field extends Component {
                         (this.$formContext.$$registers || {})[this.$fieldHandler.$name] || this.$fieldHandler;
 
                     if (shouldInitial) {
-                        this.$fieldHandler.$$reset();
+                        const initialState = this.$registered.$getState();
+
+                        this.$fieldHandler.$$reset(initialState);
                         this.$fieldHandler.$validate();
                     }
 

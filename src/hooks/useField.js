@@ -52,18 +52,14 @@ function useField(name, props = {}) {
     const [, setState] = useState(() => {
         $this.$$FIELD_UUID = GET_FIELD_UUID();
         $this.$fieldHandler = $registered = createHandler($this);
+
+        $this.$fieldHandler.$$reset();
+        $this.$fieldHandler.$validate();
     });
 
     if (!$registered) {
         $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
     }
-
-    useState(() => {
-        const initialState = $registered.$getState();
-
-        $this.$fieldHandler.$$reset(initialState);
-        $this.$fieldHandler.$validate();
-    });
 
     _useEffect(() => {
         const { $state } = $this;

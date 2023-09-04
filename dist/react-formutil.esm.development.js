@@ -528,6 +528,7 @@ var Form = /*#__PURE__*/function (_Component) {
         warning($curRegistered.$$reserved, "The Field with a name '".concat(name, "' has been registered!"));
         $handler.$$reset($curRegistered.$getState());
         hasDup = delete $$regDuplications[name];
+        _this.$$formShouldUpdateFields[name] = true;
       });
       if (hasDup) {
         _this.$render();
@@ -1365,7 +1366,6 @@ function renderField($fieldutil, props) {
 function createHandler($this, owner) {
   var $fieldHandler = {
     $$FIELD_UUID: $this.$$FIELD_UUID,
-    $name: $this.props.name,
     $$reset: $$reset,
     $$merge: $$merge,
     $$detectChange: $$detectChange,
@@ -1748,8 +1748,7 @@ var Field = /*#__PURE__*/function (_Component) {
         }
         _this2.$registered = (_this2.$formContext.$$registers || {})[_this2.$fieldHandler.$name] || _this2.$fieldHandler;
         if (shouldInitial) {
-          var initialState = _this2.$registered.$getState();
-          _this2.$fieldHandler.$$reset(initialState);
+          _this2.$fieldHandler.$$reset();
           _this2.$fieldHandler.$validate();
         }
         return _this2._render();
@@ -2657,17 +2656,14 @@ function useField(name) {
   var _useState = useState(function () {
       $this.$$FIELD_UUID = GET_FIELD_UUID();
       $this.$fieldHandler = $registered = createHandler($this);
+      $this.$fieldHandler.$$reset();
+      $this.$fieldHandler.$validate();
     }),
     _useState2 = _slicedToArray(_useState, 2),
     setState = _useState2[1];
   if (!$registered) {
     $registered = ($formContext.$$registers || {})[$this.$fieldHandler.$name] || $this.$fieldHandler;
   }
-  useState(function () {
-    var initialState = $registered.$getState();
-    $this.$fieldHandler.$$reset(initialState);
-    $this.$fieldHandler.$validate();
-  });
   _useEffect(function () {
     var $state = $this.$state;
     if ($this.isMounting) {

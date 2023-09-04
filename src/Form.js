@@ -83,6 +83,8 @@ class Form extends Component {
             $handler.$$reset($curRegistered.$getState());
 
             hasDup = delete $$regDuplications[name];
+
+            this.$$formShouldUpdateFields[name] = true;
         });
 
         if (hasDup) {

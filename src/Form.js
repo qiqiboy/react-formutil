@@ -127,20 +127,20 @@ class Form extends Component {
 
     $$unregister = (name, $handler, $$reserved) => {
         if (name) {
-            if (name in this.$$regDuplications) {
-                const [$curRegistered, $handler] = this.$$regDuplications[name];
+            if ($$reserved) {
+                $handler.$$reserved = true;
+            } else {
+                if (name in this.$$regDuplications) {
+                    const [$curRegistered, $handler] = this.$$regDuplications[name];
 
-                this.$$fieldChangedQueue.push({
-                    name,
-                    $newValue: $handler.$getState().$value,
-                    $prevValue: $curRegistered.$getState().$value
-                });
+                    this.$$fieldChangedQueue.push({
+                        name,
+                        $newValue: $handler.$getState().$value,
+                        $prevValue: $curRegistered.$getState().$value
+                    });
 
-                delete this.$$regDuplications[name];
-            } else if (this.$$registers[name] === $handler) {
-                if ($$reserved) {
-                    $handler.$$reserved = true;
-                } else {
+                    delete this.$$regDuplications[name];
+                } else if (this.$$registers[name] === $handler) {
                     delete this.$$registers[name];
 
                     this.$$fieldChangedQueue.push({

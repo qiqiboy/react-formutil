@@ -1003,20 +1003,20 @@
 	    };
 	    _this.$$unregister = function (name, $handler, $$reserved) {
 	      if (name) {
-	        if (name in _this.$$regDuplications) {
-	          var _this$$$regDuplicatio = _slicedToArray(_this.$$regDuplications[name], 2),
-	            $curRegistered = _this$$$regDuplicatio[0],
-	            _$handler = _this$$$regDuplicatio[1];
-	          _this.$$fieldChangedQueue.push({
-	            name: name,
-	            $newValue: _$handler.$getState().$value,
-	            $prevValue: $curRegistered.$getState().$value
-	          });
-	          delete _this.$$regDuplications[name];
-	        } else if (_this.$$registers[name] === $handler) {
-	          if ($$reserved) {
-	            $handler.$$reserved = true;
-	          } else {
+	        if ($$reserved) {
+	          $handler.$$reserved = true;
+	        } else {
+	          if (name in _this.$$regDuplications) {
+	            var _this$$$regDuplicatio = _slicedToArray(_this.$$regDuplications[name], 2),
+	              $curRegistered = _this$$$regDuplicatio[0],
+	              _$handler = _this$$$regDuplicatio[1];
+	            _this.$$fieldChangedQueue.push({
+	              name: name,
+	              $newValue: _$handler.$getState().$value,
+	              $prevValue: $curRegistered.$getState().$value
+	            });
+	            delete _this.$$regDuplications[name];
+	          } else if (_this.$$registers[name] === $handler) {
 	            delete _this.$$registers[name];
 	            _this.$$fieldChangedQueue.push({
 	              name: name,

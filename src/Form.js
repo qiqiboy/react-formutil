@@ -765,7 +765,7 @@ class Form extends Component {
 
         this.$$resetFormUpdateFields();
 
-        return <FormContext.Provider value={this.getFormContext}>{this._render()}</FormContext.Provider>;
+        return <FormContext.Provider value={() => this.getFormContext()}>{this._render()}</FormContext.Provider>;
     }
 }
 

@@ -1603,7 +1603,9 @@
 	      };
 	      this.$$resetFormUpdateFields();
 	      return /*#__PURE__*/React__default['default'].createElement(FormContext.Provider, {
-	        value: this.getFormContext
+	        value: function value() {
+	          return _this2.getFormContext();
+	        }
 	      }, this._render());
 	    }
 	  }]);
